@@ -1,8 +1,7 @@
-[32m2026-06-18 10:46:14.094[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-06-18 10:46:14.205[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-FinMind: token=True, login=ok, usage=417/6000, remain=5583
+[32m2026-06-19 10:55:52.422[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-06-19 10:55:52.534[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+FinMind: token=True, login=ok, usage=183/6000, remain=5817
 Build chips: total=143, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv
-[50/143] 3131 弘塑 status=ok date=2026-06-18 main=43545 diff=-175 state=neutral
 stock_id name chip_latest_date main_force_net broker_diff   chip_signal_state chips_status
     1101   台泥       2026-06-18       -3419958          80 bearish_distributed           ok
     1216   統一       2026-06-18        -219482         299             neutral           ok
