@@ -1,0 +1,154 @@
+name: 一鍵產出 CSV + Chips + News + Report
+
+on:
+  workflow_dispatch:
+    inputs:
+      csv_file:
+        description: Stock list file
+        required: false
+        default: stocks.csv
+      report_type:
+        description: Report type/name
+        required: false
+        default: 持股
+      output_file:
+        description: HTML filename prefix
+        required: false
+        default: 持股
+      sleep_sec:
+        description: Sleep seconds between stocks for AllStatic.csv
+        required: false
+        default: "0.2"
+      workers:
+        description: Parallel workers for chip analysis
+        required: false
+        default: "6"
+      news_days:
+        description: News lookback days
+        required: false
+        default: "10"
+      news_max_items:
+        description: Max news items per stock
+        required: false
+        default: "8"
+      news_sleep_sec:
+        description: Sleep seconds between news requests
+        required: false
+        default: "0.6"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-click-pipeline-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REPORT_TYPE: ${{ github.event.inputs.report_type || vars.REPORT_TYPE || '持股' }}
+  CSV_FILE: ${{ github.event.inputs.csv_file || vars.CSV_FILE || 'stocks.csv' }}
+  REPORT_TITLE: ${{ vars.REPORT_TITLE || '(持股)技術分析報告' }}
+  OUTPUT_FILE: ${{ github.event.inputs.output_file || vars.OUTPUT_FILE || '持股' }}
+  REPORT_SUBTITLE: ${{ vars.REPORT_SUBTITLE || '' }}
+  STATIC_OUTPUT_FILE: ${{ vars.STATIC_OUTPUT_FILE || 'AllStatic.csv' }}
+  STATIC_CHIP_OUTPUT_FILE: ${{ vars.STATIC_CHIP_OUTPUT_FILE || 'AllStatic_Chip.csv' }}
+  ALLSTATIC_NEWS_OUTPUT_FILE: ${{ vars.ALLSTATIC_NEWS_OUTPUT_FILE || 'AllStatic_news.csv' }}
+  CHIP_TREND_DAYS: ${{ vars.CHIP_TREND_DAYS || '3' }}
+  CHIP_CONCENTRATION_THRESHOLD: ${{ vars.CHIP_CONCENTRATION_THRESHOLD || '15' }}
+  CHIP_LOOKBACK_DAYS: ${{ vars.CHIP_LOOKBACK_DAYS || '21' }}
+  CHIP_WORKERS: ${{ github.event.inputs.workers || vars.CHIP_WORKERS || '6' }}
+  CHIP_SLEEP_SEC: ${{ vars.CHIP_SLEEP_SEC || '0.05' }}
+  NEWS_DAYS: ${{ github.event.inputs.news_days || vars.NEWS_DAYS || '10' }}
+  NEWS_MAX_ITEMS: ${{ github.event.inputs.news_max_items || vars.NEWS_MAX_ITEMS || '8' }}
+  NEWS_SLEEP_SEC: ${{ github.event.inputs.news_sleep_sec || vars.NEWS_SLEEP_SEC || '0.6' }}
+  NEWS_SKIP_IF_SAME_TITLES: ${{ vars.NEWS_SKIP_IF_SAME_TITLES || '1' }}
+  INDUSTRY_SUMMARY_CHARS: ${{ vars.INDUSTRY_SUMMARY_CHARS || '150' }}
+  NEWS_SUMMARY_CHARS: ${{ vars.NEWS_SUMMARY_CHARS || '150' }}
+  REFRESH_INDUSTRY: ${{ vars.REFRESH_INDUSTRY || '0' }}
+  REFRESH_INDUSTRY_WEEKDAY: ${{ vars.REFRESH_INDUSTRY_WEEKDAY || '0' }}
+  USE_OPENAI_SUMMARY: ${{ vars.USE_OPENAI_SUMMARY || '1' }}
+  OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4o-mini' }}
+  FINMIND_USAGE_LOG_FILE: /tmp/finmind_token_usage_log.csv
+
+jobs:
+  build-all:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+          clean: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install pandas requests jinja2 FinMind tqdm
+          fi
+          pip install openai PyYAML
+
+      - name: Generate stocks.csv
+        run: python Gencsv.py
+
+      - name: Generate AllStatic.csv
+        run: |
+          python generate_static_csv.py \
+            --output "${STATIC_OUTPUT_FILE}" \
+            --sleep-sec "${{ github.event.inputs.sleep_sec || vars.STATIC_SLEEP_SEC || '0.2' }}"
+
+      - name: Generate AllStatic_Chip.csv
+        run: |
+          python generate_static_chips_v3.py \
+            --no-prompt \
+            --csv-file "${CSV_FILE}" \
+            --output "${STATIC_CHIP_OUTPUT_FILE}" \
+            --trend-days "${CHIP_TREND_DAYS}" \
+            --concentration-threshold "${CHIP_CONCENTRATION_THRESHOLD}" \
+            --lookback-days "${CHIP_LOOKBACK_DAYS}" \
+            --sleep-sec "${CHIP_SLEEP_SEC}" \
+            --workers "${CHIP_WORKERS}"
+
+      - name: Generate AllStatic_news.csv
+        env:
+          STOCKS_CSV: ${{ env.CSV_FILE }}
+          ALLSTATIC_NEWS_OUTPUT_FILE: ${{ env.ALLSTATIC_NEWS_OUTPUT_FILE }}
+          NEWS_CACHE_FILE: .allstatic_news_cache.json
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python generate_static_news_service.py
+
+      - name: Generate HTML report
+        env:
+          FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
+          STATIC_CSV_FILE: ${{ env.STATIC_OUTPUT_FILE }}
+          STATIC_CHIP_FILE: ${{ env.STATIC_CHIP_OUTPUT_FILE }}
+          STATIC_CHIPS_FILE: ${{ env.STATIC_CHIP_OUTPUT_FILE }}
+        run: python generate_html.py
+
+      - name: Show changes
+        run: git status --short
+
+      - name: Commit outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add stocks.csv "${STATIC_OUTPUT_FILE}" "${STATIC_CHIP_OUTPUT_FILE}" "${ALLSTATIC_NEWS_OUTPUT_FILE}" .allstatic_news_cache.json index.html *.html
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Run one-click data and report pipeline"
+
+      - name: Push changes
+        run: git push origin HEAD:${{ github.ref_name }}
