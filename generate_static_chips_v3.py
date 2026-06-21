@@ -210,6 +210,54 @@ def normalize_chips_df(df: pd.DataFrame) -> pd.DataFrame:
     return df[ORDERED_COLS]
 
 
+def read_existing_chips(path: str) -> pd.DataFrame:
+    if not path or not os.path.exists(path):
+        return pd.DataFrame(columns=ORDERED_COLS)
+    try:
+        return normalize_chips_df(pd.read_csv(path, encoding="utf-8-sig", dtype=str))
+    except Exception as exc:
+        print(f"Cannot read existing chips file, continue without preserve: {exc}", flush=True)
+        return pd.DataFrame(columns=ORDERED_COLS)
+
+
+def is_blank_value(value: Any) -> bool:
+    if value is None:
+        return True
+    try:
+        if pd.isna(value):
+            return True
+    except Exception:
+        pass
+    text = str(value).strip()
+    return text == "" or text.lower() in {"nan", "none", "null"}
+
+
+def has_valid_chip_data(row: dict) -> bool:
+    status = str(row.get("chips_status") or "").strip().lower()
+    state = str(row.get("chip_signal_state") or "").strip().lower()
+    if status == "ok" and state not in {"", "no_data", "error"}:
+        return True
+    try:
+        if int(float(str(row.get("chip_available_days") or 0))) > 0:
+            return True
+    except Exception:
+        pass
+    value_cols = [
+        "chip_concentration_pct", "chip_concentration_pct_t0",
+        "main_force_net", "main_force_net_t0",
+        "broker_diff", "broker_diff_t0",
+    ]
+    return any(not is_blank_value(row.get(col)) for col in value_cols)
+
+
+def should_preserve_existing_row(new_row: dict, existing_row: dict | None) -> bool:
+    if not existing_row or not has_valid_chip_data(existing_row):
+        return False
+    new_status = str(new_row.get("chips_status") or "").strip().lower()
+    new_state = str(new_row.get("chip_signal_state") or "").strip().lower()
+    return new_status in {"no_data", "error", "incomplete"} or new_state in {"no_data", "error"}
+
+
 def atomic_write_csv(df: pd.DataFrame, path: str) -> None:
     tmp_path = path + ".tmp"
     df = normalize_chips_df(df)
@@ -386,6 +434,12 @@ def summarize_row(row: dict) -> str:
 
 def build_static_chips(stock_list: list[dict], output_file: str, trend_days: int, concentration_threshold: float, lookback_days: int | None = None, workers: int = 1, day_workers: int | None = None, sleep_sec: float = 0.0, log_every: int = 25, verbose: bool = False, suppress_api_logs: bool = True) -> pd.DataFrame:
     started = datetime.utcnow()
+    existing_df = read_existing_chips(output_file)
+    existing_by_id = {
+        str(row.get("stock_id") or "").strip(): row
+        for row in existing_df.where(pd.notna(existing_df), None).to_dict(orient="records")
+        if str(row.get("stock_id") or "").strip()
+    }
     try:
         get_finmind_usage()
     except Exception as exc:
@@ -438,12 +492,24 @@ def build_static_chips(stock_list: list[dict], output_file: str, trend_days: int
         if verbose or status in {"error", "no_data"} or should_log_progress(completed, total, log_every):
             print(f"[{completed}/{total}] {summarize_row(row)}", flush=True)
 
-    rows = [rows_by_index[idx] for idx in range(1, total + 1) if idx in rows_by_index]
+    rows = []
+    preserved = 0
+    for idx in range(1, total + 1):
+        if idx not in rows_by_index:
+            continue
+        row = rows_by_index[idx]
+        sid = str(row.get("stock_id") or "").strip()
+        existing = existing_by_id.get(sid)
+        if should_preserve_existing_row(row, existing):
+            rows.append(existing)
+            preserved += 1
+        else:
+            rows.append(row)
     final_df = normalize_chips_df(pd.DataFrame(rows))
     atomic_write_csv(final_df, output_file)
     elapsed = (datetime.utcnow() - started).total_seconds()
     status_counts = final_df["chips_status"].astype(str).str.lower().value_counts().to_dict() if not final_df.empty else {}
-    print(f"Done: rows={len(final_df)}, status={status_counts}, elapsed={elapsed:.1f}s, output={output_file}", flush=True)
+    print(f"Done: rows={len(final_df)}, status={status_counts}, preserved={preserved}, elapsed={elapsed:.1f}s, output={output_file}", flush=True)
     if notable and not verbose:
         print("Notable rows:", flush=True)
         for line in notable[:10]:

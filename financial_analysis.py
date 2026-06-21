@@ -3,6 +3,7 @@ from datetime import datetime
 import pandas as pd
 
 from data_sources import (
+    get_balance_sheet_raw,
     get_dividend_raw,
     get_eps_raw,
     get_per_raw,
@@ -107,6 +108,11 @@ def _series_by_metric(df: pd.DataFrame, aliases: list[str]) -> pd.Series:
     m = df.loc[_metric_name_mask(df, aliases), ["date", "value"]].copy()
     if m.empty:
         return pd.Series(dtype="float64")
+    if "type" in df.columns:
+        source_types = df.loc[m.index, "type"].map(_normalize_metric_name)
+        m = m.loc[~source_types.str.endswith("_per", na=False)]
+        if m.empty:
+            return pd.Series(dtype="float64")
     m["value"] = pd.to_numeric(m["value"], errors="coerce")
     m = m.dropna(subset=["date", "value"]).sort_values("date")
     if m.empty:
@@ -305,6 +311,149 @@ def get_profit_ratio(stock_id):
     except Exception as e:
         print(f'❌ profit error {stock_id}: {e}')
         return None
+
+
+def _calc_roe(net_income: float | None, equity_start: float | None, equity_end: float | None):
+    if net_income is None or equity_start is None or equity_end is None:
+        return None
+    avg_equity = (float(equity_start) + float(equity_end)) / 2
+    if avg_equity <= 0:
+        return None
+    return round(float(net_income) / avg_equity * 100, 2)
+
+
+def _value_at_or_before(s: pd.Series, date_value):
+    if s is None or s.empty or date_value is None:
+        return None
+    values = s.loc[s.index <= date_value]
+    if values.empty:
+        return None
+    return float(values.iloc[-1])
+
+
+def _latest_complete_statement_year(net_income: pd.Series, latest_statement_date) -> int | None:
+    if net_income is None or net_income.empty:
+        return None
+
+    counts = net_income.groupby(net_income.index.year).count()
+    complete_years = sorted(int(year) for year, count in counts.items() if int(count) >= 4)
+    if not complete_years:
+        return None
+
+    latest_year = int(latest_statement_date.year)
+    latest_quarter = int(latest_statement_date.quarter)
+    target_year = latest_year if latest_quarter == 4 else latest_year - 1
+    if target_year in complete_years:
+        return target_year
+
+    older = [year for year in complete_years if year <= target_year]
+    return max(older) if older else max(complete_years)
+
+
+def get_roe_analysis(stock_id):
+    """
+    Return last complete year ROE and trailing-twelve-month ROE.
+
+    ROE is calculated from financial-statement amount accounts:
+    net income / average equity * 100. Units cancel out as long as both accounts
+    come from FinMind statement rows using the same unit scale.
+    """
+    try:
+        income_df = _standardize_financial_df(get_profit_ratio_raw(stock_id))
+        equity_df = _standardize_financial_df(get_balance_sheet_raw(stock_id))
+        if income_df.empty or equity_df.empty:
+            return {"roe_last_year": None, "roe_ttm": None}
+
+        latest_statement_date = income_df["date"].max()
+
+        net_income_aliases = [
+            "IncomeAfterTaxes",
+            "NetIncome",
+            "ProfitLoss",
+            "ProfitLossAttributableToOwnersOfParent",
+            "本期淨利",
+            "本期淨利(淨損)",
+            "本期淨利（淨損）",
+            "稅後淨利",
+            "本期稅後淨利",
+            "本期稅後淨利(淨損)",
+            "本期稅後淨利（淨損）",
+            "母公司業主淨利",
+            "歸屬於母公司業主之淨利",
+            "歸屬於母公司業主之淨利(損)",
+            "歸屬於母公司業主之淨利（損）",
+            "本期淨利(淨損)歸屬於母公司業主",
+            "本期淨利（淨損）歸屬於母公司業主",
+        ]
+        parent_equity_aliases = [
+            "EquityAttributableToOwnersOfParent",
+            "TotalEquityAttributableToOwnersOfParent",
+            "母公司業主權益合計",
+            "歸屬於母公司業主之權益",
+            "歸屬於母公司業主之權益合計",
+            "權益總計歸屬於母公司業主",
+            "權益總額歸屬於母公司業主",
+        ]
+        total_equity_aliases = [
+            "Equity",
+            "TotalEquity",
+            "權益總計",
+            "權益總額",
+            "權益合計",
+            "股東權益總計",
+            "股東權益總額",
+            "股東權益合計",
+        ]
+
+        net_income = _series_by_metric(income_df, net_income_aliases)
+        equity = _series_by_metric(equity_df, parent_equity_aliases)
+        if equity.empty:
+            equity = _series_by_metric(equity_df, total_equity_aliases)
+        if net_income.empty or equity.empty:
+            return {"roe_last_year": None, "roe_ttm": None}
+
+        net_income = net_income.dropna().sort_index()
+        equity = equity.dropna().sort_index()
+
+        target_year = _latest_complete_statement_year(net_income, latest_statement_date)
+        roe_last_year = None
+        if target_year is not None:
+            yearly_income = net_income.loc[net_income.index.year == target_year]
+            if len(yearly_income) >= 4:
+                income_sum = float(yearly_income.sum())
+                year_end = yearly_income.index.max()
+                prev_year_equity = equity.loc[equity.index.year < target_year]
+                equity_start = (
+                    float(prev_year_equity.iloc[-1])
+                    if not prev_year_equity.empty
+                    else _value_at_or_before(equity, yearly_income.index.min())
+                )
+                equity_end = _value_at_or_before(equity, year_end)
+                roe_last_year = _calc_roe(income_sum, equity_start, equity_end)
+
+        roe_ttm = None
+        latest4 = net_income.tail(4)
+        if len(latest4) >= 4:
+            ttm_income = float(latest4.sum())
+            first_date = latest4.index.min()
+            last_date = latest4.index.max()
+            prior_equity = equity.loc[equity.index < first_date]
+            equity_start = (
+                float(prior_equity.iloc[-1])
+                if not prior_equity.empty
+                else _value_at_or_before(equity, first_date)
+            )
+            equity_end = _value_at_or_before(equity, last_date)
+            roe_ttm = _calc_roe(ttm_income, equity_start, equity_end)
+
+        return {
+            "roe_last_year": roe_last_year,
+            "roe_ttm": roe_ttm,
+        }
+
+    except Exception as e:
+        print(f"❌ ROE error {stock_id}: {e}")
+        return {"roe_last_year": None, "roe_ttm": None}
 
 
 def extract_metric(res, key):

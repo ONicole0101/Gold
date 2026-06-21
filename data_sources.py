@@ -405,6 +405,29 @@ def get_profit_ratio(stock_id):
         return pd.DataFrame()
 
 
+def get_balance_sheet_raw(stock_id):
+    try:
+        params = {
+            'dataset': 'TaiwanStockBalanceSheet',
+            'data_id': stock_id,
+            'start_date': '2020-01-01',
+            'token': FINMIND_token,
+        }
+        _record_finmind_request("balance sheet source", stock_id, "TaiwanStockBalanceSheet")
+        res = requests.get(API_URL, params=params, headers=headers, timeout=300)
+        data = _safe_response_json(res)
+        _print_initial_quota_once(data, res)
+
+        if res.status_code != 200:
+            _print_api_status_error('balance sheet source', stock_id, res, data)
+            return pd.DataFrame()
+
+        return pd.DataFrame(data.get('data', []))
+    except Exception as e:
+        print(f'❌ balance sheet source error {stock_id}: {e}')
+        return pd.DataFrame()
+
+
 def get_eps_raw(stock_id):
     try:
         params = {

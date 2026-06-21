@@ -693,14 +693,14 @@
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
         </select><input data-filter-key="bb_pct" type="number" step="0.01" placeholder="數值"></div>
-      <div class="filter-item"><label>日Bias6</label><select data-filter-op="bias6">
+      <div class="filter-item"><label>日Bias5</label><select data-filter-op="bias5">
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
-        </select><input data-filter-key="bias6" type="number" step="0.01" placeholder="數值"></div>
-      <div class="filter-item"><label>日Bias18</label><select data-filter-op="bias18">
+        </select><input data-filter-key="bias5" type="number" step="0.01" placeholder="數值"></div>
+      <div class="filter-item"><label>日Bias20</label><select data-filter-op="bias20">
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
-        </select><input data-filter-key="bias18" type="number" step="0.01" placeholder="數值"></div>
+        </select><input data-filter-key="bias20" type="number" step="0.01" placeholder="數值"></div>
       <div class="filter-item"><label>日成交量</label><select data-filter-op="volume">
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
@@ -778,20 +778,21 @@
           { key: "broker_diff", label: "買賣家數差<br><small>趨勢</small>", tooltip: "買賣家數差＝有買進的券商分點家數 - 有賣出的券商分點家數。正值代表參與買方家數較多，負值代表買方較集中或賣方家數較多。" },
           { key: "k", label: "日KD<br><small>3天趨勢</small>" },
           { key: "bb_pct", label: "日布林%<br><small>LH</small>" },
-          { key: "bias6", label: "日Bias6<br><small>LH</small>" },
-          { key: "bias18", label: "日Bias18<br><small>LH</small>" },
-          { key: "bias50", label: "日Bias50<br><small>LH</small>", cls: "col-lg" },
+          { key: "bias5", label: "日Bias5<br><small>LH</small>" },
+          { key: "bias20", label: "日Bias20<br><small>LH</small>" },
+          { key: "bias60", label: "日Bias60<br><small>LH</small>", cls: "col-lg" },
           { key: "per_latest", label: "日PER<br><small>60天LH</small>", cls: "col-lg" },
           { key: "pbr_latest", label: "日PBR<br><small>60天LH</small>", cls: "col-lg" },
           { key: "sig", label: "訊號" }
         ]
       },
       fundamental: {
-        note: "基本面：EPS、營收、毛利率、營益率、淨利率、殖利率、PER/PBR、產業、新聞",
+        note: "基本面：EPS、ROE、營收、毛利率、營益率、淨利率、殖利率、PER/PBR、產業、新聞",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>60天LH</small>" },
           { key: "eps_Y", label: "EPS<br><small>TTM</small>" },
+          { key: "roe", label: "ROE%<br><small>TTM</small>" },
           { key: "rev", label: "營收(bn)<br><small>M / Q / Y</small>" },
           { key: "gross_margin", label: "毛利率%<br><small>QoQ / YoY</small>" },
           { key: "operating_margin", label: "營益率%<br><small>QoQ / YoY</small>" },
@@ -815,7 +816,7 @@
           { key: "broker_diff", label: "買賣家數差<br><small>趨勢</small>" },
           { key: "k", label: "日KD<br><small>3天趨勢</small>" },
           { key: "bb_pct", label: "日布林%<br><small>LH</small>" },
-          { key: "bias6", label: "日Bias6<br><small>LH</small>", cls: "col-lg" },
+          { key: "bias5", label: "日Bias5<br><small>LH</small>", cls: "col-lg" },
           { key: "sig", label: "訊號" }
         ]
       }
@@ -921,6 +922,22 @@
       return value ? value.replace("/", "") : fallback;
     }
 
+    function renderSupportResistanceBlock(s, type) {
+      const isResistance = type === "resistance";
+      const price = isResistance ? s.resistance_price : s.support_price;
+      const distance = isResistance ? s.resistance_distance_pct : s.support_distance_pct;
+      const dateText = isResistance ? s.resistance_date : s.support_date;
+      const dateLabel = chipDateMMDD(dateText);
+      const dateLine = dateLabel || "-";
+      const priceLine = isNil(price) ? "-" : fmt(price);
+      const distanceText = isNil(distance) ? "-" : `${isResistance ? "+" : "-"}${fmt(distance, "%")}`;
+      return `<div class="stock-value">
+        <div class="table-lv2">${dateLine}</div>
+        <div class="table-lv1 ${isResistance ? "text-red" : "text-green"}">${priceLine}</div>
+        <div class="table-lv2">${distanceText}</div>
+      </div>`;
+    }
+
     function chipValueClass(current, previous) {
       if (isNil(current) || isNil(previous)) return "";
       const cur = Number(current);
@@ -965,6 +982,18 @@
       return chipDateMMDD(value, dayLabel(idx));
     }
 
+    function dayDateLabel(s, idx, prefix = "date") {
+      const value = pickFirst(
+        s[`${prefix}_date_t${idx}`],
+        s[`date_t${idx}`],
+        s[`price_date_t${idx}`],
+        s[`kd_date_t${idx}`],
+        s[`chip_date_t${idx}`],
+        s[`date${idx}`]
+      );
+      return chipDateMMDD(value, "");
+    }
+
     function kdValue(s, idx) {
       if (idx === 0) return pickFirst(s.k_t0, s.kd_k_t0, s.k);
       if (idx === 1) return pickFirst(s.k_t1, s.kd_k_t1, s.prev_k, s.k_prev, s.k_t_1, s.K_t1, s.k1);
@@ -973,11 +1002,23 @@
       return null;
     }
 
-    function kdLine(s, idx, value, previousValue) {
-      if (isNil(value)) return "";
-      const label = dayDateMMDD(s, idx, "kd");
-      const colorCls = previousValue === undefined ? "" : chipValueClass(value, previousValue);
-      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：` : ""}K ${fmt(value)}</div>`;
+    function dValue(s, idx) {
+      if (idx === 0) return pickFirst(s.d_t0, s.kd_d_t0, s.d);
+      if (idx === 1) return pickFirst(s.d_t1, s.kd_d_t1, s.prev_d, s.d_prev, s.d_t_1, s.D_t1, s.d1);
+      if (idx === 2) return pickFirst(s.d_t2, s.kd_d_t2, s.prev2_d, s.d_prev2, s.d_t_2, s.D_t2, s.d2);
+      if (idx === 3) return pickFirst(s.d_t3, s.kd_d_t3, s.prev3_d, s.d_prev3, s.d_t_3, s.D_t3, s.d3);
+      return null;
+    }
+
+    function kdLine(s, idx) {
+      const kValue = kdValue(s, idx);
+      const dVal = dValue(s, idx);
+      if (isNil(kValue) && isNil(dVal)) return "";
+      const previousK = kdValue(s, idx + 1);
+      const label = dayDateLabel(s, idx, "kd");
+      const colorCls = isNil(previousK) ? "" : chipValueClass(kValue, previousK);
+      const dPart = isNil(dVal) ? "" : ` / D ${fmt(dVal)}`;
+      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：` : ""}K ${fmt(kValue)}${dPart}</div>`;
     }
 
     function kdDayScore(s) {
@@ -992,36 +1033,21 @@
       return 0;
     }
 
-    function renderKDCell(s) {
-      const k0 = kdValue(s, 0);
-      const k1 = kdValue(s, 1);
-      const k2 = kdValue(s, 2);
-      const k3 = kdValue(s, 3);
+    function renderKDContent(s) {
       const score = kdDayScore(s);
-      const k0Class = isNil(k1) ? "" : chipValueClass(k0, k1);
       return `
-        <td>
-          <div class="table-lv1 ${trendClass(score)}">${fmtTrend(score)}</div>
-          <div class="table-lv2 ${k0Class}">K ${fmt(k0)}</div>
-          <div class="table-lv2">D ${fmt(s.d)}</div>
-          ${kdLine(s, 1, k1, k2)}
-          ${kdLine(s, 2, k2, k3)}
-        </td>`;
+        <div class="table-lv1 ${trendClass(score)}">${fmtTrend(score)}</div>
+        ${kdLine(s, 0)}
+        ${kdLine(s, 1)}
+        ${kdLine(s, 2)}`;
+    }
+
+    function renderKDCell(s) {
+      return `<td>${renderKDContent(s)}</td>`;
     }
 
     function renderKDBlock(s) {
-      const k0 = kdValue(s, 0);
-      const k1 = kdValue(s, 1);
-      const k2 = kdValue(s, 2);
-      const k3 = kdValue(s, 3);
-      const score = kdDayScore(s);
-      const k0Class = isNil(k1) ? "" : chipValueClass(k0, k1);
-      return `<div class="stock-value">
-        <div class="table-lv1 ${trendClass(score)}">${fmtTrend(score)}</div>
-        <div class="table-lv2 ${k0Class}">K ${fmt(k0)} / D ${fmt(s.d)}</div>
-        ${kdLine(s, 1, k1, k2)}
-        ${kdLine(s, 2, k2, k3)}
-      </div>`;
+      return `<div class="stock-value">${renderKDContent(s)}</div>`;
     }
 
     function priceLHValue(s, idx, kind) {
@@ -1166,6 +1192,13 @@
       </div>`;
     }
 
+    function renderRoeBlock(s) {
+      return `<div class="stock-value">
+        <div class="table-lv1">${fmt(s.roe_last_year)}</div>
+        <div class="table-lv2">${fmt(s.roe_ttm)}</div>
+      </div>`;
+    }
+
     function dispositionPeriodHtml(s) {
       const start = fmtMonthDay(s.period_start ?? s.disposition_period_start);
       const end = fmtMonthDay(s.period_end ?? s.disposition_period_end);
@@ -1270,9 +1303,9 @@
         case "price_lh_trend":
           return renderPriceLHTrendCell(s);
         case "resistance_price":
-          return `<td class="sr-price-cell" title="${escapeHtml(supportResistanceTooltip("resistance"))}"><div class="table-lv1 text-red">${fmt(s.resistance_price)}</div><div class="table-lv2">${isNil(s.resistance_distance_pct) ? "-" : `+${fmt(s.resistance_distance_pct, "%")}`}</div></td>`;
+          return `<td class="sr-price-cell" title="${escapeHtml(supportResistanceTooltip("resistance"))}">${renderSupportResistanceBlock(s, "resistance")}</td>`;
         case "support_price":
-          return `<td class="sr-price-cell" title="${escapeHtml(supportResistanceTooltip("support"))}"><div class="table-lv1 text-green">${fmt(s.support_price)}</div><div class="table-lv2">${isNil(s.support_distance_pct) ? "-" : `-${fmt(s.support_distance_pct, "%")}`}</div></td>`;
+          return `<td class="sr-price-cell" title="${escapeHtml(supportResistanceTooltip("support"))}">${renderSupportResistanceBlock(s, "support")}</td>`;
         case "chg":
           return `
             <td>
@@ -1306,6 +1339,8 @@
               <div class="table-lv1">${fmt(s.eps_Y)}</div>
               <div class="table-lv2">${fmt(s.eps_ttm)}</div>
             </td>`;
+        case "roe":
+          return `<td>${renderRoeBlock(s)}</td>`;
         case "rev":
           return `<td>${renderMetric3(s.rev, s.rev_mom, s.rev_qoq, s.rev_yoy)}</td>`;
         case "gross_margin":
@@ -1321,14 +1356,7 @@
         case "pbr_latest":
           return `<td>${renderRangeMetric(s.pbr_latest, s.pbr_60d_low, s.pbr_60d_high)}</td>`;
         case "k": {
-          if (currentTab === "technical") return renderKDCell(s);
-          const score = kdDayScore(s);
-          return `
-            <td>
-              <div class="table-lv1 ${trendClass(score)}">${fmtTrend(score)}</div>
-              <div class="table-lv2">K ${fmt(s.k)}</div>
-              <div class="table-lv2">D ${fmt(s.d)}</div>
-            </td>`;
+          return renderKDCell(s);
         }
         case "bb_pct":
           return `
@@ -1336,12 +1364,12 @@
               <div class="table-lv1 ${trendClass(s.bb_score)}">${fmtTrend(s.bb_score)}</div>
               ${renderRangeMetric(s.bb_pct, s.bb_lower, s.bb_upper)}
             </td>`;
-        case "bias6":
-          return `<td>${renderRangeMetric(s.bias6, s.bias6_min, s.bias6_max, "%", distClass(s.bias6))}</td>`;
-        case "bias18":
-          return `<td>${renderRangeMetric(s.bias18, s.bias18_min, s.bias18_max, "%", distClass(s.bias18))}</td>`;
-        case "bias50":
-          return `<td>${renderRangeMetric(s.bias50, s.bias50_min, s.bias50_max, "%", distClass(s.bias50))}</td>`;
+        case "bias5":
+          return `<td>${renderRangeMetric(s.bias5, s.bias5_min, s.bias5_max, "%", distClass(s.bias5))}</td>`;
+        case "bias20":
+          return `<td>${renderRangeMetric(s.bias20, s.bias20_min, s.bias20_max, "%", distClass(s.bias20))}</td>`;
+        case "bias60":
+          return `<td>${renderRangeMetric(s.bias60, s.bias60_min, s.bias60_max, "%", distClass(s.bias60))}</td>`;
 
         case "industry_summary":
           return `<td class="text-summary-cell industry-summary-cell"><div class="summary-text">${escapeHtml(s.industry_summary || "-")}</div></td>`;
@@ -1366,7 +1394,18 @@
 
     function renderRow(s) {
       const columns = TAB_CONFIG[currentTab].columns;
-      return `<tr>${columns.map(col => renderCell(s, col.key)).join("")}</tr>`;
+      return `<tr>${columns.map(col => applyColumnClass(renderCell(s, col.key), col)).join("")}</tr>`;
+    }
+
+    function applyColumnClass(cellHtml, col) {
+      const cls = col?.cls;
+      if (!cls) return cellHtml;
+      return String(cellHtml).replace(/<td\b([^>]*)>/, (match, attrs) => {
+        if (/\bclass=/.test(attrs)) {
+          return match.replace(/class="([^"]*)"/, `class="$1 ${cls}"`);
+        }
+        return `<td class="${cls}"${attrs}>`;
+      });
     }
 
     function renderMobileCard(s) {
@@ -1389,12 +1428,12 @@
           <div class="stock-item"><div class="stock-label">價格LH 3天趨勢</div>${renderPriceLHTrendBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">日KD 3天趨勢</div>${renderKDBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">日布林% LH</div><div class="stock-value"><div class="table-lv1 ${trendClass(s.bb_score)}">${fmtTrend(s.bb_score)}</div>${renderRangeMetric(s.bb_pct, s.bb_lower, s.bb_upper)}</div></div>
-          <div class="stock-item"><div class="stock-label">日Bias6 LH</div><div class="stock-value">${renderRangeMetric(s.bias6, s.bias6_min, s.bias6_max, "%", distClass(s.bias6))}</div></div>
-          <div class="stock-item"><div class="stock-label">日Bias18 LH</div><div class="stock-value">${renderRangeMetric(s.bias18, s.bias18_min, s.bias18_max, "%", distClass(s.bias18))}</div></div>
-          <div class="stock-item"><div class="stock-label">日Bias50 LH</div><div class="stock-value">${renderRangeMetric(s.bias50, s.bias50_min, s.bias50_max, "%", distClass(s.bias50))}</div></div>
+          <div class="stock-item"><div class="stock-label">日Bias5 LH</div><div class="stock-value">${renderRangeMetric(s.bias5, s.bias5_min, s.bias5_max, "%", distClass(s.bias5))}</div></div>
+          <div class="stock-item"><div class="stock-label">日Bias20 LH</div><div class="stock-value">${renderRangeMetric(s.bias20, s.bias20_min, s.bias20_max, "%", distClass(s.bias20))}</div></div>
+          <div class="stock-item"><div class="stock-label">日Bias60 LH</div><div class="stock-value">${renderRangeMetric(s.bias60, s.bias60_min, s.bias60_max, "%", distClass(s.bias60))}</div></div>
           <div class="stock-item"><div class="stock-label">量 / 昨 / 增 / 張</div><div class="stock-value"><div>${fmt(s.volume)} 張</div><div class="table-lv2">昨 ${fmt(s.prev_volume)}</div><div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-" : `${fmtTrend(s.volume_ratio)} ${fmt(s.volume_ratio, "%")}`}</div><div class="table-lv2">${isNil(s.volume_add) ? "-" : `${fmt(s.volume_add)} 張`}</div></div></div>
-          <div class="stock-item"><div class="stock-label">壓力點 / 距離</div><div class="stock-value"><div class="table-lv1 text-red">${fmt(s.resistance_price)}</div><div class="table-lv2">${isNil(s.resistance_distance_pct) ? "-" : `+${fmt(s.resistance_distance_pct, "%")}`}</div></div></div>
-          <div class="stock-item"><div class="stock-label">支撐點 / 距離</div><div class="stock-value"><div class="table-lv1 text-green">${fmt(s.support_price)}</div><div class="table-lv2">${isNil(s.support_distance_pct) ? "-" : `-${fmt(s.support_distance_pct, "%")}`}</div></div></div>
+          <div class="stock-item"><div class="stock-label">壓力點 / 距離</div>${renderSupportResistanceBlock(s, "resistance")}</div>
+          <div class="stock-item"><div class="stock-label">支撐點 / 距離</div>${renderSupportResistanceBlock(s, "support")}</div>
           <div class="stock-item"><div class="stock-label">籌碼集中% 3天趨勢</div>${renderChipConcentrationBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">主力買賣超 3天趨勢</div>${renderMainForceBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">買賣家數差 趨勢</div>${renderBrokerDiffBlock(s)}</div>
@@ -1404,6 +1443,7 @@
         <div class="stock-grid">
           <div class="stock-item"><div class="stock-label">漲跌% / 震幅% LH</div><div class="stock-value">${renderChangePctBlock(s)}</div></div>
           <div class="stock-item"><div class="stock-label">EPS / TTM</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y)}</div><div class="table-lv2">${fmt(s.eps_ttm)}</div></div></div>
+          <div class="stock-item"><div class="stock-label">ROE% / TTM</div>${renderRoeBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">營收</div><div class="stock-value">${renderMetric3(s.rev, s.rev_mom, s.rev_qoq, s.rev_yoy)}</div></div>
           <div class="stock-item"><div class="stock-label">毛利率</div><div class="stock-value">${renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff)}</div></div>
           <div class="stock-item"><div class="stock-label">營益率</div><div class="stock-value">${renderMetric3(s.operating_margin, null, s.operating_margin_qoq, s.operating_margin_yoy_diff)}</div></div>
@@ -1418,7 +1458,7 @@
       const overviewGrid = `
         <div class="stock-grid">
           <div class="stock-item"><div class="stock-label">EPS / TTM</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y)}</div><div class="table-lv2">${fmt(s.eps_ttm)}</div></div></div>
-          <div class="stock-item"><div class="stock-label">日KD</div><div class="stock-value"><div class="table-lv1 ${trendClass(kdDayScore(s))}">${fmtTrend(kdDayScore(s))}</div><div class="table-lv2">K ${fmt(s.k)} / D ${fmt(s.d)}</div></div></div>
+          <div class="stock-item"><div class="stock-label">日KD 3天趨勢</div>${renderKDBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">日布林% LH</div><div class="stock-value"><div class="table-lv1 ${trendClass(s.bb_score)}">${fmtTrend(s.bb_score)}</div>${renderRangeMetric(s.bb_pct, s.bb_lower, s.bb_upper)}</div></div>
           <div class="stock-item"><div class="stock-label">量 / 昨 / 增 / 張</div><div class="stock-value"><div>${fmt(s.volume)} 張</div><div class="table-lv2">昨 ${fmt(s.prev_volume)}</div><div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-" : `${fmtTrend(s.volume_ratio)} ${fmt(s.volume_ratio, "%")}`}</div><div class="table-lv2">${isNil(s.volume_add) ? "-" : `${fmt(s.volume_add)} 張`}</div></div></div>
         </div>`;
@@ -1465,6 +1505,8 @@
         }
         case "yield_value":
           return Number(((s.yield_value ?? 0) * 0.65).toFixed(4));
+        case "roe":
+          return Number(s.roe_ttm ?? s.roe_last_year ?? -999999);
         case "per_latest":
         case "pbr_latest":
           return Number(s[key] ?? -999999);

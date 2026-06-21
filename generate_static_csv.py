@@ -17,6 +17,7 @@ from data_sources import (
 )
 from financial_analysis import (
     get_eps_analysis,
+    get_roe_analysis,
     get_profit_ratio,
     extract_metric,
     extract_metric_is_prev,
@@ -24,6 +25,7 @@ from financial_analysis import (
 
 DATA_COLS = [
     "eps_Y", "eps_ttm",
+    "roe_last_year", "roe_ttm",
     "rev", "rev_mom", "rev_qoq", "rev_yoy",
     "gross_margin", "gross_margin_qoq", "gross_margin_yoy_diff",
     "operating_margin", "operating_margin_qoq", "operating_margin_yoy_diff",
@@ -40,6 +42,7 @@ GROUPS = {
     # Required fields for status. Optional derived fields such as per_Y/per_ttm,
     # QoQ/YoY and 60D high/low should not make a row look empty.
     "eps": ["eps_Y", "eps_ttm"],
+    "roe": ["roe_last_year", "roe_ttm"],
     "revenue": ["rev"],
     "profit": ["gross_margin", "operating_margin", "net_margin"],
     "valuation": ["per_latest", "pbr_latest"],
@@ -386,6 +389,24 @@ def build_static_row(s: dict) -> dict:
             set_group_status(row, "eps", "api_limited", str(e))
             return finalize_static_status(row)
         set_group_status(row, "eps", "error", str(e))
+
+    # ROE: last complete year and trailing twelve months.
+    try:
+        roe_res = get_roe_analysis(stock_id) or {}
+        print("ROE =", stock_id, roe_res, flush=True)
+        row["roe_last_year"] = roe_res.get("roe_last_year")
+        row["roe_ttm"] = roe_res.get("roe_ttm")
+        if all_blank(row, GROUPS["roe"]):
+            set_group_status(row, "roe", "no_data", "empty")
+        elif any_blank(row, GROUPS["roe"]):
+            set_group_status(row, "roe", "incomplete", "partial")
+        else:
+            set_group_status(row, "roe", "ok", "")
+    except Exception as e:
+        if is_finmind_limit_error(e):
+            set_group_status(row, "roe", "api_limited", str(e))
+            return finalize_static_status(row)
+        set_group_status(row, "roe", "error", str(e))
 
     # Monthly revenue trend.
     try:
