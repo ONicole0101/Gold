@@ -168,16 +168,24 @@
     }
 
     .price-lh-line {
-      display: flex;
+      display: grid;
+      grid-template-columns: 40px max-content max-content;
       justify-content: center;
-      gap: 6px;
+      column-gap: 6px;
+      align-items: center;
       line-height: 1.35;
       color: #8b949e;
     }
 
     .price-lh-date {
-      min-width: 34px;
       text-align: right;
+    }
+
+    .bb-main {
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 4px;
     }
 
     .sig {
@@ -887,6 +895,17 @@
       </div>`;
     }
 
+    function renderBBBlock(s) {
+      return `
+      <div class="metric metric-2line">
+        <div class="table-lv1 ${trendClass(s.bb_score)} bb-main">
+          <span>${fmtTrend(s.bb_score)}</span><span>${fmt(s.bb_pct, "%")}</span>
+        </div>
+        <div class="table-lv2">${fmt(s.bb_lower)}</div>
+        <div class="table-lv2">${fmt(s.bb_upper)}</div>
+      </div>`;
+    }
+
     function supportResistanceTooltip(type) {
       if (type === "resistance") {
         return "壓力點距離%＝(壓力點價格 - 目前收盤價) ÷ 目前收盤價 × 100。數值越小代表越接近上方壓力。";
@@ -1092,6 +1111,15 @@
       return "盤整";
     }
 
+    function renderPriceLHTrendSummary(score) {
+      return `
+        <div class="table-lv2 price-lh-line">
+          <span class="price-lh-date ${trendClass(score)}">${priceLHTrendLabel(score)}</span>
+          <span></span>
+          <span></span>
+        </div>`;
+    }
+
     function renderPriceLHLine(s, idx, previousIdx) {
       const low = priceLHValue(s, idx, "low");
       const high = priceLHValue(s, idx, "high");
@@ -1112,7 +1140,7 @@
       const score = priceLHTrendScore(s);
       return `
         <td>
-          <div class="table-lv1 ${trendClass(score)}">${priceLHTrendLabel(score)}</div>
+          ${renderPriceLHTrendSummary(score)}
           ${renderPriceLHLine(s, 0, 1)}
           ${renderPriceLHLine(s, 1, 2)}
           ${renderPriceLHLine(s, 2, 3)}
@@ -1122,7 +1150,7 @@
     function renderPriceLHTrendBlock(s) {
       const score = priceLHTrendScore(s);
       return `<div class="stock-value">
-        <div class="table-lv1 ${trendClass(score)}">${priceLHTrendLabel(score)}</div>
+        ${renderPriceLHTrendSummary(score)}
         ${renderPriceLHLine(s, 0, 1)}
         ${renderPriceLHLine(s, 1, 2)}
         ${renderPriceLHLine(s, 2, 3)}
@@ -1359,11 +1387,7 @@
           return renderKDCell(s);
         }
         case "bb_pct":
-          return `
-            <td>
-              <div class="table-lv1 ${trendClass(s.bb_score)}">${fmtTrend(s.bb_score)}</div>
-              ${renderRangeMetric(s.bb_pct, s.bb_lower, s.bb_upper)}
-            </td>`;
+          return `<td>${renderBBBlock(s)}</td>`;
         case "bias5":
           return `<td>${renderRangeMetric(s.bias5, s.bias5_min, s.bias5_max, "%", distClass(s.bias5))}</td>`;
         case "bias20":
@@ -1427,7 +1451,7 @@
           <div class="stock-item"><div class="stock-label">漲跌% / 震幅% LH</div><div class="stock-value">${renderChangePctBlock(s)}</div></div>
           <div class="stock-item"><div class="stock-label">價格LH 3天趨勢</div>${renderPriceLHTrendBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">日KD 3天趨勢</div>${renderKDBlock(s)}</div>
-          <div class="stock-item"><div class="stock-label">日布林% LH</div><div class="stock-value"><div class="table-lv1 ${trendClass(s.bb_score)}">${fmtTrend(s.bb_score)}</div>${renderRangeMetric(s.bb_pct, s.bb_lower, s.bb_upper)}</div></div>
+          <div class="stock-item"><div class="stock-label">日布林% LH</div><div class="stock-value">${renderBBBlock(s)}</div></div>
           <div class="stock-item"><div class="stock-label">日Bias5 LH</div><div class="stock-value">${renderRangeMetric(s.bias5, s.bias5_min, s.bias5_max, "%", distClass(s.bias5))}</div></div>
           <div class="stock-item"><div class="stock-label">日Bias20 LH</div><div class="stock-value">${renderRangeMetric(s.bias20, s.bias20_min, s.bias20_max, "%", distClass(s.bias20))}</div></div>
           <div class="stock-item"><div class="stock-label">日Bias60 LH</div><div class="stock-value">${renderRangeMetric(s.bias60, s.bias60_min, s.bias60_max, "%", distClass(s.bias60))}</div></div>
@@ -1459,7 +1483,7 @@
         <div class="stock-grid">
           <div class="stock-item"><div class="stock-label">EPS / TTM</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y)}</div><div class="table-lv2">${fmt(s.eps_ttm)}</div></div></div>
           <div class="stock-item"><div class="stock-label">日KD 3天趨勢</div>${renderKDBlock(s)}</div>
-          <div class="stock-item"><div class="stock-label">日布林% LH</div><div class="stock-value"><div class="table-lv1 ${trendClass(s.bb_score)}">${fmtTrend(s.bb_score)}</div>${renderRangeMetric(s.bb_pct, s.bb_lower, s.bb_upper)}</div></div>
+          <div class="stock-item"><div class="stock-label">日布林% LH</div><div class="stock-value">${renderBBBlock(s)}</div></div>
           <div class="stock-item"><div class="stock-label">量 / 昨 / 增 / 張</div><div class="stock-value"><div>${fmt(s.volume)} 張</div><div class="table-lv2">昨 ${fmt(s.prev_volume)}</div><div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-" : `${fmtTrend(s.volume_ratio)} ${fmt(s.volume_ratio, "%")}`}</div><div class="table-lv2">${isNil(s.volume_add) ? "-" : `${fmt(s.volume_add)} 張`}</div></div></div>
         </div>`;
 
