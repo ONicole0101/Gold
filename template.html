@@ -657,9 +657,9 @@
     <div class="tabs" id="tabs">
       <button type="button" class="tab-btn active" data-tab="overview">總覽</button>
       <button type="button" class="tab-btn" data-tab="technical">技術面</button>
+      <button type="button" class="tab-btn" data-tab="chip">籌碼面</button>
       <button type="button" class="tab-btn" data-tab="fundamental">基本面</button>
-      <button type="button" class="tab-btn" data-tab="signal">訊號</button>
-      <span class="tab-note" id="tabNote">總覽：價格、漲跌、量、EPS、KD、布林、訊號</span>
+      <span class="tab-note" id="tabNote">總覽：價格、漲跌、量、KD、布林、訊號</span>
     </div>
 
     <div class="filter-panel" id="filterPanel">
@@ -751,21 +751,20 @@
 
     const TAB_CONFIG = {
       overview: {
-        note: "總覽：價格、漲跌、量、EPS、KD、布林、訊號",
+        note: "總覽：價格、漲跌、量、KD、布林、訊號",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>60天LH</small>" },
           { key: "chg", label: "漲跌<br><small>LH</small>" },
           { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
-          { key: "eps_Y", label: "EPS<br><small>TTM</small>", cls: "col-lg" },
           { key: "k", label: "日KD<br><small>3天趨勢</small>" },
           { key: "bb_pct", label: "日布林%<br><small>LH</small>", cls: "col-md" },
           { key: "sig", label: "訊號" }
         ]
       },
       technical: {
-        note: "技術面：壓力/支撐、籌碼、KD、布林、Bias、PER/PBR 60天區間",
+        note: "技術面：價格趨勢、壓力/支撐、KD、布林、Bias、PER/PBR 60天區間",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>60天LH</small>" },
@@ -774,9 +773,6 @@
           { key: "support_price", label: "支撐點<br><small>距離%</small>", tooltip: "支撐點距離%＝(目前收盤價 - 支撐點價格) ÷ 目前收盤價 × 100。數值越小代表越接近下方支撐，跌破後可能轉為壓力。" },
           { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
-          { key: "chip_concentration_score", label: "籌碼集中%<br><small>3天趨勢</small>", tooltip: "籌碼集中%＝主力分點淨買賣力道的絕對值 ÷ 全市場買賣量合計 × 100。數值越高代表籌碼越集中；需搭配主力買賣超正負方向判斷。" },
-          { key: "main_force_score", label: "主力買賣超<br><small>3天趨勢</small>", tooltip: "主力買賣超＝前15大買超分點淨買超 + 前15大賣超分點淨賣超。正值偏主力買進，負值偏主力賣出。" },
-          { key: "broker_diff", label: "買賣家數差<br><small>趨勢</small>", tooltip: "買賣家數差＝有買進的券商分點家數 - 有賣出的券商分點家數。正值代表參與買方家數較多，負值代表買方較集中或賣方家數較多。" },
           { key: "k", label: "日KD<br><small>3天趨勢</small>" },
           { key: "bb_pct", label: "日布林%<br><small>LH</small>" },
           { key: "bias5", label: "日Bias5<br><small>LH</small>" },
@@ -785,6 +781,18 @@
           { key: "per_latest", label: "日PER<br><small>60天LH</small>", cls: "col-lg" },
           { key: "pbr_latest", label: "日PBR<br><small>60天LH</small>", cls: "col-lg" },
           { key: "sig", label: "訊號" }
+        ]
+      },
+      chip: {
+        note: "籌碼面：籌碼集中、主力買賣超、買賣家數差與三日趨勢",
+        columns: [
+          { key: "code", label: "代碼<br><small>名稱</small>" },
+          { key: "price", label: "價格<br><small>60天LH</small>" },
+          { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
+          { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
+          { key: "chip_concentration_score", label: "籌碼集中%<br><small>3天趨勢</small>", tooltip: "籌碼集中%＝主力分點淨買賣力道的絕對值 ÷ 全市場買賣量合計 × 100。數值越高代表籌碼越集中；需搭配主力買賣超正負方向判斷。" },
+          { key: "main_force_score", label: "主力買賣超<br><small>3天趨勢</small>", tooltip: "主力買賣超＝前15大買超分點淨買超 + 前15大賣超分點淨賣超。正值偏主力買進，負值偏主力賣出。" },
+          { key: "broker_diff", label: "買賣家數差<br><small>趨勢</small>", tooltip: "買賣家數差＝有買進的券商分點家數 - 有賣出的券商分點家數。正值代表參與買方家數較多，負值代表買方較集中或賣方家數較多。" }
         ]
       },
       fundamental: {
@@ -805,22 +813,6 @@
           { key: "news_summary", label: "新聞", cls: "news-summary-col" }
         ]
       },
-      signal: {
-        note: "訊號：買賣觀察、訊號文字、進場提示、原因",
-        columns: [
-          { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "price", label: "價格<br><small>60天LH</small>" },
-          { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
-          { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
-          { key: "chip_concentration_score", label: "籌碼集中%<br><small>3天趨勢</small>" },
-          { key: "main_force_score", label: "主力買賣超<br><small>3天趨勢</small>" },
-          { key: "broker_diff", label: "買賣家數差<br><small>趨勢</small>" },
-          { key: "k", label: "日KD<br><small>3天趨勢</small>" },
-          { key: "bb_pct", label: "日布林%<br><small>LH</small>" },
-          { key: "bias5", label: "日Bias5<br><small>LH</small>", cls: "col-lg" },
-          { key: "sig", label: "訊號" }
-        ]
-      }
     };
 
     function isNil(v) {
@@ -1319,6 +1311,16 @@
         </td>`;
     }
 
+    function renderSignalBadge(s) {
+      const signal = cleanSignalOutput(s?.signal || "");
+      const badgeClass = signal === "買進" || signal === "偏多" ? "up" : signal === "賣出" || signal === "偏空" ? "dn" : "watch";
+      return `<span class="sig ${badgeClass}">${escapeHtml(signal || "等待觀察")}</span>`;
+    }
+
+    function renderMobileSignalFooter(s) {
+      return `<div class="stock-signal">${renderSignalText(s.signal_text)}${s.entry_note ? `<div class="table-lv2">${escapeHtml(cleanSignalOutput(s.entry_note))}</div>` : ""}</div>`;
+    }
+
     function renderCell(s, key) {
       switch (key) {
         case "code":
@@ -1455,6 +1457,10 @@
           <div class="stock-item"><div class="stock-label">量 / 昨 / 增 / 張</div><div class="stock-value"><div>${fmt(s.volume)} 張</div><div class="table-lv2">昨 ${fmt(s.prev_volume)}</div><div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-" : `${fmtTrend(s.volume_ratio)} ${fmt(s.volume_ratio, "%")}`}</div><div class="table-lv2">${isNil(s.volume_add) ? "-" : `${fmt(s.volume_add)} 張`}</div></div></div>
           <div class="stock-item"><div class="stock-label">壓力點 / 距離</div>${renderSupportResistanceBlock(s, "resistance")}</div>
           <div class="stock-item"><div class="stock-label">支撐點 / 距離</div>${renderSupportResistanceBlock(s, "support")}</div>
+        </div>`;
+
+      const chipGrid = `
+        <div class="stock-grid">
           <div class="stock-item"><div class="stock-label">籌碼集中% 3天趨勢</div>${renderChipConcentrationBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">主力買賣超 3天趨勢</div>${renderMainForceBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">買賣家數差 趨勢</div>${renderBrokerDiffBlock(s)}</div>
@@ -1462,7 +1468,6 @@
 
       const fundamentalGrid = `
         <div class="stock-grid">
-          <div class="stock-item"><div class="stock-label">漲跌% / 漲跌 / 震幅</div><div class="stock-value">${renderChangePctBlock(s)}</div></div>
           <div class="stock-item"><div class="stock-label">EPS / TTM</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y)}</div><div class="table-lv2">${fmt(s.eps_ttm)}</div></div></div>
           <div class="stock-item"><div class="stock-label">ROE% / TTM</div>${renderRoeBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">營收</div><div class="stock-value">${renderMetric3(s.rev, s.rev_mom, s.rev_qoq, s.rev_yoy)}</div></div>
@@ -1478,29 +1483,26 @@
 
       const overviewGrid = `
         <div class="stock-grid">
-          <div class="stock-item"><div class="stock-label">EPS / TTM</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y)}</div><div class="table-lv2">${fmt(s.eps_ttm)}</div></div></div>
+          <div class="stock-item"><div class="stock-label">價格LH 3天趨勢</div>${renderPriceLHTrendBlock(s)}</div>
+          <div class="stock-item"><div class="stock-label">漲跌% / 漲跌 / 震幅</div><div class="stock-value">${renderChangePctBlock(s)}</div></div>
           <div class="stock-item"><div class="stock-label">日KD 3天趨勢</div>${renderKDBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">日布林% LH</div><div class="stock-value">${renderBBBlock(s)}</div></div>
           <div class="stock-item"><div class="stock-label">量 / 昨 / 增 / 張</div><div class="stock-value"><div>${fmt(s.volume)} 張</div><div class="table-lv2">昨 ${fmt(s.prev_volume)}</div><div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-" : `${fmtTrend(s.volume_ratio)} ${fmt(s.volume_ratio, "%")}`}</div><div class="table-lv2">${isNil(s.volume_add) ? "-" : `${fmt(s.volume_add)} 張`}</div></div></div>
-        </div>`;
-
-
-      const signalBlock = `
-        <div class="stock-signal">
-          ${renderSignalText(s.signal_text)}
-          ${s.entry_note ? `<div class="table-lv2">${escapeHtml(cleanSignalOutput(s.entry_note))}</div>` : ""}
+          <div class="stock-item"><div class="stock-label">買賣方向</div><div class="stock-value">${renderSignalBadge(s)}</div></div>
         </div>`;
 
       let bodyGrid = overviewGrid;
       if (tab === "technical") bodyGrid = technicalGrid;
+      if (tab === "chip") bodyGrid = chipGrid;
       if (tab === "fundamental") bodyGrid = fundamentalGrid;
-      if (tab === "signal") bodyGrid = technicalGrid;
+
+      const signalFooter = tab === "fundamental" ? "" : renderMobileSignalFooter(s);
 
       return `
         <div class="stock-card">
           ${commonHead}
           ${bodyGrid}
-          ${tab === "fundamental" ? "" : signalBlock}
+          ${signalFooter}
         </div>`;
     }
 
