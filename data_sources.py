@@ -335,6 +335,8 @@ def get_stock_data(stock_id):
 
         df = df[required_cols].copy()
         df['date'] = pd.to_datetime(df['date'])
+        for col in ['open', 'close', 'max', 'min']:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
 
         if volume_col:
             df['volume'] = pd.to_numeric(df[volume_col], errors='coerce')
@@ -343,8 +345,12 @@ def get_stock_data(stock_id):
         else:
             df['volume'] = None
 
-        df = df.dropna(subset=['open', 'close', 'max',
-                       'min']).sort_values('date')
+        df = df.dropna(subset=['open', 'close', 'max', 'min'])
+        valid_prices = df[['open', 'close', 'max', 'min']].gt(0).all(axis=1)
+        valid_prices &= df['max'] >= df['min']
+        valid_prices &= df['close'].between(df['min'], df['max'])
+        valid_prices &= df['open'].between(df['min'], df['max'])
+        df = df.loc[valid_prices].sort_values('date')
 
         return df
     except RuntimeError:

@@ -1,6 +1,33 @@
 import pandas as pd
 
 
+def clean_ohlc_data(df):
+    """Remove impossible OHLC rows before technical indicator calculations."""
+    if df is None or df.empty:
+        return df
+
+    data = df.copy()
+    price_cols = [col for col in ("open", "close", "max", "min") if col in data.columns]
+    for col in price_cols:
+        data[col] = pd.to_numeric(data[col], errors="coerce")
+
+    required = [col for col in ("close", "max", "min") if col in data.columns]
+    if required:
+        valid = data[required].notna().all(axis=1)
+        valid &= data[required].gt(0).all(axis=1)
+    else:
+        valid = pd.Series(True, index=data.index)
+
+    if {"max", "min"}.issubset(data.columns):
+        valid &= data["max"] >= data["min"]
+    if {"close", "max", "min"}.issubset(data.columns):
+        valid &= data["close"].between(data["min"], data["max"])
+    if {"open", "max", "min"}.issubset(data.columns):
+        valid &= data["open"].between(data["min"], data["max"])
+
+    return data.loc[valid].copy()
+
+
 def calculate_kd(rsv, initial_value=50.0):
     """Calculate KD with the common Taiwan-market 2/3 + 1/3 recursion."""
     k_values = []
@@ -29,8 +56,9 @@ def calculate_kd(rsv, initial_value=50.0):
 
 def add_indicators(df):
     try:
-        for col in ("close", "max", "min"):
-            df[col] = pd.to_numeric(df[col], errors="coerce")
+        df = clean_ohlc_data(df)
+        if df is None or df.empty:
+            return df
 
         low_min = df['min'].rolling(9).min()
         high_max = df['max'].rolling(9).max()
@@ -233,8 +261,9 @@ def get_support_resistance_levels(
     Logic:
     - Use all available OHLCV rows by default instead of a fixed day window.
     - Find swing highs as resistance candidates and swing lows as support candidates.
-    - Merge nearby prices into clusters by tolerance_pct so repeated tests become one level.
-    - Search from the current price zone outward, then pick the nearest valid cluster.
+    - Merge nearby prices into clusters by tolerance_pct so repeated tests count as one zone.
+    - Report the actual traded high/low from the latest touch in that zone, not a cluster average.
+    - Search from the current price zone outward, then prefer the most recent valid cluster.
 
     Returned prices are rounded to 2 decimals and safe for JSON/template rendering.
     """
@@ -271,8 +300,16 @@ def get_support_resistance_levels(
         except Exception:
             return None
 
+    def _date_rank(value):
+        try:
+            if value is None or pd.isna(value):
+                return 0
+            return pd.Timestamp(value).timestamp()
+        except Exception:
+            return 0
+
     def _cluster_levels(levels, tolerance):
-        """Cluster close prices and return weighted-average levels."""
+        """Cluster nearby prices, but keep an actual traded price as the representative."""
         if not levels:
             return []
 
@@ -282,46 +319,44 @@ def get_support_resistance_levels(
         for item in levels:
             price = item["price"]
             weight = max(float(item.get("weight") or 1), 1.0)
+            normalized = {
+                **item,
+                "price": price,
+                "weight": weight,
+            }
             if not clusters:
-                clusters.append({
-                    "prices": [price],
-                    "weights": [weight],
-                    "dates": [item.get("date")],
-                })
+                clusters.append({"items": [normalized]})
                 continue
 
             cluster = clusters[-1]
-            avg = sum(p * w for p, w in zip(cluster["prices"], cluster["weights"])) / sum(cluster["weights"])
+            items = cluster["items"]
+            weight_sum = sum(i["weight"] for i in items)
+            avg = sum(i["price"] * i["weight"] for i in items) / weight_sum
             if avg and abs(price - avg) / avg <= tolerance:
-                cluster["prices"].append(price)
-                cluster["weights"].append(weight)
-                cluster["dates"].append(item.get("date"))
+                items.append(normalized)
             else:
-                clusters.append({
-                    "prices": [price],
-                    "weights": [weight],
-                    "dates": [item.get("date")],
-                })
+                clusters.append({"items": [normalized]})
 
         result = []
         for cluster in clusters:
-            weight_sum = sum(cluster["weights"])
-            avg_price = sum(p * w for p, w in zip(cluster["prices"], cluster["weights"])) / weight_sum
+            items = cluster["items"]
+            weight_sum = sum(i["weight"] for i in items)
+            avg_price = sum(i["price"] * i["weight"] for i in items) / weight_sum
+            representative = max(
+                items,
+                key=lambda i: (
+                    _date_rank(i.get("date")),
+                    float(i.get("weight") or 0),
+                ),
+            )
             result.append({
-                "price": avg_price,
-                "touch_count": len(cluster["prices"]),
+                "price": representative["price"],
+                "avg_price": avg_price,
+                "touch_count": len(items),
                 "weight": weight_sum,
-                "last_date": max([d for d in cluster["dates"] if d is not None], default=None),
+                "last_date": representative.get("date"),
             })
         return result
-
-    def _date_rank(value):
-        try:
-            if value is None or pd.isna(value):
-                return 0
-            return pd.Timestamp(value).timestamp()
-        except Exception:
-            return 0
 
     def _select_nearest_cluster(candidates, side, latest_close, tolerance):
         side_candidates = []
@@ -377,9 +412,9 @@ def get_support_resistance_levels(
                 return min(
                     valid_clusters,
                     key=lambda c: (
+                        -_date_rank(c.get("last_date")),
                         c["distance_pct"],
                         -int(c.get("touch_count") or 0),
-                        -_date_rank(c.get("last_date")),
                     ),
                 )
 
@@ -392,7 +427,9 @@ def get_support_resistance_levels(
         if not required.issubset(df.columns):
             return empty
 
-        data = df.copy()
+        data = clean_ohlc_data(df)
+        if data is None or data.empty:
+            return empty
         if "date" in data.columns:
             data["date"] = pd.to_datetime(data["date"], errors="coerce")
             data = data.sort_values("date")

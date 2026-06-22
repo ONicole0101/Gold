@@ -10,7 +10,7 @@ from financial_analysis import (
     get_dividend_yield,
 )
 from signals import get_tech_signal
-from technical_indicators import add_indicators, get_kd_trend, get_bb_trend, get_MABias, get_support_resistance_levels
+from technical_indicators import add_indicators, clean_ohlc_data, get_kd_trend, get_bb_trend, get_MABias, get_support_resistance_levels
 
 
 STATIC_CSV_PATH = os.getenv("STATIC_CSV_FILE", "AllStatic.csv")
@@ -30,6 +30,12 @@ _NEWS_STATIC_MAP_MTIME = None
 
 
 def get_price_60d_high_low(df):
+    df = clean_ohlc_data(df)
+    if df is None or df.empty:
+        return {
+            "price_60d_high": None,
+            "price_60d_low": None,
+        }
     df_60 = df.tail(60)
     max_price60 = pd.to_numeric(df_60["max"], errors="coerce").max()
     min_price60 = pd.to_numeric(df_60["min"], errors="coerce").min()
@@ -238,8 +244,8 @@ def build_recent_technical_fields(*rows):
         fields[f"date_{suffix}"] = date_text
         fields[f"kd_date_{suffix}"] = date_text
         fields[f"price_date_{suffix}"] = date_text
-        fields[f"k_{suffix}"] = round_float_or_none(row.get("K"), 1)
-        fields[f"d_{suffix}"] = round_float_or_none(row.get("D"), 1)
+        fields[f"k_{suffix}"] = round_float_or_none(row.get("K"), 2)
+        fields[f"d_{suffix}"] = round_float_or_none(row.get("D"), 2)
         fields[f"price_min_{suffix}"] = round_float_or_none(row.get("min"), 2)
         fields[f"price_max_{suffix}"] = round_float_or_none(row.get("max"), 2)
     return fields
@@ -295,6 +301,19 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
                 "signal": "無資料",
                 "signal_text": "查無資料",
                 "reason": "股價資料為空",
+            })
+            x.update(_build_static_fields(static_row))
+            x.update(_build_chip_fields(chip_row))
+            x.update(_build_news_fields(news_row))
+            return x
+
+        df = clean_ohlc_data(df)
+        if df is None or df.empty:
+            x = base.copy()
+            x.update({
+                "signal": "資料異常",
+                "signal_text": "資料異常",
+                "reason": "OHLC 價格資料皆為無效值",
             })
             x.update(_build_static_fields(static_row))
             x.update(_build_chip_fields(chip_row))
@@ -556,12 +575,12 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
 
             "dividend": float(dividend) if dividend is not None else None,
             "yield_value": float(yield_value) if yield_value is not None and not pd.isna(yield_value) else None,
-            "k": float(round(k, 1)) if k is not None else None,
-            "d": float(round(d, 1)) if d is not None else None,
-            "prev_k": float(round(prev_k, 1)) if prev_k is not None else None,
-            "prev_d": float(round(prev_d, 1)) if prev_d is not None else None,
-            "prev2_k": float(round(prev2_k, 1)) if prev2_k is not None else None,
-            "prev2_d": float(round(prev2_d, 1)) if prev2_d is not None else None,
+            "k": float(round(k, 2)) if k is not None else None,
+            "d": float(round(d, 2)) if d is not None else None,
+            "prev_k": float(round(prev_k, 2)) if prev_k is not None else None,
+            "prev_d": float(round(prev_d, 2)) if prev_d is not None else None,
+            "prev2_k": float(round(prev2_k, 2)) if prev2_k is not None else None,
+            "prev2_d": float(round(prev2_d, 2)) if prev2_d is not None else None,
             "kd_3d_up": kd_trend.get("kd_3d_up"),
             "kd_trend": kd_trend.get("kd_trend"),
             "k_trend": k_trend,

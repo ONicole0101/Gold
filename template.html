@@ -756,7 +756,7 @@
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>60天LH</small>" },
           { key: "chg", label: "漲跌<br><small>LH</small>" },
-          { key: "chgPct", label: "漲跌%<br><small>震幅%LH</small>" },
+          { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "eps_Y", label: "EPS<br><small>TTM</small>", cls: "col-lg" },
           { key: "k", label: "日KD<br><small>3天趨勢</small>" },
@@ -772,7 +772,7 @@
           { key: "price_lh_trend", label: "價格LH<br><small>3天趨勢</small>", cls: "col-md" },
           { key: "resistance_price", label: "壓力點<br><small>距離%</small>", tooltip: "壓力點距離%＝(壓力點價格 - 目前收盤價) ÷ 目前收盤價 × 100。數值越小代表越接近上方壓力，突破後可能轉為支撐。" },
           { key: "support_price", label: "支撐點<br><small>距離%</small>", tooltip: "支撐點距離%＝(目前收盤價 - 支撐點價格) ÷ 目前收盤價 × 100。數值越小代表越接近下方支撐，跌破後可能轉為壓力。" },
-          { key: "chgPct", label: "漲跌%<br><small>震幅%LH</small>" },
+          { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "chip_concentration_score", label: "籌碼集中%<br><small>3天趨勢</small>", tooltip: "籌碼集中%＝主力分點淨買賣力道的絕對值 ÷ 全市場買賣量合計 × 100。數值越高代表籌碼越集中；需搭配主力買賣超正負方向判斷。" },
           { key: "main_force_score", label: "主力買賣超<br><small>3天趨勢</small>", tooltip: "主力買賣超＝前15大買超分點淨買超 + 前15大賣超分點淨賣超。正值偏主力買進，負值偏主力賣出。" },
@@ -810,7 +810,7 @@
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>60天LH</small>" },
-          { key: "chgPct", label: "漲跌%<br><small>震幅%LH</small>" },
+          { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "chip_concentration_score", label: "籌碼集中%<br><small>3天趨勢</small>" },
           { key: "main_force_score", label: "主力買賣超<br><small>3天趨勢</small>" },
@@ -906,11 +906,17 @@
     }
 
     function renderChangePctBlock(s) {
+      const priceChange = isNil(s.chg) ? null : Number(s.chg);
+      const lowPrice = isNil(s.price_min) ? null : Number(s.price_min);
+      const highPrice = isNil(s.price_max) ? null : Number(s.price_max);
+      const priceAmplitude = lowPrice !== null && highPrice !== null && Number.isFinite(lowPrice) && Number.isFinite(highPrice)
+        ? highPrice - lowPrice
+        : null;
       return `
         <div class="table-lv1 ${chgClass(s)}">${chgSign(s)}${fmt(s.chgPct, "%")}</div>
+        <div class="table-lv2 ${distClass(priceChange)}">${isNil(priceChange) ? "-" : `${priceChange > 0 ? "+" : ""}${fmt(priceChange)}`}</div>
         <div class="table-lv2">震幅 ${fmt(s.amp, "%")}</div>
-        <div class="table-lv2">${fmt(s.price_min)}</div>
-        <div class="table-lv2">${fmt(s.price_max)}</div>`;
+        <div class="table-lv2">震幅 ${fmt(priceAmplitude)}</div>`;
     }
 
     function distClass(val) {
@@ -1439,7 +1445,7 @@
 
       const technicalGrid = `
         <div class="stock-grid">
-          <div class="stock-item"><div class="stock-label">漲跌% / 震幅% LH</div><div class="stock-value">${renderChangePctBlock(s)}</div></div>
+          <div class="stock-item"><div class="stock-label">漲跌% / 漲跌 / 震幅</div><div class="stock-value">${renderChangePctBlock(s)}</div></div>
           <div class="stock-item"><div class="stock-label">價格LH 3天趨勢</div>${renderPriceLHTrendBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">日KD 3天趨勢</div>${renderKDBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">日布林% LH</div><div class="stock-value">${renderBBBlock(s)}</div></div>
@@ -1456,7 +1462,7 @@
 
       const fundamentalGrid = `
         <div class="stock-grid">
-          <div class="stock-item"><div class="stock-label">漲跌% / 震幅% LH</div><div class="stock-value">${renderChangePctBlock(s)}</div></div>
+          <div class="stock-item"><div class="stock-label">漲跌% / 漲跌 / 震幅</div><div class="stock-value">${renderChangePctBlock(s)}</div></div>
           <div class="stock-item"><div class="stock-label">EPS / TTM</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y)}</div><div class="table-lv2">${fmt(s.eps_ttm)}</div></div></div>
           <div class="stock-item"><div class="stock-label">ROE% / TTM</div>${renderRoeBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">營收</div><div class="stock-value">${renderMetric3(s.rev, s.rev_mom, s.rev_qoq, s.rev_yoy)}</div></div>
