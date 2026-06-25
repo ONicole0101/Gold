@@ -1,0 +1,7 @@
+env:
+  FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
+
+steps:
+  - name: Run script
+    run: python FINMINDToken.py
+``
