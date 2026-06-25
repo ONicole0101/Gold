@@ -1,7 +1,18 @@
-env:
-  FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
+name: Run FINMIND Token Test
 
-steps:
-  - name: Run script
-    run: python FINMINDToken.py
-``
+on:
+  workflow_dispatch:
+
+jobs:
+  run-token:
+    runs-on: ubuntu-latest
+
+    env:
+      FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run script
+        run: python FINMINDToken.py
