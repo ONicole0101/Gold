@@ -55,9 +55,9 @@
   },
   "1560": {
     "name": "中砂",
-    "news_titles_hash": "e55d3ed1c451aaca0cd3eeb877b52ca377f603a660838f46f322f1294efc75dc",
-    "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:10:43"
+    "news_titles_hash": "45d42cad9b8504e2877cb282b8ed68b171d9af36d04f9ab9edb261143fa4b568",
+    "status": "fallback/openai_disabled_now",
+    "updated_at": "2026-06-30 16:43:01"
   },
   "1597": {
     "name": "直得",
@@ -115,15 +115,15 @@
   },
   "2313": {
     "name": "華通",
-    "news_titles_hash": "46b43a24fe674c8cdd0f7363eaff9a12b910fc241eaffdb274375b3739571f4a",
+    "news_titles_hash": "f233691d26bb397b964e136210d3b8db2cbe1f3c998194945ef7a7dac5b9a40e",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:10:52"
+    "updated_at": "2026-06-30 16:43:02"
   },
   "2317": {
     "name": "鴻海",
-    "news_titles_hash": "8ea4b715a83d993890f61fb0acf19e844485b27b858d08b2adb993604a77fa5e",
+    "news_titles_hash": "5ad3bf6937818feeebd49613c9c83b9724bd20e6078810650c2d7b42efe9243f",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:10:53"
+    "updated_at": "2026-06-30 16:43:03"
   },
   "2327": {
     "name": "國巨*",
@@ -133,15 +133,15 @@
   },
   "2330": {
     "name": "台積電",
-    "news_titles_hash": "c85b8edfeb42022d3f1aa7efff1dbafc02285a33702b5c7ec7e32edbd78e16ff",
+    "news_titles_hash": "d9eedfb845385fbda3fd2325e7f4e7c12c51cb7b29988daea5e6505832d080c4",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:10:55"
+    "updated_at": "2026-06-30 16:43:04"
   },
   "2360": {
     "name": "致茂",
-    "news_titles_hash": "1c04c07a7e16b70db8d585ac282e62f1eb2ccefcf214f93ed06f44dca60d9bc4",
+    "news_titles_hash": "710afcf6831fa8ea2b9f0452192274e971aa809c0e86c11a3a84461509de8cad",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:10:56"
+    "updated_at": "2026-06-30 16:43:05"
   },
   "2368": {
     "name": "金像電",
@@ -151,15 +151,15 @@
   },
   "2382": {
     "name": "廣達",
-    "news_titles_hash": "fd8d74cb8d82d25764668fc9900ad3753b649949c77b1fb144424c7bbbeedada",
+    "news_titles_hash": "d3b91d216054bd2bce44c01a4badd035810c371cacd9bcc51b846d778c2a53d6",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:10:58"
+    "updated_at": "2026-06-30 16:43:06"
   },
   "2383": {
     "name": "台光電",
-    "news_titles_hash": "0c561aeecb9fa868030cb626bdede3123441861760af4fd53280eea3756c2e33",
+    "news_titles_hash": "0da7bbdf87c8955c1f7d485699e6f1051a3a068047745182c196159f420bc46b",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:10:59"
+    "updated_at": "2026-06-30 16:43:07"
   },
   "2402": {
     "name": "毅嘉",
@@ -169,9 +169,9 @@
   },
   "2404": {
     "name": "漢唐",
-    "news_titles_hash": "0d9a69294182e7666b212a4e2af0f0f4a595b518a48b5869fb2e3613042d8b86",
+    "news_titles_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:00"
+    "updated_at": "2026-06-30 16:43:08"
   },
   "2408": {
     "name": "南亞科",
@@ -183,25 +183,25 @@
     "name": "京元電子",
     "news_titles_hash": "448eb6de5f42e7f5c2c9ba52ae8e34e901957378d1b548b61b95d8f6a6099117",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:02"
+    "updated_at": "2026-06-30 16:43:08"
   },
   "2454": {
     "name": "聯發科",
-    "news_titles_hash": "e36f56d55879df1e16d3b8bafd91df28cdd0bd1f8326e36538a2764f9ecd3606",
+    "news_titles_hash": "a999a516a1f2b64c88faaa93587e152339fa56c10c031ed17ee33f11f911bcd7",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:03"
+    "updated_at": "2026-06-30 16:43:09"
   },
   "2455": {
     "name": "全新",
-    "news_titles_hash": "8414a87fe164fd47b44f507e80fd38a24334e396bf766369c95e5cea33fc51ab",
+    "news_titles_hash": "f5742874753046d3a42f8c16bcb793428e33ae4592d7807e200b5eb59c5fc0e6",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:04"
+    "updated_at": "2026-06-30 16:43:11"
   },
   "2467": {
     "name": "志聖",
-    "news_titles_hash": "21290ff3b6dcad0590942e1898075d2f01b613dbd07c0fd9721286f4a02548f3",
+    "news_titles_hash": "84ad3aa2b35e43cb043dd652416eaabf94820f5c913f3c589e9991a8f8f1f3ff",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:05"
+    "updated_at": "2026-06-30 16:43:11"
   },
   "2481": {
     "name": "強茂",
@@ -253,9 +253,9 @@
   },
   "3017": {
     "name": "奇鋐",
-    "news_titles_hash": "c6debda42ad30066f0333f0ed2c5cc83d8a22f34e7f5171ff162fd5c2ee340fe",
+    "news_titles_hash": "9883c1a2dd9a9b46335fa7e5d518a8dfa4610c423a43447c4e77b7d6362162f8",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:13"
+    "updated_at": "2026-06-30 16:43:12"
   },
   "3023": {
     "name": "信邦",
@@ -289,9 +289,9 @@
   },
   "3081": {
     "name": "聯亞",
-    "news_titles_hash": "4403d8494f8117381e9498591ba0cb71b176e24e41526f5ade7b534e87d2b191",
+    "news_titles_hash": "81715ba33d1e88a9c730aed57fc18bb833662565b1a45eda433f2d43875289b0",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:18"
+    "updated_at": "2026-06-30 16:43:13"
   },
   "3105": {
     "name": "穩懋",
@@ -301,15 +301,15 @@
   },
   "3131": {
     "name": "弘塑",
-    "news_titles_hash": "966997cf3d7785e9d2f6ebca9f63480d836e29f67dd25e27d1e0a68ff59f2334",
+    "news_titles_hash": "c1b3cdda06ab5365f8b91eb87765698fe8ee23af998a39af3a02d485113a3555",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:20"
+    "updated_at": "2026-06-30 16:43:14"
   },
   "3163": {
     "name": "波若威",
-    "news_titles_hash": "1a66024716ef82c7bc6ee7ddd9e549e5abaf760fc1ebfe6cb9c72e77d0104de1",
+    "news_titles_hash": "29d304fca76da2fbf462d57b2c35011bcb82e6175928f08bc1bf8766ec4988ab",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:21"
+    "updated_at": "2026-06-30 16:43:15"
   },
   "3167": {
     "name": "大量",
@@ -325,9 +325,9 @@
   },
   "3231": {
     "name": "緯創",
-    "news_titles_hash": "d7300cebbf29e7fc013aaddb53fe3315f1c70fc5444de513ac34015f8960522b",
+    "news_titles_hash": "6e901b134ada9fb60709b8ac1caee5508f6ac8f0990ef5073b45f51713592150",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:24"
+    "updated_at": "2026-06-30 16:43:16"
   },
   "3234": {
     "name": "光環",
@@ -355,33 +355,33 @@
   },
   "3324": {
     "name": "雙鴻",
-    "news_titles_hash": "c341bf9e1ff4ca4b72ca25ad96e8b2c0478c550fae14c5140fbc919687a5f5a1",
+    "news_titles_hash": "5e70d9392af80f9321fe4b488eb509a41f90655a0f019d08e730c657a38cc0e3",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:28"
+    "updated_at": "2026-06-30 16:43:17"
   },
   "3363": {
     "name": "上詮",
     "news_titles_hash": "492604e2ed33310c2aafd80cbb728833dae2e1eb42c00a8d653052f5617df63a",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:29"
+    "updated_at": "2026-06-30 16:43:18"
   },
   "3374": {
     "name": "精材",
-    "news_titles_hash": "75843c190ae44308e3be982d26612deddccb2b29da5fa8c71fc2fb8fe3178d12",
+    "news_titles_hash": "0b5a41abe585b2cd390c596a3e13c9b00743850944e3e4daf6b23013f0e4ee4c",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:30"
+    "updated_at": "2026-06-30 16:43:19"
   },
   "3443": {
     "name": "創意",
-    "news_titles_hash": "b259501e19fc32605d9de2f02901d2b322a982f9c1f0b5e8a26a30fefc318bd6",
+    "news_titles_hash": "cdfab37c1315f177ca7d0cb56e5f700cf000870e1c7694cd3e47374ee385146c",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:31"
+    "updated_at": "2026-06-30 16:43:20"
   },
   "3450": {
     "name": "聯鈞",
-    "news_titles_hash": "5531a220812c23a0f797d372fb09a94e27a78d06c54a54435b797133b79a06f8",
+    "news_titles_hash": "e51de9c7e34cab46946e5362875caf9db7dfd234833a62d3a3fef1b24994505b",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:31"
+    "updated_at": "2026-06-30 16:43:20"
   },
   "3481": {
     "name": "群創",
@@ -391,9 +391,9 @@
   },
   "3491": {
     "name": "昇達科",
-    "news_titles_hash": "230252ed6862aac0c527f79a9d083620db662a95bacca7faed61578728dff460",
+    "news_titles_hash": "796cbcaba05d856802541fddd7c4356da11d3c96dd497bb01189492b2d2eb4d8",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:33"
+    "updated_at": "2026-06-30 16:43:21"
   },
   "3529": {
     "name": "力旺",
@@ -415,9 +415,9 @@
   },
   "3583": {
     "name": "辛耘",
-    "news_titles_hash": "8079354a59830a57720482af2cc20867100207ea889c971e28dd56e86a296610",
+    "news_titles_hash": "a350b6840ece1c7accee87672e600822b858ffe54af1ab8949e34015139333d4",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:37"
+    "updated_at": "2026-06-30 16:43:22"
   },
   "3587": {
     "name": "閎康",
@@ -439,9 +439,9 @@
   },
   "3653": {
     "name": "健策",
-    "news_titles_hash": "375c22fd0aca972c5cef04d0cb10d20238d5459d0ec1fb6724aaba9c3af96f9b",
+    "news_titles_hash": "1424fe4d6aa1f0d556348690613fe5be9b4d5a90c355430d7a798015d8984655",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:40"
+    "updated_at": "2026-06-30 16:43:23"
   },
   "3661": {
     "name": "世芯-KY",
@@ -451,15 +451,15 @@
   },
   "3665": {
     "name": "貿聯-KY",
-    "news_titles_hash": "4d859388693434f7c822c1a74b6fa724532d784a85381c4fb9a89edcc92cb6f3",
+    "news_titles_hash": "3a4b53e22a1bfa76c9c0007b15d83cdb35ca5398be2b9c1dc87153e14256bac8",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:42"
+    "updated_at": "2026-06-30 16:43:24"
   },
   "3680": {
     "name": "家登",
-    "news_titles_hash": "c42178491f7a2f0c46f0d7aaf2232d1cc7a02a5c88e78138b792da5f023e31d8",
+    "news_titles_hash": "6ca073de04fb72ab6049c62c9a6a873e27f436ff042934205241c86dd7d63e63",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:42"
+    "updated_at": "2026-06-30 16:43:25"
   },
   "3701": {
     "name": "大眾控",
@@ -483,13 +483,13 @@
     "name": "台耀",
     "news_titles_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:46"
+    "updated_at": "2026-06-30 16:43:26"
   },
   "4749": {
     "name": "新應材",
-    "news_titles_hash": "20c6d99f591801dc8ec97538f78e6d63f689e89526a87cf32ab9c826e72fcd5e",
+    "news_titles_hash": "40180fe57b8786878a1a326c0bf58726e496be2e284de1347797273a15f9804f",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:47"
+    "updated_at": "2026-06-30 16:43:27"
   },
   "4772": {
     "name": "台特化",
@@ -517,9 +517,9 @@
   },
   "4979": {
     "name": "華星光",
-    "news_titles_hash": "c4327ac34642df9f3328fc3986bf7efadf3bb403bf09aeb0e02ffd4d2f4f25be",
+    "news_titles_hash": "950feed5a1bd0e28adc0a7b21f06c30a1afa25601644072cf4ab40ece6388e25",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:51"
+    "updated_at": "2026-06-30 16:43:28"
   },
   "4991": {
     "name": "環宇-KY",
@@ -541,21 +541,21 @@
   },
   "5347": {
     "name": "世界",
-    "news_titles_hash": "e0034c91e469dd21e198e4a9d4d41cf4835bcba75b5117cd787760f69b73326c",
+    "news_titles_hash": "9bdff46505a9a5c2815c516c0e09a3ae3b4d04028e6c4bade3e64a8ea5b0b155",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:54"
+    "updated_at": "2026-06-30 16:43:29"
   },
   "5443": {
     "name": "均豪",
     "news_titles_hash": "725c011dd92f9db1ada54420bfdb4d88dd97f5e560f0138f60e51c08e14ae141",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:55"
+    "updated_at": "2026-06-30 16:43:30"
   },
   "5536": {
     "name": "聖暉*",
     "news_titles_hash": "7a982e49e150db677a672eeb4b76a9dce27bb9eec4b975f388bbbb2d26711fd2",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:56"
+    "updated_at": "2026-06-30 16:43:30"
   },
   "5871": {
     "name": "中租-KY",
@@ -571,21 +571,21 @@
   },
   "6139": {
     "name": "亞翔",
-    "news_titles_hash": "91b7196e86dcf83143fcc2fd76c2b9437604b1c1f1dbea99f09669308da1c48a",
+    "news_titles_hash": "d964ecc578c4309f1835f5c84320ffc8f838e8ca8f8134bbec53644c0951d94a",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:59"
+    "updated_at": "2026-06-30 16:43:31"
   },
   "6187": {
     "name": "萬潤",
-    "news_titles_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "news_titles_hash": "f4eb7fe37fddfa77021f751149413484b430008e6f2a2cffe15873c525c44fd8",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:11:59"
+    "updated_at": "2026-06-30 16:43:32"
   },
   "6196": {
     "name": "帆宣",
-    "news_titles_hash": "fbd42d30eff2d434b73ecc948b2774bdeefd068ccabd52a334da5ef18dfa0f5d",
+    "news_titles_hash": "b05a9a46808b9b2dff4cd81ab948e46f4a153f8458f7c6f4f6776db9e1bdbeb3",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:12:00"
+    "updated_at": "2026-06-30 16:43:33"
   },
   "6197": {
     "name": "佳必琪",
@@ -595,9 +595,9 @@
   },
   "6213": {
     "name": "聯茂",
-    "news_titles_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "news_titles_hash": "150185a4185e4e8e2058c4d792bcbfa0a291411369f4ec6d95ff141a1e7952b9",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:12:02"
+    "updated_at": "2026-06-30 16:43:34"
   },
   "6217": {
     "name": "中探針",
@@ -667,15 +667,15 @@
   },
   "6442": {
     "name": "光聖",
-    "news_titles_hash": "cb80951bbe010de08488ef2baa0ddcbb7900d08e07a779007a064a89cef678df",
+    "news_titles_hash": "123987ae88cb1e02dfa1ad505b10f3bd93aa7fffe0846a9b694e268feed546b7",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:12:12"
+    "updated_at": "2026-06-30 16:43:35"
   },
   "6451": {
     "name": "訊芯-KY",
-    "news_titles_hash": "98e4424da60b8103709459968648552e09a5a0a21ae3c44a49679aab4088a4bd",
+    "news_titles_hash": "77bef2d63106b6eb53bd09fb9525d23a058a9c7781c3b64159ee2b8064860ca6",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:12:13"
+    "updated_at": "2026-06-30 16:43:36"
   },
   "6510": {
     "name": "精測",
@@ -703,9 +703,9 @@
   },
   "6640": {
     "name": "均華",
-    "news_titles_hash": "a48f69161ce69591a01f123d67c34580ccd056cacafb106c25b9470fdaa6cd68",
+    "news_titles_hash": "69e16068ba82c4103de72d00376e9e1a837431d0785346ada5f2f31f77ac06a0",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:12:17"
+    "updated_at": "2026-06-30 16:43:37"
   },
   "6643": {
     "name": "M31",
@@ -715,9 +715,9 @@
   },
   "6664": {
     "name": "群翊",
-    "news_titles_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "news_titles_hash": "58d2c4cba4f219931028b6f21e227b27cf4de19ef1d9beb4d9de49f58798a7f1",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:12:19"
+    "updated_at": "2026-06-30 16:43:37"
   },
   "6669": {
     "name": "緯穎",
@@ -739,9 +739,9 @@
   },
   "6691": {
     "name": "洋基工程",
-    "news_titles_hash": "69f87ea02873b003c56aff4f9e9b581a83aad0d452661bf9ec86e40393c13973",
+    "news_titles_hash": "0fe9a3eb8c7a7e9db50bfd66fe4cd1b53c68eb8b0b254acd7ff3f73331eb4ed9",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:12:22"
+    "updated_at": "2026-06-30 16:43:38"
   },
   "6693": {
     "name": "廣閎科",
@@ -753,7 +753,7 @@
     "name": "采鈺",
     "news_titles_hash": "8d0c5abb7816fea043584513c9ef660d691fe607fb77357b2dc2d498a6bfc8b4",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:12:24"
+    "updated_at": "2026-06-30 16:43:39"
   },
   "6805": {
     "name": "富世達",
@@ -801,7 +801,7 @@
     "name": "安葆",
     "news_titles_hash": "e556d06edf320f39e727a874503883728868a485ad17b96bc2dd61042a1b4766",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:12:31"
+    "updated_at": "2026-06-30 16:43:40"
   },
   "7828": {
     "name": "創新服務",
@@ -837,7 +837,7 @@
     "name": "昇陽半導體",
     "news_titles_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "status": "fallback/openai_disabled",
-    "updated_at": "2026-06-29 18:12:36"
+    "updated_at": "2026-06-30 16:43:41"
   },
   "8046": {
     "name": "南電",
