@@ -1,39 +1,37 @@
-[32m2026-07-01 10:10:01.668[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-07-01 10:10:01.788[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-FinMind: token=True, login=ok, usage=318/6000, remain=5682
+[32m2026-07-02 09:30:42.827[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-02 09:30:42.941[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+FinMind: token=True, login=ok, usage=0/6000, remain=6000
 Build chips: total=145, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv
-[145/145] 8358 金居 status=ok date=2026-07-01 main=-109211 diff=46 state=neutral
-Done: rows=145, status={'ok': 145}, preserved=0, elapsed=322.6s, output=AllStatic_Chips.csv
 stock_id name chip_latest_date main_force_net broker_diff   chip_signal_state chips_status
-    1101   台泥       2026-07-01      -13774900         313 bearish_distributed           ok
-    1216   統一       2026-07-01         -70351         264             neutral           ok
-    1319   東陽       2026-07-01        -760357         361 bearish_distributed           ok
-    1476   儒鴻       2026-07-01        -143931         247             neutral           ok
-    1503   士電       2026-07-01         127808          17             neutral           ok
-    1513  中興電       2026-07-01          55032          29             neutral           ok
-    1514   亞力       2026-07-01        1126703         -74             neutral           ok
-    1519   華城       2026-07-01        -734550         293 bearish_distributed           ok
-    1532   勤美       2026-07-01         -87000           3             neutral           ok
-    1560   中砂       2026-07-01          59111         -27             neutral           ok
-    1597   直得       2026-07-01         -69688          45             neutral           ok
-    1727  中華化       2026-07-01          -2260         -31             neutral           ok
-    1760 寶齡富錦       2026-07-01          26306         -33             neutral           ok
-    1802   台玻       2026-07-01       -1024184           4             neutral           ok
-    2049   上銀       2026-07-01         179848         -67             neutral           ok
-    2059   川湖       2026-07-01          11393        -103             neutral           ok
-    2233   宇隆       2026-07-01          66959        -174             neutral           ok
-    2301  光寶科       2026-07-01         481502         -23             neutral           ok
-    2308  台達電       2026-07-01         418925           6             neutral           ok
-    2313   華通       2026-07-01       -1409783          19             neutral           ok
-    2317   鴻海       2026-07-01       -9702658          16             neutral           ok
-    2327  國巨*       2026-07-01       -3815924          -3             neutral           ok
-    2330  台積電       2026-07-01        6542614          -5             neutral           ok
-    2360   致茂       2026-07-01          38164        -111             neutral           ok
-    2368  金像電       2026-07-01         117313          54             neutral           ok
-    2382   廣達       2026-07-01         599054         -29 bullish_distributed           ok
-    2383  台光電       2026-07-01          28210        -189             neutral           ok
-    2402   毅嘉       2026-07-01         183975         -28             neutral           ok
-    2404   漢唐       2026-07-01         309355          -8             neutral           ok
-    2408  南亞科       2026-07-01        1087345          -1             neutral           ok
+    1101   台泥       2026-07-02       -5149844         197 bearish_distributed           ok
+    1216   統一       2026-07-02         560995        -142             neutral           ok
+    1319   東陽       2026-07-02        -968909         423 bearish_distributed           ok
+    1476   儒鴻       2026-07-02          11252          60             neutral           ok
+    1503   士電       2026-07-02        -174403         118             neutral           ok
+    1513  中興電       2026-07-02        -403923          85             neutral           ok
+    1514   亞力       2026-07-02       -1653931         191             neutral           ok
+    1519   華城       2026-07-02          24812         193             neutral           ok
+    1532   勤美       2026-07-02          24250          -8             neutral           ok
+    1560   中砂       2026-07-02          26000          43 bullish_distributed           ok
+    1597   直得       2026-07-02         604058        -259             neutral           ok
+    1727  中華化       2026-07-02         -10661          44             bearish           ok
+    1760 寶齡富錦       2026-07-02          -1000           1             neutral           ok
+    1802   台玻       2026-07-02        -362397          20             neutral           ok
+    2049   上銀       2026-07-02        -322724          34             neutral           ok
+    2059   川湖       2026-07-02              0         -63             neutral           ok
+    2233   宇隆       2026-07-02         -39849          33             neutral           ok
+    2301  光寶科       2026-07-02         386138          15 bullish_distributed           ok
+    2308  台達電       2026-07-02        -273340          62             neutral           ok
+    2313   華通       2026-07-02           4223          23             neutral           ok
+    2317   鴻海       2026-07-02      -14962671          37             neutral           ok
+    2327  國巨*       2026-07-02       -2732063          11             neutral           ok
+    2330  台積電       2026-07-02       -4584198          19             neutral           ok
+    2360   致茂       2026-07-02        -108374         192             neutral           ok
+    2368  金像電       2026-07-02          32864          94             neutral           ok
+    2382   廣達       2026-07-02        -900398          77             neutral           ok
+    2383  台光電       2026-07-02           8349          12             neutral           ok
+    2402   毅嘉       2026-07-02         179387          26             neutral           ok
+    2404   漢唐       2026-07-02         337392        -146             neutral           ok
+    2408  南亞科       2026-07-02        -359795           7             neutral           ok
 rows= 145
 status= {'ok': 145}
