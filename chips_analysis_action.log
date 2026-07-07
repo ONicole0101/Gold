@@ -1,23 +1,40 @@
-[32m2026-07-07 09:59:11.379[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-07-07 09:59:11.549[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-FinMind: token=True, login=ok, usage=367/6000, remain=5633
+[32m2026-07-07 15:32:26.881[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-07 15:32:26.996[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+FinMind: token=True, login=ok, usage=5375/6000, remain=625
 Build chips: total=145, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv
+[25/145] 2368 金像電 status=ok date=2026-07-07 main=219100 diff=158 state=neutral
+[27/145] 2449 京元電子 status=no_data date=- main=- diff=- state=no_data
+❌ chip analysis API error 2383: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+[31/145] 2455 全新 status=no_data date=- main=- diff=- state=no_data
+[32/145] 2454 聯發科 status=no_data date=- main=- diff=- state=no_data
+[37/145] 2885 元大金 status=no_data date=- main=- diff=- state=no_data
+❌ chip analysis API error 2486: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+[41/145] 3017 奇鋐 status=no_data date=- main=- diff=- state=no_data
+❌ chip analysis API error 3008: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+[45/145] 3035 智原 status=no_data date=- main=- diff=- state=no_data
+❌ chip analysis API error 3081: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+[51/145] 3131 弘塑 status=no_data date=- main=- diff=- state=no_data
+❌ chip analysis API error 3231: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+[57/145] 3264 欣銓 status=no_data date=- main=- diff=- state=no_data
+[62/145] 3324 雙鴻 status=no_data date=- main=- diff=- state=no_data
+[66/145] 3481 群創 status=no_data date=- main=- diff=- state=no_data
+❌ chip analysis API error 3533: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
 stock_id name chip_latest_date main_force_net broker_diff   chip_signal_state chips_status
     1101   台泥       2026-07-07       -2883983         188             neutral           ok
     1216   統一       2026-07-07        -266472        -258             neutral           ok
-    1319   東陽       2026-07-06         281569          71             neutral           ok
+    1319   東陽       2026-07-07         300111          33             neutral           ok
     1476   儒鴻       2026-07-07         257181        -229             neutral           ok
     1503   士電       2026-07-07        -191115         169             neutral           ok
     1513  中興電       2026-07-07        -431441          73             neutral           ok
     1514   亞力       2026-07-07        -820800         130             neutral           ok
-    1519   華城       2026-07-06        -188672          70             neutral           ok
+    1519   華城       2026-07-07        -181568         261 bearish_distributed           ok
     1532   勤美       2026-07-07         -33000           9             neutral           ok
     1560   中砂       2026-07-07        -102992         179             neutral           ok
-    1597   直得       2026-07-06         -69530          72             neutral           ok
+    1597   直得       2026-07-07         -97953         120 bearish_distributed           ok
     1727  中華化       2026-07-07        -949551         103             neutral           ok
     1760 寶齡富錦       2026-07-07          23000         -37             neutral           ok
-    1802   台玻       2026-07-06       -1827384          24 bearish_distributed           ok
-    2049   上銀       2026-07-06         206294         -44             neutral           ok
+    1802   台玻       2026-07-07       -3441324          42 bearish_distributed           ok
+    2049   上銀       2026-07-07        -132704          59             neutral           ok
     2059   川湖       2026-07-07         120675        -267             neutral           ok
     2233   宇隆       2026-07-07         -28874          45             neutral           ok
     2301  光寶科       2026-07-07        -167264          59             neutral           ok
