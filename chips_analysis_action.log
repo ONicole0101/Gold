@@ -1,39 +1,37 @@
-[32m2026-07-06 10:59:32.553[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-07-06 10:59:32.665[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-FinMind: token=True, login=ok, usage=484/6000, remain=5516
+[32m2026-07-07 09:59:11.379[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-07 09:59:11.549[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+FinMind: token=True, login=ok, usage=367/6000, remain=5633
 Build chips: total=145, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv
-[25/145] 2368 金像電 status=ok date=2026-07-06 main=-287076 diff=182 state=neutral
-[100/145] 6213 聯茂 status=ok date=2026-07-06 main=-165649 diff=9 state=neutral
 stock_id name chip_latest_date main_force_net broker_diff   chip_signal_state chips_status
-    1101   台泥       2026-07-06        -483824          47             neutral           ok
-    1216   統一       2026-07-06        -746769        -289             neutral           ok
+    1101   台泥       2026-07-07       -2883983         188             neutral           ok
+    1216   統一       2026-07-07        -266472        -258             neutral           ok
     1319   東陽       2026-07-06         281569          71             neutral           ok
-    1476   儒鴻       2026-07-06         -16026          16             neutral           ok
-    1503   士電       2026-07-06         523088         -60             neutral           ok
-    1513  中興電       2026-07-06         725760         -24             neutral           ok
-    1514   亞力       2026-07-06         665349         -33             neutral           ok
+    1476   儒鴻       2026-07-07         257181        -229             neutral           ok
+    1503   士電       2026-07-07        -191115         169             neutral           ok
+    1513  中興電       2026-07-07        -431441          73             neutral           ok
+    1514   亞力       2026-07-07        -820800         130             neutral           ok
     1519   華城       2026-07-06        -188672          70             neutral           ok
-    1532   勤美       2026-07-06          22984         -23             neutral           ok
-    1560   中砂       2026-07-06          24106         115             neutral           ok
+    1532   勤美       2026-07-07         -33000           9             neutral           ok
+    1560   中砂       2026-07-07        -102992         179             neutral           ok
     1597   直得       2026-07-06         -69530          72             neutral           ok
-    1727  中華化       2026-07-06        3849826        -298             neutral           ok
-    1760 寶齡富錦       2026-07-06          69000         -58             neutral           ok
+    1727  中華化       2026-07-07        -949551         103             neutral           ok
+    1760 寶齡富錦       2026-07-07          23000         -37             neutral           ok
     1802   台玻       2026-07-06       -1827384          24 bearish_distributed           ok
     2049   上銀       2026-07-06         206294         -44             neutral           ok
-    2059   川湖       2026-07-06           2699         223             neutral           ok
-    2233   宇隆       2026-07-06          -6760          61             neutral           ok
-    2301  光寶科       2026-07-06        2953661         -43 bullish_distributed           ok
-    2308  台達電       2026-07-06        -365546          31             neutral           ok
-    2313   華通       2026-07-06        2066450          -7 bullish_distributed           ok
-    2317   鴻海       2026-07-06       -4347874           8 bearish_distributed           ok
-    2327  國巨*       2026-07-06        2343480           5             neutral           ok
-    2330  台積電       2026-07-06        -554272           5 bearish_distributed           ok
-    2360   致茂       2026-07-06         -60463         241 bearish_distributed           ok
-    2368  金像電       2026-07-06        -287076         182             neutral           ok
-    2382   廣達       2026-07-06        -826475          -5             neutral           ok
-    2383  台光電       2026-07-06        -229241         232             neutral           ok
-    2402   毅嘉       2026-07-06         351700        -150             neutral           ok
-    2404   漢唐       2026-07-06        -169935         191             neutral           ok
-    2408  南亞科       2026-07-06        1861664          -1             neutral           ok
+    2059   川湖       2026-07-07         120675        -267             neutral           ok
+    2233   宇隆       2026-07-07         -28874          45             neutral           ok
+    2301  光寶科       2026-07-07        -167264          59             neutral           ok
+    2308  台達電       2026-07-07        -387228          45             neutral           ok
+    2313   華通       2026-07-07        -176929          33             neutral           ok
+    2317   鴻海       2026-07-07       -7310218          28 bearish_distributed           ok
+    2327  國巨*       2026-07-07       -2337545           4             neutral           ok
+    2330  台積電       2026-07-07        2688421           7             neutral           ok
+    2360   致茂       2026-07-07        -227899         377 bearish_distributed           ok
+    2368  金像電       2026-07-07         219100         158             neutral           ok
+    2382   廣達       2026-07-07        -127692          14             neutral           ok
+    2383  台光電       2026-07-07          45290         107             neutral           ok
+    2402   毅嘉       2026-07-07        -876400          25             neutral           ok
+    2404   漢唐       2026-07-07        -133724         167 bearish_distributed           ok
+    2408  南亞科       2026-07-07        1291545           4             neutral           ok
 rows= 145
 status= {'ok': 145}
