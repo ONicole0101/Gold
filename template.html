@@ -221,6 +221,12 @@
       vertical-align: top;
     }
 
+    .industry-summary-cell {
+      width: clamp(220px, 18vw, 420px);
+      min-width: clamp(220px, 18vw, 420px);
+      max-width: clamp(280px, 23vw, 500px);
+    }
+
     .news-summary-cell {
       width: clamp(260px, 24vw, 560px);
       min-width: clamp(260px, 24vw, 560px);
@@ -396,7 +402,7 @@
       width: 100%;
       display: flex;
       flex-wrap: wrap;
-      align-items: center;
+      align-items: flex-start;
       gap: 8px 12px;
       margin-bottom: 2px;
     }
@@ -412,7 +418,15 @@
       align-items: center;
       gap: 6px;
       font-size: 12px;
+    }
+
+    .top-right-filters {
       margin-left: auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: flex-start;
+      gap: 8px;
     }
 
     .code-filter-item label {
@@ -455,15 +469,106 @@
       font-size: 12px;
     }
 
-    .category-filter-item {
-      grid-template-columns: auto minmax(150px, 220px);
-      align-items: start;
+    .category-dropdown {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
     }
 
-    .category-filter-item select {
-      height: 78px;
-      min-width: 150px;
-      padding: 4px 6px;
+    .category-dropdown label {
+      color: #c9d1d9;
+      white-space: nowrap;
+    }
+
+    .category-toggle-btn {
+      min-width: 146px;
+      height: 26px;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      background: #0d1117;
+      color: #e6edf3;
+      padding: 2px 8px;
+      font-size: 12px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .category-popover {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      width: min(300px, calc(100vw - 28px));
+      padding: 8px;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      background: #161b22;
+      box-shadow: 0 12px 28px #0009;
+      z-index: 980;
+    }
+
+    .category-search-input {
+      width: 100%;
+      height: 28px;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      background: #0d1117;
+      color: #e6edf3;
+      padding: 4px 8px;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .category-options {
+      max-height: 220px;
+      overflow: auto;
+      display: grid;
+      gap: 4px;
+      padding-right: 2px;
+    }
+
+    .category-quick-actions {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .category-quick-btn {
+      flex: 1;
+      height: 26px;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      background: #21262d;
+      color: #c9d1d9;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .category-quick-btn:hover {
+      background: #263041;
+    }
+
+    .category-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #c9d1d9;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .category-option:hover {
+      background: #21262d;
+    }
+
+    .category-empty {
+      margin-top: 4px;
+      color: #8b949e;
+      font-size: 12px;
     }
 
     .filter-actions {
@@ -587,6 +692,12 @@
         margin-left: 0;
       }
 
+      .top-right-filters {
+        width: 100%;
+        margin-left: 0;
+        justify-content: flex-start;
+      }
+
       .text-summary-cell {
         width: clamp(200px, 32vw, 380px);
         min-width: clamp(200px, 32vw, 380px);
@@ -649,6 +760,22 @@
         word-break: break-word;
         overflow-wrap: anywhere;
       }
+
+      .code-filter-item,
+      .category-dropdown {
+        width: 100%;
+      }
+
+      .code-filter-item input,
+      .category-toggle-btn {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .category-popover {
+        left: 0;
+        right: auto;
+      }
     }
   </style>
 </head>
@@ -668,9 +795,32 @@
     <div class="filter-panel" id="filterPanel">
       <div class="filter-title-row">
         <div class="filter-title">篩選條件：可多條件累積篩選；輸入即時更新，也可按「套用」。</div>
-        <div class="code-filter-item">
-          <label for="stockCodeFilter">股票代號</label>
-          <input id="stockCodeFilter" type="text" inputmode="numeric" placeholder="例如 2330">
+        <div class="top-right-filters">
+          <div class="code-filter-item">
+            <label for="stockCodeFilter">股票代號</label>
+            <input id="stockCodeFilter" type="text" inputmode="numeric" placeholder="例如 2330">
+          </div>
+          <div class="category-dropdown" id="customCategoryDropdown">
+            <label for="customCategoryToggle">自選分類</label>
+            <button type="button" class="category-toggle-btn" id="customCategoryToggle"
+              aria-expanded="false">全部分類</button>
+            <div class="category-popover" id="customCategoryPopover" hidden>
+              <input id="customCategorySearch" class="category-search-input" type="text" placeholder="搜尋分類...">
+              <div class="category-quick-actions">
+                <button type="button" class="category-quick-btn" id="customCategorySelectAllBtn">全選</button>
+                <button type="button" class="category-quick-btn" id="customCategoryClearBtn">清除分類</button>
+              </div>
+              <div class="category-options" id="customCategoryOptions">
+                {% for category in custom_category_options | default([]) %}
+                <label class="category-option" data-category="{{ category | e }}">
+                  <input type="checkbox" class="custom-category-checkbox" value="{{ category | e }}">
+                  <span>{{ category | e }}</span>
+                </label>
+                {% endfor %}
+              </div>
+              <div class="category-empty" id="customCategoryEmpty" hidden>查無分類</div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="filter-item"><label>價格</label><select data-filter-op="price">
@@ -725,13 +875,6 @@
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
         </select><input data-filter-key="broker_diff_filter" type="number" step="1" placeholder="家數"></div>
-      <div class="filter-item category-filter-item"><label>自選分類</label>
-        <select id="customCategoryFilter" multiple size="4">
-          {% for category in custom_category_options | default([]) %}
-          <option value="{{ category | e }}">{{ category | e }}</option>
-          {% endfor %}
-        </select>
-      </div>
       <div class="filter-actions">
         <button type="button" id="applyFilterBtn">套用</button>
         <button type="button" class="secondary" id="clearFilterBtn">清除</button>
@@ -812,7 +955,7 @@
         ]
       },
       fundamental: {
-        note: "基本面：EPS、ROE、營收、新聞，不含產業欄",
+        note: "基本面：EPS、ROE、營收、毛利率、營益率、淨利率、殖利率、PER/PBR、新聞",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>60天LH</small>" },
@@ -1782,11 +1925,112 @@
     }
 
     function selectedCustomCategories() {
-      const select = document.getElementById("customCategoryFilter");
-      if (!select) return [];
-      return Array.from(select.selectedOptions || [])
+      return Array.from(document.querySelectorAll(".custom-category-checkbox:checked"))
         .map(option => normalizeCategoryLabel(option.value))
         .filter(Boolean);
+    }
+
+    function updateCategoryToggleText() {
+      const button = document.getElementById("customCategoryToggle");
+      if (!button) return;
+      const count = selectedCustomCategories().length;
+      button.textContent = count > 0 ? `已選 ${count} 類` : "全部分類";
+    }
+
+    function filterCustomCategoryOptions() {
+      const searchInput = document.getElementById("customCategorySearch");
+      const keyword = String(searchInput?.value ?? "").trim().toLowerCase();
+      const options = Array.from(document.querySelectorAll("#customCategoryOptions .category-option"));
+
+      let visibleCount = 0;
+      options.forEach((option) => {
+        const category = String(option.dataset.category ?? "");
+        const normalized = normalizeCategoryLabel(category).toLowerCase();
+        const visible = !keyword || normalized.includes(keyword) || category.toLowerCase().includes(keyword);
+        option.hidden = !visible;
+        if (visible) visibleCount += 1;
+      });
+
+      const emptyEl = document.getElementById("customCategoryEmpty");
+      if (emptyEl) emptyEl.hidden = visibleCount > 0;
+    }
+
+    function setCustomCategoryPopover(open) {
+      const toggle = document.getElementById("customCategoryToggle");
+      const popover = document.getElementById("customCategoryPopover");
+      if (!toggle || !popover) return;
+
+      popover.hidden = !open;
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+
+      if (open) {
+        filterCustomCategoryOptions();
+        const searchInput = document.getElementById("customCategorySearch");
+        if (searchInput) searchInput.focus();
+      }
+    }
+
+    function bindCustomCategoryDropdown() {
+      const root = document.getElementById("customCategoryDropdown");
+      const toggle = document.getElementById("customCategoryToggle");
+      const searchInput = document.getElementById("customCategorySearch");
+      const optionsWrap = document.getElementById("customCategoryOptions");
+      const selectAllBtn = document.getElementById("customCategorySelectAllBtn");
+      const clearBtn = document.getElementById("customCategoryClearBtn");
+      if (!root || !toggle || !optionsWrap) return;
+
+      toggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const expanded = toggle.getAttribute("aria-expanded") === "true";
+        setCustomCategoryPopover(!expanded);
+      });
+
+      if (searchInput) {
+        searchInput.addEventListener("input", filterCustomCategoryOptions);
+      }
+
+      if (selectAllBtn) {
+        selectAllBtn.addEventListener("click", () => {
+          document.querySelectorAll("#customCategoryOptions .custom-category-checkbox").forEach((checkbox) => {
+            checkbox.checked = true;
+          });
+          updateCategoryToggleText();
+          applyFilters();
+        });
+      }
+
+      if (clearBtn) {
+        clearBtn.addEventListener("click", () => {
+          document.querySelectorAll("#customCategoryOptions .custom-category-checkbox").forEach((checkbox) => {
+            checkbox.checked = false;
+          });
+          updateCategoryToggleText();
+          applyFilters();
+        });
+      }
+
+      optionsWrap.addEventListener("change", (event) => {
+        if (!(event.target instanceof HTMLInputElement)) return;
+        if (!event.target.classList.contains("custom-category-checkbox")) return;
+        updateCategoryToggleText();
+        applyFilters();
+      });
+
+      document.addEventListener("click", (event) => {
+        if (!(event.target instanceof Node)) return;
+        if (!root.contains(event.target)) {
+          setCustomCategoryPopover(false);
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          setCustomCategoryPopover(false);
+        }
+      });
+
+      updateCategoryToggleText();
+      filterCustomCategoryOptions();
     }
 
     const CATEGORY_ALIAS_MAP = {
@@ -1857,8 +2101,14 @@
       document.querySelectorAll("[data-filter-op]").forEach(select => select.value = ">");
       const codeInput = document.getElementById("stockCodeFilter");
       if (codeInput) codeInput.value = "";
-      const categorySelect = document.getElementById("customCategoryFilter");
-      if (categorySelect) Array.from(categorySelect.options).forEach(option => option.selected = false);
+      document.querySelectorAll(".custom-category-checkbox").forEach(checkbox => {
+        checkbox.checked = false;
+      });
+      const categorySearch = document.getElementById("customCategorySearch");
+      if (categorySearch) categorySearch.value = "";
+      filterCustomCategoryOptions();
+      updateCategoryToggleText();
+      setCustomCategoryPopover(false);
       applyFilters();
     }
 
@@ -1875,8 +2125,7 @@
         codeInput.addEventListener("input", applyFilters);
         codeInput.addEventListener("change", applyFilters);
       }
-      const categorySelect = document.getElementById("customCategoryFilter");
-      if (categorySelect) categorySelect.addEventListener("change", applyFilters);
+      bindCustomCategoryDropdown();
       const applyBtn = document.getElementById("applyFilterBtn");
       const clearBtn = document.getElementById("clearFilterBtn");
       if (applyBtn) applyBtn.addEventListener("click", applyFilters);
