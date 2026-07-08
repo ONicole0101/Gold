@@ -1,5 +1,10 @@
 pandas
+numpy
+openpyxl
 jinja2
 requests
+openai
 FinMind
+loguru
+PyYAML
 tqdm
