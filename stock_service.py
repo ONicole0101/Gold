@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 
+from custom_categories import CUSTOM_CATEGORY_COLUMN, category_text, split_category_text
 from data_sources import get_stock_data
 from financial_analysis import (
     calc_eps_score,
@@ -254,6 +255,10 @@ def build_recent_technical_fields(*rows):
 def process_stock(s, static_map=None, chips_map=None, news_map=None):
     stock_id = str(s["stock_id"])
     name = s["name"]
+    custom_categories_text = category_text(
+        s.get("custom_categories") or s.get(CUSTOM_CATEGORY_COLUMN) or ""
+    )
+    custom_category_list = split_category_text(custom_categories_text)
 
     base = {
         "name": name,
@@ -274,6 +279,9 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
         "support_date": None,
         "resistance_distance_pct": None,
         "support_distance_pct": None,
+        "custom_categories": custom_categories_text,
+        "custom_category_list": custom_category_list,
+        CUSTOM_CATEGORY_COLUMN: custom_categories_text,
     }
 
     static_row = (static_map or {}).get(stock_id, {})
@@ -418,10 +426,21 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
 
         bb_upper = latest["BB_upper"] if "BB_upper" in latest else None
         bb_lower = latest["BB_lower"] if "BB_lower" in latest else None
+
+        def _bb_pct_from_row(row):
+            upper = row["BB_upper"] if "BB_upper" in row else None
+            lower = row["BB_lower"] if "BB_lower" in row else None
+            row_close = row["close"] if "close" in row else None
+            if pd.notna(upper) and pd.notna(lower) and upper != lower and pd.notna(row_close):
+                return float(round((row_close - lower) / (upper - lower) * 100, 1))
+            return None
+
         bb_pct = None
         if pd.notna(bb_upper) and pd.notna(bb_lower) and bb_upper != bb_lower:
             bb_pct = round((close - bb_lower) / (bb_upper - bb_lower) * 100, 1)
             bb_pct = float(bb_pct)
+        bb_pct_t1 = _bb_pct_from_row(prev)
+        bb_pct_t2 = _bb_pct_from_row(prev2)
 
         bias5 = safe_ma_stats.get("bias5")
         bias20 = safe_ma_stats.get("bias20")
@@ -544,7 +563,15 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
                 return int(v)
             if isinstance(v, np.floating):
                 return float(v)
-            if pd.isna(v):
+            if isinstance(v, (list, tuple, set, dict)):
+                return v
+            try:
+                is_na = pd.isna(v)
+            except Exception:
+                return v
+            if isinstance(is_na, (np.ndarray, list, tuple)):
+                return v
+            if bool(is_na):
                 return None
             return v
 
@@ -593,6 +620,9 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             "ma18_break": bool(ma20_break),
             "kd_buy": bool(kd_buy),
             "bb_pct": float(bb_pct) if bb_pct is not None else None,
+            "bb_pct_t0": float(bb_pct) if bb_pct is not None else None,
+            "bb_pct_t1": float(bb_pct_t1) if bb_pct_t1 is not None else None,
+            "bb_pct_t2": float(bb_pct_t2) if bb_pct_t2 is not None else None,
             "bb_upper": float(round(bb_upper, 2)) if bb_upper is not None and pd.notna(bb_upper) else None,
             "bb_lower": float(round(bb_lower, 2)) if bb_lower is not None and pd.notna(bb_lower) else None,
             "bb_3d_up": bb_trend.get("bb_3d_up"),
@@ -643,6 +673,9 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             "price_volume_state": price_volume_state,
             "trend_stage": trend_stage,
             "entry_note": entry_note,
+            "custom_categories": custom_categories_text,
+            "custom_category_list": custom_category_list,
+            CUSTOM_CATEGORY_COLUMN: custom_categories_text,
         }
         return {k: to_py(v) for k, v in result.items()}
 
@@ -663,6 +696,14 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
 
 
 def _build_static_fields(static_row):
+    period_start = static_row.get("period_start")
+    if period_start is None or (np.isscalar(period_start) and pd.isna(period_start)):
+        period_start = static_row.get("disposition_period_start")
+
+    period_end = static_row.get("period_end")
+    if period_end is None or (np.isscalar(period_end) and pd.isna(period_end)):
+        period_end = static_row.get("disposition_period_end")
+
     return {
         "eps_Y": to_float_or_none(static_row.get("eps_Y")),
         "eps_ttm": to_float_or_none(static_row.get("eps_ttm")),
@@ -694,10 +735,10 @@ def _build_static_fields(static_row):
         "pbr_60d_high": to_float_or_none(static_row.get("pbr_60d_high")),
         "pbr_60d_low": to_float_or_none(static_row.get("pbr_60d_low")),
 
-        "period_start": to_str_or_none(static_row.get("period_start")),
-        "period_end": to_str_or_none(static_row.get("period_end")),
-        "disposition_period_start": to_str_or_none(static_row.get("period_start") or static_row.get("disposition_period_start")),
-        "disposition_period_end": to_str_or_none(static_row.get("period_end") or static_row.get("disposition_period_end")),
+        "period_start": to_str_or_none(period_start),
+        "period_end": to_str_or_none(period_end),
+        "disposition_period_start": to_str_or_none(period_start),
+        "disposition_period_end": to_str_or_none(period_end),
     }
 
 
@@ -724,6 +765,20 @@ def _build_chip_fields(chip_row):
         "main_force_score": to_float_or_none(chip_row.get("main_force_score")),
         "broker_diff": latest_broker_diff,
         "broker_diff_score": to_float_or_none(chip_row.get("broker_diff_score")),
+
+        "main_force_net_5d": to_int_or_none(chip_row.get("main_force_net_5d")),
+        "total_volume_5d": to_int_or_none(chip_row.get("total_volume_5d")),
+        "main_force_buy_rate_5d_pct": to_float_or_none(chip_row.get("main_force_buy_rate_5d_pct")),
+        "chip_concentration_avg_5d": to_float_or_none(chip_row.get("chip_concentration_avg_5d")),
+        "chip_concentration_change_5d": to_float_or_none(chip_row.get("chip_concentration_change_5d")),
+        "broker_diff_avg_5d": to_float_or_none(chip_row.get("broker_diff_avg_5d")),
+
+        "main_force_net_20d": to_int_or_none(chip_row.get("main_force_net_20d")),
+        "total_volume_20d": to_int_or_none(chip_row.get("total_volume_20d")),
+        "main_force_buy_rate_20d_pct": to_float_or_none(chip_row.get("main_force_buy_rate_20d_pct")),
+        "chip_concentration_avg_20d": to_float_or_none(chip_row.get("chip_concentration_avg_20d")),
+        "chip_concentration_change_20d": to_float_or_none(chip_row.get("chip_concentration_change_20d")),
+        "broker_diff_avg_20d": to_float_or_none(chip_row.get("broker_diff_avg_20d")),
 
         "chip_date_t0": to_str_or_none(chip_row.get("chip_date_t0")) or latest_date,
         "chip_date_t1": to_str_or_none(chip_row.get("chip_date_t1")),

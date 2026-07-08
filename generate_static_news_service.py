@@ -28,12 +28,19 @@ from pathlib import Path
 from typing import Iterable, List, Tuple
 
 try:
+    from data_sources import API_URL, FINMIND_token, headers
+except Exception:
+    API_URL = "https://api.finmindtrade.com/api/v4/data"
+    FINMIND_token = os.getenv("FINMIND_TOKEN")
+    headers = {"Authorization": f"Bearer {FINMIND_token}"} if FINMIND_token else {}
+
+try:
     import config
 except Exception:
     config = None
 
 TAIWAN_TZ = dt.timezone(dt.timedelta(hours=8))
-OUTPUT_COLUMNS = ["stock_id", "name", "產業", "新聞"]
+OUTPUT_COLUMNS = ["stock_id", "name", "新聞"]
 
 _OPENAI_DISABLED_REASON = ""
 
@@ -205,6 +212,141 @@ def _fallback_news(news_items: List[dict], max_chars: int = 150) -> str:
     return _compact_text(text, max_chars)
 
 
+def _to_datetime_safe(value: str):
+    text = str(value or "").strip()
+    if not text:
+        return None
+    for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%Y/%m/%d", "%Y/%m/%d %H:%M:%S"):
+        try:
+            return dt.datetime.strptime(text[:19], fmt)
+        except Exception:
+            continue
+    try:
+        return dt.datetime.fromisoformat(text.replace("Z", "+00:00").replace(" ", "T"))
+    except Exception:
+        return None
+
+
+def _extract_finmind_title(item: dict) -> str:
+    for key in ("title", "news_title", "headline", "summary"):
+        value = str(item.get(key) or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def _extract_finmind_source(item: dict) -> str:
+    for key in ("source", "provider", "news_source"):
+        value = str(item.get(key) or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def _extract_finmind_date_text(item: dict) -> str:
+    for key in ("date", "publish_date", "published_at", "created_at"):
+        value = str(item.get(key) or "").strip()
+        if value:
+            return value[:10]
+    return ""
+
+
+def fetch_finmind_news(stock: Stock, windows: tuple[int, ...] = (14, 21, 28), target_count: int = 3) -> List[dict]:
+    today = dt.datetime.now(TAIWAN_TZ).date()
+    token = FINMIND_token or _env("FINMIND_TOKEN", "")
+
+    def _fetch_one_day(query_date: dt.date) -> List[dict]:
+        params = urllib.parse.urlencode({
+            "dataset": "TaiwanStockNews",
+            "data_id": stock.stock_id,
+            "start_date": query_date.strftime("%Y-%m-%d"),
+            # TaiwanStockNews only supports one-day query; do not send end_date.
+            "token": token,
+        })
+        req = urllib.request.Request(
+            f"{API_URL}?{params}", headers=req_headers)
+
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                raw = resp.read().decode("utf-8", errors="ignore")
+        except Exception:
+            return []
+
+        try:
+            payload = json.loads(raw)
+        except Exception:
+            return []
+
+        rows = payload.get("data") or []
+        normalized = []
+        for row in rows:
+            title = _extract_finmind_title(row)
+            if not title:
+                continue
+            normalized.append({
+                "title": title,
+                "source": _extract_finmind_source(row),
+                "date": _extract_finmind_date_text(row) or query_date.strftime("%Y-%m-%d"),
+            })
+        return normalized
+
+    for days in windows:
+        normalized = []
+        seen = set()
+
+        for offset in range(max(int(days), 1)):
+            query_date = today - dt.timedelta(days=offset)
+            rows = _fetch_one_day(query_date)
+            for row in rows:
+                title = str(row.get("title") or "").strip()
+                if not title or title in seen:
+                    continue
+                seen.add(title)
+                normalized.append(row)
+
+            if len(normalized) >= target_count:
+                break
+
+        normalized.sort(
+            key=lambda x: _to_datetime_safe(
+                x.get("date") or "") or dt.datetime.min,
+            reverse=True,
+        )
+
+        if len(normalized) >= target_count:
+            return normalized[:target_count]
+        if days == windows[-1] and normalized:
+            return normalized[:target_count]
+        normalized.sort(
+            key=lambda x: _to_datetime_safe(
+                x.get("date") or "") or dt.datetime.min,
+            reverse=True,
+        )
+
+        if len(normalized) >= target_count:
+            return normalized[:target_count]
+        if days == windows[-1] and normalized:
+            return normalized[:target_count]
+
+    return []
+
+
+def build_finmind_news_summary(news_items: List[dict], max_chars: int = 150) -> str:
+    if not news_items:
+        return "近28天無可用新聞。"
+    lines = []
+    for item in news_items[:3]:
+        date_text = str(item.get("date") or "").strip()
+        mmdd = date_text[5:10].replace(
+            "-", "/") if len(date_text) >= 10 else "--/--"
+        title = str(item.get("title") or "").strip()
+        if title:
+            lines.append(f"{mmdd} {title}")
+    if not lines:
+        return "近28天無可用新聞。"
+    return _compact_text("；".join(lines), max_chars)
+
+
 def build_news_query(stock: Stock, days: int) -> str:
     # 用股票代號 + 公司名提高精準度；避免只用「統一」「勤美」這類泛詞。
     return f'("{stock.stock_id}" OR "{stock.name}") ("營收" OR "獲利" OR "股東會" OR "法說" OR "訂單" OR "出貨" OR "產能" OR "AI" OR "台股" OR "股票") -ETF -權證 -紀念品 -CMoney when:{days}d'
@@ -319,7 +461,8 @@ def filter_relevant_news(stock: Stock, items: List[dict], max_items: int = 8) ->
         # 股票代號或公司名至少要出現；若有明顯雜訊詞，除非同時有營運關鍵字才保留。
         if not has_identity:
             continue
-        operational_terms = ["營收", "獲利", "訂單", "出貨", "產能", "法說", "股東會", "財務長", "新廠", "投產", "撤照", "合作", "投資"]
+        operational_terms = ["營收", "獲利", "訂單", "出貨", "產能",
+                             "法說", "股東會", "財務長", "新廠", "投產", "撤照", "合作", "投資"]
         has_operational_title = any(term in text for term in operational_terms)
         if negative_score and not has_operational_title:
             continue
@@ -653,12 +796,11 @@ def atomic_write_csv(rows: list[dict], out_path: str | Path) -> None:
 def write_allstatic_news(
     stocks: Iterable[Stock],
     out_path: str | Path,
-    days: int = 10,
+    days: int = 14,
     sleep_sec: float = 0.6,
     max_news_items: int = 8,
     cache_path: str | Path = ".allstatic_news_cache.json",
 ) -> None:
-    industry_chars = _env_int("INDUSTRY_SUMMARY_CHARS", 150)
     news_chars = _env_int("NEWS_SUMMARY_CHARS", 150)
     skip_same_titles = _env_bool("NEWS_SKIP_IF_SAME_TITLES", True)
 
@@ -669,44 +811,34 @@ def write_allstatic_news(
     stock_list = list(stocks)
     for i, stock in enumerate(stock_list, start=1):
         existing_row = existing.get(stock.stock_id, {})
-        existing_industry = str(existing_row.get(
-            "產業") or existing_row.get("industry_summary") or "").strip()
         existing_news = str(existing_row.get(
             "新聞") or existing_row.get("news_summary") or "").strip()
 
         try:
-            news_items = fetch_google_news_rss(
-                stock, days=days, max_items=max_news_items)
+            news_items = fetch_finmind_news(
+                stock, windows=(14, 21, 28), target_count=3)
         except Exception as exc:
-            print(f"⚠️ RSS 擷取失敗 {stock.stock_id}: {exc}", flush=True)
+            print(
+                f"⚠️ FinMind TaiwanStockNews 擷取失敗 {stock.stock_id}: {exc}", flush=True)
             news_items = []
 
         title_hash = news_titles_hash(news_items)
         cache_row = cache.get(stock.stock_id, {})
         same_titles = bool(title_hash and cache_row.get(
             "news_titles_hash") == title_hash)
-        need_industry = should_refresh_industry(existing_industry)
+        need_refresh = False
 
-        if skip_same_titles and same_titles and existing_news and not need_industry:
-            industry = _fallback_industry(
-                stock, existing_industry, industry_chars)
-            industry = normalize_summary_text(industry)
-
+        if skip_same_titles and same_titles and existing_news and not need_refresh:
             news = normalize_summary_text(existing_news)
             news = _compact_text(news, news_chars)
             status = "cache/unchanged_titles"
         else:
-            industry, news, status = summarize_with_openai(
-                stock,
-                news_items,
-                existing_industry=existing_industry,
-                existing_news=existing_news,
-            )
+            news = build_finmind_news_summary(news_items, news_chars)
+            status = "finmind/taiwan_stock_news"
 
         rows.append({
             "stock_id": stock.stock_id,
             "name": stock.name,
-            "產業": industry,
             "新聞": news,
         })
 
@@ -739,7 +871,7 @@ def get_default_output_csv() -> str:
 def main() -> None:
     stocks_csv = get_default_stocks_csv()
     out_csv = get_default_output_csv()
-    days = _env_int("NEWS_DAYS", 10)
+    days = _env_int("NEWS_DAYS", 14)
     max_stocks = _env_int("MAX_STOCKS", 0)
     max_news_items = _env_int("NEWS_MAX_ITEMS", 8)
     sleep_sec = _env_float("NEWS_SLEEP_SEC", 0.6)
@@ -754,10 +886,8 @@ def main() -> None:
     print(f"stocks={len(stocks)}, days={days}, max_news_items={max_news_items}, out={out_csv}, cache={cache_path}", flush=True)
     print(
         "settings="
-        f"refresh_industry={_env('REFRESH_INDUSTRY', '0')}, "
-        f"refresh_industry_weekday={_env('REFRESH_INDUSTRY_WEEKDAY', '')}, "
+        f"finmind_token_present={bool(FINMIND_token or _env('FINMIND_TOKEN', ''))}, "
         f"skip_same_titles={_env('NEWS_SKIP_IF_SAME_TITLES', '1')}, "
-        f"industry_chars={_env('INDUSTRY_SUMMARY_CHARS', '150')}, "
         f"news_chars={_env('NEWS_SUMMARY_CHARS', '150')}, "
         f"openai_key_present={bool(_env('OPENAI_API_KEY', ''))}",
         flush=True,
