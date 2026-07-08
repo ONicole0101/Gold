@@ -1,24 +1,23 @@
-[32m2026-07-08 09:27:12.705[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-07-08 09:27:12.820[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-FinMind: token=True, login=ok, usage=4224/6000, remain=1776
+[32m2026-07-08 10:55:19.558[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-08 10:55:19.695[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+FinMind: token=True, login=ok, usage=545/6000, remain=5455
 Build chips: total=170, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv
-[50/170] 2891 中信金 status=ok date=2026-07-08 main=-542670 diff=31 state=neutral
 stock_id name chip_latest_date main_force_net broker_diff   chip_signal_state chips_status
     1101   台泥       2026-07-08       -4816902         290 bearish_distributed           ok
     1216   統一       2026-07-08        1401161        -310             neutral           ok
-    1319   東陽       2026-07-07         300111          33             neutral           ok
+    1319   東陽       2026-07-08        -481708         268             neutral           ok
     1476   儒鴻       2026-07-08          44216          50             neutral           ok
-    1503   士電       2026-07-07        -191115         169             neutral           ok
-    1513  中興電       2026-07-07        -431441          73             neutral           ok
-    1514   亞力       2026-07-07        -820800         130             neutral           ok
+    1503   士電       2026-07-08         -99070         209             neutral           ok
+    1513  中興電       2026-07-08        -975126         154             neutral           ok
+    1514   亞力       2026-07-08        -225437         133             neutral           ok
     1519   華城       2026-07-08        -123932         282 bearish_distributed           ok
-    1532   勤美       2026-07-07         -33000           9             neutral           ok
+    1532   勤美       2026-07-08          -1000          15             neutral           ok
     1560   中砂       2026-07-08         -10348         195             neutral           ok
     1597   直得       2026-07-08          20322          47             neutral           ok
     1727  中華化       2026-07-08          11006         116             neutral           ok
     1760 寶齡富錦       2026-07-08         -64000          39             neutral           ok
-    1802   台玻       2026-07-07       -3441324          42 bearish_distributed           ok
-    2049   上銀       2026-07-07        -132704          59             neutral           ok
+    1802   台玻       2026-07-08          64141          24             neutral           ok
+    2049   上銀       2026-07-08         -40088         106             neutral           ok
     2059   川湖       2026-07-08           6554         215 bullish_distributed           ok
     2233   宇隆       2026-07-08         -13391         -29             bearish           ok
     2301  光寶科       2026-07-08        -212143          46             neutral           ok
