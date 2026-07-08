@@ -1,7 +1,8 @@
-[32m2026-07-08 08:42:52.564[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-07-08 08:42:52.679[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-FinMind: token=True, login=ok, usage=286/6000, remain=5714
+[32m2026-07-08 09:27:12.705[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-08 09:27:12.820[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+FinMind: token=True, login=ok, usage=4224/6000, remain=1776
 Build chips: total=170, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv
+[50/170] 2891 中信金 status=ok date=2026-07-08 main=-542670 diff=31 state=neutral
 stock_id name chip_latest_date main_force_net broker_diff   chip_signal_state chips_status
     1101   台泥       2026-07-08       -4816902         290 bearish_distributed           ok
     1216   統一       2026-07-08        1401161        -310             neutral           ok
