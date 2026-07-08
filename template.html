@@ -1218,6 +1218,28 @@
 
     function dayMetricValue(s, key, idx) {
       if (idx === 0) return pickFirst(s[`${key}_t0`], s[key]);
+      if (idx === 1 && (key === "bias5" || key === "bias20" || key === "bias60")) {
+        const explicit = pickFirst(s[`${key}_t1`]);
+        if (!isNil(explicit)) return explicit;
+
+        const period = key === "bias5" ? 5 : key === "bias20" ? 20 : 60;
+        const prevMa = pickFirst(s[`prev_ma${period}`], s[`ma${period}_t1`]);
+        let prevClose = pickFirst(s.close_t1, s.prev_close);
+
+        if (isNil(prevClose)) {
+          const close = Number(s.price);
+          const chg = Number(s.chg);
+          if (Number.isFinite(close) && Number.isFinite(chg)) {
+            prevClose = close - chg;
+          }
+        }
+
+        const maNum = Number(prevMa);
+        const closeNum = Number(prevClose);
+        if (Number.isFinite(maNum) && maNum !== 0 && Number.isFinite(closeNum)) {
+          return Number((((closeNum - maNum) / maNum) * 100).toFixed(2));
+        }
+      }
       if (idx === 1) return pickFirst(s[`${key}_t1`]);
       if (idx === 2) return pickFirst(s[`${key}_t2`]);
       return null;
@@ -1256,6 +1278,14 @@
       return `
         ${renderDayPairContent(s, "bb_pct", "%")}
         <div class="table-lv3">L ${fmt(s.bb_lower)} / H ${fmt(s.bb_upper)}</div>`;
+    }
+
+    function renderBiasTechnicalContent(s, key) {
+      const low = pickFirst(s[`${key}_min`], s[`${key}_60d_low`]);
+      const high = pickFirst(s[`${key}_max`], s[`${key}_60d_high`]);
+      return `
+        ${renderDayPairContent(s, key, "%")}
+        <div class="table-lv3">L ${fmt(low, "%")} / H ${fmt(high, "%")}</div>`;
     }
 
     function priceLHValue(s, idx, kind) {
@@ -1661,11 +1691,11 @@
           }
           return `<td>${renderBBBlock(s)}</td>`;
         case "bias5":
-          return `<td>${renderDayPairContent(s, "bias5", "%")}</td>`;
+          return `<td>${renderBiasTechnicalContent(s, "bias5")}</td>`;
         case "bias20":
-          return `<td>${renderDayPairContent(s, "bias20", "%")}</td>`;
+          return `<td>${renderBiasTechnicalContent(s, "bias20")}</td>`;
         case "bias60":
-          return `<td>${renderDayPairContent(s, "bias60", "%")}</td>`;
+          return `<td>${renderBiasTechnicalContent(s, "bias60")}</td>`;
 
         case "news_summary":
           return `<td class="text-summary-cell news-summary-cell"><div class="summary-text">${escapeHtml(s.news_summary || "-")}</div></td>`;
@@ -1722,9 +1752,9 @@
           <div class="stock-item"><div class="stock-label">價格LH 3天趨勢</div>${renderPriceLHTrendBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">日KD 3天趨勢</div>${renderKDBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">日布林% (T/T-1)</div><div class="stock-value">${renderBBTechnicalContent(s)}</div></div>
-          <div class="stock-item"><div class="stock-label">日Bias5 (T/T-1)</div><div class="stock-value">${renderDayPairContent(s, "bias5", "%")}</div></div>
-          <div class="stock-item"><div class="stock-label">日Bias20 (T/T-1)</div><div class="stock-value">${renderDayPairContent(s, "bias20", "%")}</div></div>
-          <div class="stock-item"><div class="stock-label">日Bias60 (T/T-1)</div><div class="stock-value">${renderDayPairContent(s, "bias60", "%")}</div></div>
+          <div class="stock-item"><div class="stock-label">日Bias5 (T/T-1+LH)</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias5")}</div></div>
+          <div class="stock-item"><div class="stock-label">日Bias20 (T/T-1+LH)</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias20")}</div></div>
+          <div class="stock-item"><div class="stock-label">日Bias60 (T/T-1+LH)</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias60")}</div></div>
           <div class="stock-item"><div class="stock-label">量 / 昨 / 增 / 張</div><div class="stock-value"><div>${fmt(s.volume)} 張</div><div class="table-lv2">昨 ${fmt(s.prev_volume)}</div><div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-" : `${fmtTrend(s.volume_ratio)} ${fmt(s.volume_ratio, "%")}`}</div><div class="table-lv2">${isNil(s.volume_add) ? "-" : `${fmt(s.volume_add)} 張`}</div></div></div>
           <div class="stock-item"><div class="stock-label">壓力點 / 距離</div>${renderSupportResistanceBlock(s, "resistance")}</div>
           <div class="stock-item"><div class="stock-label">支撐點 / 距離</div>${renderSupportResistanceBlock(s, "support")}</div>

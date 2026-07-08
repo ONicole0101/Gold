@@ -442,9 +442,26 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
         bb_pct_t1 = _bb_pct_from_row(prev)
         bb_pct_t2 = _bb_pct_from_row(prev2)
 
+        def _bias_from_row(row, period):
+            bias_col = f"BIAS{period}"
+            if bias_col in row and pd.notna(row[bias_col]):
+                return float(round(row[bias_col], 2))
+            ma_col = f"MA{period}"
+            row_close = row.get("close") if "close" in row else None
+            ma_value = row.get(ma_col) if ma_col in row else None
+            if pd.notna(row_close) and pd.notna(ma_value) and ma_value != 0:
+                return float(round((row_close - ma_value) / ma_value * 100, 2))
+            return None
+
         bias5 = safe_ma_stats.get("bias5")
         bias20 = safe_ma_stats.get("bias20")
         bias60 = safe_ma_stats.get("bias60")
+        bias5_t1 = _bias_from_row(prev, 5)
+        bias20_t1 = _bias_from_row(prev, 20)
+        bias60_t1 = _bias_from_row(prev, 60)
+        bias5_t2 = _bias_from_row(prev2, 5)
+        bias20_t2 = _bias_from_row(prev2, 20)
+        bias60_t2 = _bias_from_row(prev2, 60)
         bias5_min = safe_ma_stats.get(
             "bias5_60d_low") or safe_ma_stats.get("bias5_min")
         bias5_max = safe_ma_stats.get(
@@ -637,16 +654,26 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             "ma5": float(round(ma5, 2)) if ma5 is not None else safe_ma_stats.get("ma5"),
             "prev_ma5": float(round(prev_ma5, 2)) if prev_ma5 is not None else None,
             "bias5": bias5,
+            "bias5_t0": bias5,
+            "bias5_t1": bias5_t1,
+            "bias5_t2": bias5_t2,
             "bias5_min": bias5_min,
             "bias5_max": bias5_max,
+            "bias5_60d_low": bias5_min,
+            "bias5_60d_high": bias5_max,
             "ma6": float(round(ma5, 2)) if ma5 is not None else safe_ma_stats.get("ma5"),
             "prev_ma6": float(round(prev_ma5, 2)) if prev_ma5 is not None else None,
             "bias6": bias5,
             "bias6_min": bias5_min,
             "bias6_max": bias5_max,
             "bias20": bias20,
+            "bias20_t0": bias20,
+            "bias20_t1": bias20_t1,
+            "bias20_t2": bias20_t2,
             "bias20_min": bias20_min,
             "bias20_max": bias20_max,
+            "bias20_60d_low": bias20_min,
+            "bias20_60d_high": bias20_max,
             "bias18": bias20,
             "bias18_min": bias20_min,
             "bias18_max": bias20_max,
@@ -658,8 +685,13 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             "prev_macd_hist": float(round(prev_macd_hist, 4)) if prev_macd_hist is not None else None,
             "macd_hist_delta": float(round(macd_hist - prev_macd_hist, 4)) if macd_hist is not None and prev_macd_hist is not None else None,
             "bias60": bias60,
+            "bias60_t0": bias60,
+            "bias60_t1": bias60_t1,
+            "bias60_t2": bias60_t2,
             "bias60_min": bias60_min,
             "bias60_max": bias60_max,
+            "bias60_60d_low": bias60_min,
+            "bias60_60d_high": bias60_max,
             "bias50": bias60,
             "bias50_min": bias60_min,
             "bias50_max": bias60_max,
