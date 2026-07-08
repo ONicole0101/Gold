@@ -2,11 +2,13 @@ import os
 from datetime import datetime, timedelta
 
 import pandas as pd
-import requests
 from jinja2 import Template
 
 import config
+from custom_categories import CUSTOM_CATEGORY_COLUMN, category_text, split_category_text
+from data_sources import get_finmind_user_info
 from main import get_full_stock_analysis
+from stock_service import load_chips_static_map, load_news_static_map, load_static_map
 
 
 TECH_COLUMNS = [
@@ -38,28 +40,56 @@ def enrich_html_fields(results):
                 parts.append(str(val))
         if x.get("macd_hist") is not None:
             parts.append(f"MACD柱 {x.get('macd_hist')}")
-        x["tech_summary"] = " / ".join(parts) if parts else x.get("signal_text", "")
+        x["tech_summary"] = " / ".join(
+            parts) if parts else x.get("signal_text", "")
         out.append(x)
     return out
 
 
 def get_finmind_usage():
-    token = os.getenv("FINMIND_TOKEN")
-    headers = {"Authorization": f"Bearer {token}"}
-    url = "https://api.web.finmindtrade.com/v2/user_info"
-    resp = requests.get(url, headers=headers, timeout=30)
-    data = resp.json()
-    used = data.get("user_count", 0)
-    limit = data.get("api_request_limit", 0)
-    remain = limit - used
+    info = get_finmind_user_info(write_log=False, source="generate_html")
+    used = int(info.get("user_count") or 0)
+    limit = int(info.get("api_request_limit") or 0)
+    remain = info.get("remain")
+    if remain is None and limit is not None and used is not None:
+        remain = max(int(limit) - int(used), 0)
+    else:
+        remain = 0 if remain is None else int(remain)
     print(f"FinMind usage: {used}/{limit}, remain={remain}")
     return used, limit, remain
 
 
-def get_static_csv_path():
-    config_path = getattr(config, "STATIC_OUTPUT_FILE", None)
-    env_path = os.getenv("STATIC_CSV_FILE")
-    return env_path or config_path or "AllStatic.csv"
+def normalize_stock_df(df):
+    df = df.copy()
+    df.columns = df.columns.str.strip()
+    df = df.rename(columns={"Ticker": "stock_id", "Name": "name"})
+    if "stock_id" not in df.columns:
+        raise ValueError("CSV missing Ticker or stock_id column")
+    if "name" not in df.columns:
+        df["name"] = ""
+    df["stock_id"] = df["stock_id"].astype(str).str.strip()
+    df["name"] = df["name"].fillna("").astype(str).str.strip()
+    if CUSTOM_CATEGORY_COLUMN not in df.columns:
+        df[CUSTOM_CATEGORY_COLUMN] = ""
+    else:
+        df[CUSTOM_CATEGORY_COLUMN] = df[CUSTOM_CATEGORY_COLUMN].apply(
+            category_text)
+    return df[~df["stock_id"].str.lower().isin({"", "nan", "none", "null"})]
+
+
+def collect_category_options(stocks):
+    options = set()
+    for stock in stocks or []:
+        if not isinstance(stock, dict):
+            continue
+        values = stock.get("custom_category_list") or split_category_text(
+            stock.get("custom_categories") or stock.get(CUSTOM_CATEGORY_COLUMN)
+        )
+        for value in values or []:
+            text = category_text(value)
+            if text:
+                options.update(split_category_text(text))
+    return sorted(options)
 
 
 def format_output(results):
@@ -111,26 +141,16 @@ def main():
         csv_file = config.CSV_FILE
         report_title = config.REPORT_TITLE
         output_file = config.OUTPUT_FILE
-        static_csv_file = get_static_csv_path()
 
         df = pd.read_csv(csv_file, sep="\t", encoding="utf-8-sig", dtype=str)
-        df.columns = df.columns.str.strip()
-        stock_list = df.rename(
-            columns={"Ticker": "stock_id", "Name": "name"}
-        ).to_dict(orient="records")
+        if len(df.columns) == 1:
+            df = pd.read_csv(csv_file, encoding="utf-8-sig", dtype=str)
+        df = normalize_stock_df(df)
+        stock_list = df.to_dict(orient="records")
 
     except Exception as e:
         print(f"❌ 讀取 config.yml 或 CSV 失敗: {e}")
         return
-
-    if not os.path.exists(static_csv_file):
-        print(f"❌ 找不到靜態資料檔：{static_csv_file}")
-        print("請先執行 generate_static_csv.py 產生 AllStatic.csv")
-        return
-
-    # 讓 stock_service.py 能讀到同一路徑
-    os.environ["STATIC_CSV_FILE"] = static_csv_file
-    print(f"📄 使用靜態資料檔：{static_csv_file}")
 
     start_used = start_limit = start_remain = None
 
@@ -146,7 +166,29 @@ def main():
 
         print(f"🚀 開始分析股票... [{report_type}]")
         try:
-            results = get_full_stock_analysis(stock_list)
+            static_csv_path = getattr(
+                config, "STATIC_OUTPUT_FILE", "AllStatic.csv")
+            static_chip_csv_path = getattr(
+                config, "STATIC_CHIP_OUTPUT_FILE", "AllStatic_Chips.csv")
+            static_news_csv_path = getattr(
+                config, "ALLSTATIC_NEWS_OUTPUT_FILE", "AllStatic_news.csv")
+
+            print(
+                "📄 HTML render uses preloaded maps: "
+                f"static={static_csv_path}, chips={static_chip_csv_path}, news={static_news_csv_path}"
+            )
+            static_map = load_static_map(static_csv_path=static_csv_path)
+            chips_map = load_chips_static_map(
+                static_chips_csv_path=static_chip_csv_path)
+            news_map = load_news_static_map(
+                static_news_csv_path=static_news_csv_path)
+
+            results = get_full_stock_analysis(
+                stock_list,
+                static_map=static_map,
+                chips_map=chips_map,
+                news_map=news_map,
+            )
         except RuntimeError as e:
             print(f"❌ {e}")
             return
@@ -162,13 +204,6 @@ def main():
         now_str = now_dt.strftime("%m%d%H%M")
         filename = f"{output_file}_{now_str}.html"
 
-        if report_type == "Holding":
-            report_subtitle = "持股追蹤與風險檢視"
-        elif report_type == "Gold":
-            report_subtitle = "潛力黃金股觀察名單"
-        else:
-            report_subtitle = "台股技術分析"
-
         try:
             with open("template.html", "r", encoding="utf-8") as f:
                 template = Template(f.read())
@@ -180,10 +215,11 @@ def main():
                 rebound_list=text_data["rebound_str"],
                 selloff_list=text_data["selloff_str"],
                 report_title=report_title,
-                report_subtitle=report_subtitle,
                 report_type=report_type,
                 generated_time=now_dt.strftime("%Y-%m-%d %H:%M"),
                 tech_columns=TECH_COLUMNS,
+                custom_category_options=collect_category_options(
+                    data["stocks"]),
             )
 
             for f_name in [filename, "index.html"]:

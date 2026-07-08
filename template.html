@@ -221,12 +221,6 @@
       vertical-align: top;
     }
 
-    .industry-summary-cell {
-      width: clamp(220px, 18vw, 420px);
-      min-width: clamp(220px, 18vw, 420px);
-      max-width: clamp(280px, 23vw, 500px);
-    }
-
     .news-summary-cell {
       width: clamp(260px, 24vw, 560px);
       min-width: clamp(260px, 24vw, 560px);
@@ -461,6 +455,17 @@
       font-size: 12px;
     }
 
+    .category-filter-item {
+      grid-template-columns: auto minmax(150px, 220px);
+      align-items: start;
+    }
+
+    .category-filter-item select {
+      height: 78px;
+      min-width: 150px;
+      padding: 4px 6px;
+    }
+
     .filter-actions {
       display: flex;
       align-items: center;
@@ -650,8 +655,6 @@
 
 <body>
   <div class="container">
-    <h2>{{report_title}}</h2>
-    <p>{{ report_subtitle }}</p>
     <p>產生時間：{{ generated_time }}</p>
 
     <div class="tabs" id="tabs">
@@ -722,6 +725,13 @@
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
         </select><input data-filter-key="broker_diff_filter" type="number" step="1" placeholder="家數"></div>
+      <div class="filter-item category-filter-item"><label>自選分類</label>
+        <select id="customCategoryFilter" multiple size="4">
+          {% for category in custom_category_options | default([]) %}
+          <option value="{{ category | e }}">{{ category | e }}</option>
+          {% endfor %}
+        </select>
+      </div>
       <div class="filter-actions">
         <button type="button" id="applyFilterBtn">套用</button>
         <button type="button" class="secondary" id="clearFilterBtn">清除</button>
@@ -759,7 +769,7 @@
           { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "k", label: "日KD<br><small>3天趨勢</small>" },
-          { key: "bb_pct", label: "日布林%<br><small>LH</small>", cls: "col-md" },
+          { key: "bb_pct", label: "日布林%<br><small>T/T-1</small>", cls: "col-md" },
           { key: "sig", label: "訊號" }
         ]
       },
@@ -792,11 +802,17 @@
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "chip_concentration_score", label: "籌碼集中%<br><small>3天趨勢</small>", tooltip: "籌碼集中%＝主力分點淨買賣力道的絕對值 ÷ 全市場買賣量合計 × 100。數值越高代表籌碼越集中；需搭配主力買賣超正負方向判斷。" },
           { key: "main_force_score", label: "主力買賣超<br><small>3天趨勢</small>", tooltip: "主力買賣超＝前15大買超分點淨買超 + 前15大賣超分點淨賣超。正值偏主力買進，負值偏主力賣出。" },
-          { key: "broker_diff", label: "買賣家數差<br><small>趨勢</small>", tooltip: "買賣家數差＝有買進的券商分點家數 - 有賣出的券商分點家數。正值代表參與買方家數較多，負值代表買方較集中或賣方家數較多。" }
+          { key: "broker_diff", label: "買賣家數差<br><small>趨勢</small>", tooltip: "買賣家數差＝有買進的券商分點家數 - 有賣出的券商分點家數。正值代表參與買方家數較多，負值代表買方較集中或賣方家數較多。" },
+          { key: "main_force_buy_rate_5d_pct", label: "5日主力<br><small>買超率%</small>", tooltip: "5日主力買超率＝最近5天主力買賣超加總 ÷ 最近5天總成交量 × 100。" },
+          { key: "chip_concentration_5d", label: "5日籌碼<br><small>平均/變化</small>", tooltip: "5日籌碼集中度顯示最近5天平均集中度；變化＝今日集中度 - 5日資料最早一日集中度。" },
+          { key: "broker_diff_5d", label: "5日買賣<br><small>家數差</small>", tooltip: "5日買賣家數差＝最近5天買方券商家數 - 賣方券商家數的平均。" },
+          { key: "main_force_buy_rate_20d_pct", label: "20日主力<br><small>買超率%</small>", tooltip: "20日主力買超率＝最近20天主力買賣超加總 ÷ 最近20天總成交量 × 100。" },
+          { key: "chip_concentration_20d", label: "20日籌碼<br><small>平均/變化</small>", tooltip: "20日籌碼集中度顯示最近20天平均集中度；變化＝今日集中度 - 20日資料最早一日集中度。" },
+          { key: "broker_diff_20d", label: "20日買賣<br><small>家數差</small>", tooltip: "20日買賣家數差＝最近20天買方券商家數 - 賣方券商家數的平均。" }
         ]
       },
       fundamental: {
-        note: "基本面：EPS、ROE、營收、毛利率、營益率、淨利率、殖利率、PER/PBR、產業、新聞",
+        note: "基本面：EPS、ROE、營收、新聞，不含產業欄",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>60天LH</small>" },
@@ -809,7 +825,6 @@
           { key: "yield_value", label: "殖利率<br><small>估65%</small>", cls: "col-md" },
           { key: "per_latest", label: "日PER<br><small>60天LH</small>" },
           { key: "pbr_latest", label: "日PBR<br><small>60天LH</small>" },
-          { key: "industry_summary", label: "產業", cls: "industry-summary-col" },
           { key: "news_summary", label: "新聞", cls: "news-summary-col" }
         ]
       },
@@ -1058,6 +1073,48 @@
       return `<div class="stock-value">${renderKDContent(s)}</div>`;
     }
 
+    function dayMetricValue(s, key, idx) {
+      if (idx === 0) return pickFirst(s[`${key}_t0`], s[key]);
+      if (idx === 1) return pickFirst(s[`${key}_t1`]);
+      if (idx === 2) return pickFirst(s[`${key}_t2`]);
+      return null;
+    }
+
+    function dayMetricLine(s, key, idx, suffix = "") {
+      const value = dayMetricValue(s, key, idx);
+      if (isNil(value)) return "";
+      const previous = dayMetricValue(s, key, idx + 1);
+      const colorCls = isNil(previous) ? "" : chipValueClass(value, previous);
+      const label = dayDateLabel(s, idx, "date");
+      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：` : ""}${fmt(value, suffix)}</div>`;
+    }
+
+    function dayMetricScore(s, key) {
+      const cur = dayMetricValue(s, key, 0);
+      const prev = dayMetricValue(s, key, 1);
+      if (isNil(cur) || isNil(prev)) return 0;
+      const c = Number(cur);
+      const p = Number(prev);
+      if (!Number.isFinite(c) || !Number.isFinite(p)) return 0;
+      if (c > p) return 0.5;
+      if (c < p) return -0.5;
+      return 0;
+    }
+
+    function renderDayPairContent(s, key, suffix = "") {
+      const score = dayMetricScore(s, key);
+      return `
+        <div class="table-lv1 ${trendClass(score)}">${fmtTrend(score)}</div>
+        ${dayMetricLine(s, key, 0, suffix)}
+        ${dayMetricLine(s, key, 1, suffix)}`;
+    }
+
+    function renderBBTechnicalContent(s) {
+      return `
+        ${renderDayPairContent(s, "bb_pct", "%")}
+        <div class="table-lv3">L ${fmt(s.bb_lower)} / H ${fmt(s.bb_upper)}</div>`;
+    }
+
     function priceLHValue(s, idx, kind) {
       const field = kind === "low" ? "min" : "max";
       const legacy = kind === "low" ? "low" : "high";
@@ -1182,6 +1239,55 @@
         </td>`;
     }
 
+    function signedFmt(value, suffix = "") {
+      if (isNil(value) || value === "") return "-";
+      const num = Number(value);
+      if (!Number.isFinite(num)) return "-";
+      return `${num > 0 ? "+" : ""}${fmt(num, suffix)}`;
+    }
+
+    function renderMainForceBuyRateContent(s, days) {
+      const rate = s[`main_force_buy_rate_${days}d_pct`];
+      const mainForce = s[`main_force_net_${days}d`];
+      const totalVolume = s[`total_volume_${days}d`];
+      return `
+        <div class="stock-value">
+          <div class="table-lv1 ${distClass(rate)}">${signedFmt(rate, "%")}</div>
+          <div class="table-lv2 ${distClass(mainForce)}">主力 ${signedFmt(mainForce, "張")}</div>
+          <div class="table-lv2">總量 ${fmt(totalVolume, "張")}</div>
+        </div>`;
+    }
+
+    function renderMainForceBuyRateCell(s, days) {
+      return `<td>${renderMainForceBuyRateContent(s, days)}</td>`;
+    }
+
+    function renderChipConcentrationWindowContent(s, days) {
+      const avg = s[`chip_concentration_avg_${days}d`];
+      const change = s[`chip_concentration_change_${days}d`];
+      return `
+        <div class="stock-value">
+          <div class="table-lv1">${fmt(avg, "%")}</div>
+          <div class="table-lv2 ${distClass(change)}">變化 ${signedFmt(change, "%")}</div>
+        </div>`;
+    }
+
+    function renderChipConcentrationWindowCell(s, days) {
+      return `<td>${renderChipConcentrationWindowContent(s, days)}</td>`;
+    }
+
+    function renderBrokerDiffWindowContent(s, days) {
+      const avg = s[`broker_diff_avg_${days}d`];
+      return `
+        <div class="stock-value">
+          <div class="table-lv1 ${distClass(avg)}">${signedFmt(avg, "家")}</div>
+        </div>`;
+    }
+
+    function renderBrokerDiffWindowCell(s, days) {
+      return `<td>${renderBrokerDiffWindowContent(s, days)}</td>`;
+    }
+
     function renderChipConcentrationBlock(s) {
       return `<div class="stock-value">
         <div class="table-lv1 ${trendClass(s.chip_concentration_score)}">${isNil(s.chip_concentration_score) ? "-" : fmtTrend(s.chip_concentration_score)}</div>
@@ -1242,8 +1348,17 @@
         <td>
           <div class="table-lv1">${s.code ?? ""}</div>
           <div class="table-lv2">${shortName(s.name)}</div>
+          ${renderDataStatus(s)}
           ${dispositionHtml ? `<div class="table-lv3 text-red disposition-period">${dispositionHtml}</div>` : ""}
         </td>`;
+    }
+
+    function renderDataStatus(s) {
+      const signal = String(s?.signal ?? "").trim();
+      if (!["資料不足", "無資料", "資料異常"].includes(signal)) return "";
+      const reason = String(s?.reason ?? "").trim();
+      const brief = reason.length > 28 ? `${reason.slice(0, 28)}...` : reason;
+      return `<div class="table-lv3 text-red" title="${escapeHtml(reason || signal)}">${escapeHtml(signal)}${brief ? `：${escapeHtml(brief)}` : ""}</div>`;
     }
 
     function escapeHtml(value) {
@@ -1360,6 +1475,18 @@
           return renderMainForceCell(s);
         case "broker_diff":
           return renderBrokerDiffCell(s);
+        case "main_force_buy_rate_5d_pct":
+          return renderMainForceBuyRateCell(s, 5);
+        case "chip_concentration_5d":
+          return renderChipConcentrationWindowCell(s, 5);
+        case "broker_diff_5d":
+          return renderBrokerDiffWindowCell(s, 5);
+        case "main_force_buy_rate_20d_pct":
+          return renderMainForceBuyRateCell(s, 20);
+        case "chip_concentration_20d":
+          return renderChipConcentrationWindowCell(s, 20);
+        case "broker_diff_20d":
+          return renderBrokerDiffWindowCell(s, 20);
         case "eps_Y":
           return `
             <td>
@@ -1386,16 +1513,17 @@
           return renderKDCell(s);
         }
         case "bb_pct":
+          if (currentTab === "technical" || currentTab === "overview") {
+            return `<td>${renderBBTechnicalContent(s)}</td>`;
+          }
           return `<td>${renderBBBlock(s)}</td>`;
         case "bias5":
-          return `<td>${renderRangeMetric(s.bias5, s.bias5_min, s.bias5_max, "%", distClass(s.bias5))}</td>`;
+          return `<td>${renderDayPairContent(s, "bias5", "%")}</td>`;
         case "bias20":
-          return `<td>${renderRangeMetric(s.bias20, s.bias20_min, s.bias20_max, "%", distClass(s.bias20))}</td>`;
+          return `<td>${renderDayPairContent(s, "bias20", "%")}</td>`;
         case "bias60":
-          return `<td>${renderRangeMetric(s.bias60, s.bias60_min, s.bias60_max, "%", distClass(s.bias60))}</td>`;
+          return `<td>${renderDayPairContent(s, "bias60", "%")}</td>`;
 
-        case "industry_summary":
-          return `<td class="text-summary-cell industry-summary-cell"><div class="summary-text">${escapeHtml(s.industry_summary || "-")}</div></td>`;
         case "news_summary":
           return `<td class="text-summary-cell news-summary-cell"><div class="summary-text">${escapeHtml(s.news_summary || "-")}</div></td>`;
         case "sig":
@@ -1450,10 +1578,10 @@
           <div class="stock-item"><div class="stock-label">漲跌% / 漲跌 / 震幅</div><div class="stock-value">${renderChangePctBlock(s)}</div></div>
           <div class="stock-item"><div class="stock-label">價格LH 3天趨勢</div>${renderPriceLHTrendBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">日KD 3天趨勢</div>${renderKDBlock(s)}</div>
-          <div class="stock-item"><div class="stock-label">日布林% LH</div><div class="stock-value">${renderBBBlock(s)}</div></div>
-          <div class="stock-item"><div class="stock-label">日Bias5 LH</div><div class="stock-value">${renderRangeMetric(s.bias5, s.bias5_min, s.bias5_max, "%", distClass(s.bias5))}</div></div>
-          <div class="stock-item"><div class="stock-label">日Bias20 LH</div><div class="stock-value">${renderRangeMetric(s.bias20, s.bias20_min, s.bias20_max, "%", distClass(s.bias20))}</div></div>
-          <div class="stock-item"><div class="stock-label">日Bias60 LH</div><div class="stock-value">${renderRangeMetric(s.bias60, s.bias60_min, s.bias60_max, "%", distClass(s.bias60))}</div></div>
+          <div class="stock-item"><div class="stock-label">日布林% (T/T-1)</div><div class="stock-value">${renderBBTechnicalContent(s)}</div></div>
+          <div class="stock-item"><div class="stock-label">日Bias5 (T/T-1)</div><div class="stock-value">${renderDayPairContent(s, "bias5", "%")}</div></div>
+          <div class="stock-item"><div class="stock-label">日Bias20 (T/T-1)</div><div class="stock-value">${renderDayPairContent(s, "bias20", "%")}</div></div>
+          <div class="stock-item"><div class="stock-label">日Bias60 (T/T-1)</div><div class="stock-value">${renderDayPairContent(s, "bias60", "%")}</div></div>
           <div class="stock-item"><div class="stock-label">量 / 昨 / 增 / 張</div><div class="stock-value"><div>${fmt(s.volume)} 張</div><div class="table-lv2">昨 ${fmt(s.prev_volume)}</div><div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-" : `${fmtTrend(s.volume_ratio)} ${fmt(s.volume_ratio, "%")}`}</div><div class="table-lv2">${isNil(s.volume_add) ? "-" : `${fmt(s.volume_add)} 張`}</div></div></div>
           <div class="stock-item"><div class="stock-label">壓力點 / 距離</div>${renderSupportResistanceBlock(s, "resistance")}</div>
           <div class="stock-item"><div class="stock-label">支撐點 / 距離</div>${renderSupportResistanceBlock(s, "support")}</div>
@@ -1464,6 +1592,12 @@
           <div class="stock-item"><div class="stock-label">籌碼集中% 3天趨勢</div>${renderChipConcentrationBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">主力買賣超 3天趨勢</div>${renderMainForceBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">買賣家數差 趨勢</div>${renderBrokerDiffBlock(s)}</div>
+          <div class="stock-item"><div class="stock-label">5日主力買超率%</div>${renderMainForceBuyRateContent(s, 5)}</div>
+          <div class="stock-item"><div class="stock-label">5日籌碼集中度</div>${renderChipConcentrationWindowContent(s, 5)}</div>
+          <div class="stock-item"><div class="stock-label">5日買賣家數差</div>${renderBrokerDiffWindowContent(s, 5)}</div>
+          <div class="stock-item"><div class="stock-label">20日主力買超率%</div>${renderMainForceBuyRateContent(s, 20)}</div>
+          <div class="stock-item"><div class="stock-label">20日籌碼集中度</div>${renderChipConcentrationWindowContent(s, 20)}</div>
+          <div class="stock-item"><div class="stock-label">20日買賣家數差</div>${renderBrokerDiffWindowContent(s, 20)}</div>
         </div>`;
 
       const fundamentalGrid = `
@@ -1477,7 +1611,6 @@
           <div class="stock-item"><div class="stock-label">殖利率 估65%</div><div class="stock-value">${fmt(Number(s.yield_value ?? 0) * 0.65, "%")}</div></div>
           <div class="stock-item"><div class="stock-label">日PER 60天LH</div><div class="stock-value">${renderRangeMetric(s.per_latest, s.per_60d_low, s.per_60d_high)}</div></div>
           <div class="stock-item"><div class="stock-label">日PBR 60天LH</div><div class="stock-value">${renderRangeMetric(s.pbr_latest, s.pbr_60d_low, s.pbr_60d_high)}</div></div>
-          <div class="stock-item summary-mobile-item"><div class="stock-label">產業</div><div class="stock-value">${escapeHtml(s.industry_summary || "-")}</div></div>
           <div class="stock-item summary-mobile-item"><div class="stock-label">新聞</div><div class="stock-value">${escapeHtml(s.news_summary || "-")}</div></div>
         </div>`;
 
@@ -1486,7 +1619,7 @@
           <div class="stock-item"><div class="stock-label">價格LH 3天趨勢</div>${renderPriceLHTrendBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">漲跌% / 漲跌 / 震幅</div><div class="stock-value">${renderChangePctBlock(s)}</div></div>
           <div class="stock-item"><div class="stock-label">日KD 3天趨勢</div>${renderKDBlock(s)}</div>
-          <div class="stock-item"><div class="stock-label">日布林% LH</div><div class="stock-value">${renderBBBlock(s)}</div></div>
+          <div class="stock-item"><div class="stock-label">日布林% (T/T-1)</div><div class="stock-value">${renderBBTechnicalContent(s)}</div></div>
           <div class="stock-item"><div class="stock-label">量 / 昨 / 增 / 張</div><div class="stock-value"><div>${fmt(s.volume)} 張</div><div class="table-lv2">昨 ${fmt(s.prev_volume)}</div><div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-" : `${fmtTrend(s.volume_ratio)} ${fmt(s.volume_ratio, "%")}`}</div><div class="table-lv2">${isNil(s.volume_add) ? "-" : `${fmt(s.volume_add)} 張`}</div></div></div>
           <div class="stock-item"><div class="stock-label">買賣方向</div><div class="stock-value">${renderSignalBadge(s)}</div></div>
         </div>`;
@@ -1530,6 +1663,14 @@
           return Number(((s.yield_value ?? 0) * 0.65).toFixed(4));
         case "roe":
           return Number(s.roe_ttm ?? s.roe_last_year ?? -999999);
+        case "chip_concentration_5d":
+          return Number(s.chip_concentration_avg_5d ?? -999999);
+        case "chip_concentration_20d":
+          return Number(s.chip_concentration_avg_20d ?? -999999);
+        case "broker_diff_5d":
+          return Number(s.broker_diff_avg_5d ?? -999999);
+        case "broker_diff_20d":
+          return Number(s.broker_diff_avg_20d ?? -999999);
         case "per_latest":
         case "pbr_latest":
           return Number(s[key] ?? -999999);
@@ -1640,12 +1781,51 @@
       return Number.isNaN(num) ? null : num;
     }
 
+    function selectedCustomCategories() {
+      const select = document.getElementById("customCategoryFilter");
+      if (!select) return [];
+      return Array.from(select.selectedOptions || [])
+        .map(option => normalizeCategoryLabel(option.value))
+        .filter(Boolean);
+    }
+
+    const CATEGORY_ALIAS_MAP = {
+      "燕莉2": "燕俐2",
+      "ABF載板": "ABF窄板",
+    };
+
+    function normalizeCategoryLabel(value) {
+      const text = String(value ?? "").replace(/\s+/g, "").trim();
+      if (!text) return "";
+      return CATEGORY_ALIAS_MAP[text] || text;
+    }
+
+    function stockCustomCategories(s) {
+      if (Array.isArray(s?.custom_category_list)) {
+        return s.custom_category_list
+          .map(item => normalizeCategoryLabel(item))
+          .filter(Boolean);
+      }
+      const text = String(pickFirst(s?.custom_categories, s?.["自選分類"]) ?? "");
+      if (!text) return [];
+      return text
+        .split(/[;,、]/)
+        .map(item => normalizeCategoryLabel(item))
+        .filter(Boolean);
+    }
+
     function passesFilters(s) {
       const codeInput = document.getElementById("stockCodeFilter");
       const codeKeyword = String(codeInput?.value ?? "").trim();
       if (codeKeyword) {
         const stockCode = String(s?.code ?? s?.stock_id ?? "").trim();
         if (!stockCode.includes(codeKeyword)) return false;
+      }
+
+      const selectedCategories = selectedCustomCategories();
+      if (selectedCategories.length) {
+        const categories = new Set(stockCustomCategories(s));
+        if (!selectedCategories.some(category => categories.has(category))) return false;
       }
 
       const inputs = document.querySelectorAll("[data-filter-key]");
@@ -1677,6 +1857,8 @@
       document.querySelectorAll("[data-filter-op]").forEach(select => select.value = ">");
       const codeInput = document.getElementById("stockCodeFilter");
       if (codeInput) codeInput.value = "";
+      const categorySelect = document.getElementById("customCategoryFilter");
+      if (categorySelect) Array.from(categorySelect.options).forEach(option => option.selected = false);
       applyFilters();
     }
 
@@ -1693,6 +1875,8 @@
         codeInput.addEventListener("input", applyFilters);
         codeInput.addEventListener("change", applyFilters);
       }
+      const categorySelect = document.getElementById("customCategoryFilter");
+      if (categorySelect) categorySelect.addEventListener("change", applyFilters);
       const applyBtn = document.getElementById("applyFilterBtn");
       const clearBtn = document.getElementById("clearFilterBtn");
       if (applyBtn) applyBtn.addEventListener("click", applyFilters);

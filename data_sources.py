@@ -396,8 +396,10 @@ def get_profit_ratio(stock_id):
             'start_date': '2020-01-01',
             'token': FINMIND_token,
         }
-        _record_finmind_request("profit source", stock_id, "TaiwanStockFinancialStatements")
-        res = requests.get(API_URL, params=params, headers=headers, timeout=300)
+        _record_finmind_request("profit source", stock_id,
+                                "TaiwanStockFinancialStatements")
+        res = requests.get(API_URL, params=params,
+                           headers=headers, timeout=300)
         data = _safe_response_json(res)
         _print_initial_quota_once(data, res)
 
@@ -419,13 +421,16 @@ def get_balance_sheet_raw(stock_id):
             'start_date': '2020-01-01',
             'token': FINMIND_token,
         }
-        _record_finmind_request("balance sheet source", stock_id, "TaiwanStockBalanceSheet")
-        res = requests.get(API_URL, params=params, headers=headers, timeout=300)
+        _record_finmind_request("balance sheet source",
+                                stock_id, "TaiwanStockBalanceSheet")
+        res = requests.get(API_URL, params=params,
+                           headers=headers, timeout=300)
         data = _safe_response_json(res)
         _print_initial_quota_once(data, res)
 
         if res.status_code != 200:
-            _print_api_status_error('balance sheet source', stock_id, res, data)
+            _print_api_status_error(
+                'balance sheet source', stock_id, res, data)
             return pd.DataFrame()
 
         return pd.DataFrame(data.get('data', []))
@@ -533,7 +538,8 @@ def get_per_pbr_60d_stats(stock_id, days=60):
             "token": FINMIND_token,
         }
         _record_finmind_request("PER/PBR 60D", stock_id, "TaiwanStockPER")
-        res = requests.get(API_URL, params=params, headers=headers, timeout=300)
+        res = requests.get(API_URL, params=params,
+                           headers=headers, timeout=300)
         res_data = _safe_response_json(res)
         _print_initial_quota_once(res_data, res)
 
@@ -559,8 +565,10 @@ def get_per_pbr_60d_stats(stock_id, days=60):
         if df_win.empty:
             df_win = df.copy()
 
-        per_col = next((c for c in ["price_earning_ratio", "PER", "per"] if c in df_win.columns), None)
-        pbr_col = next((c for c in ["price_book_ratio", "PBR", "pbr"] if c in df_win.columns), None)
+        per_col = next(
+            (c for c in ["price_earning_ratio", "PER", "per"] if c in df_win.columns), None)
+        pbr_col = next(
+            (c for c in ["price_book_ratio", "PBR", "pbr"] if c in df_win.columns), None)
 
         def latest_valid(col):
             if not col:
@@ -570,7 +578,8 @@ def get_per_pbr_60d_stats(stock_id, days=60):
             if valid.empty:
                 return None, None, False
             latest_valid_date = valid["date"].max()
-            latest_value = valid.loc[valid["date"] == latest_valid_date, col].iloc[-1]
+            latest_value = valid.loc[valid["date"]
+                                     == latest_valid_date, col].iloc[-1]
             return safe_round(latest_value), latest_valid_date, bool(latest_valid_date < latest_row_date)
 
         per, per_date, per_is_prev = latest_valid(per_col)
@@ -682,10 +691,10 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
     days, threshold = get_chip_config(trend_days, concentration_threshold)
     try:
         lookback_days = int(lookback_days) if lookback_days is not None else _env_int(
-            "CHIP_LOOKBACK_DAYS", max(days * 7, 21), min_value=3, max_value=120
+            "CHIP_LOOKBACK_DAYS", max(days * 10, 60), min_value=3, max_value=120
         )
     except Exception:
-        lookback_days = max(days * 7, 21)
+        lookback_days = max(days * 10, 60)
     lookback_days = max(days, min(int(lookback_days), 120))
 
     empty = {
@@ -711,6 +720,18 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         "broker_diff_t1": None,
         "broker_diff_t2": None,
         "broker_diff_score": None,
+        "main_force_net_5d": None,
+        "total_volume_5d": None,
+        "main_force_buy_rate_5d_pct": None,
+        "chip_concentration_avg_5d": None,
+        "chip_concentration_change_5d": None,
+        "broker_diff_avg_5d": None,
+        "main_force_net_20d": None,
+        "total_volume_20d": None,
+        "main_force_buy_rate_20d_pct": None,
+        "chip_concentration_avg_20d": None,
+        "chip_concentration_change_20d": None,
+        "broker_diff_avg_20d": None,
         "chip_signal_state": "no_data",
         "chip_signal_text": "籌碼資料不足",
         "recent_rows": [],
@@ -735,19 +756,21 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
     try:
         start_date = datetime.today().date() - timedelta(days=lookback_days)
         end_date = datetime.today().date()
-        daily = []
-        current_date = start_date
+        daily_by_date = {}
+        current_date = end_date
+        min_required_days = max(days, 20)
 
         suppress_api_logs = str(os.getenv("CHIP_SUPPRESS_API_LOGS", "1")).strip().lower() in {
             "1", "true", "yes", "y", "on"
         }
 
-        while current_date <= end_date:
+        while current_date >= start_date:
             date_str = current_date.strftime("%Y-%m-%d")
             params = {
                 "dataset": "TaiwanStockTradingDailyReport",
                 "data_id": str(stock_id),
                 "start_date": date_str,
+                "end_date": date_str,
                 "token": FINMIND_token,
             }
 
@@ -759,7 +782,8 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             _record_finmind_request(
                 "chip analysis", stock_id, "TaiwanStockTradingDailyReport"
             )
-            res = requests.get(API_URL, params=params, headers=headers, timeout=300)
+            res = requests.get(API_URL, params=params,
+                               headers=headers, timeout=300)
 
             if not suppress_api_logs:
                 print(f"🔄 chip analysis response status: {res.status_code}")
@@ -768,12 +792,14 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             _print_initial_quota_once(res_data, res)
 
             if res.status_code != 200:
-                _print_api_status_error("chip analysis", stock_id, res, res_data)
+                _print_api_status_error(
+                    "chip analysis", stock_id, res, res_data)
                 return empty
 
             data = res_data.get("data", [])
             if not data:
-                current_date += timedelta(days=1)
+                # T 日無資料（例如週末/休市）時，往前遞延取 T-1。
+                current_date -= timedelta(days=1)
                 continue
 
             df = pd.DataFrame(data)
@@ -791,13 +817,14 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
 
             if not required.issubset(df.columns) or broker_column is None:
                 if not suppress_api_logs:
-                    print(f"⚠️ chip analysis missing cols {stock_id} on {date_str}: cols={list(df.columns)}")
-                current_date += timedelta(days=1)
+                    print(
+                        f"⚠️ chip analysis missing cols {stock_id} on {date_str}: cols={list(df.columns)}")
+                current_date -= timedelta(days=1)
                 continue
 
             df = df[df["stock_id"].astype(str) == str(stock_id)]
             if df.empty:
-                current_date += timedelta(days=1)
+                current_date -= timedelta(days=1)
                 continue
 
             df["date"] = pd.to_datetime(df["date"], errors="coerce")
@@ -805,7 +832,16 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             df["sell"] = pd.to_numeric(df["sell"], errors="coerce").fillna(0)
             df = df.dropna(subset=["date"])
             if df.empty:
-                current_date += timedelta(days=1)
+                current_date -= timedelta(days=1)
+                continue
+
+            target_day = pd.to_datetime(date_str, errors="coerce")
+            if pd.isna(target_day):
+                current_date -= timedelta(days=1)
+                continue
+            df = df[df["date"].dt.date == target_day.date()]
+            if df.empty:
+                current_date -= timedelta(days=1)
                 continue
 
             df["net_buy"] = df["buy"] - df["sell"]
@@ -823,18 +859,70 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             ) if total_turnover else None
 
             actual_date = df["date"].max().date()
-            daily.append({
+            daily_by_date[actual_date] = {
                 "date": actual_date,
                 "chip_concentration_pct": concentration_pct,
                 "main_force_net": main_force_net,
                 "broker_diff": broker_diff,
-            })
+                "total_volume": total_turnover,
+            }
 
-            current_date += timedelta(days=1)
+            current_date -= timedelta(days=1)
+            if len(daily_by_date) >= min_required_days:
+                break
 
-        report = pd.DataFrame(daily).sort_values("date", ascending=False).head(days)
+        if not daily_by_date:
+            return empty
+
+        all_report = pd.DataFrame(list(daily_by_date.values()))
+        if "date" not in all_report.columns:
+            return empty
+        all_report = all_report.sort_values("date", ascending=False)
+        report = all_report.head(days)
         if report.empty:
             return empty
+
+        def _window_metrics(window_days: int) -> dict:
+            window_df = all_report.head(window_days).copy()
+            if window_df.empty:
+                return {
+                    f"main_force_net_{window_days}d": None,
+                    f"total_volume_{window_days}d": None,
+                    f"main_force_buy_rate_{window_days}d_pct": None,
+                    f"chip_concentration_avg_{window_days}d": None,
+                    f"chip_concentration_change_{window_days}d": None,
+                    f"broker_diff_avg_{window_days}d": None,
+                }
+
+            main_force_sum = pd.to_numeric(
+                window_df["main_force_net"], errors="coerce").sum()
+            total_volume_sum = pd.to_numeric(
+                window_df.get("total_volume"), errors="coerce").sum()
+            concentration_series = pd.to_numeric(
+                window_df["chip_concentration_pct"], errors="coerce")
+            broker_series = pd.to_numeric(
+                window_df["broker_diff"], errors="coerce")
+
+            latest_conc = pd.to_numeric(window_df.iloc[0].get(
+                "chip_concentration_pct"), errors="coerce")
+            oldest_conc = pd.to_numeric(
+                window_df.iloc[-1].get("chip_concentration_pct"), errors="coerce")
+            concentration_change = None
+            if pd.notna(latest_conc) and pd.notna(oldest_conc):
+                concentration_change = float(latest_conc - oldest_conc)
+
+            buy_rate_pct = None
+            if pd.notna(total_volume_sum) and float(total_volume_sum) != 0:
+                buy_rate_pct = float(main_force_sum / total_volume_sum * 100)
+
+            return {
+                f"main_force_net_{window_days}d": _int_or_none(main_force_sum),
+                f"total_volume_{window_days}d": _int_or_none(total_volume_sum),
+                f"main_force_buy_rate_{window_days}d_pct": _round_or_none(buy_rate_pct, 2),
+                f"chip_concentration_avg_{window_days}d": _round_or_none(concentration_series.mean(), 2),
+                f"chip_concentration_change_{window_days}d": _round_or_none(concentration_change, 2),
+                f"broker_diff_avg_{window_days}d": _round_or_none(broker_series.mean(), 2),
+            }
 
         main_pos = int((report["main_force_net"] > 0).sum())
         main_neg = int((report["main_force_net"] < 0).sum())
@@ -846,7 +934,8 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
 
         main_score = _score_by_ratio((main_pos - main_neg) / len(report))
         broker_score = _score_by_ratio((diff_pos - diff_neg) / len(report))
-        concentration_score = _score_by_ratio((conc_pos - conc_neg) / len(report))
+        concentration_score = _score_by_ratio(
+            (conc_pos - conc_neg) / len(report))
 
         latest = report.iloc[0]
         state = "neutral"
@@ -867,7 +956,8 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         recent_rows = []
         for _, r in report.head(3).iterrows():
             date_value = r["date"]
-            date_text = date_value.strftime("%Y-%m-%d") if hasattr(date_value, "strftime") else str(date_value)[:10]
+            date_text = date_value.strftime(
+                "%Y-%m-%d") if hasattr(date_value, "strftime") else str(date_value)[:10]
             recent_rows.append({
                 "date": date_text,
                 "chip_concentration_pct": _round_or_none(r["chip_concentration_pct"], 2),
@@ -890,6 +980,9 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             "chip_signal_text": text,
             "recent_rows": recent_rows,
         }
+
+        result.update(_window_metrics(5))
+        result.update(_window_metrics(20))
 
         for idx, rec in enumerate(recent_rows[:3]):
             suffix = f"t{idx}"
@@ -942,12 +1035,14 @@ def get_disposition_securities_period(stock_id):
             stock_id,
             "TaiwanStockDispositionSecuritiesPeriod",
         )
-        res = requests.get(API_URL, params=params, headers=headers, timeout=300)
+        res = requests.get(API_URL, params=params,
+                           headers=headers, timeout=300)
         res_data = _safe_response_json(res)
         _print_initial_quota_once(res_data, res)
 
         if res.status_code != 200:
-            _print_api_status_error("disposition period", stock_id, res, res_data)
+            _print_api_status_error(
+                "disposition period", stock_id, res, res_data)
             return empty
 
         data = res_data.get("data", [])
@@ -961,8 +1056,10 @@ def get_disposition_securities_period(stock_id):
             )
             return empty
 
-        df["period_start"] = pd.to_datetime(df["period_start"], errors="coerce").dt.date
-        df["period_end"] = pd.to_datetime(df["period_end"], errors="coerce").dt.date
+        df["period_start"] = pd.to_datetime(
+            df["period_start"], errors="coerce").dt.date
+        df["period_end"] = pd.to_datetime(
+            df["period_end"], errors="coerce").dt.date
         df = df.dropna(subset=["period_start", "period_end"])
         if df.empty:
             return empty
@@ -971,7 +1068,8 @@ def get_disposition_securities_period(stock_id):
             ((df["period_start"] <= today) & (today <= df["period_end"]))
             | ((df["period_start"] <= tomorrow) & (tomorrow <= df["period_end"]))
         )
-        active = df.loc[mask].sort_values(["period_end", "period_start"], ascending=[False, False])
+        active = df.loc[mask].sort_values(
+            ["period_end", "period_start"], ascending=[False, False])
         if active.empty:
             return empty
 
@@ -987,4 +1085,3 @@ def get_disposition_securities_period(stock_id):
     except Exception as e:
         print(f"❌ disposition period error {stock_id}: {e}")
         return empty
-

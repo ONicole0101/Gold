@@ -1,100 +1,155 @@
+import argparse
 import os
+from pathlib import Path
+
 import pandas as pd
 
-base_dir = os.path.dirname(os.path.abspath(__file__))
-allcsv_dir = os.path.join(base_dir, "Allcsv")
-output_csv = os.path.join(base_dir, "stocks.csv")
-
-all_rows = []
-
-print("cwd =", os.getcwd(), flush=True)
-print("script dir =", base_dir, flush=True)
-print("allcsv_dir =", allcsv_dir, flush=True)
-print("output_csv =", output_csv, flush=True)
-
-if not os.path.isdir(allcsv_dir):
-    raise FileNotFoundError(f"Allcsv directory not found: {allcsv_dir}")
+from custom_categories import CUSTOM_CATEGORY_COLUMN, _extract_stock_columns_from_excel
 
 
-def read_csv_flexible(file_path):
-    encodings = ["utf-8-sig", "utf-8", "cp950", "big5"]
-
-    last_error = None
-    for enc in encodings:
-        try:
-            df = pd.read_csv(file_path, sep="\t", encoding=enc)
-
-            if len(df.columns) == 1:
-                df = pd.read_csv(file_path, encoding=enc)
-
-            return df, enc
-        except Exception as e:
-            last_error = e
-
-    raise last_error
+def _clean_text(value: object) -> str:
+    text = str(value or "").strip()
+    return "" if text.lower() in {"nan", "none", "null"} else text
 
 
-for filename in os.listdir(allcsv_dir):
-    file_path = os.path.join(allcsv_dir, filename)
+def _parse_a_column_text(raw: str) -> tuple[str, str]:
+    """Parse A column as: first 4 chars = ticker, remaining chars = name."""
+    text = _clean_text(raw)
+    if not text:
+        return "", ""
 
-    if not os.path.isfile(file_path):
-        print(f"skip not file: {filename}", flush=True)
-        continue
+    ticker = text[:4]
+    if len(ticker) != 4 or not ticker.isdigit():
+        return "", ""
 
-    if not filename.lower().endswith((".csv", ".txt")):
-        print(f"skip ext: {filename}", flush=True)
-        continue
+    name = _clean_text(text[4:])
+    return ticker, name
 
-    try:
-        df, used_encoding = read_csv_flexible(file_path)
-        df.columns = df.columns.str.strip()
 
-        if {"Ticker", "Name"}.issubset(df.columns):
-            temp = df[["Ticker", "Name"]].copy()
-        elif {"代碼", "名稱"}.issubset(df.columns):
-            temp = df[["代碼", "名稱"]].copy()
-            temp.columns = ["Ticker", "Name"]
-        else:
-            print(
-                f"skip columns: {filename}, encoding={used_encoding}, columns={df.columns.tolist()}",
-                flush=True
+def _build_stock_list_from_excel(excel_path: Path) -> pd.DataFrame:
+    if not excel_path.exists():
+        raise FileNotFoundError(f"Excel file not found: {excel_path}")
+
+    workbook = pd.ExcelFile(excel_path)
+    rows: list[dict[str, str]] = []
+    report_lines = [f"workbook\t{excel_path.name}",
+                    f"sheet_count\t{len(workbook.sheet_names)}"]
+
+    for sheet_name in workbook.sheet_names:
+        df = pd.read_excel(workbook, sheet_name=sheet_name, dtype=str)
+        if df.empty:
+            print(f"sheet {sheet_name}: empty", flush=True)
+            report_lines.append(f"{sheet_name}\tempty\t0\t0")
+            continue
+
+        parsed = _extract_stock_columns_from_excel(df)
+        if parsed.empty:
+            print(f"sheet {sheet_name}: parsed 0 rows", flush=True)
+            report_lines.append(
+                f"{sheet_name}\tparsed_zero\t{len(df)}\t0\tcols="
+                + " | ".join(str(c).strip() for c in df.columns.tolist()[:8])
             )
             continue
 
-        temp["Ticker"] = temp["Ticker"].astype(str).str.strip()
-        temp["Name"] = temp["Name"].astype(str).str.strip()
+        print(f"sheet {sheet_name}: parsed {len(parsed)} rows", flush=True)
+        report_lines.append(
+            f"{sheet_name}\tok\t{len(df)}\t{len(parsed)}\tcols="
+            + " | ".join(str(c).strip() for c in df.columns.tolist()[:8])
+        )
 
-        temp = temp[
-            (temp["Ticker"] != "") &
-            (temp["Name"] != "") &
-            (temp["Ticker"].str.lower() != "nan") &
-            (temp["Name"].str.lower() != "nan")
-        ]
+        for _, row in parsed.iterrows():
+            ticker = _clean_text(row.get("stock_id", ""))
+            name = _clean_text(row.get("name", ""))
+            if not ticker or not name:
+                continue
+            rows.append(
+                {
+                    "Ticker": ticker,
+                    "Name": name,
+                    CUSTOM_CATEGORY_COLUMN: sheet_name,
+                }
+            )
 
-        if not temp.empty:
-            all_rows.append(temp)
+    if not rows:
+        report_path = excel_path.parent.parent / "stocks_parse_report.txt"
+        report_lines.append("generated_rows\t0")
+        report_path.write_text("\n".join(report_lines), encoding="utf-8")
+        raise RuntimeError(
+            "GoldSheet parsed zero stock rows. "
+            "See stocks_parse_report.txt for per-sheet parse details."
+        )
 
-        print(
-            f"loaded: {filename}, encoding={used_encoding}, rows={len(temp)}", flush=True)
-
-    except Exception as e:
-        print(f"failed: {filename}, error={e}", flush=True)
-
-if all_rows:
-    result = pd.concat(all_rows, ignore_index=True)
-    result["Ticker_num"] = pd.to_numeric(result["Ticker"], errors="coerce")
-
-    result = (
-        result
-        .drop_duplicates(subset=["Ticker"], keep="first")
-        .sort_values(by=["Ticker_num", "Ticker"], ascending=[True, True], na_position="last")
+    merged = pd.DataFrame(rows)
+    merged["Ticker"] = merged["Ticker"].map(_clean_text)
+    merged["Name"] = merged["Name"].map(_clean_text)
+    merged[CUSTOM_CATEGORY_COLUMN] = merged[CUSTOM_CATEGORY_COLUMN].map(
+        _clean_text)
+    merged = merged[merged["Ticker"] != ""]
+    merged = (
+        merged.groupby(["Ticker", "Name"], dropna=False,
+                       sort=False)[CUSTOM_CATEGORY_COLUMN]
+        .apply(lambda s: ";".join(sorted({x for x in s if x})))
+        .reset_index()
+    )
+    merged["Ticker_num"] = pd.to_numeric(merged["Ticker"], errors="coerce")
+    merged = (
+        merged.sort_values(["Ticker_num", "Ticker"], ascending=[
+                           True, True], na_position="last")
         .drop(columns=["Ticker_num"])
         .reset_index(drop=True)
     )
+    report_path = excel_path.parent.parent / "stocks_parse_report.txt"
+    report_lines.append(f"generated_rows\t{len(merged)}")
+    report_path.write_text("\n".join(report_lines), encoding="utf-8")
+    return merged[["Ticker", "Name", CUSTOM_CATEGORY_COLUMN]]
+
+
+def _resolve_goldsheet_path(allcsv_dir: Path) -> Path:
+    candidates = [
+        allcsv_dir / "GoldSheet.xls",
+        allcsv_dir / "GoldSheet.xlsx",
+    ]
+    for path in candidates:
+        if path.is_file() and not path.name.startswith("~$"):
+            return path
+    raise FileNotFoundError(
+        f"GoldSheet workbook not found under {allcsv_dir}. Expected one of: "
+        + ", ".join(str(path.name) for path in candidates)
+    )
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Read Allcsv/GoldSheet workbook and build stocks.csv using sheet names as 自選分類"
+    )
+    parser.parse_args()
+
+    base_dir = Path(__file__).resolve().parent
+    allcsv_dir = base_dir / "Allcsv"
+    output_csv = base_dir / "stocks.csv"
+    workbook_path = _resolve_goldsheet_path(allcsv_dir)
+
+    print("cwd =", os.getcwd(), flush=True)
+    print("script dir =", base_dir, flush=True)
+    print("scan_dir =", allcsv_dir, flush=True)
+    print("workbook =", workbook_path, flush=True)
+    print("output_csv =", output_csv, flush=True)
+
+    if not allcsv_dir.is_dir():
+        raise FileNotFoundError(f"Allcsv directory not found: {allcsv_dir}")
+
+    # Prevent stale output from previous runs when current parsing fails.
+    output_csv.unlink(missing_ok=True)
+
+    result = _build_stock_list_from_excel(workbook_path)
 
     result.to_csv(output_csv, sep="\t", index=False, encoding="utf-8-sig")
-
+    category_count = int(
+        (result[CUSTOM_CATEGORY_COLUMN].fillna("") != "").sum())
     print(f"written: {output_csv}", flush=True)
     print(f"rows: {len(result)}", flush=True)
-else:
-    print("no data", flush=True)
+    print(f"rows with {CUSTOM_CATEGORY_COLUMN}: {category_count}", flush=True)
+
+
+if __name__ == "__main__":
+    main()
