@@ -22,7 +22,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install pandas
+        run: pip install -r requirements.txt
 
       - name: Run Gencsv.py
         run: python Gencsv.py
@@ -39,6 +39,19 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+          TARGET_BRANCH="${GITHUB_REF_NAME}"
+          if [ -z "$TARGET_BRANCH" ]; then
+            echo "Cannot determine target branch from GITHUB_REF_NAME"
+            exit 1
+          fi
+          echo "Target branch: $TARGET_BRANCH"
+
+          # Fetch latest target branch so we can build cleanly on top of it.
+          # Using reset instead of rebase avoids conflicts in unrelated files
+          # (AllStatic.csv, AllStatic_Chips.csv, etc.) that other workflows manage.
+          git fetch origin "$TARGET_BRANCH"
+          git reset "origin/$TARGET_BRANCH"
+
           git add stocks.csv
 
           if git diff --cached --quiet; then
@@ -47,5 +60,4 @@ jobs:
           fi
 
           git commit -m "Update stocks.csv"
-          git pull --rebase origin main
-          git push origin main
+          git push origin "HEAD:$TARGET_BRANCH"
