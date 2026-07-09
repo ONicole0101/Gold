@@ -1,6 +1,6 @@
-[32m2026-07-08 10:55:19.558[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-07-08 10:55:19.695[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-FinMind: token=True, login=ok, usage=545/6000, remain=5455
+[32m2026-07-09 01:54:17.222[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-09 01:54:17.387[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+FinMind: token=True, login=ok, usage=1190/6000, remain=4810
 Build chips: total=170, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv
 stock_id name chip_latest_date main_force_net broker_diff   chip_signal_state chips_status
     1101   台泥       2026-07-08       -4816902         290 bearish_distributed           ok
