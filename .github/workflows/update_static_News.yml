@@ -22,13 +22,31 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install pandas requests jinja2 FinMind tqdm
+          fi
           pip install openai
+
+      - name: Check FINMIND_TOKEN presence
+        env:
+          FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os
+          token = (os.getenv("FINMIND_TOKEN") or "").strip()
+          print(f"FINMIND_TOKEN present={bool(token)}, length={len(token)}")
+          PY
 
       - name: Update AllStatic_news.csv
         env:
+          FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
           STOCKS_CSV: stocks.csv
           ALLSTATIC_NEWS_OUTPUT_FILE: AllStatic_news.csv
           NEWS_CACHE_FILE: .allstatic_news_cache.json
+          FINMIND_TOKEN_READ_RETRIES: '5'
+          FINMIND_TOKEN_READ_WAIT_MS: '500'
           NEWS_DAYS: ${{ vars.NEWS_DAYS || '10' }}
           NEWS_MAX_ITEMS: ${{ vars.NEWS_MAX_ITEMS || '8' }}
           NEWS_SLEEP_SEC: ${{ vars.NEWS_SLEEP_SEC || '0.6' }}

@@ -32,7 +32,7 @@ env:
   OUTPUT_FILE: ${{ github.event.inputs.output_file || vars.OUTPUT_FILE || '持股' }}
   REPORT_SUBTITLE: ${{ vars.REPORT_SUBTITLE || '' }}
   STATIC_OUTPUT_FILE: ${{ vars.STATIC_OUTPUT_FILE || 'AllStatic.csv' }}
-  STATIC_CHIP_OUTPUT_FILE: ${{ vars.STATIC_CHIP_OUTPUT_FILE || 'AllStatic_Chip.csv' }}
+  STATIC_CHIP_OUTPUT_FILE: ${{ vars.STATIC_CHIP_OUTPUT_FILE || 'AllStatic_Chips.csv' }}
 
 jobs:
   build-report:

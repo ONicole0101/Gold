@@ -50,7 +50,7 @@ env:
   OUTPUT_FILE: ${{ github.event.inputs.output_file || vars.OUTPUT_FILE || '持股' }}
   REPORT_SUBTITLE: ${{ vars.REPORT_SUBTITLE || '' }}
   STATIC_OUTPUT_FILE: ${{ vars.STATIC_OUTPUT_FILE || 'AllStatic.csv' }}
-  STATIC_CHIP_OUTPUT_FILE: ${{ vars.STATIC_CHIP_OUTPUT_FILE || 'AllStatic_Chip.csv' }}
+  STATIC_CHIP_OUTPUT_FILE: ${{ vars.STATIC_CHIP_OUTPUT_FILE || 'AllStatic_Chips.csv' }}
   ALLSTATIC_NEWS_OUTPUT_FILE: ${{ vars.ALLSTATIC_NEWS_OUTPUT_FILE || 'AllStatic_news.csv' }}
   CHIP_TREND_DAYS: ${{ vars.CHIP_TREND_DAYS || '3' }}
   CHIP_CONCENTRATION_THRESHOLD: ${{ vars.CHIP_CONCENTRATION_THRESHOLD || '15' }}
@@ -105,7 +105,7 @@ jobs:
             --output "${STATIC_OUTPUT_FILE}" \
             --sleep-sec "${{ github.event.inputs.sleep_sec || vars.STATIC_SLEEP_SEC || '0.2' }}"
 
-      - name: Generate AllStatic_Chip.csv
+      - name: Generate AllStatic_Chips.csv
         run: |
           python generate_static_chips_v3.py \
             --no-prompt \
@@ -119,9 +119,12 @@ jobs:
 
       - name: Generate AllStatic_news.csv
         env:
+          FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
           STOCKS_CSV: ${{ env.CSV_FILE }}
           ALLSTATIC_NEWS_OUTPUT_FILE: ${{ env.ALLSTATIC_NEWS_OUTPUT_FILE }}
           NEWS_CACHE_FILE: .allstatic_news_cache.json
+          FINMIND_TOKEN_READ_RETRIES: '5'
+          FINMIND_TOKEN_READ_WAIT_MS: '500'
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: python generate_static_news_service.py
 
