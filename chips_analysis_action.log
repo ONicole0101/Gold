@@ -1,7 +1,10 @@
-[32m2026-07-10 03:41:31.736[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-07-10 03:41:31.897[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-FinMind: token=True, login=ok, usage=1699/6000, remain=4301
+[32m2026-07-10 04:30:47.173[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-10 04:30:47.323[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+FinMind: token=True, login=ok, usage=5501/6000, remain=499
 Build chips: total=170, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv
+[1/170] 1216 統一 status=ok date=2026-07-09 main=-1810505 diff=-227 state=neutral
+[30/170] 2344 華邦電 status=no_data date=- main=- diff=- state=no_data
+❌ chip analysis API error 2377: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
 stock_id name chip_latest_date main_force_net broker_diff   chip_signal_state chips_status
     1101   台泥       2026-07-09      -11248259         371 bearish_distributed           ok
     1216   統一       2026-07-09       -1810505        -227             neutral           ok
