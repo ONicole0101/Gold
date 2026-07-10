@@ -180,34 +180,31 @@ def normalize_finmind_usage_info(info: dict | None) -> dict:
 
 def get_finmind_usage() -> dict:
     global _LAST_FINMIND_USAGE_INFO
-    if get_finmind_user_info is None:
-        info = {"login_status": "import_error", "token_present": bool(
-            os.getenv("FINMIND_TOKEN")), "message": str(_IMPORT_ERROR)}
-    else:
-        # write_log=False prevents chips_analysis_action.log creation from this script.
-        info = get_finmind_user_info(
-            write_log=False, source="generate_static_chips")
-    _LAST_FINMIND_USAGE_INFO = info
-    print(
-        "FinMind: "
-        f"token={bool(info.get('token_present'))}, "
-        f"login={info.get('login_status')}, "
-        f"usage={info.get('user_count')}/{info.get('api_request_limit')}, "
-        f"remain={info.get('remain')}",
-        flush=True,
+    info = get_finmind_user_info(
+        write_log=True, source="generate_static_chips")
+
+    used = int(info.get("user_count") or 0)
+    limit = int(info.get("api_request_limit") or 0)
+    remain = info.get("remain")
+    remain = int(remain or 0) if remain is not None else 0
+
+    token_msg = (
+        f"token_present={info.get('token_present')}, "
+        f"source={info.get('token_source')}, "
+        f"token={info.get('token_masked')}, "
+        f"login={info.get('login_status')}"
     )
+
+    _LAST_FINMIND_USAGE_INFO = info
+    print(f"FinMind token: {token_msg}", flush=True)
+    print(f"FinMind usage: {used}/{limit}, remain={remain}", flush=True)
     return info
 
 
 def apply_finmind_usage_to_row(row: dict, info: dict | None = None) -> dict:
     global _LAST_FINMIND_USAGE_INFO
     if info is None:
-        info = _LAST_FINMIND_USAGE_INFO
-        if info is None and get_finmind_token_status is not None:
-            try:
-                info = get_finmind_token_status()
-            except Exception:
-                info = {}
+        info = _LAST_FINMIND_USAGE_INFO or get_finmind_token_status()
     row.update(normalize_finmind_usage_info(info or {}))
     return row
 
