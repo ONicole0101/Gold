@@ -2,6 +2,36 @@ name: R DataSet Sync
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: Sync mode
+        required: false
+        default: incremental
+        type: choice
+        options:
+          - incremental
+          - full
+          - ask
+      datasets:
+        description: all or comma-separated dataset names
+        required: false
+        default: all
+      keep_history_files:
+        description: Keep historical timestamped files (1 keep, 0 remove old files)
+        required: false
+        default: "1"
+        type: choice
+        options:
+          - "1"
+          - "0"
+      one_time_backfill_missing:
+        description: One-time backfill missing stock history to 2020-04-01 (1 on, 0 off)
+        required: false
+        default: "0"
+        type: choice
+        options:
+          - "0"
+          - "1"
   schedule:
     # GitHub Actions cron uses UTC. 07:00 UTC = Taiwan 15:00.
     - cron: "0 7 * * *"
@@ -21,6 +51,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          lfs: true
+
+      - name: Setup Git LFS
+        run: |
+          git lfs install --local
+          git lfs track "dataset/*.csv"
+          git lfs track "dataset/**/*.csv"
+          git add .gitattributes
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -30,22 +68,37 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pandas requests
+          pip install -r requirements.txt
 
       - name: Run DataSet sync
-        run: python R_DataSet.py
+        run: |
+          MODE="${{ github.event.inputs.mode || 'incremental' }}"
+          DATASETS="${{ github.event.inputs.datasets || 'all' }}"
+          KEEP_HISTORY_FILES="${{ github.event.inputs.keep_history_files || '1' }}"
+          ONE_TIME_BACKFILL_MISSING="${{ github.event.inputs.one_time_backfill_missing || '0' }}"
+          export R_DATASET_KEEP_HISTORY_FILES="${KEEP_HISTORY_FILES}"
+          export R_DATASET_ONE_TIME_BACKFILL_MISSING="${ONE_TIME_BACKFILL_MISSING}"
+          echo "Run mode=${MODE}, datasets=${DATASETS}, keep_history_files=${KEEP_HISTORY_FILES}, one_time_backfill_missing=${ONE_TIME_BACKFILL_MISSING}"
+          python R_DataSet.py --mode "${MODE}" --datasets "${DATASETS}"
 
       - name: Show generated files
         run: |
+          pwd
           git status --short
-          ls -la DataSet || true
+          ls -la dataset || true
+          find dataset -maxdepth 2 -type f -print || true
 
       - name: Commit DataSet output
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add DataSet
+          git lfs install --local
+          git lfs track "dataset/*.csv"
+          git lfs track "dataset/**/*.csv"
+          git add .gitattributes
+
+          git add -A dataset
 
           if git diff --cached --quiet; then
             echo "No DataSet changes to commit."
