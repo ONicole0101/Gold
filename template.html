@@ -920,19 +920,19 @@
         note: "技術面：價格趨勢、壓力/支撐、KD、布林、Bias、PER/PBR 60天區間",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "price", label: "價格<br><small>60天LH</small>" },
-          { key: "price_lh_trend", label: "價格LH<br><small>3天趨勢</small>", cls: "col-md" },
+          { key: "price", label: "價格<br><small>60天L/H</small>" },
+          { key: "price_lh_trend", label: "價格L/H<br><small>3天趨勢</small>", cls: "col-md" },
           { key: "resistance_price", label: "壓力點<br><small>距離%</small>", tooltip: "壓力點距離%＝(壓力點價格 - 目前收盤價) ÷ 目前收盤價 × 100。數值越小代表越接近上方壓力，突破後可能轉為支撐。" },
           { key: "support_price", label: "支撐點<br><small>距離%</small>", tooltip: "支撐點距離%＝(目前收盤價 - 支撐點價格) ÷ 目前收盤價 × 100。數值越小代表越接近下方支撐，跌破後可能轉為壓力。" },
           { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "k", label: "日KD<br><small>3天趨勢</small>" },
-          { key: "bb_pct", label: "日布林%<br><small>LH</small>" },
-          { key: "bias5", label: "日Bias5<br><small>LH</small>" },
-          { key: "bias20", label: "日Bias20<br><small>LH</small>" },
-          { key: "bias60", label: "日Bias60<br><small>LH</small>", cls: "col-lg" },
-          { key: "per_latest", label: "日PER<br><small>60天LH</small>", cls: "col-lg" },
-          { key: "pbr_latest", label: "日PBR<br><small>60天LH</small>", cls: "col-lg" },
+          { key: "bb_pct", label: "日布林%<br><small>L/H</small>" },
+          { key: "bias5", label: "日Bias5<br><small>L/H</small>" },
+          { key: "bias20", label: "日Bias20<br><small>L/H</small>" },
+          { key: "bias60", label: "日Bias60<br><small>L/H</small>", cls: "col-lg" },
+          { key: "per_latest", label: "日PER<br><small>60天L/H</small>", cls: "col-lg" },
+          { key: "pbr_latest", label: "日PBR<br><small>60天L/H</small>", cls: "col-lg" },
           { key: "sig", label: "訊號" }
         ]
       },
@@ -940,7 +940,7 @@
         note: "籌碼面：籌碼集中、主力買賣超、買賣家數差與三日趨勢",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "price", label: "價格<br><small>60天LH</small>" },
+          { key: "price", label: "價格<br><small>60天L/H</small>" },
           { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "chip_concentration_score", label: "籌碼集中%<br><small>3天趨勢</small>", tooltip: "籌碼集中%＝主力分點淨買賣力道的絕對值 ÷ 全市場買賣量合計 × 100。數值越高代表籌碼越集中；需搭配主力買賣超正負方向判斷。" },
@@ -958,7 +958,7 @@
         note: "基本面：EPS、ROE、營收、毛利率、營益率、淨利率、殖利率、PER/PBR、新聞",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "price", label: "價格<br><small>60天LH</small>" },
+          { key: "price", label: "價格<br><small>60天L/H </small>" },
           { key: "eps_Y", label: "EPS<br><small>TTM</small>" },
           { key: "roe", label: "ROE%<br><small>TTM</small>" },
           { key: "rev", label: "營收(bn)<br><small>M / Q / Y</small>" },
@@ -966,8 +966,8 @@
           { key: "operating_margin", label: "營益率%<br><small>QoQ / YoY</small>" },
           { key: "net_margin", label: "淨利率%<br><small>QoQ / Y</small>" },
           { key: "yield_value", label: "殖利率<br><small>估65%</small>", cls: "col-md" },
-          { key: "per_latest", label: "日PER<br><small>60天LH</small>" },
-          { key: "pbr_latest", label: "日PBR<br><small>60天LH</small>" },
+          { key: "per_latest", label: "日PER<br><small>60天L/H</small>" },
+          { key: "pbr_latest", label: "日PBR<br><small>60天L/H</small>" },
           { key: "news_summary", label: "新聞", cls: "news-summary-col" }
         ]
       },
@@ -1277,7 +1277,7 @@
     function renderBBTechnicalContent(s) {
       return `
         ${renderDayPairContent(s, "bb_pct", "%")}
-        <div class="table-lv3">L ${fmt(s.bb_lower)} / H ${fmt(s.bb_upper)}</div>`;
+        <div class="table-lv3">${fmt(s.bb_lower)} / ${fmt(s.bb_upper)}</div>`;
     }
 
     function renderBiasTechnicalContent(s, key) {
@@ -1285,7 +1285,7 @@
       const high = pickFirst(s[`${key}_max`], s[`${key}_60d_high`]);
       return `
         ${renderDayPairContent(s, key, "%")}
-        <div class="table-lv3">L ${fmt(low, "%")} / H ${fmt(high, "%")}</div>`;
+        <div class="table-lv3">${fmt(low, "%")} / ${fmt(high, "%")}</div>`;
     }
 
     function priceLHValue(s, idx, kind) {
@@ -1350,8 +1350,8 @@
       return `
         <div class="table-lv2 price-lh-line">
           <span class="price-lh-date">${escapeHtml(label)}：</span>
-          <span class="${lowCls}">低 ${fmt(low)}</span>
-          <span class="${highCls}">高 ${fmt(high)}</span>
+          <span class="${lowCls}"> ${fmt(low)}</span>
+          <span class="${highCls}">/ ${fmt(high)}</span>
         </div>`;
     }
 
@@ -1782,14 +1782,14 @@
           <div class="stock-item"><div class="stock-label">營益率</div><div class="stock-value">${renderMetric3(s.operating_margin, null, s.operating_margin_qoq, s.operating_margin_yoy_diff)}</div></div>
           <div class="stock-item"><div class="stock-label">淨利率</div><div class="stock-value">${renderMetric3(s.net_margin, null, s.net_margin_qoq, s.net_margin_yoy_diff)}</div></div>
           <div class="stock-item"><div class="stock-label">殖利率 估65%</div><div class="stock-value">${fmt(Number(s.yield_value ?? 0) * 0.65, "%")}</div></div>
-          <div class="stock-item"><div class="stock-label">日PER 60天LH</div><div class="stock-value">${renderRangeMetric(s.per_latest, s.per_60d_low, s.per_60d_high)}</div></div>
-          <div class="stock-item"><div class="stock-label">日PBR 60天LH</div><div class="stock-value">${renderRangeMetric(s.pbr_latest, s.pbr_60d_low, s.pbr_60d_high)}</div></div>
+          <div class="stock-item"><div class="stock-label">日PER 60天L/H</div><div class="stock-value">${renderRangeMetric(s.per_latest, s.per_60d_low, s.per_60d_high)}</div></div>
+          <div class="stock-item"><div class="stock-label">日PBR 60天L/H</div><div class="stock-value">${renderRangeMetric(s.pbr_latest, s.pbr_60d_low, s.pbr_60d_high)}</div></div>
           <div class="stock-item summary-mobile-item"><div class="stock-label">新聞</div><div class="stock-value">${escapeHtml(s.news_summary || "-")}</div></div>
         </div>`;
 
       const overviewGrid = `
         <div class="stock-grid">
-          <div class="stock-item"><div class="stock-label">價格LH 3天趨勢</div>${renderPriceLHTrendBlock(s)}</div>
+          <div class="stock-item"><div class="stock-label">價格L/H 3天趨勢</div>${renderPriceLHTrendBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">漲跌% / 漲跌 / 震幅</div><div class="stock-value">${renderChangePctBlock(s)}</div></div>
           <div class="stock-item"><div class="stock-label">日KD 3天趨勢</div>${renderKDBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">日布林% (T/T-1)</div><div class="stock-value">${renderBBTechnicalContent(s)}</div></div>

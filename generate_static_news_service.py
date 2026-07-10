@@ -20,18 +20,116 @@ import json
 import os
 import re
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, List
 
-try:
-    from data_sources import API_URL, FINMIND_token, headers
-except Exception:
-    API_URL = "https://api.finmindtrade.com/api/v4/data"
-    FINMIND_token = os.getenv("FINMIND_TOKEN")
-    headers = {"Authorization": f"Bearer {FINMIND_token}"} if FINMIND_token else {}
+API_URL = "https://api.finmindtrade.com/api/v4/data"
+USER_INFO_URL = "https://api.web.finmindtrade.com/v2/user_info"
+
+
+def _get_finmind_env_token() -> str:
+    """Read FinMind token directly from the standardized environment variable.
+
+    Standardize on FINMIND_TOKEN only.
+    The token is read from the current process environment at runtime,
+    so changes to the environment are reflected on each run.
+    """
+    value = os.getenv("FINMIND_TOKEN")
+    return str(value).strip() if value and str(value).strip() else ""
+
+
+def _get_finmind_env_token_with_retry() -> str:
+    """Read FINMIND_TOKEN with short retries for CI timing windows."""
+    retries_text = os.getenv("FINMIND_TOKEN_READ_RETRIES", "3")
+    wait_ms_text = os.getenv("FINMIND_TOKEN_READ_WAIT_MS", "300")
+
+    try:
+        retries = max(int(str(retries_text).strip() or "3"), 1)
+    except Exception:
+        retries = 3
+
+    try:
+        wait_ms = max(int(str(wait_ms_text).strip() or "300"), 0)
+    except Exception:
+        wait_ms = 300
+
+    for attempt in range(retries):
+        token = _get_finmind_env_token()
+        if token:
+            return token
+        if attempt + 1 < retries and wait_ms > 0:
+            time.sleep(wait_ms / 1000.0)
+
+    return ""
+
+
+def _get_finmind_auth_headers(token: str | None = None) -> dict:
+    token = str(token or "").strip(
+    ) if token is not None else _get_finmind_env_token_with_retry()
+    return {"Authorization": f"Bearer {token}"} if token else {}
+
+
+def _mask_token(token: str) -> str:
+    token = str(token or "").strip()
+    if not token:
+        return ""
+    if len(token) <= 8:
+        return "*" * len(token)
+    return token[:4] + "..." + token[-4:]
+
+
+def _get_finmind_user_info_snapshot() -> dict:
+    """Runtime token/login/quota snapshot for log annotation."""
+    token = _get_finmind_env_token_with_retry()
+
+    info = {
+        "token_present": bool(token),
+        "token_source": "FINMIND_TOKEN" if token else "",
+        "token_masked": _mask_token(token),
+        "login_status": "missing_token",
+        "user_count": 0,
+        "api_request_limit": 0,
+        "remain": 0,
+    }
+    if not token:
+        return info
+
+    req_headers = _get_finmind_auth_headers(token)
+    req_headers.setdefault("User-Agent", "Mozilla/5.0")
+    req_headers.setdefault("Accept", "application/json")
+
+    try:
+        req = urllib.request.Request(USER_INFO_URL, headers=req_headers)
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            status_code = getattr(resp, "status", None) or resp.getcode()
+            raw = resp.read().decode("utf-8", errors="ignore")
+        payload = _safe_json_dict(raw)
+
+        used = payload.get("user_count")
+        limit = payload.get("api_request_limit")
+        try:
+            used_int = int(used or 0)
+            limit_int = int(limit or 0)
+            remain_int = max(limit_int - used_int, 0) if limit_int else 0
+        except Exception:
+            used_int = 0
+            limit_int = 0
+            remain_int = 0
+
+        info["login_status"] = "ok" if status_code == 200 and not payload.get(
+            "error") else "error"
+        info["user_count"] = used_int
+        info["api_request_limit"] = limit_int
+        info["remain"] = remain_int
+        return info
+    except Exception:
+        info["login_status"] = "error"
+        return info
+
 
 try:
     import config
@@ -240,20 +338,135 @@ def _extract_finmind_date_text(item: dict) -> str:
     return ""
 
 
-def finmind_request_headers() -> dict:
-    req_headers = dict(headers or {})
+def finmind_request_headers(token: str | None = None) -> dict:
+    # Build headers from the current process environment at request time.
+    req_headers = _get_finmind_auth_headers(token)
     req_headers.setdefault("User-Agent", "Mozilla/5.0")
     req_headers.setdefault("Accept", "application/json")
     return req_headers
 
 
+def _safe_json_dict(raw: str) -> dict:
+    try:
+        payload = json.loads(raw)
+    except Exception:
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def _mask_sensitive_request_url(url: str) -> str:
+    """Log the request URL while masking secrets by default.
+
+    Set FINMIND_LOG_FULL_URL_WITH_TOKEN=1 only when you intentionally want the
+    exact token printed in your local logs.
+    """
+    if _env_bool("FINMIND_LOG_FULL_URL_WITH_TOKEN", False):
+        return url
+
+    try:
+        parsed = urllib.parse.urlsplit(url)
+        query_pairs = urllib.parse.parse_qsl(
+            parsed.query, keep_blank_values=True)
+        sensitive_keys = {
+            "token",
+            "api_token",
+            "api_key",
+            "apikey",
+            "authorization",
+            "access_token",
+        }
+        masked_pairs = [
+            (key, "***" if key.lower() in sensitive_keys else value)
+            for key, value in query_pairs
+        ]
+        masked_query = urllib.parse.urlencode(
+            masked_pairs, doseq=True).replace("%2A%2A%2A", "***")
+        return urllib.parse.urlunsplit(
+            (parsed.scheme, parsed.netloc, parsed.path, masked_query, parsed.fragment)
+        )
+    except Exception:
+        return url
+
+
+def _finmind_status_code(payload: dict) -> str:
+    for key in ("status_code", "status", "code"):
+        value = payload.get(key)
+        if value is not None and str(value).strip() != "":
+            return str(value).strip()
+    return ""
+
+
+def _finmind_msg(payload: dict) -> str:
+    for key in ("msg", "message", "detail", "error"):
+        value = payload.get(key)
+        if value is not None and str(value).strip() != "":
+            return str(value).strip()
+    return ""
+
+
+def _is_finmind_error_payload(payload: dict) -> bool:
+    status_text = _finmind_status_code(payload).lower()
+    msg_text = _finmind_msg(payload).lower()
+
+    if status_text and status_text not in {"200", "success", "ok", "true"}:
+        return True
+
+    error_words = (
+        "error",
+        "forbidden",
+        "payment",
+        "required",
+        "unauthorized",
+        "permission",
+        "limit",
+        "invalid",
+        "failed",
+    )
+    if msg_text and msg_text not in {"success", "ok"}:
+        return any(word in msg_text for word in error_words)
+
+    return False
+
+
+def _print_finmind_api_error(
+    context: str,
+    stock: Stock,
+    query_date: dt.date,
+    request_url: str,
+    raw_response: str = "",
+    payload: dict | None = None,
+    http_status: int | str | None = None,
+    http_reason: str = "",
+    exception: BaseException | None = None,
+) -> None:
+    if payload is None:
+        payload = _safe_json_dict(raw_response)
+
+    lines = [
+        f"⚠️ {context}",
+        f"  stock_id={stock.stock_id}",
+        f"  stock_name={stock.name}",
+        f"  query_date={query_date}",
+        f"  request_url={_mask_sensitive_request_url(request_url)}",
+        f"  http_status={http_status if http_status is not None else '<unknown>'}",
+        f"  http_reason={http_reason or '<none>'}",
+        f"  finmind_status_code={_finmind_status_code(payload) or '<missing>'}",
+        f"  finmind_msg={_finmind_msg(payload) or '<missing>'}",
+        f"  raw_response={raw_response if raw_response else '<empty>'}",
+    ]
+    if exception is not None:
+        lines.append(f"  exception={type(exception).__name__}: {exception}")
+
+    print("\n".join(lines), flush=True)
+
+
 def fetch_finmind_news(stock: Stock, loop_days: int = 7, max_loops: int = 4, target_count: int = 5) -> List[dict]:
     """由今天起逐日查詢 FinMind TaiwanStockNews，並以 7 天為一個 loop 往前查。"""
     today = dt.datetime.now(TAIWAN_TZ).date()
-    token = FINMIND_token or _env("FINMIND_TOKEN", "")
-    req_headers = finmind_request_headers()
 
     def _fetch_one_day(query_date: dt.date) -> List[dict]:
+        token = _get_finmind_env_token_with_retry()
+        req_headers = finmind_request_headers(token=token)
         params_dict = {
             "dataset": "TaiwanStockNews",
             "data_id": stock.stock_id,
@@ -263,23 +476,105 @@ def fetch_finmind_news(stock: Stock, loop_days: int = 7, max_loops: int = 4, tar
             params_dict["token"] = token
 
         params = urllib.parse.urlencode(params_dict)
-        req = urllib.request.Request(
-            f"{API_URL}?{params}", headers=req_headers)
+        request_url = f"{API_URL}?{params}"
+        req = urllib.request.Request(request_url, headers=req_headers)
 
         try:
             with urllib.request.urlopen(req, timeout=30) as resp:
+                http_status = getattr(resp, "status", None) or resp.getcode()
+                http_reason = getattr(resp, "reason", "") or ""
                 raw = resp.read().decode("utf-8", errors="ignore")
+        except urllib.error.HTTPError as exc:
+            try:
+                raw = exc.read().decode("utf-8", errors="ignore")
+            except Exception:
+                raw = ""
+            _print_finmind_api_error(
+                "FinMind HTTP error while querying TaiwanStockNews",
+                stock=stock,
+                query_date=query_date,
+                request_url=request_url,
+                raw_response=raw,
+                http_status=getattr(exc, "code", None),
+                http_reason=str(getattr(exc, "reason", "") or ""),
+                exception=exc,
+            )
+            return []
+        except urllib.error.URLError as exc:
+            _print_finmind_api_error(
+                "FinMind URL/network error while querying TaiwanStockNews",
+                stock=stock,
+                query_date=query_date,
+                request_url=request_url,
+                raw_response="",
+                http_reason=str(getattr(exc, "reason", "") or ""),
+                exception=exc,
+            )
+            return []
         except Exception as exc:
-            print(
-                f"⚠️ FinMind one-day query failed {stock.stock_id} {query_date}: {exc}", flush=True)
+            _print_finmind_api_error(
+                "FinMind request failed before a usable response was available",
+                stock=stock,
+                query_date=query_date,
+                request_url=request_url,
+                raw_response="",
+                exception=exc,
+            )
             return []
 
         try:
             payload = json.loads(raw)
-        except Exception:
+        except Exception as exc:
+            _print_finmind_api_error(
+                "FinMind returned non-JSON response",
+                stock=stock,
+                query_date=query_date,
+                request_url=request_url,
+                raw_response=raw,
+                http_status=http_status,
+                http_reason=http_reason,
+                exception=exc,
+            )
+            return []
+
+        if not isinstance(payload, dict):
+            _print_finmind_api_error(
+                "FinMind returned unexpected JSON type",
+                stock=stock,
+                query_date=query_date,
+                request_url=request_url,
+                raw_response=raw,
+                http_status=http_status,
+                http_reason=http_reason,
+            )
+            return []
+
+        if _is_finmind_error_payload(payload):
+            _print_finmind_api_error(
+                "FinMind returned error payload",
+                stock=stock,
+                query_date=query_date,
+                request_url=request_url,
+                raw_response=raw,
+                payload=payload,
+                http_status=http_status,
+                http_reason=http_reason,
+            )
             return []
 
         rows = payload.get("data") or []
+        if not isinstance(rows, list):
+            _print_finmind_api_error(
+                "FinMind response data is not a list",
+                stock=stock,
+                query_date=query_date,
+                request_url=request_url,
+                raw_response=raw,
+                payload=payload,
+                http_status=http_status,
+                http_reason=http_reason,
+            )
+            return []
         normalized = []
         for row in rows:
             title = _extract_finmind_title(row)
@@ -460,11 +755,27 @@ def main() -> None:
     print(
         f"Start AllStatic_news at {dt.datetime.now(TAIWAN_TZ).strftime('%Y-%m-%d %H:%M:%S')}", flush=True)
     print(f"stocks={len(stocks)}, loop_days=7, max_loops=4, target_news_items=5, out={out_csv}, cache={cache_path}", flush=True)
+
+    finmind_info = _get_finmind_user_info_snapshot()
+    token_msg = (
+        f"token_present={finmind_info.get('token_present')}, "
+        f"source={finmind_info.get('token_source')}, "
+        f"token={finmind_info.get('token_masked')}, "
+        f"login={finmind_info.get('login_status')}"
+    )
+    print(f"FinMind token: {token_msg}", flush=True)
+    print(
+        f"FinMind usage: {int(finmind_info.get('user_count') or 0)}/{int(finmind_info.get('api_request_limit') or 0)}, "
+        f"remain={int(finmind_info.get('remain') or 0)}",
+        flush=True,
+    )
+
     print(
         "settings="
-        f"finmind_token_present={bool(FINMIND_token or _env('FINMIND_TOKEN', ''))}, "
+        f"finmind_token_present={bool(_get_finmind_env_token())}, "
         f"skip_same_titles={_env('NEWS_SKIP_IF_SAME_TITLES', '1')}, "
         f"news_chars={_env('NEWS_SUMMARY_CHARS', '150')}, "
+        f"finmind_log_full_url_with_token={_env('FINMIND_LOG_FULL_URL_WITH_TOKEN', '0')}, "
         "openai_removed=True, google_news_removed=True",
         flush=True,
     )
