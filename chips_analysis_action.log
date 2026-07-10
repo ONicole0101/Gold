@@ -1,15 +1,14 @@
-[32m2026-07-09 09:56:05.054[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-07-09 09:56:05.224[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-FinMind: token=True, login=ok, usage=248/6000, remain=5752
+[32m2026-07-10 03:41:31.736[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-10 03:41:31.897[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+FinMind: token=True, login=ok, usage=1699/6000, remain=4301
 Build chips: total=170, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv
-[25/170] 2345 智邦 status=ok date=2026-07-09 main=72303 diff=-3 state=neutral
 stock_id name chip_latest_date main_force_net broker_diff   chip_signal_state chips_status
     1101   台泥       2026-07-09      -11248259         371 bearish_distributed           ok
     1216   統一       2026-07-09       -1810505        -227             neutral           ok
     1319   東陽       2026-07-09        -293850         136             neutral           ok
     1476   儒鴻       2026-07-09          50107          67 bullish_distributed           ok
     1503   士電       2026-07-09         -65896         200 bearish_distributed           ok
-    1513  中興電       2026-07-08        -975126         154             neutral           ok
+    1513  中興電       2026-07-09         301614          57             neutral           ok
     1514   亞力       2026-07-09        -138885          23 bearish_distributed           ok
     1519   華城       2026-07-09         -83335         277 bearish_distributed           ok
     1532   勤美       2026-07-09         -14000          24 bearish_distributed           ok
