@@ -1,8 +1,9 @@
-[32m2026-07-10 04:54:43.763[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-07-10 04:54:43.878[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-10 09:51:28.864[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-10 09:51:28.992[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...E3S4, login=ok
-FinMind usage: 2100/6000, remain=3900
+FinMind usage: 866/6000, remain=5134
 Build chips: total=170, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv
+[1/170] 1476 儒鴻 status=ok date=2026-07-09 main=50107 diff=67 state=bullish_distributed
 stock_id name chip_latest_date main_force_net broker_diff   chip_signal_state chips_status
     1101   台泥       2026-07-09      -11248259         371 bearish_distributed           ok
     1216   統一       2026-07-09       -1810505        -227             neutral           ok
