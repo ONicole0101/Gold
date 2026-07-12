@@ -19,12 +19,22 @@ API_URL = "https://api.finmindtrade.com/api/v4/data"
 USER_INFO_URL = "https://api.web.finmindtrade.com/v2/user_info"
 TAIWAN_STOCK_TRADING_DAILY_REPORT_URL = "https://api.finmindtrade.com/api/v4/taiwan_stock_trading_daily_report"
 TAIWAN_STOCK_TRADING_DAILY_REPORT_SECID_AGG_URL = "https://api.finmindtrade.com/api/v4/taiwan_stock_trading_daily_report_secid_agg"
-OUTPUT_DIR = Path(os.getenv("R_DATASET_OUTPUT_DIR", "/tmp/google_dataset"))
-HISTORY_DIR = OUTPUT_DIR / "His"
+_raw_output_dir = Path(
+    os.getenv("R_DATASET_OUTPUT_DIR", str(Path(__file__).resolve().parent))
+).expanduser()
+if _raw_output_dir.name.lower() == "dataset":
+    OUTPUT_DIR = _raw_output_dir
+else:
+    OUTPUT_DIR = _raw_output_dir / "Dataset"
+HISTORY_DIR = OUTPUT_DIR / "his"
+LEGACY_HISTORY_DIR = OUTPUT_DIR / "His"
 START_DATE = "2020-04-01"
 FINMIND_USAGE_LOG_FILE = os.getenv(
     "FINMIND_USAGE_LOG_FILE", "finmind_token_usage_log.csv"
 )
+REMOTE_DATASET_SUBDIR = str(
+    os.getenv("R_DATASET_REMOTE_SUBDIR", "Dataset") or "Dataset"
+).strip()
 
 DATASETS_RANGE = [
     "TaiwanStockPrice",
@@ -150,12 +160,30 @@ def _drive_children(service, folder_id: str) -> list[dict]:
             return results
 
 
+def _ensure_remote_dataset_folder(service, parent_folder_id: str) -> str:
+    name = REMOTE_DATASET_SUBDIR or "Dataset"
+    for item in _drive_children(service, parent_folder_id):
+        if item["name"] == name and item["mimeType"] == "application/vnd.google-apps.folder":
+            return item["id"]
+    result = service.files().create(
+        body={
+            "name": name,
+            "mimeType": "application/vnd.google-apps.folder",
+            "parents": [parent_folder_id],
+        },
+        fields="id",
+    ).execute(num_retries=5)
+    _google_sleep()
+    return result["id"]
+
+
 def download_google_dataset() -> None:
     folder_id = str(os.getenv("GOOGLE_DEST_FOLDER_ID") or "").strip()
     if not folder_id:
         raise RuntimeError("GOOGLE_DEST_FOLDER_ID is not set")
     service = _google_drive_service()
     _verify_drive_folder(service, folder_id)
+    dataset_folder_id = _ensure_remote_dataset_folder(service, folder_id)
 
     def download_folder(remote_id: str, local_dir: Path) -> None:
         local_dir.mkdir(parents=True, exist_ok=True)
@@ -174,8 +202,11 @@ def download_google_dataset() -> None:
                         _, done = downloader.next_chunk(num_retries=5)
                 _google_sleep()
 
-    download_folder(folder_id, OUTPUT_DIR)
-    print(f"Downloaded existing Google Drive dataset to {OUTPUT_DIR}", flush=True)
+    download_folder(dataset_folder_id, OUTPUT_DIR)
+    print(
+        f"Downloaded existing Google Drive dataset to {OUTPUT_DIR} (subdir={REMOTE_DATASET_SUBDIR})",
+        flush=True,
+    )
 
 
 def upload_google_dataset() -> None:
@@ -184,6 +215,7 @@ def upload_google_dataset() -> None:
         raise RuntimeError("GOOGLE_DEST_FOLDER_ID is not set")
     service = _google_drive_service()
     _verify_drive_folder(service, folder_id)
+    dataset_folder_id = _ensure_remote_dataset_folder(service, folder_id)
 
     def ensure_folder(parent_id: str, name: str) -> str:
         for item in _drive_children(service, parent_id):
@@ -216,8 +248,11 @@ def upload_google_dataset() -> None:
                                        ).execute(num_retries=5)
             _google_sleep()
 
-    upload_folder(OUTPUT_DIR, folder_id)
-    print("Uploaded dataset output to Google Drive", flush=True)
+    upload_folder(OUTPUT_DIR, dataset_folder_id)
+    print(
+        f"Uploaded dataset output to Google Drive (subdir={REMOTE_DATASET_SUBDIR})",
+        flush=True,
+    )
 
 
 def _get_finmind_env_token() -> str:
@@ -492,6 +527,10 @@ def load_all_dataset_outputs(dataset_name: str) -> pd.DataFrame:
     candidates.extend(list_dataset_files(dataset_name))
     if HISTORY_DIR.exists():
         candidates.extend(sorted(HISTORY_DIR.glob(f"{dataset_name}_*.csv")))
+    if LEGACY_HISTORY_DIR.exists() and LEGACY_HISTORY_DIR != HISTORY_DIR:
+        candidates.extend(
+            sorted(LEGACY_HISTORY_DIR.glob(f"{dataset_name}_*.csv"))
+        )
 
     # Annual archive files are also part of cumulative history.
     candidates.extend(list_annual_archive_files(dataset_name))
