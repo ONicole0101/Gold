@@ -779,7 +779,7 @@ def cleanup_trading_daily_report_files(current_file: Path, annual_file: Path | N
 
 
 def write_trading_daily_report_outputs(final_df: pd.DataFrame, exec_ts: str, keep_history: bool, mode: str) -> dict:
-    download_google_dataset()
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     exec_year = int(exec_ts[:4])
     cutoff_year = exec_year - 1
     current_path = OUTPUT_DIR / f"TaiwanStockTradingDailyReport_{exec_ts}.csv"
@@ -1454,7 +1454,9 @@ def main() -> None:
         print(json.dumps({"datasets": datasets}, ensure_ascii=False, indent=2))
         return
 
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    # Validate Shared Drive and download existing files before any FinMind work.
+    # This preserves incremental history and fails fast for an invalid My Drive ID.
+    download_google_dataset()
 
     token = require_finmind_token()
     print_finmind_usage_snapshot(token)
