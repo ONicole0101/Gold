@@ -105,7 +105,8 @@ def _google_drive_service():
         ("GOOGLE_OAUTH_REFRESH_TOKEN", refresh_token),
     ) if not value]
     if missing:
-        raise RuntimeError(f"Missing Google OAuth secret(s): {', '.join(missing)}")
+        raise RuntimeError(
+            f"Missing Google OAuth secret(s): {', '.join(missing)}")
     credentials = Credentials(
         token=None,
         refresh_token=refresh_token,
@@ -196,7 +197,8 @@ def download_google_dataset() -> None:
                     fileId=item["id"]
                 )
                 with target.open("wb") as output:
-                    downloader = MediaIoBaseDownload(output, request, chunksize=10 * 1024 * 1024)
+                    downloader = MediaIoBaseDownload(
+                        output, request, chunksize=10 * 1024 * 1024)
                     done = False
                     while not done:
                         _, done = downloader.next_chunk(num_retries=5)
@@ -222,7 +224,8 @@ def upload_google_dataset() -> None:
             if item["name"] == name and item["mimeType"] == "application/vnd.google-apps.folder":
                 return item["id"]
         result = service.files().create(
-            body={"name": name, "mimeType": "application/vnd.google-apps.folder", "parents": [parent_id]},
+            body={"name": name, "mimeType": "application/vnd.google-apps.folder",
+                  "parents": [parent_id]},
             fields="id",
         ).execute(num_retries=5)
         _google_sleep()
