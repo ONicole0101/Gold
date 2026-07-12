@@ -32,7 +32,7 @@ DATASETS_RANGE = [
     "TaiwanStockTradingDailyReport",
     "TaiwanStockFinancialStatements",
     "TaiwanStockBalanceSheet",
-    "TaiwanStockIndustryChain",    
+    "TaiwanStockIndustryChain",
     "TaiwanStockMonthRevenue",
     "TaiwanStockDividend",
     "TaiwanStockDispositionSecuritiesPeriod"
@@ -126,7 +126,8 @@ def require_finmind_token() -> str:
 
 
 def get_finmind_request_kwargs(token: str | None = None) -> dict:
-    resolved = str(token or "").strip() if token is not None else _get_finmind_env_token_with_retry()
+    resolved = str(token or "").strip(
+    ) if token is not None else _get_finmind_env_token_with_retry()
     if not resolved:
         return {"headers": {}, "params": {}}
     return {
@@ -207,10 +208,12 @@ def get_finmind_user_info(token: str, write_log: bool = True, source: str = "R_D
     req_headers = req_kwargs.get("headers", {})
 
     try:
-        response = requests.get(USER_INFO_URL, headers=req_headers, timeout=300)
+        response = requests.get(
+            USER_INFO_URL, headers=req_headers, timeout=300)
         payload = response.json() if response.content else {}
         used = payload.get("user_count") if isinstance(payload, dict) else None
-        limit = payload.get("api_request_limit") if isinstance(payload, dict) else None
+        limit = payload.get("api_request_limit") if isinstance(
+            payload, dict) else None
 
         try:
             used_int = int(used or 0)
@@ -226,7 +229,8 @@ def get_finmind_user_info(token: str, write_log: bool = True, source: str = "R_D
         )
         msg = ""
         if isinstance(payload, dict):
-            msg = payload.get("msg") or payload.get("message") or payload.get("status") or ""
+            msg = payload.get("msg") or payload.get(
+                "message") or payload.get("status") or ""
         if not msg:
             msg = response.text[:200]
 
@@ -272,7 +276,8 @@ def get_finmind_user_info(token: str, write_log: bool = True, source: str = "R_D
 
 
 def print_finmind_usage_snapshot(token: str) -> dict:
-    info = get_finmind_user_info(token=token, write_log=True, source="R_DataSet.py")
+    info = get_finmind_user_info(
+        token=token, write_log=True, source="R_DataSet.py")
     print(
         "FinMind token: "
         f"token_present={info.get('token_present')}, "
