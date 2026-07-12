@@ -34,7 +34,7 @@ NEWS_SLEEP_SEC = float(_env("NEWS_SLEEP_SEC", "0.6"))
 
 STATIC_CHIP_OUTPUT_FILE = _env(
     "STATIC_CHIP_OUTPUT_FILE",
-    _env("STATIC_CHIP_FILE", _env("STATIC_CHIPS_FILE", "AllStatic_Chip.csv")),
+    _env("STATIC_CHIP_FILE", _env("STATIC_CHIPS_FILE", "AllStatic_Chips.csv")),
 )
 # Backward-compatible alias for older code.
 STATIC_CHIPS_OUTPUT_FILE = STATIC_CHIP_OUTPUT_FILE
