@@ -47,6 +47,11 @@ on:
         required: true
         default: true
         type: boolean
+      generate_parquet_chips:
+        description: "4) Generate per-stock/day Parquet chip summaries"
+        required: true
+        default: true
+        type: boolean
   schedule:
     # GitHub Actions cron uses UTC. 07:00 UTC = Taiwan 15:00.
     - cron: "0 7 * * *"
@@ -92,6 +97,7 @@ jobs:
           echo "generate_csv=${{ github.event_name == 'schedule' || inputs.generate_csv }}"
           echo "convert_csv_to_parquet=${{ github.event_name == 'workflow_dispatch' && inputs.convert_csv_to_parquet }}"
           echo "generate_parquet=${{ github.event_name == 'workflow_dispatch' && inputs.generate_parquet }}"
+          echo "generate_parquet_chips=${{ github.event_name == 'workflow_dispatch' && inputs.generate_parquet_chips }}"
 
       - name: Check FINMIND_TOKEN and user_info stats
         if: ${{ github.event_name == 'schedule' || inputs.generate_csv || inputs.generate_parquet }}
@@ -165,6 +171,12 @@ jobs:
           export R_DATASET_ONE_TIME_BACKFILL_MISSING="${ONE_TIME_BACKFILL_MISSING}"
           echo "Run Parquet mode=${MODE}, datasets=${DATASETS}, keep_history_files=${KEEP_HISTORY_FILES}, one_time_backfill_missing=${ONE_TIME_BACKFILL_MISSING}"
           python R_DataSet_Parquet.py --mode "${MODE}" --datasets "${DATASETS}"
+
+      - name: Run Parquet chips summary
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.generate_parquet_chips }}
+        run: |
+          echo "Generate per-stock/per-trading-day chip summary Parquet files"
+          python R_DataSet_Parquetchips.py
 
       - name: Show generated files
         run: |
