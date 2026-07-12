@@ -1,6 +1,96 @@
-﻿from __future__ import annotations
+ChatGPT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+邀請團隊成員
+
+R_DataSet.py
+Python
+
+requirements.txt
+文件
+
+R_DataSet.yml
+檔案
+現況：已經產生 google 的dataset目錄及相關檔案，參數檔已產生GCP_SERVICE_ACCOUNT_JSON 
+GOOGLE_DEST_FOLDER_I、GOOGLE_SLEEP_SECONDS ，
+1 請修改產出檔案位置，不要放置原github dataset目錄，變更產生於google drive目錄，使用上述設定
+2 維持讀FINMIND_TOKEN資料集的產出，邏輯不變
+
+已停止思考
+
+現況：已經產生 google 的dataset目錄及相關檔案，參數檔已產生GCP_SERVICE_ACCOUNT_JSON、GOOGLE_DEST_FOLDER_ID、GOOGLE_SLEEP_SECONDS ， 1 請修改產出檔案位置，不要放置原github dataset目錄，變更產生於google drive目錄，使用上述設定 2 維持讀FINMIND_TOKEN資料集的產出，邏輯不變
+
+處理時間為 2m 8s
+收到，正確參數是 GOOGLE_DEST_FOLDER_ID。我會依這個名稱修改：執行前先從該 Drive 資料夾下載既有 dataset（供原本 incremental 邏輯讀取），完成後再同步新增／更新檔案回同一資料夾；GitHub Actions 不再把 dataset 加入 commit。 FINMIND_TOKEN 與所有資料集產出邏輯保持不變。
+
+讀取並編譯檢查R數據集
+核心修改已完成，Python 語法檢查通過。我正在做最後的 workflow 結構驗證，以及確認沒有殘留 git add dataset／git push。完成後會把三個更新檔直接交付。
+
+驗證YAML檔案內容
+驗證結果正常：workflow YAML 可解析、Python 可編譯，且已移除 dataset 的 Git LFS、commit、push 步驟。現在將三個修改後的檔案保存為原附件的新版本。
+
+替換資料庫文件並更新版本
+應用文件屬性
+已完成修改並更新原檔案：
+
+R_DataSet.py
+
+requirements.txt
+
+R_DataSet.yml
+
+主要修改：
+
+執行前從 GOOGLE_DEST_FOLDER_ID 指定的 Google Drive 資料夾下載既有 dataset。
+
+在 GitHub Actions 的 /tmp/google_dataset 暫存處執行原本增量更新。
+
+執行完成後，將 CSV 與 His 子目錄同步回 Google Drive。
+
+已移除 dataset 的 Git LFS、Git commit 及 Git push。
+
+FINMIND_TOKEN 的驗證、資料抓取、增量合併及歷史檔案邏輯維持不變。
+
+GCP_SERVICE_ACCOUNT_JSON 同時支援原始 JSON 和 Base64 JSON。
+
+GOOGLE_DEST_FOLDER_ID、GOOGLE_SLEEP_SECONDS 可放在 GitHub Variables 或 Secrets。
+
+已加入 google-api-python-client 和 google-auth。
+
+Python 語法與 GitHub Actions YAML 結構均已驗證。
+
+
+檔案庫
+/
+R_DataSet.py
+
+
+from __future__ import annotations
 
 import argparse
+import base64
 import json
 import os
 import re
@@ -11,12 +101,15 @@ from pathlib import Path
 
 import pandas as pd
 import requests
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
 
 API_URL = "https://api.finmindtrade.com/api/v4/data"
 USER_INFO_URL = "https://api.web.finmindtrade.com/v2/user_info"
 TAIWAN_STOCK_TRADING_DAILY_REPORT_URL = "https://api.finmindtrade.com/api/v4/taiwan_stock_trading_daily_report"
 TAIWAN_STOCK_TRADING_DAILY_REPORT_SECID_AGG_URL = "https://api.finmindtrade.com/api/v4/taiwan_stock_trading_daily_report_secid_agg"
-OUTPUT_DIR = Path(__file__).resolve().parent / "dataset"
+OUTPUT_DIR = Path(os.getenv("R_DATASET_OUTPUT_DIR", "/tmp/google_dataset"))
 HISTORY_DIR = OUTPUT_DIR / "His"
 START_DATE = "2020-04-01"
 FINMIND_USAGE_LOG_FILE = os.getenv(
@@ -78,6 +171,108 @@ ANNUAL_ARCHIVE_DATASETS = {
 ONE_TIME_BACKFILL_DATASETS = {
     "TaiwanStockPrice",
 }
+
+GOOGLE_DRIVE_SCOPES = ["https://www.googleapis.com/auth/drive"]
+
+
+def _google_drive_service():
+    raw = str(os.getenv("GCP_SERVICE_ACCOUNT_JSON") or "").strip()
+    if not raw:
+        raise RuntimeError("GCP_SERVICE_ACCOUNT_JSON is not set")
+    try:
+        info = json.loads(raw) if raw.startswith("{") else json.loads(
+            base64.b64decode(raw).decode("utf-8")
+        )
+    except Exception as exc:
+        raise RuntimeError("GCP_SERVICE_ACCOUNT_JSON must be JSON or base64 JSON") from exc
+    credentials = service_account.Credentials.from_service_account_info(
+        info, scopes=GOOGLE_DRIVE_SCOPES
+    )
+    return build("drive", "v3", credentials=credentials, cache_discovery=False)
+
+
+def _google_sleep() -> None:
+    try:
+        seconds = max(float(os.getenv("GOOGLE_SLEEP_SECONDS", "0") or "0"), 0)
+    except ValueError:
+        seconds = 0
+    if seconds:
+        time.sleep(seconds)
+
+
+def _drive_children(service, folder_id: str) -> list[dict]:
+    results, page_token = [], None
+    while True:
+        response = service.files().list(
+            q=f"'{folder_id}' in parents and trashed = false",
+            fields="nextPageToken,files(id,name,mimeType)", pageToken=page_token,
+            pageSize=1000, supportsAllDrives=True, includeItemsFromAllDrives=True,
+        ).execute()
+        results.extend(response.get("files", []))
+        page_token = response.get("nextPageToken")
+        if not page_token:
+            return results
+
+
+def download_google_dataset() -> None:
+    folder_id = str(os.getenv("GOOGLE_DEST_FOLDER_ID") or "").strip()
+    if not folder_id:
+        raise RuntimeError("GOOGLE_DEST_FOLDER_ID is not set")
+    service = _google_drive_service()
+
+    def download_folder(remote_id: str, local_dir: Path) -> None:
+        local_dir.mkdir(parents=True, exist_ok=True)
+        for item in _drive_children(service, remote_id):
+            target = local_dir / item["name"]
+            if item["mimeType"] == "application/vnd.google-apps.folder":
+                download_folder(item["id"], target)
+            elif not item["mimeType"].startswith("application/vnd.google-apps"):
+                target.write_bytes(service.files().get_media(
+                    fileId=item["id"], supportsAllDrives=True
+                ).execute())
+                _google_sleep()
+
+    download_folder(folder_id, OUTPUT_DIR)
+    print(f"Downloaded existing Google Drive dataset to {OUTPUT_DIR}", flush=True)
+
+
+def upload_google_dataset() -> None:
+    folder_id = str(os.getenv("GOOGLE_DEST_FOLDER_ID") or "").strip()
+    if not folder_id:
+        raise RuntimeError("GOOGLE_DEST_FOLDER_ID is not set")
+    service = _google_drive_service()
+
+    def ensure_folder(parent_id: str, name: str) -> str:
+        for item in _drive_children(service, parent_id):
+            if item["name"] == name and item["mimeType"] == "application/vnd.google-apps.folder":
+                return item["id"]
+        result = service.files().create(
+            body={"name": name, "mimeType": "application/vnd.google-apps.folder", "parents": [parent_id]},
+            fields="id", supportsAllDrives=True,
+        ).execute()
+        _google_sleep()
+        return result["id"]
+
+    def upload_folder(local_dir: Path, remote_id: str) -> None:
+        remote_files = {x["name"]: x for x in _drive_children(service, remote_id)
+                        if x["mimeType"] != "application/vnd.google-apps.folder"}
+        for path in sorted(local_dir.iterdir()):
+            if path.is_dir():
+                upload_folder(path, ensure_folder(remote_id, path.name))
+                continue
+            media = MediaFileUpload(str(path), resumable=True)
+            existing = remote_files.get(path.name)
+            if existing:
+                service.files().update(fileId=existing["id"], media_body=media,
+                                       supportsAllDrives=True).execute()
+            else:
+                service.files().create(body={"name": path.name, "parents": [remote_id]},
+                                       media_body=media, fields="id",
+                                       supportsAllDrives=True).execute()
+            _google_sleep()
+
+    upload_folder(OUTPUT_DIR, folder_id)
+    print("Uploaded dataset output to Google Drive", flush=True)
 
 
 def _get_finmind_env_token() -> str:
@@ -636,7 +831,7 @@ def cleanup_trading_daily_report_files(current_file: Path, annual_file: Path | N
 
 
 def write_trading_daily_report_outputs(final_df: pd.DataFrame, exec_ts: str, keep_history: bool, mode: str) -> dict:
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    download_google_dataset()
     exec_year = int(exec_ts[:4])
     cutoff_year = exec_year - 1
     current_path = OUTPUT_DIR / f"TaiwanStockTradingDailyReport_{exec_ts}.csv"
@@ -1348,6 +1543,7 @@ def main() -> None:
         "failures": failures,
     }
     print(json.dumps(summary, ensure_ascii=False, indent=2))
+    upload_google_dataset()
 
 
 if __name__ == "__main__":
