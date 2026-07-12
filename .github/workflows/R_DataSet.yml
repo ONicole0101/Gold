@@ -45,6 +45,7 @@ jobs:
 
     env:
       FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
+      FINMIND_USAGE_LOG_FILE: /tmp/finmind_token_usage_log.csv
 
     steps:
       - name: Checkout repository
@@ -70,6 +71,48 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Check FINMIND_TOKEN and user_info stats
+        run: |
+          python - <<'PY'
+          import os
+          import requests
+
+          user_info_url = "https://api.web.finmindtrade.com/v2/user_info"
+          token = str(os.getenv("FINMIND_TOKEN") or "").strip()
+
+          if not token:
+            raise SystemExit("FINMIND_TOKEN is not set")
+
+          masked = token[:4] + "..." + token[-4:] if len(token) > 8 else ("*" * len(token))
+          headers = {"Authorization": f"Bearer {token}"}
+
+          print(f"FinMind token: token_present=True, source=FINMIND_TOKEN, token={masked}", flush=True)
+          try:
+            res = requests.get(user_info_url, headers=headers, timeout=300)
+            payload = res.json() if res.content else {}
+          except Exception as exc:
+            raise SystemExit(f"FinMind user_info request failed: {exc}") from exc
+
+          used = payload.get("user_count") if isinstance(payload, dict) else 0
+          limit = payload.get("api_request_limit") if isinstance(payload, dict) else 0
+          try:
+            used = int(used or 0)
+            limit = int(limit or 0)
+            remain = max(limit - used, 0) if limit else 0
+          except Exception:
+            remain = 0
+
+          ok = res.status_code == 200 and not (isinstance(payload, dict) and payload.get("error"))
+          msg = ""
+          if isinstance(payload, dict):
+            msg = payload.get("msg") or payload.get("message") or payload.get("status") or ""
+          print(f"FinMind usage: {used}/{limit}, remain={remain}", flush=True)
+          print(f"FinMind login: {'ok' if ok else 'error'}, status_code={res.status_code}, message={msg}", flush=True)
+
+          if not ok:
+            raise SystemExit("FinMind token check failed")
+          PY
+
       - name: Run DataSet sync
         run: |
           MODE="${{ github.event.inputs.mode || 'incremental' }}"
@@ -87,6 +130,10 @@ jobs:
           git status --short
           ls -la dataset || true
           find dataset -maxdepth 2 -type f -print || true
+          if [ -f "${FINMIND_USAGE_LOG_FILE}" ]; then
+            echo "FinMind usage log: ${FINMIND_USAGE_LOG_FILE}"
+            cat "${FINMIND_USAGE_LOG_FILE}"
+          fi
 
       - name: Commit DataSet output
         run: |

@@ -5,20 +5,23 @@ import json
 import os
 import re
 import shutil
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
 import requests
 
-from finmind_auth import get_finmind_request_kwargs, require_finmind_token
-
 API_URL = "https://api.finmindtrade.com/api/v4/data"
+USER_INFO_URL = "https://api.web.finmindtrade.com/v2/user_info"
 TAIWAN_STOCK_TRADING_DAILY_REPORT_URL = "https://api.finmindtrade.com/api/v4/taiwan_stock_trading_daily_report"
 TAIWAN_STOCK_TRADING_DAILY_REPORT_SECID_AGG_URL = "https://api.finmindtrade.com/api/v4/taiwan_stock_trading_daily_report_secid_agg"
 OUTPUT_DIR = Path(__file__).resolve().parent / "dataset"
 HISTORY_DIR = OUTPUT_DIR / "His"
 START_DATE = "2020-04-01"
+FINMIND_USAGE_LOG_FILE = os.getenv(
+    "FINMIND_USAGE_LOG_FILE", "finmind_token_usage_log.csv"
+)
 
 DATASETS_RANGE = [
     "TaiwanStockPrice",
@@ -29,8 +32,7 @@ DATASETS_RANGE = [
     "TaiwanStockTradingDailyReport",
     "TaiwanStockFinancialStatements",
     "TaiwanStockBalanceSheet",
-    "TaiwanStockIndustryChain",
-    "TaiwanStockNews",
+    "TaiwanStockIndustryChain",    
     "TaiwanStockMonthRevenue",
     "TaiwanStockDividend",
     "TaiwanStockDispositionSecuritiesPeriod"
@@ -76,6 +78,221 @@ ANNUAL_ARCHIVE_DATASETS = {
 ONE_TIME_BACKFILL_DATASETS = {
     "TaiwanStockPrice",
 }
+
+
+def _get_finmind_env_token() -> str:
+    value = os.getenv("FINMIND_TOKEN")
+    return str(value).strip() if value and str(value).strip() else ""
+
+
+def _get_finmind_env_token_with_retry() -> str:
+    retries_text = os.getenv("FINMIND_TOKEN_READ_RETRIES", "3")
+    wait_ms_text = os.getenv("FINMIND_TOKEN_READ_WAIT_MS", "300")
+
+    try:
+        retries = max(int(str(retries_text).strip() or "3"), 1)
+    except Exception:
+        retries = 3
+
+    try:
+        wait_ms = max(int(str(wait_ms_text).strip() or "300"), 0)
+    except Exception:
+        wait_ms = 300
+
+    for attempt in range(retries):
+        token = _get_finmind_env_token()
+        if token:
+            return token
+        if attempt + 1 < retries and wait_ms > 0:
+            time.sleep(wait_ms / 1000.0)
+
+    return ""
+
+
+def _mask_token(token: str) -> str:
+    token = str(token or "").strip()
+    if not token:
+        return ""
+    if len(token) <= 8:
+        return "*" * len(token)
+    return token[:4] + "..." + token[-4:]
+
+
+def require_finmind_token() -> str:
+    token = _get_finmind_env_token_with_retry()
+    if not token:
+        raise RuntimeError("FINMIND_TOKEN is not set")
+    return token
+
+
+def get_finmind_request_kwargs(token: str | None = None) -> dict:
+    resolved = str(token or "").strip() if token is not None else _get_finmind_env_token_with_retry()
+    if not resolved:
+        return {"headers": {}, "params": {}}
+    return {
+        "headers": {"Authorization": f"Bearer {resolved}"},
+        "params": {"token": resolved},
+    }
+
+
+def _append_finmind_usage_event(
+    event: str,
+    source: str,
+    token: str,
+    status: str,
+    status_code: int | None,
+    user_count: int | None,
+    api_request_limit: int | None,
+    remain: int | None,
+    message: str,
+) -> None:
+    row = {
+        "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
+        "event": event,
+        "source": source,
+        "token_present": bool(token),
+        "token_source": "FINMIND_TOKEN" if token else "",
+        "token_masked": _mask_token(token),
+        "login_status": status,
+        "status_code": status_code,
+        "user_count": user_count,
+        "api_request_limit": api_request_limit,
+        "remain": remain,
+        "message": str(message or "")[:300],
+    }
+
+    try:
+        exists = os.path.exists(FINMIND_USAGE_LOG_FILE)
+        pd.DataFrame([row]).to_csv(
+            FINMIND_USAGE_LOG_FILE,
+            mode="a",
+            header=not exists,
+            index=False,
+            encoding="utf-8-sig",
+        )
+    except Exception as exc:
+        print(f"warning: cannot write FinMind usage log: {exc}", flush=True)
+
+
+def get_finmind_user_info(token: str, write_log: bool = True, source: str = "R_DataSet.py") -> dict:
+    info = {
+        "ok": False,
+        "token_present": bool(token),
+        "token_source": "FINMIND_TOKEN" if token else "",
+        "token_masked": _mask_token(token),
+        "login_status": "missing_token",
+        "user_count": None,
+        "api_request_limit": None,
+        "remain": None,
+        "status_code": None,
+        "message": "FINMIND_TOKEN is not set",
+    }
+
+    if not token:
+        if write_log:
+            _append_finmind_usage_event(
+                event="token_check",
+                source=source,
+                token=token,
+                status=info["login_status"],
+                status_code=info["status_code"],
+                user_count=info["user_count"],
+                api_request_limit=info["api_request_limit"],
+                remain=info["remain"],
+                message=info["message"],
+            )
+        return info
+
+    req_kwargs = get_finmind_request_kwargs(token)
+    req_headers = req_kwargs.get("headers", {})
+
+    try:
+        response = requests.get(USER_INFO_URL, headers=req_headers, timeout=300)
+        payload = response.json() if response.content else {}
+        used = payload.get("user_count") if isinstance(payload, dict) else None
+        limit = payload.get("api_request_limit") if isinstance(payload, dict) else None
+
+        try:
+            used_int = int(used or 0)
+            limit_int = int(limit or 0)
+            remain = max(limit_int - used_int, 0) if limit_int else 0
+        except Exception:
+            used_int = None
+            limit_int = None
+            remain = None
+
+        ok = response.status_code == 200 and not (
+            isinstance(payload, dict) and payload.get("error")
+        )
+        msg = ""
+        if isinstance(payload, dict):
+            msg = payload.get("msg") or payload.get("message") or payload.get("status") or ""
+        if not msg:
+            msg = response.text[:200]
+
+        info = {
+            "ok": ok,
+            "token_present": True,
+            "token_source": "FINMIND_TOKEN",
+            "token_masked": _mask_token(token),
+            "login_status": "ok" if ok else "error",
+            "user_count": used_int,
+            "api_request_limit": limit_int,
+            "remain": remain,
+            "status_code": response.status_code,
+            "message": msg,
+        }
+    except Exception as exc:
+        info = {
+            "ok": False,
+            "token_present": True,
+            "token_source": "FINMIND_TOKEN",
+            "token_masked": _mask_token(token),
+            "login_status": "error",
+            "user_count": None,
+            "api_request_limit": None,
+            "remain": None,
+            "status_code": None,
+            "message": str(exc),
+        }
+
+    if write_log:
+        _append_finmind_usage_event(
+            event="token_check",
+            source=source,
+            token=token,
+            status=info["login_status"],
+            status_code=info["status_code"],
+            user_count=info["user_count"],
+            api_request_limit=info["api_request_limit"],
+            remain=info["remain"],
+            message=info["message"],
+        )
+    return info
+
+
+def print_finmind_usage_snapshot(token: str) -> dict:
+    info = get_finmind_user_info(token=token, write_log=True, source="R_DataSet.py")
+    print(
+        "FinMind token: "
+        f"token_present={info.get('token_present')}, "
+        f"source={info.get('token_source')}, "
+        f"token={info.get('token_masked')}, "
+        f"login={info.get('login_status')}",
+        flush=True,
+    )
+    print(
+        "FinMind usage: "
+        f"{int(info.get('user_count') or 0)}/{int(info.get('api_request_limit') or 0)}, "
+        f"remain={int(info.get('remain') or 0)}",
+        flush=True,
+    )
+    if not info.get("ok"):
+        print(
+            f"warning: FinMind token/user_info check failed: {info.get('message')}",
+            flush=True,
+        )
+    return info
 
 
 def should_keep_history_files() -> bool:
@@ -1092,6 +1309,7 @@ def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     token = require_finmind_token()
+    print_finmind_usage_snapshot(token)
     exec_ts = datetime.utcnow().strftime("%Y%m%d")
     target_ids = load_target_stock_ids_from_stocks_csv()
     print(
