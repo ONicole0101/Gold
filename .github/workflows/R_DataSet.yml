@@ -45,7 +45,7 @@ on:
       generate_parquet:
         description: "3) Generate/update Parquet datasets"
         required: true
-        default: false
+        default: true
         type: boolean
   schedule:
     # GitHub Actions cron uses UTC. 07:00 UTC = Taiwan 15:00.
