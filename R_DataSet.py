@@ -1,7 +1,6 @@
 ﻿from __future__ import annotations
 
 import argparse
-import base64
 import json
 import os
 import re
@@ -12,7 +11,7 @@ from pathlib import Path
 
 import pandas as pd
 import requests
-from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 
@@ -87,17 +86,23 @@ GOOGLE_DRIVE_SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 
 def _google_drive_service():
-    raw = str(os.getenv("GCP_SERVICE_ACCOUNT_JSON") or "").strip()
-    if not raw:
-        raise RuntimeError("GCP_SERVICE_ACCOUNT_JSON is not set")
-    try:
-        info = json.loads(raw) if raw.startswith("{") else json.loads(
-            base64.b64decode(raw).decode("utf-8")
-        )
-    except Exception as exc:
-        raise RuntimeError("GCP_SERVICE_ACCOUNT_JSON must be JSON or base64 JSON") from exc
-    credentials = service_account.Credentials.from_service_account_info(
-        info, scopes=GOOGLE_DRIVE_SCOPES
+    client_id = str(os.getenv("GOOGLE_OAUTH_CLIENT_ID") or "").strip()
+    client_secret = str(os.getenv("GOOGLE_OAUTH_CLIENT_SECRET") or "").strip()
+    refresh_token = str(os.getenv("GOOGLE_OAUTH_REFRESH_TOKEN") or "").strip()
+    missing = [name for name, value in (
+        ("GOOGLE_OAUTH_CLIENT_ID", client_id),
+        ("GOOGLE_OAUTH_CLIENT_SECRET", client_secret),
+        ("GOOGLE_OAUTH_REFRESH_TOKEN", refresh_token),
+    ) if not value]
+    if missing:
+        raise RuntimeError(f"Missing Google OAuth secret(s): {', '.join(missing)}")
+    credentials = Credentials(
+        token=None,
+        refresh_token=refresh_token,
+        token_uri="https://oauth2.googleapis.com/token",
+        client_id=client_id,
+        client_secret=client_secret,
+        scopes=GOOGLE_DRIVE_SCOPES,
     )
     return build("drive", "v3", credentials=credentials, cache_discovery=False)
 
@@ -111,41 +116,33 @@ def _google_sleep() -> None:
         time.sleep(seconds)
 
 
-def _shared_drive_id(service, folder_id: str) -> str:
+def _verify_drive_folder(service, folder_id: str) -> dict:
     try:
         metadata = service.files().get(
             fileId=folder_id,
-            fields="id,name,mimeType,driveId",
-            supportsAllDrives=True,
+            fields="id,name,mimeType",
         ).execute(num_retries=5)
     except Exception as exc:
         raise RuntimeError(
-            "Cannot access GOOGLE_DEST_FOLDER_ID. Add the service-account email "
-            "as a Content manager of the Shared Drive."
+            "Cannot access GOOGLE_DEST_FOLDER_ID with the authorized Google account. "
+            "Confirm the folder ID and OAuth account."
         ) from exc
     if metadata.get("mimeType") != "application/vnd.google-apps.folder":
         raise RuntimeError("GOOGLE_DEST_FOLDER_ID must identify a folder")
-    drive_id = str(metadata.get("driveId") or "").strip()
-    if not drive_id:
-        raise RuntimeError(
-            "GOOGLE_DEST_FOLDER_ID is in My Drive, not a Shared Drive. "
-            "Create/select dataset inside Shared Drive and use that folder ID."
-        )
     print(
-        f"Shared Drive destination verified: folder={metadata.get('name')}, driveId={drive_id}",
+        f"Google Drive destination verified: folder={metadata.get('name')}",
         flush=True,
     )
-    return drive_id
+    return metadata
 
 
-def _drive_children(service, folder_id: str, drive_id: str) -> list[dict]:
+def _drive_children(service, folder_id: str) -> list[dict]:
     results, page_token = [], None
     while True:
         response = service.files().list(
             q=f"'{folder_id}' in parents and trashed = false",
             fields="nextPageToken,files(id,name,mimeType)", pageToken=page_token,
-            pageSize=1000, supportsAllDrives=True, includeItemsFromAllDrives=True,
-            corpora="drive", driveId=drive_id,
+            pageSize=1000, spaces="drive",
         ).execute(num_retries=5)
         results.extend(response.get("files", []))
         page_token = response.get("nextPageToken")
@@ -158,17 +155,17 @@ def download_google_dataset() -> None:
     if not folder_id:
         raise RuntimeError("GOOGLE_DEST_FOLDER_ID is not set")
     service = _google_drive_service()
-    drive_id = _shared_drive_id(service, folder_id)
+    _verify_drive_folder(service, folder_id)
 
     def download_folder(remote_id: str, local_dir: Path) -> None:
         local_dir.mkdir(parents=True, exist_ok=True)
-        for item in _drive_children(service, remote_id, drive_id):
+        for item in _drive_children(service, remote_id):
             target = local_dir / item["name"]
             if item["mimeType"] == "application/vnd.google-apps.folder":
                 download_folder(item["id"], target)
             elif not item["mimeType"].startswith("application/vnd.google-apps"):
                 request = service.files().get_media(
-                    fileId=item["id"], supportsAllDrives=True
+                    fileId=item["id"]
                 )
                 with target.open("wb") as output:
                     downloader = MediaIoBaseDownload(output, request, chunksize=10 * 1024 * 1024)
@@ -186,21 +183,21 @@ def upload_google_dataset() -> None:
     if not folder_id:
         raise RuntimeError("GOOGLE_DEST_FOLDER_ID is not set")
     service = _google_drive_service()
-    drive_id = _shared_drive_id(service, folder_id)
+    _verify_drive_folder(service, folder_id)
 
     def ensure_folder(parent_id: str, name: str) -> str:
-        for item in _drive_children(service, parent_id, drive_id):
+        for item in _drive_children(service, parent_id):
             if item["name"] == name and item["mimeType"] == "application/vnd.google-apps.folder":
                 return item["id"]
         result = service.files().create(
             body={"name": name, "mimeType": "application/vnd.google-apps.folder", "parents": [parent_id]},
-            fields="id", supportsAllDrives=True,
+            fields="id",
         ).execute(num_retries=5)
         _google_sleep()
         return result["id"]
 
     def upload_folder(local_dir: Path, remote_id: str) -> None:
-        remote_files = {x["name"]: x for x in _drive_children(service, remote_id, drive_id)
+        remote_files = {x["name"]: x for x in _drive_children(service, remote_id)
                         if x["mimeType"] != "application/vnd.google-apps.folder"}
         for path in sorted(local_dir.iterdir()):
             if path.is_dir():
@@ -211,12 +208,12 @@ def upload_google_dataset() -> None:
             )
             existing = remote_files.get(path.name)
             if existing:
-                service.files().update(fileId=existing["id"], media_body=media,
-                                       supportsAllDrives=True).execute(num_retries=5)
+                service.files().update(fileId=existing["id"], media_body=media
+                                       ).execute(num_retries=5)
             else:
                 service.files().create(body={"name": path.name, "parents": [remote_id]},
-                                       media_body=media, fields="id",
-                                       supportsAllDrives=True).execute(num_retries=5)
+                                       media_body=media, fields="id"
+                                       ).execute(num_retries=5)
             _google_sleep()
 
     upload_folder(OUTPUT_DIR, folder_id)
@@ -1454,8 +1451,8 @@ def main() -> None:
         print(json.dumps({"datasets": datasets}, ensure_ascii=False, indent=2))
         return
 
-    # Validate Shared Drive and download existing files before any FinMind work.
-    # This preserves incremental history and fails fast for an invalid My Drive ID.
+    # Authenticate with Google OAuth and download existing My Drive files first.
+    # This preserves the original incremental and history behavior.
     download_google_dataset()
 
     token = require_finmind_token()
