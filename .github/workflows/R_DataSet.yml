@@ -32,6 +32,21 @@ on:
         options:
           - "0"
           - "1"
+      generate_csv:
+        description: "1) Generate/update existing CSV datasets"
+        required: true
+        default: true
+        type: boolean
+      convert_csv_to_parquet:
+        description: "2) One-time conversion: existing CSV to Parquet"
+        required: true
+        default: false
+        type: boolean
+      generate_parquet:
+        description: "3) Generate/update Parquet datasets"
+        required: true
+        default: false
+        type: boolean
   schedule:
     # GitHub Actions cron uses UTC. 07:00 UTC = Taiwan 15:00.
     - cron: "0 7 * * *"
@@ -69,8 +84,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install pyarrow
+
+      - name: Show selected actions
+        run: |
+          echo "event=${{ github.event_name }}"
+          echo "generate_csv=${{ github.event_name == 'schedule' || inputs.generate_csv }}"
+          echo "convert_csv_to_parquet=${{ github.event_name == 'workflow_dispatch' && inputs.convert_csv_to_parquet }}"
+          echo "generate_parquet=${{ github.event_name == 'workflow_dispatch' && inputs.generate_parquet }}"
 
       - name: Check FINMIND_TOKEN and user_info stats
+        if: ${{ github.event_name == 'schedule' || inputs.generate_csv || inputs.generate_parquet }}
         run: |
           python - <<'PY'
           import os
@@ -112,7 +136,8 @@ jobs:
             raise SystemExit("FinMind token check failed")
           PY
 
-      - name: Run DataSet sync
+      - name: Run CSV DataSet sync
+        if: ${{ github.event_name == 'schedule' || inputs.generate_csv }}
         run: |
           MODE="${{ github.event.inputs.mode || 'incremental' }}"
           DATASETS="${{ github.event.inputs.datasets || 'all' }}"
@@ -122,6 +147,24 @@ jobs:
           export R_DATASET_ONE_TIME_BACKFILL_MISSING="${ONE_TIME_BACKFILL_MISSING}"
           echo "Run mode=${MODE}, datasets=${DATASETS}, keep_history_files=${KEEP_HISTORY_FILES}, one_time_backfill_missing=${ONE_TIME_BACKFILL_MISSING}"
           python R_DataSet.py --mode "${MODE}" --datasets "${DATASETS}"
+
+      - name: One-time convert CSV to Parquet
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.convert_csv_to_parquet }}
+        run: |
+          echo "Convert existing CSV files to Parquet"
+          python Convert_CSV_To_Parquet.py
+
+      - name: Run Parquet DataSet sync
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.generate_parquet }}
+        run: |
+          MODE="${{ github.event.inputs.mode || 'incremental' }}"
+          DATASETS="${{ github.event.inputs.datasets || 'all' }}"
+          KEEP_HISTORY_FILES="${{ github.event.inputs.keep_history_files || '1' }}"
+          ONE_TIME_BACKFILL_MISSING="${{ github.event.inputs.one_time_backfill_missing || '0' }}"
+          export R_DATASET_KEEP_HISTORY_FILES="${KEEP_HISTORY_FILES}"
+          export R_DATASET_ONE_TIME_BACKFILL_MISSING="${ONE_TIME_BACKFILL_MISSING}"
+          echo "Run Parquet mode=${MODE}, datasets=${DATASETS}, keep_history_files=${KEEP_HISTORY_FILES}, one_time_backfill_missing=${ONE_TIME_BACKFILL_MISSING}"
+          python R_DataSet_Parquet.py --mode "${MODE}" --datasets "${DATASETS}"
 
       - name: Show generated files
         run: |
