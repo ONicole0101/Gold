@@ -19,13 +19,22 @@ API_URL = "https://api.finmindtrade.com/api/v4/data"
 USER_INFO_URL = "https://api.web.finmindtrade.com/v2/user_info"
 TAIWAN_STOCK_TRADING_DAILY_REPORT_URL = "https://api.finmindtrade.com/api/v4/taiwan_stock_trading_daily_report"
 TAIWAN_STOCK_TRADING_DAILY_REPORT_SECID_AGG_URL = "https://api.finmindtrade.com/api/v4/taiwan_stock_trading_daily_report_secid_agg"
-OUTPUT_DIR = Path(os.getenv("R_DATASET_OUTPUT_DIR", "/tmp/google_dataset"))
+_raw_output_dir = Path(
+    os.getenv("R_DATASET_OUTPUT_DIR", str(Path(__file__).resolve().parent))
+).expanduser()
+if _raw_output_dir.name.lower() == "dataset":
+    OUTPUT_DIR = _raw_output_dir
+else:
+    OUTPUT_DIR = _raw_output_dir / "Dataset"
 HISTORY_DIR = OUTPUT_DIR / "His"
 START_DATE = "2020-04-01"
 PARQUET_COMPRESSION = os.getenv("R_DATASET_PARQUET_COMPRESSION", "zstd")
 FINMIND_USAGE_LOG_FILE = os.getenv(
     "FINMIND_USAGE_LOG_FILE", "finmind_token_usage_log.csv"
 )
+REMOTE_DATASET_SUBDIR = str(
+    os.getenv("R_DATASET_REMOTE_SUBDIR", "Dataset") or "Dataset"
+).strip()
 
 DATASETS_RANGE = [
     "TaiwanStockPrice",
@@ -65,7 +74,6 @@ PER_STOCK_ONLY_DATASETS = {
     "TaiwanStockTradingDailyReport",
     "TaiwanStockPrice",
     "TaiwanStockMonthPrice",
-    "TaiwanStockMarginPurchaseShortSale",
 }
 
 NO_EMPTY_OUTPUT_DATASETS = {
@@ -87,8 +95,7 @@ GOOGLE_DRIVE_SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 
 def write_parquet(frame: pd.DataFrame, path: Path) -> None:
-    # CSV history was always loaded with dtype=str. Keep the same logical types
-    # so incremental merges cannot fail because FinMind changes numeric inference.
+    # Preserve the previous CSV dtype=str behavior across incremental runs.
     stable = frame.copy()
     for column in stable.columns:
         stable[column] = stable[column].astype("string")
@@ -110,7 +117,8 @@ def _google_drive_service():
         ("GOOGLE_OAUTH_REFRESH_TOKEN", refresh_token),
     ) if not value]
     if missing:
-        raise RuntimeError(f"Missing Google OAuth secret(s): {', '.join(missing)}")
+        raise RuntimeError(
+            f"Missing Google OAuth secret(s): {', '.join(missing)}")
     credentials = Credentials(
         token=None,
         refresh_token=refresh_token,
@@ -165,12 +173,30 @@ def _drive_children(service, folder_id: str) -> list[dict]:
             return results
 
 
+def _ensure_remote_dataset_folder(service, parent_folder_id: str) -> str:
+    name = REMOTE_DATASET_SUBDIR or "Dataset"
+    for item in _drive_children(service, parent_folder_id):
+        if item["name"] == name and item["mimeType"] == "application/vnd.google-apps.folder":
+            return item["id"]
+    result = service.files().create(
+        body={
+            "name": name,
+            "mimeType": "application/vnd.google-apps.folder",
+            "parents": [parent_folder_id],
+        },
+        fields="id",
+    ).execute(num_retries=5)
+    _google_sleep()
+    return result["id"]
+
+
 def download_google_dataset() -> None:
     folder_id = str(os.getenv("GOOGLE_DEST_FOLDER_ID") or "").strip()
     if not folder_id:
         raise RuntimeError("GOOGLE_DEST_FOLDER_ID is not set")
     service = _google_drive_service()
     _verify_drive_folder(service, folder_id)
+    dataset_folder_id = _ensure_remote_dataset_folder(service, folder_id)
 
     def download_folder(remote_id: str, local_dir: Path) -> None:
         local_dir.mkdir(parents=True, exist_ok=True)
@@ -183,14 +209,18 @@ def download_google_dataset() -> None:
                     fileId=item["id"]
                 )
                 with target.open("wb") as output:
-                    downloader = MediaIoBaseDownload(output, request, chunksize=10 * 1024 * 1024)
+                    downloader = MediaIoBaseDownload(
+                        output, request, chunksize=10 * 1024 * 1024)
                     done = False
                     while not done:
                         _, done = downloader.next_chunk(num_retries=5)
                 _google_sleep()
 
-    download_folder(folder_id, OUTPUT_DIR)
-    print(f"Downloaded existing Google Drive dataset to {OUTPUT_DIR}", flush=True)
+    download_folder(dataset_folder_id, OUTPUT_DIR)
+    print(
+        f"Downloaded existing Google Drive dataset to {OUTPUT_DIR} (subdir={REMOTE_DATASET_SUBDIR})",
+        flush=True,
+    )
 
 
 def upload_google_dataset() -> None:
@@ -199,13 +229,15 @@ def upload_google_dataset() -> None:
         raise RuntimeError("GOOGLE_DEST_FOLDER_ID is not set")
     service = _google_drive_service()
     _verify_drive_folder(service, folder_id)
+    dataset_folder_id = _ensure_remote_dataset_folder(service, folder_id)
 
     def ensure_folder(parent_id: str, name: str) -> str:
         for item in _drive_children(service, parent_id):
             if item["name"] == name and item["mimeType"] == "application/vnd.google-apps.folder":
                 return item["id"]
         result = service.files().create(
-            body={"name": name, "mimeType": "application/vnd.google-apps.folder", "parents": [parent_id]},
+            body={"name": name, "mimeType": "application/vnd.google-apps.folder",
+                  "parents": [parent_id]},
             fields="id",
         ).execute(num_retries=5)
         _google_sleep()
@@ -231,8 +263,11 @@ def upload_google_dataset() -> None:
                                        ).execute(num_retries=5)
             _google_sleep()
 
-    upload_folder(OUTPUT_DIR, folder_id)
-    print("Uploaded dataset output to Google Drive", flush=True)
+    upload_folder(OUTPUT_DIR, dataset_folder_id)
+    print(
+        f"Uploaded dataset output to Google Drive (subdir={REMOTE_DATASET_SUBDIR})",
+        flush=True,
+    )
 
 
 def _get_finmind_env_token() -> str:
@@ -506,7 +541,8 @@ def load_all_dataset_outputs(dataset_name: str) -> pd.DataFrame:
     candidates = []
     candidates.extend(list_dataset_files(dataset_name))
     if HISTORY_DIR.exists():
-        candidates.extend(sorted(HISTORY_DIR.glob(f"{dataset_name}_*.parquet")))
+        candidates.extend(
+            sorted(HISTORY_DIR.glob(f"{dataset_name}_*.parquet")))
 
     # Annual archive files are also part of cumulative history.
     candidates.extend(list_annual_archive_files(dataset_name))
@@ -794,7 +830,8 @@ def write_trading_daily_report_outputs(final_df: pd.DataFrame, exec_ts: str, kee
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     exec_year = int(exec_ts[:4])
     cutoff_year = exec_year - 1
-    current_path = OUTPUT_DIR / f"TaiwanStockTradingDailyReport_{exec_ts}.parquet"
+    current_path = OUTPUT_DIR / \
+        f"TaiwanStockTradingDailyReport_{exec_ts}.parquet"
     annual_path = OUTPUT_DIR / \
         f"TaiwanStockTradingDailyReport_Y{cutoff_year}.parquet"
 
@@ -834,7 +871,7 @@ def write_trading_daily_report_outputs(final_df: pd.DataFrame, exec_ts: str, kee
         "annual_archive_file": annual_path.name if annual_path is not None else None,
         "annual_archive_written": annual_file_written,
         "annual_archive_rows": annual_rows,
-        "archived_to_his": [],
+        "archived_to_His": [],
     }
 
 
@@ -1405,7 +1442,7 @@ def sync_one_dataset(dataset_name: str, token: str, mode: str, target_ids: list[
         "start_date": effective_start_date,
         "end_date": request_end_date,
         "history_files_kept": keep_history,
-        "archived_to_his": archived_files,
+        "archived_to_His": archived_files,
     }
 
 
@@ -1466,7 +1503,8 @@ def main() -> None:
         print(json.dumps({"datasets": datasets}, ensure_ascii=False, indent=2))
         return
 
-    # Download existing Parquet files before calculating incremental windows.
+    # Authenticate with Google OAuth and download existing My Drive files first.
+    # This preserves the original incremental and history behavior.
     download_google_dataset()
 
     token = require_finmind_token()
