@@ -74,6 +74,7 @@ PER_STOCK_ONLY_DATASETS = {
     "TaiwanStockTradingDailyReport",
     "TaiwanStockPrice",
     "TaiwanStockMonthPrice",
+    "TaiwanStockMarginPurchaseShortSale",
 }
 
 NO_EMPTY_OUTPUT_DATASETS = {
