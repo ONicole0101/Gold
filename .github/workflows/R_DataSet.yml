@@ -47,8 +47,18 @@ on:
         required: true
         default: true
         type: boolean
+      generate_trading_daily_csv:
+        description: "4) Generate/update TradingDaily CSV (independent job)"
+        required: true
+        default: false
+        type: boolean
+      generate_trading_daily_parquet:
+        description: "5) Generate/update TradingDaily Parquet (independent job)"
+        required: true
+        default: false
+        type: boolean
       generate_parquet_chips:
-        description: "4) Generate per-stock/day Parquet chip summaries"
+        description: "6) Generate per-stock/day Parquet chip summaries"
         required: true
         default: true
         type: boolean
@@ -61,6 +71,7 @@ permissions:
 
 jobs:
   sync-dataset:
+    if: ${{ github.event_name == 'schedule' || inputs.generate_csv || inputs.convert_csv_to_parquet || inputs.generate_parquet || inputs.generate_parquet_chips }}
     runs-on: ubuntu-latest
 
     env:
@@ -97,6 +108,8 @@ jobs:
           echo "generate_csv=${{ github.event_name == 'schedule' || inputs.generate_csv }}"
           echo "convert_csv_to_parquet=${{ github.event_name == 'workflow_dispatch' && inputs.convert_csv_to_parquet }}"
           echo "generate_parquet=${{ github.event_name == 'workflow_dispatch' && inputs.generate_parquet }}"
+          echo "generate_trading_daily_csv=${{ github.event_name == 'workflow_dispatch' && inputs.generate_trading_daily_csv }}"
+          echo "generate_trading_daily_parquet=${{ github.event_name == 'workflow_dispatch' && inputs.generate_trading_daily_parquet }}"
           echo "generate_parquet_chips=${{ github.event_name == 'workflow_dispatch' && inputs.generate_parquet_chips }}"
 
       - name: Check FINMIND_TOKEN and user_info stats
@@ -188,3 +201,70 @@ jobs:
             cat "${FINMIND_USAGE_LOG_FILE}"
           fi
 
+  sync-trading-daily:
+    needs: sync-dataset
+    if: ${{ always() && (github.event_name == 'schedule' || inputs.generate_trading_daily_csv || inputs.generate_trading_daily_parquet) }}
+    runs-on: ubuntu-latest
+
+    env:
+      FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
+      GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
+      GOOGLE_OAUTH_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
+      GOOGLE_OAUTH_REFRESH_TOKEN: ${{ secrets.GOOGLE_OAUTH_REFRESH_TOKEN }}
+      GOOGLE_DEST_FOLDER_ID: ${{ vars.GOOGLE_DEST_FOLDER_ID || secrets.GOOGLE_DEST_FOLDER_ID }}
+      GOOGLE_SLEEP_SECONDS: ${{ vars.GOOGLE_SLEEP_SECONDS || secrets.GOOGLE_SLEEP_SECONDS }}
+      R_DATASET_OUTPUT_DIR: /tmp/google_dataset_trading_daily
+      FINMIND_USAGE_LOG_FILE: /tmp/finmind_trading_daily_usage_log.csv
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyarrow
+
+      - name: Show selected TradingDaily actions
+        run: |
+          echo "event=${{ github.event_name }}"
+          echo "generate_trading_daily_csv=${{ github.event_name == 'schedule' || inputs.generate_trading_daily_csv }}"
+          echo "generate_trading_daily_parquet=${{ github.event_name == 'workflow_dispatch' && inputs.generate_trading_daily_parquet }}"
+
+      - name: Run TradingDaily CSV sync
+        if: ${{ github.event_name == 'schedule' || inputs.generate_trading_daily_csv }}
+        run: |
+          MODE="${{ github.event.inputs.mode || 'incremental' }}"
+          KEEP_HISTORY_FILES="${{ github.event.inputs.keep_history_files || '1' }}"
+          export R_DATASET_KEEP_HISTORY_FILES="${KEEP_HISTORY_FILES}"
+          echo "Run TradingDaily CSV mode=${MODE}, keep_history_files=${KEEP_HISTORY_FILES}"
+          python R_DataSet_TradingDaily.py --mode "${MODE}"
+
+      - name: Run TradingDaily Parquet sync
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.generate_trading_daily_parquet }}
+        run: |
+          MODE="${{ github.event.inputs.mode || 'incremental' }}"
+          KEEP_HISTORY_FILES="${{ github.event.inputs.keep_history_files || '1' }}"
+          export R_DATASET_KEEP_HISTORY_FILES="${KEEP_HISTORY_FILES}"
+          echo "Run TradingDaily Parquet mode=${MODE}, keep_history_files=${KEEP_HISTORY_FILES}"
+          python R_DataSet_TradingDaily_Parquet.py --mode "${MODE}"
+
+      - name: Show TradingDaily generated files
+        if: ${{ always() }}
+        run: |
+          pwd
+          ls -la "${R_DATASET_OUTPUT_DIR}" || true
+          find "${R_DATASET_OUTPUT_DIR}" -maxdepth 2 -type f -print || true
+          if [ -f "${FINMIND_USAGE_LOG_FILE}" ]; then
+            echo "FinMind usage log: ${FINMIND_USAGE_LOG_FILE}"
+            cat "${FINMIND_USAGE_LOG_FILE}"
+          fi
