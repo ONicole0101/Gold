@@ -41,7 +41,6 @@ DATASETS_RANGE = [
     "TaiwanStockMonthPrice",
     "TaiwanStockPER",
     "TaiwanStockMarginPurchaseShortSale",
-    "TaiwanStockTradingDailyReport",
     "TaiwanStockFinancialStatements",
     "TaiwanStockBalanceSheet",
     "TaiwanStockIndustryChain",
@@ -78,22 +77,18 @@ DATASETS_FORCE_ONE_DAY = {
 # We still force an explicit all-market path for clarity, but no longer rely on
 # stocks.csv-targeted per-stock fetch mode.
 PER_STOCK_ONLY_DATASETS = {
-    "TaiwanStockTradingDailyReport",
     "TaiwanStockPrice",
     "TaiwanStockMonthPrice",
     "TaiwanStockMarginPurchaseShortSale",
 }
 
 NO_EMPTY_OUTPUT_DATASETS = {
-    "TaiwanStockTradingDailyReport",
     "TaiwanStockPrice",
     "TaiwanStockMonthPrice",
     "TaiwanStockMarginPurchaseShortSale",
 }
 
-ANNUAL_ARCHIVE_DATASETS = {
-    "TaiwanStockTradingDailyReport",
-}
+ANNUAL_ARCHIVE_DATASETS = set()
 
 ONE_TIME_BACKFILL_DATASETS = {
     "TaiwanStockPrice",
@@ -1478,7 +1473,7 @@ def parse_args() -> argparse.Namespace:
         default=(os.getenv("R_DATASETS") or "all").strip(),
         help=(
             "all: run all datasets; or provide comma-separated dataset names, "
-            "e.g. TaiwanStockPrice,TaiwanStockTradingDailyReport"
+            "e.g. TaiwanStockPrice,TaiwanStockPER"
         ),
     )
     parser.add_argument(

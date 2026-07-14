@@ -35,19 +35,7 @@ REMOTE_DATASET_SUBDIR = str(
     os.getenv("R_DATASET_REMOTE_SUBDIR", "Dataset") or "Dataset"
 ).strip()
 
-DATASETS_RANGE = [
-    "TaiwanStockPrice",
-    "TaiwanStockWeekPrice",
-    "TaiwanStockMonthPrice",
-    "TaiwanStockPER",
-    "TaiwanStockMarginPurchaseShortSale",
-    "TaiwanStockFinancialStatements",
-    "TaiwanStockBalanceSheet",
-    "TaiwanStockIndustryChain",
-    "TaiwanStockMonthRevenue",
-    "TaiwanStockDividend",
-    "TaiwanStockDispositionSecuritiesPeriod"
-]
+DATASETS_RANGE = ["TaiwanStockTradingDailyReport"]
 
 DATASETS_ONE_DAY = []
 
@@ -77,22 +65,18 @@ DATASETS_FORCE_ONE_DAY = {
 # We still force an explicit all-market path for clarity, but no longer rely on
 # stocks.csv-targeted per-stock fetch mode.
 PER_STOCK_ONLY_DATASETS = {
-    "TaiwanStockPrice",
-    "TaiwanStockMonthPrice",
-    "TaiwanStockMarginPurchaseShortSale",
+    "TaiwanStockTradingDailyReport",
 }
 
 NO_EMPTY_OUTPUT_DATASETS = {
-    "TaiwanStockPrice",
-    "TaiwanStockMonthPrice",
-    "TaiwanStockMarginPurchaseShortSale",
+    "TaiwanStockTradingDailyReport",
 }
 
-ANNUAL_ARCHIVE_DATASETS = set()
-
-ONE_TIME_BACKFILL_DATASETS = {
-    "TaiwanStockPrice",
+ANNUAL_ARCHIVE_DATASETS = {
+    "TaiwanStockTradingDailyReport",
 }
+
+ONE_TIME_BACKFILL_DATASETS = set()
 
 GOOGLE_DRIVE_SCOPES = ["https://www.googleapis.com/auth/drive"]
 
@@ -419,7 +403,7 @@ def _append_finmind_usage_event(
         print(f"warning: cannot write FinMind usage log: {exc}", flush=True)
 
 
-def get_finmind_user_info(token: str, write_log: bool = True, source: str = "R_DataSet.py") -> dict:
+def get_finmind_user_info(token: str, write_log: bool = True, source: str = "R_DataSet_TradingDaily.py") -> dict:
     info = {
         "ok": False,
         "token_present": bool(token),
@@ -521,7 +505,7 @@ def get_finmind_user_info(token: str, write_log: bool = True, source: str = "R_D
 
 def print_finmind_usage_snapshot(token: str) -> dict:
     info = get_finmind_user_info(
-        token=token, write_log=True, source="R_DataSet.py")
+        token=token, write_log=True, source="R_DataSet_TradingDaily.py")
     print(
         "FinMind token: "
         f"token_present={info.get('token_present')}, "
@@ -1450,7 +1434,7 @@ def sync_one_dataset(dataset_name: str, token: str, mode: str, target_ids: list[
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Sync multiple FinMind datasets into date-stamped CSV files.")
+        description="Sync FinMind TaiwanStockTradingDailyReport into date-stamped CSV files.")
     parser.add_argument(
         "--mode",
         choices=["full", "incremental", "ask"],
@@ -1462,7 +1446,7 @@ def parse_args() -> argparse.Namespace:
         default=(os.getenv("R_DATASETS") or "all").strip(),
         help=(
             "all: run all datasets; or provide comma-separated dataset names, "
-            "e.g. TaiwanStockPrice,TaiwanStockPER"
+            "e.g. TaiwanStockPrice,TaiwanStockTradingDailyReport"
         ),
     )
     parser.add_argument(

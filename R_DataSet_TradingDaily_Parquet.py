@@ -25,9 +25,9 @@ if _raw_output_dir.name.lower() == "dataset":
     OUTPUT_DIR = _raw_output_dir
 else:
     OUTPUT_DIR = _raw_output_dir / "Dataset"
-HISTORY_DIR = OUTPUT_DIR / "his"
-LEGACY_HISTORY_DIR = OUTPUT_DIR / "His"
+HISTORY_DIR = OUTPUT_DIR / "His"
 START_DATE = "2020-04-01"
+PARQUET_COMPRESSION = os.getenv("R_DATASET_PARQUET_COMPRESSION", "zstd")
 FINMIND_USAGE_LOG_FILE = os.getenv(
     "FINMIND_USAGE_LOG_FILE", "finmind_token_usage_log.csv"
 )
@@ -35,19 +35,7 @@ REMOTE_DATASET_SUBDIR = str(
     os.getenv("R_DATASET_REMOTE_SUBDIR", "Dataset") or "Dataset"
 ).strip()
 
-DATASETS_RANGE = [
-    "TaiwanStockPrice",
-    "TaiwanStockWeekPrice",
-    "TaiwanStockMonthPrice",
-    "TaiwanStockPER",
-    "TaiwanStockMarginPurchaseShortSale",
-    "TaiwanStockFinancialStatements",
-    "TaiwanStockBalanceSheet",
-    "TaiwanStockIndustryChain",
-    "TaiwanStockMonthRevenue",
-    "TaiwanStockDividend",
-    "TaiwanStockDispositionSecuritiesPeriod"
-]
+DATASETS_RANGE = ["TaiwanStockTradingDailyReport"]
 
 DATASETS_ONE_DAY = []
 
@@ -77,22 +65,18 @@ DATASETS_FORCE_ONE_DAY = {
 # We still force an explicit all-market path for clarity, but no longer rely on
 # stocks.csv-targeted per-stock fetch mode.
 PER_STOCK_ONLY_DATASETS = {
-    "TaiwanStockPrice",
-    "TaiwanStockMonthPrice",
-    "TaiwanStockMarginPurchaseShortSale",
+    "TaiwanStockTradingDailyReport",
 }
 
 NO_EMPTY_OUTPUT_DATASETS = {
-    "TaiwanStockPrice",
-    "TaiwanStockMonthPrice",
-    "TaiwanStockMarginPurchaseShortSale",
+    "TaiwanStockTradingDailyReport",
 }
 
-ANNUAL_ARCHIVE_DATASETS = set()
-
-ONE_TIME_BACKFILL_DATASETS = {
-    "TaiwanStockPrice",
+ANNUAL_ARCHIVE_DATASETS = {
+    "TaiwanStockTradingDailyReport",
 }
+
+ONE_TIME_BACKFILL_DATASETS = set()
 
 GOOGLE_DRIVE_SCOPES = ["https://www.googleapis.com/auth/drive"]
 
@@ -159,6 +143,19 @@ def finmind_get(url: str, *, params: dict | None = None, headers: dict | None = 
             time.sleep(wait_seconds)
 
     raise RuntimeError(f"FinMind request failed unexpectedly ({label})")
+
+
+def write_parquet(frame: pd.DataFrame, path: Path) -> None:
+    # Preserve the previous CSV dtype=str behavior across incremental runs.
+    stable = frame.copy()
+    for column in stable.columns:
+        stable[column] = stable[column].astype("string")
+    stable.to_parquet(
+        path,
+        index=False,
+        engine="pyarrow",
+        compression=PARQUET_COMPRESSION,
+    )
 
 
 def _google_drive_service():
@@ -419,7 +416,7 @@ def _append_finmind_usage_event(
         print(f"warning: cannot write FinMind usage log: {exc}", flush=True)
 
 
-def get_finmind_user_info(token: str, write_log: bool = True, source: str = "R_DataSet.py") -> dict:
+def get_finmind_user_info(token: str, write_log: bool = True, source: str = "R_DataSet_TradingDaily_Parquet.py") -> dict:
     info = {
         "ok": False,
         "token_present": bool(token),
@@ -521,7 +518,7 @@ def get_finmind_user_info(token: str, write_log: bool = True, source: str = "R_D
 
 def print_finmind_usage_snapshot(token: str) -> dict:
     info = get_finmind_user_info(
-        token=token, write_log=True, source="R_DataSet.py")
+        token=token, write_log=True, source="R_DataSet_TradingDaily_Parquet.py")
     print(
         "FinMind token: "
         f"token_present={info.get('token_present')}, "
@@ -595,11 +592,8 @@ def load_all_dataset_outputs(dataset_name: str) -> pd.DataFrame:
     candidates = []
     candidates.extend(list_dataset_files(dataset_name))
     if HISTORY_DIR.exists():
-        candidates.extend(sorted(HISTORY_DIR.glob(f"{dataset_name}_*.csv")))
-    if LEGACY_HISTORY_DIR.exists() and LEGACY_HISTORY_DIR != HISTORY_DIR:
         candidates.extend(
-            sorted(LEGACY_HISTORY_DIR.glob(f"{dataset_name}_*.csv"))
-        )
+            sorted(HISTORY_DIR.glob(f"{dataset_name}_*.parquet")))
 
     # Annual archive files are also part of cumulative history.
     candidates.extend(list_annual_archive_files(dataset_name))
@@ -614,7 +608,7 @@ def load_all_dataset_outputs(dataset_name: str) -> pd.DataFrame:
             continue
         seen.add(key)
         try:
-            frames.append(pd.read_csv(path, dtype=str, encoding="utf-8-sig"))
+            frames.append(pd.read_parquet(path, engine="pyarrow"))
         except Exception:
             continue
 
@@ -712,11 +706,11 @@ def resolve_end_date() -> str:
 
 
 def list_dataset_files(dataset_name: str) -> list[Path]:
-    return sorted(OUTPUT_DIR.glob(f"{dataset_name}_*.csv"))
+    return sorted(OUTPUT_DIR.glob(f"{dataset_name}_*.parquet"))
 
 
 def list_annual_archive_files(dataset_name: str) -> list[Path]:
-    pattern = re.compile(rf"^{re.escape(dataset_name)}_Y(\d{{4}})\.csv$")
+    pattern = re.compile(rf"^{re.escape(dataset_name)}_Y(\d{{4}})\.parquet$")
     return sorted([p for p in list_dataset_files(dataset_name) if pattern.match(p.name)])
 
 
@@ -737,7 +731,7 @@ def find_latest_non_empty_dataset_file(dataset_name: str) -> tuple[Path | None, 
     files = list_dataset_files(dataset_name)
     for path in reversed(files):
         try:
-            df = pd.read_csv(path, dtype=str, encoding="utf-8-sig")
+            df = pd.read_parquet(path, engine="pyarrow")
             rows = len(df)
             if rows > 0:
                 return path, rows
@@ -756,7 +750,7 @@ def remove_older_dataset_files(dataset_name: str, keep_file: Path) -> None:
 
 
 def extract_dataset_exec_date(dataset_name: str, path: Path) -> str | None:
-    pattern = rf"^{re.escape(dataset_name)}_(\d{{8}})(?:\d{{0,6}})?\.csv$"
+    pattern = rf"^{re.escape(dataset_name)}_(\d{{8}})(?:\d{{0,6}})?\.parquet$"
     m = re.match(pattern, path.name)
     if not m:
         return None
@@ -835,7 +829,7 @@ def infer_incremental_start_date_trading_daily_report(existing_df: pd.DataFrame,
     archive_years: list[int] = []
     for path in archive_files:
         m = re.match(
-            r"^TaiwanStockTradingDailyReport_Y(\d{4})\.csv$", path.name)
+            r"^TaiwanStockTradingDailyReport_Y(\d{4})\.parquet$", path.name)
         if not m:
             continue
         try:
@@ -887,9 +881,10 @@ def write_trading_daily_report_outputs(final_df: pd.DataFrame, exec_ts: str, kee
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     exec_year = int(exec_ts[:4])
     cutoff_year = exec_year - 1
-    current_path = OUTPUT_DIR / f"TaiwanStockTradingDailyReport_{exec_ts}.csv"
+    current_path = OUTPUT_DIR / \
+        f"TaiwanStockTradingDailyReport_{exec_ts}.parquet"
     annual_path = OUTPUT_DIR / \
-        f"TaiwanStockTradingDailyReport_Y{cutoff_year}.csv"
+        f"TaiwanStockTradingDailyReport_Y{cutoff_year}.parquet"
 
     older_df, current_df = split_trading_daily_report_by_year(
         final_df, cutoff_year)
@@ -898,14 +893,14 @@ def write_trading_daily_report_outputs(final_df: pd.DataFrame, exec_ts: str, kee
         current_df = final_df.copy()
 
     if current_df.empty:
-        pd.DataFrame().to_csv(current_path, index=False, encoding="utf-8-sig")
+        write_parquet(pd.DataFrame(), current_path)
     else:
-        current_df.to_csv(current_path, index=False, encoding="utf-8-sig")
+        write_parquet(current_df, current_path)
 
     annual_file_written = False
     annual_rows = 0
     if not older_df.empty:
-        older_df.to_csv(annual_path, index=False, encoding="utf-8-sig")
+        write_parquet(older_df, annual_path)
         annual_file_written = True
         annual_rows = len(older_df)
     elif not annual_path.exists():
@@ -927,7 +922,7 @@ def write_trading_daily_report_outputs(final_df: pd.DataFrame, exec_ts: str, kee
         "annual_archive_file": annual_path.name if annual_path is not None else None,
         "annual_archive_written": annual_file_written,
         "annual_archive_rows": annual_rows,
-        "archived_to_his": [],
+        "archived_to_His": [],
     }
 
 
@@ -1416,12 +1411,12 @@ def sync_one_dataset(dataset_name: str, token: str, mode: str, target_ids: list[
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     existing_files_before_write = list_dataset_files(dataset_name)
-    output_path = OUTPUT_DIR / f"{dataset_name}_{exec_ts}.csv"
+    output_path = OUTPUT_DIR / f"{dataset_name}_{exec_ts}.parquet"
     if final_df.empty:
-        pd.DataFrame().to_csv(output_path, index=False, encoding="utf-8-sig")
+        write_parquet(pd.DataFrame(), output_path)
         rows_written = 0
     else:
-        final_df.to_csv(output_path, index=False, encoding="utf-8-sig")
+        write_parquet(final_df, output_path)
         rows_written = len(final_df)
 
     archived_files: list[str] = []
@@ -1444,13 +1439,13 @@ def sync_one_dataset(dataset_name: str, token: str, mode: str, target_ids: list[
         "start_date": effective_start_date,
         "end_date": request_end_date,
         "history_files_kept": keep_history,
-        "archived_to_his": archived_files,
+        "archived_to_His": archived_files,
     }
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Sync multiple FinMind datasets into date-stamped CSV files.")
+        description="Sync FinMind TaiwanStockTradingDailyReport into date-stamped Parquet files.")
     parser.add_argument(
         "--mode",
         choices=["full", "incremental", "ask"],
@@ -1462,7 +1457,7 @@ def parse_args() -> argparse.Namespace:
         default=(os.getenv("R_DATASETS") or "all").strip(),
         help=(
             "all: run all datasets; or provide comma-separated dataset names, "
-            "e.g. TaiwanStockPrice,TaiwanStockPER"
+            "e.g. TaiwanStockPrice,TaiwanStockTradingDailyReport"
         ),
     )
     parser.add_argument(
