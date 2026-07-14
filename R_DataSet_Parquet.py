@@ -18,7 +18,6 @@ from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 API_URL = "https://api.finmindtrade.com/api/v4/data"
 USER_INFO_URL = "https://api.web.finmindtrade.com/v2/user_info"
 TAIWAN_STOCK_TRADING_DAILY_REPORT_URL = "https://api.finmindtrade.com/api/v4/taiwan_stock_trading_daily_report"
-TAIWAN_STOCK_TRADING_DAILY_REPORT_SECID_AGG_URL = "https://api.finmindtrade.com/api/v4/taiwan_stock_trading_daily_report_secid_agg"
 _raw_output_dir = Path(
     os.getenv("R_DATASET_OUTPUT_DIR", str(Path(__file__).resolve().parent))
 ).expanduser()
@@ -51,21 +50,29 @@ DATASETS_RANGE = [
     "TaiwanStockDispositionSecuritiesPeriod"
 ]
 
-DATASETS_ONE_DAY = [
-    "TaiwanStockNews",
-]
+DATASETS_ONE_DAY = []
 
 TRADING_DAILY_REPORT_LOOKBACK_DAYS = 20
+
+# Keep every FinMind request small enough for the API to finish reliably.
+# These values can be overridden in GitHub Actions/environment variables.
+FINMIND_CONNECT_TIMEOUT_SECONDS = max(
+    int(os.getenv("FINMIND_CONNECT_TIMEOUT_SECONDS", "30")), 1
+)
+FINMIND_READ_TIMEOUT_SECONDS = max(
+    int(os.getenv("FINMIND_READ_TIMEOUT_SECONDS", "600")), 60
+)
+FINMIND_MAX_RETRIES = max(int(os.getenv("FINMIND_MAX_RETRIES", "3")), 1)
+FINMIND_RETRY_BACKOFF_SECONDS = max(
+    float(os.getenv("FINMIND_RETRY_BACKOFF_SECONDS", "2")), 0.0
+)
+FINMIND_CHUNK_DAYS = max(int(os.getenv("FINMIND_CHUNK_DAYS", "366")), 1)
 
 DATASETS_NO_END_DATE = {
 }
 
 DATASETS_FORCE_ONE_DAY = {
 }
-
-# Keep empty unless endpoint semantics are verified. The previous TradingDailyReport
-# secid_agg path requires securities_trader_id, not stock_id(data_id).
-SPECIAL_ENDPOINT_DATASETS = set()
 
 # These datasets often returned only a single-day snapshot in earlier runs.
 # We still force an explicit all-market path for clarity, but no longer rely on
@@ -93,6 +100,70 @@ ONE_TIME_BACKFILL_DATASETS = {
 }
 
 GOOGLE_DRIVE_SCOPES = ["https://www.googleapis.com/auth/drive"]
+
+
+def build_finmind_date_chunks(start_date: str, end_date: str | None) -> list[tuple[str, str | None]]:
+    """Split a FinMind date range at year boundaries and by a hard day limit."""
+    if not end_date:
+        return [(start_date, None)]
+
+    start_ts = pd.to_datetime(start_date, errors="coerce")
+    end_ts = pd.to_datetime(end_date, errors="coerce")
+    if pd.isna(start_ts) or pd.isna(end_ts) or start_ts > end_ts:
+        return [(start_date, end_date)]
+
+    chunks: list[tuple[str, str | None]] = []
+    cursor = start_ts.normalize()
+    final_day = end_ts.normalize()
+    while cursor <= final_day:
+        year_end = pd.Timestamp(year=cursor.year, month=12, day=31)
+        size_end = cursor + timedelta(days=FINMIND_CHUNK_DAYS - 1)
+        chunk_end = min(year_end, size_end, final_day)
+        chunks.append((cursor.strftime("%Y-%m-%d"), chunk_end.strftime("%Y-%m-%d")))
+        cursor = chunk_end + timedelta(days=1)
+    return chunks
+
+
+def finmind_get(url: str, *, params: dict | None = None, headers: dict | None = None, label: str) -> requests.Response:
+    """GET with a long read timeout and bounded retries for transient failures."""
+    timeout = (FINMIND_CONNECT_TIMEOUT_SECONDS, FINMIND_READ_TIMEOUT_SECONDS)
+    retry_statuses = {408, 425, 429, 500, 502, 503, 504}
+
+    for attempt in range(1, FINMIND_MAX_RETRIES + 1):
+        try:
+            response = requests.get(url, params=params, headers=headers, timeout=timeout)
+            if response.status_code not in retry_statuses:
+                return response
+            reason = f"HTTP {response.status_code}"
+        except requests.RequestException as exc:
+            response = None
+            reason = f"{type(exc).__name__}: {exc}"
+
+        if attempt >= FINMIND_MAX_RETRIES:
+            raise RuntimeError(
+                f"FinMind request failed after {FINMIND_MAX_RETRIES} attempts "
+                f"({label}): {reason}"
+            )
+
+        retry_after = 0.0
+        if response is not None:
+            try:
+                retry_after = float(response.headers.get("Retry-After", 0) or 0)
+            except (TypeError, ValueError):
+                retry_after = 0.0
+        wait_seconds = max(
+            retry_after,
+            FINMIND_RETRY_BACKOFF_SECONDS * (2 ** (attempt - 1)),
+        )
+        print(
+            f"FinMind transient error ({label}), attempt={attempt}/{FINMIND_MAX_RETRIES}, "
+            f"reason={reason}, retry_in={wait_seconds:.1f}s",
+            flush=True,
+        )
+        if wait_seconds > 0:
+            time.sleep(wait_seconds)
+
+    raise RuntimeError(f"FinMind request failed unexpectedly ({label})")
 
 
 def write_parquet(frame: pd.DataFrame, path: Path) -> None:
@@ -399,8 +470,8 @@ def get_finmind_user_info(token: str, write_log: bool = True, source: str = "R_D
     req_headers = req_kwargs.get("headers", {})
 
     try:
-        response = requests.get(
-            USER_INFO_URL, headers=req_headers, timeout=300)
+        response = finmind_get(
+            USER_INFO_URL, headers=req_headers, label="user_info")
         payload = response.json() if response.content else {}
         used = payload.get("user_count") if isinstance(payload, dict) else None
         limit = payload.get("api_request_limit") if isinstance(
@@ -915,36 +986,41 @@ def fetch_rows_per_stock(dataset_name: str, token: str, target_ids: list[str], s
 
 
 def fetch_rows_for_data_id(dataset_name: str, token: str, data_id: str, start_date: str, end_date: str | None) -> list[dict]:
-    params = {
-        "dataset": dataset_name,
-        "data_id": data_id,
-        "start_date": start_date,
-    }
-    if end_date and dataset_name not in DATASETS_NO_END_DATE:
-        params["end_date"] = end_date
     req = get_finmind_request_kwargs(token)
     req_params = req.get("params", {})
     req_headers = req.get("headers", {})
-    if req_params:
-        params.update(req_params)
+    all_rows: list[dict] = []
+    chunks = build_finmind_date_chunks(start_date, end_date)
+    for chunk_start, chunk_end in chunks:
+        params = {
+            "dataset": dataset_name,
+            "data_id": data_id,
+            "start_date": chunk_start,
+        }
+        if chunk_end and dataset_name not in DATASETS_NO_END_DATE:
+            params["end_date"] = chunk_end
+        if req_params:
+            params.update(req_params)
 
-    response = requests.get(API_URL, params=params,
-                            headers=req_headers, timeout=300)
-    try:
-        payload = response.json()
-    except Exception as exc:
-        raise RuntimeError(f"FinMind response is not JSON: {exc}") from exc
+        label = f"{dataset_name}/{data_id}/{chunk_start}..{chunk_end or 'open'}"
+        response = finmind_get(API_URL, params=params, headers=req_headers, label=label)
+        try:
+            payload = response.json()
+        except Exception as exc:
+            raise RuntimeError(f"FinMind response is not JSON ({label}): {exc}") from exc
 
-    if response.status_code != 200:
-        msg = payload.get("msg") or payload.get(
-            "message") or payload.get("status") or response.text[:300]
-        raise RuntimeError(
-            f"FinMind API error ({dataset_name}/{data_id}): status_code={response.status_code}, msg={msg}")
+        if response.status_code != 200:
+            msg = payload.get("msg") or payload.get(
+                "message") or payload.get("status") or response.text[:300]
+            raise RuntimeError(
+                f"FinMind API error ({label}): status_code={response.status_code}, msg={msg}")
 
-    rows = payload.get("data", []) if isinstance(payload, dict) else []
-    if not isinstance(rows, list):
-        raise RuntimeError("FinMind API returned an unexpected data shape")
-    return rows
+        rows = payload.get("data", []) if isinstance(payload, dict) else []
+        if not isinstance(rows, list):
+            raise RuntimeError("FinMind API returned an unexpected data shape")
+        all_rows.extend(rows)
+
+    return all_rows
 
 
 def build_recent_business_dates(end_date: str, lookback_days: int) -> list[str]:
@@ -1068,11 +1144,11 @@ def fetch_rows_trading_daily_report_one_day_for_stock(token: str, stock_id: str,
     if req_params:
         params.update(req_params)
 
-    response = requests.get(
+    response = finmind_get(
         TAIWAN_STOCK_TRADING_DAILY_REPORT_URL,
         params=params,
         headers=req_headers,
-        timeout=300,
+        label=f"TaiwanStockTradingDailyReport/{stock_id}/{date_str}",
     )
     try:
         payload = response.json()
@@ -1096,89 +1172,44 @@ def fetch_rows_trading_daily_report_one_day_for_stock(token: str, stock_id: str,
 
 
 def fetch_rows_all_market(dataset_name: str, token: str, include_data_id_all: bool, start_date: str, end_date: str | None) -> list[dict]:
-    params = {
-        "dataset": dataset_name,
-        "start_date": start_date,
-    }
-    if end_date and dataset_name not in DATASETS_NO_END_DATE:
-        params["end_date"] = end_date
-    if include_data_id_all:
-        params["data_id"] = "所有"
-
     req = get_finmind_request_kwargs(token)
     req_params = req.get("params", {})
     req_headers = req.get("headers", {})
-    if req_params:
-        params.update(req_params)
-
-    response = requests.get(API_URL, params=params,
-                            headers=req_headers, timeout=300)
-    try:
-        payload = response.json()
-    except Exception as exc:
-        raise RuntimeError(f"FinMind response is not JSON: {exc}") from exc
-
-    if response.status_code != 200:
-        msg = payload.get("msg") or payload.get(
-            "message") or payload.get("status") or response.text[:300]
-        raise RuntimeError(
-            f"FinMind API error ({dataset_name}/all-market, include_data_id_all={include_data_id_all}): "
-            f"status_code={response.status_code}, msg={msg}"
-        )
-
-    rows = payload.get("data", []) if isinstance(payload, dict) else []
-    if not isinstance(rows, list):
-        raise RuntimeError("FinMind API returned an unexpected data shape")
-    return rows
-
-
-def fetch_rows_taiwan_stock_trading_daily_report_secid_agg(
-    token: str,
-    target_ids: list[str],
-    start_date: str,
-    end_date: str,
-) -> list[dict]:
-    req = get_finmind_request_kwargs(token)
-    req_params = req.get("params", {})
-    req_headers = req.get("headers", {})
-
     all_rows: list[dict] = []
-    for sid in target_ids:
+    chunks = build_finmind_date_chunks(start_date, end_date)
+    for chunk_start, chunk_end in chunks:
         params = {
-            "data_id": sid,
-            "start_date": start_date,
-            "end_date": end_date,
+            "dataset": dataset_name,
+            "start_date": chunk_start,
         }
+        if chunk_end and dataset_name not in DATASETS_NO_END_DATE:
+            params["end_date"] = chunk_end
+        if include_data_id_all:
+            params["data_id"] = "所有"
         if req_params:
             params.update(req_params)
 
-        response = requests.get(
-            TAIWAN_STOCK_TRADING_DAILY_REPORT_SECID_AGG_URL,
-            params=params,
-            headers=req_headers,
-            timeout=300,
+        label = (
+            f"{dataset_name}/all-market/data_id_all={include_data_id_all}/"
+            f"{chunk_start}..{chunk_end or 'open'}"
         )
+        response = finmind_get(API_URL, params=params, headers=req_headers, label=label)
         try:
             payload = response.json()
         except Exception as exc:
-            print(
-                f"TaiwanStockTradingDailyReport skip {sid}: non-JSON response: {exc}",
-                flush=True,
-            )
-            continue
+            raise RuntimeError(f"FinMind response is not JSON ({label}): {exc}") from exc
 
         if response.status_code != 200:
             msg = payload.get("msg") or payload.get(
                 "message") or payload.get("status") or response.text[:300]
-            print(
-                f"TaiwanStockTradingDailyReport skip {sid}: status_code={response.status_code}, msg={msg}",
-                flush=True,
+            raise RuntimeError(
+                f"FinMind API error ({label}): status_code={response.status_code}, msg={msg}"
             )
-            continue
 
         rows = payload.get("data", []) if isinstance(payload, dict) else []
-        if isinstance(rows, list) and rows:
-            all_rows.extend(rows)
+        if not isinstance(rows, list):
+            raise RuntimeError("FinMind API returned an unexpected data shape")
+        all_rows.extend(rows)
 
     return all_rows
 
@@ -1209,20 +1240,6 @@ def fetch_dataset_rows(
             start_date,
             end_date,
             apply_start_date_filter=True,
-        )
-
-    if dataset_name in SPECIAL_ENDPOINT_DATASETS:
-        if not end_date:
-            raise RuntimeError(f"{dataset_name} requires end_date")
-        rows = fetch_rows_taiwan_stock_trading_daily_report_secid_agg(
-            token, target_ids, start_date, end_date)
-        if rows:
-            print(
-                f"{dataset_name}: special-endpoint per-stock query returned rows", flush=True)
-            return rows
-        print(
-            f"{dataset_name}: special-endpoint per-stock query returned no rows, continue standard per-stock fallback",
-            flush=True,
         )
 
     if dataset_name in PER_STOCK_ONLY_DATASETS:
