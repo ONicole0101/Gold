@@ -943,6 +943,7 @@
           { key: "price", label: "價格<br><small>60天L/H</small>" },
           { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
+          { key: "short_margin_ratio_score", label: "券資比%<br><small>3天趨勢</small>", tooltip: "券資比%＝融券餘額 ÷ 融資餘額 × 100。數值越高代表放空籌碼占比越高，常見於市場偏保守或避險需求升高時；需搭配價格趨勢與主力買賣超共同判讀。" },
           { key: "chip_concentration_score", label: "籌碼集中%<br><small>3天趨勢</small>", tooltip: "籌碼集中%＝主力分點淨買賣力道的絕對值 ÷ 全市場買賣量合計 × 100。數值越高代表籌碼越集中；需搭配主力買賣超正負方向判斷。" },
           { key: "main_force_score", label: "主力買賣超<br><small>3天趨勢</small>", tooltip: "主力買賣超＝前15大買超分點淨買超 + 前15大賣超分點淨賣超。正值偏主力買進，負值偏主力賣出。" },
           { key: "broker_diff", label: "買賣家數差<br><small>趨勢</small>", tooltip: "買賣家數差＝有買進的券商分點家數 - 有賣出的券商分點家數。正值代表參與買方家數較多，負值代表買方較集中或賣方家數較多。" },
@@ -1388,6 +1389,18 @@
         </td>`;
     }
 
+    function renderShortMarginRatioCell(s) {
+      return `
+        <td>
+          <div class="chip-detail">
+            <div class="table-lv1 ${trendClass(s.short_margin_ratio_score)}">${isNil(s.short_margin_ratio_score) ? "-" : fmtTrend(s.short_margin_ratio_score)}</div>
+            ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.short_margin_ratio_pct_t0, s.short_margin_ratio_pct), s.short_margin_ratio_pct_t1, "%", "", false, "今日")}
+            ${chipLine(s.chip_date_t1, s.short_margin_ratio_pct_t1, s.short_margin_ratio_pct_t2, "%", "", true, "T-1")}
+            ${chipLine(s.chip_date_t2, s.short_margin_ratio_pct_t2, undefined, "%", "", true, "T-2")}
+          </div>
+        </td>`;
+    }
+
     function renderMainForceCell(s) {
       return `
         <td>
@@ -1467,6 +1480,15 @@
         ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.chip_concentration_pct_t0, s.chip_concentration_pct), s.chip_concentration_pct_t1, "%", "", false, "今日")}
         ${chipLine(s.chip_date_t1, s.chip_concentration_pct_t1, s.chip_concentration_pct_t2, "%", "", true, "T-1")}
         ${chipLine(s.chip_date_t2, s.chip_concentration_pct_t2, undefined, "%", "", true, "T-2")}
+      </div>`;
+    }
+
+    function renderShortMarginRatioBlock(s) {
+      return `<div class="stock-value">
+        <div class="table-lv1 ${trendClass(s.short_margin_ratio_score)}">${isNil(s.short_margin_ratio_score) ? "-" : fmtTrend(s.short_margin_ratio_score)}</div>
+        ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.short_margin_ratio_pct_t0, s.short_margin_ratio_pct), s.short_margin_ratio_pct_t1, "%", "", false, "今日")}
+        ${chipLine(s.chip_date_t1, s.short_margin_ratio_pct_t1, s.short_margin_ratio_pct_t2, "%", "", true, "T-1")}
+        ${chipLine(s.chip_date_t2, s.short_margin_ratio_pct_t2, undefined, "%", "", true, "T-2")}
       </div>`;
     }
 
@@ -1642,6 +1664,8 @@
               <div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-" : `${fmtTrend(s.volume_ratio)}${fmt(s.volume_ratio, "%")}`}</div>
               <div class="table-lv3">${isNil(s.volume_add) ? "-" : `${fmt(s.volume_add)}張`}</div>
             </td>`;
+        case "short_margin_ratio_score":
+          return renderShortMarginRatioCell(s);
         case "chip_concentration_score":
           return renderChipConcentrationCell(s);
         case "main_force_score":
@@ -1762,6 +1786,7 @@
 
       const chipGrid = `
         <div class="stock-grid">
+          <div class="stock-item"><div class="stock-label">券資比% 3天趨勢</div>${renderShortMarginRatioBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">籌碼集中% 3天趨勢</div>${renderChipConcentrationBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">主力買賣超 3天趨勢</div>${renderMainForceBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">買賣家數差 趨勢</div>${renderBrokerDiffBlock(s)}</div>

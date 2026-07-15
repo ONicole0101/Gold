@@ -49,6 +49,11 @@ CHIP_DATA_COLS = [
     "chip_concentration_threshold",
     "chip_latest_date",
     "chip_available_days",
+    "short_margin_ratio_pct",
+    "short_margin_ratio_pct_t0",
+    "short_margin_ratio_pct_t1",
+    "short_margin_ratio_pct_t2",
+    "short_margin_ratio_score",
     "chip_concentration_pct",
     "chip_concentration_pct_t0",
     "chip_concentration_pct_t1",
@@ -348,6 +353,7 @@ def add_t0_t1_t2_fields(row: dict, chip: dict) -> None:
     rows = _pick_recent_rows(chip)
     if not rows:
         row["chip_date_t0"] = row.get("chip_latest_date")
+        row["short_margin_ratio_pct_t0"] = row.get("short_margin_ratio_pct")
         row["chip_concentration_pct_t0"] = row.get("chip_concentration_pct")
         row["main_force_net_t0"] = row.get("main_force_net")
         row["broker_diff_t0"] = row.get("broker_diff")
@@ -362,6 +368,8 @@ def add_t0_t1_t2_fields(row: dict, chip: dict) -> None:
         suffix = f"t{idx}"
         row[f"chip_date_{suffix}"] = _date_text(_row_value(
             rec, "date", "Date", "chip_latest_date", "chip_date"))
+        row[f"short_margin_ratio_pct_{suffix}"] = _row_value(
+            rec, "short_margin_ratio_pct", "券資比%", "short_margin_ratio")
         row[f"chip_concentration_pct_{suffix}"] = _row_value(
             rec, "chip_concentration_pct", "籌碼集中度%", "concentration_pct")
         row[f"main_force_net_{suffix}"] = _row_value(

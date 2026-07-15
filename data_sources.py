@@ -702,6 +702,11 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         "chip_concentration_threshold": threshold,
         "chip_latest_date": None,
         "chip_available_days": 0,
+        "short_margin_ratio_pct": None,
+        "short_margin_ratio_pct_t0": None,
+        "short_margin_ratio_pct_t1": None,
+        "short_margin_ratio_pct_t2": None,
+        "short_margin_ratio_score": None,
         "chip_concentration_pct": None,
         "chip_concentration_pct_t0": None,
         "chip_concentration_pct_t1": None,
@@ -750,6 +755,34 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             if pd.isna(value):
                 return None
             return int(round(float(value)))
+        except Exception:
+            return None
+
+    def _first_non_na(*values):
+        for value in values:
+            if value is None:
+                continue
+            if hasattr(value, "iloc"):
+                series = pd.to_numeric(value, errors="coerce")
+                series = series.dropna()
+                if not series.empty:
+                    return series.iloc[0]
+                continue
+            try:
+                if pd.isna(value):
+                    continue
+            except Exception:
+                pass
+            return value
+        return None
+
+    def _safe_ratio_pct(numerator, denominator):
+        try:
+            num = float(numerator)
+            den = float(denominator)
+            if pd.isna(num) or pd.isna(den) or den == 0:
+                return None
+            return float(num / den * 100)
         except Exception:
             return None
 
@@ -858,10 +891,48 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                 abs(main_force_net) / total_turnover * 100
             ) if total_turnover else None
 
+            margin_purchase_balance = None
+            short_sale_balance = None
+            margin_params = {
+                "dataset": "TaiwanStockMarginPurchaseShortSale",
+                "data_id": str(stock_id),
+                "start_date": date_str,
+                "end_date": date_str,
+                "token": FINMIND_token,
+            }
+            _record_finmind_request(
+                "chip analysis", stock_id, "TaiwanStockMarginPurchaseShortSale"
+            )
+            margin_res = requests.get(API_URL, params=margin_params,
+                                      headers=headers, timeout=300)
+            margin_data = _safe_response_json(margin_res).get("data", [])
+            if margin_res.status_code == 200 and margin_data:
+                margin_df = pd.DataFrame(margin_data)
+                margin_purchase_balance = _first_non_na(
+                    margin_df.get("MarginPurchaseTodayBalance"),
+                    margin_df.get("margin_purchase_today_balance"),
+                    margin_df.get("MarginPurchase"),
+                    margin_df.get("margin_purchase"),
+                    margin_df.get("融資今日餘額"),
+                    margin_df.get("融資餘額"),
+                )
+                short_sale_balance = _first_non_na(
+                    margin_df.get("ShortSaleTodayBalance"),
+                    margin_df.get("short_sale_today_balance"),
+                    margin_df.get("ShortSale"),
+                    margin_df.get("short_sale"),
+                    margin_df.get("融券今日餘額"),
+                    margin_df.get("融券餘額"),
+                )
+            short_margin_ratio_pct = _safe_ratio_pct(
+                short_sale_balance, margin_purchase_balance
+            )
+
             actual_date = df["date"].max().date()
             daily_by_date[actual_date] = {
                 "date": actual_date,
                 "chip_concentration_pct": concentration_pct,
+                "short_margin_ratio_pct": short_margin_ratio_pct,
                 "main_force_net": main_force_net,
                 "broker_diff": broker_diff,
                 "total_volume": total_turnover,
@@ -931,11 +1002,21 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         conc_ok = report["chip_concentration_pct"].fillna(0) >= threshold
         conc_pos = int(((report["main_force_net"] > 0) & conc_ok).sum())
         conc_neg = int(((report["main_force_net"] < 0) & conc_ok).sum())
+        short_ratio_series = pd.to_numeric(
+            report["short_margin_ratio_pct"], errors="coerce")
+        short_prev = short_ratio_series.shift(-1)
+        short_up = int(((short_ratio_series > short_prev)
+                       & short_prev.notna()).sum())
+        short_down = int(((short_ratio_series < short_prev)
+                         & short_prev.notna()).sum())
 
         main_score = _score_by_ratio((main_pos - main_neg) / len(report))
         broker_score = _score_by_ratio((diff_pos - diff_neg) / len(report))
         concentration_score = _score_by_ratio(
             (conc_pos - conc_neg) / len(report))
+        short_margin_ratio_score = _score_by_ratio(
+            (short_up - short_down) / len(report)
+        )
 
         latest = report.iloc[0]
         state = "neutral"
@@ -960,6 +1041,7 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                 "%Y-%m-%d") if hasattr(date_value, "strftime") else str(date_value)[:10]
             recent_rows.append({
                 "date": date_text,
+                "short_margin_ratio_pct": _round_or_none(r.get("short_margin_ratio_pct"), 2),
                 "chip_concentration_pct": _round_or_none(r["chip_concentration_pct"], 2),
                 "main_force_net": _int_or_none(r["main_force_net"]),
                 "broker_diff": _int_or_none(r["broker_diff"]),
@@ -970,6 +1052,8 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             "chip_concentration_threshold": threshold,
             "chip_latest_date": recent_rows[0]["date"] if recent_rows else None,
             "chip_available_days": len(report),
+            "short_margin_ratio_pct": _round_or_none(latest.get("short_margin_ratio_pct"), 2),
+            "short_margin_ratio_score": short_margin_ratio_score,
             "chip_concentration_pct": _round_or_none(latest["chip_concentration_pct"], 2),
             "chip_concentration_score": concentration_score,
             "main_force_net": _int_or_none(latest["main_force_net"]),
@@ -987,12 +1071,14 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         for idx, rec in enumerate(recent_rows[:3]):
             suffix = f"t{idx}"
             result[f"chip_date_{suffix}"] = rec["date"]
+            result[f"short_margin_ratio_pct_{suffix}"] = rec["short_margin_ratio_pct"]
             result[f"chip_concentration_pct_{suffix}"] = rec["chip_concentration_pct"]
             result[f"main_force_net_{suffix}"] = rec["main_force_net"]
             result[f"broker_diff_{suffix}"] = rec["broker_diff"]
 
         for suffix in ("t0", "t1", "t2"):
             result.setdefault(f"chip_date_{suffix}", None)
+            result.setdefault(f"short_margin_ratio_pct_{suffix}", None)
             result.setdefault(f"chip_concentration_pct_{suffix}", None)
             result.setdefault(f"main_force_net_{suffix}", None)
             result.setdefault(f"broker_diff_{suffix}", None)

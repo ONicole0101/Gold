@@ -776,11 +776,15 @@ def _build_static_fields(static_row):
 
 def _build_chip_fields(chip_row):
     latest_date = to_str_or_none(chip_row.get("chip_latest_date"))
+    latest_short_margin_ratio = to_float_or_none(
+        chip_row.get("short_margin_ratio_pct"))
     latest_concentration = to_float_or_none(
         chip_row.get("chip_concentration_pct"))
     latest_main_force = to_int_or_none(chip_row.get("main_force_net"))
     latest_broker_diff = to_int_or_none(chip_row.get("broker_diff"))
 
+    t0_short_margin_ratio = to_float_or_none(
+        chip_row.get("short_margin_ratio_pct_t0"))
     t0_concentration = to_float_or_none(
         chip_row.get("chip_concentration_pct_t0"))
     t0_main_force = to_int_or_none(chip_row.get("main_force_net_t0"))
@@ -791,6 +795,8 @@ def _build_chip_fields(chip_row):
         "chip_concentration_threshold": to_float_or_none(chip_row.get("chip_concentration_threshold")),
         "chip_latest_date": latest_date,
         "chip_available_days": to_int_or_none(chip_row.get("chip_available_days")),
+        "short_margin_ratio_pct": latest_short_margin_ratio,
+        "short_margin_ratio_score": to_float_or_none(chip_row.get("short_margin_ratio_score")),
         "chip_concentration_pct": latest_concentration,
         "chip_concentration_score": to_float_or_none(chip_row.get("chip_concentration_score")),
         "main_force_net": latest_main_force,
@@ -815,6 +821,9 @@ def _build_chip_fields(chip_row):
         "chip_date_t0": to_str_or_none(chip_row.get("chip_date_t0")) or latest_date,
         "chip_date_t1": to_str_or_none(chip_row.get("chip_date_t1")),
         "chip_date_t2": to_str_or_none(chip_row.get("chip_date_t2")),
+        "short_margin_ratio_pct_t0": t0_short_margin_ratio,
+        "short_margin_ratio_pct_t1": to_float_or_none(chip_row.get("short_margin_ratio_pct_t1")),
+        "short_margin_ratio_pct_t2": to_float_or_none(chip_row.get("short_margin_ratio_pct_t2")),
         "chip_concentration_pct_t0": t0_concentration,
         "chip_concentration_pct_t1": to_float_or_none(chip_row.get("chip_concentration_pct_t1")),
         "chip_concentration_pct_t2": to_float_or_none(chip_row.get("chip_concentration_pct_t2")),
