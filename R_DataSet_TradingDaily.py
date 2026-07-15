@@ -97,7 +97,8 @@ def build_finmind_date_chunks(start_date: str, end_date: str | None) -> list[tup
         year_end = pd.Timestamp(year=cursor.year, month=12, day=31)
         size_end = cursor + timedelta(days=FINMIND_CHUNK_DAYS - 1)
         chunk_end = min(year_end, size_end, final_day)
-        chunks.append((cursor.strftime("%Y-%m-%d"), chunk_end.strftime("%Y-%m-%d")))
+        chunks.append((cursor.strftime("%Y-%m-%d"),
+                      chunk_end.strftime("%Y-%m-%d")))
         cursor = chunk_end + timedelta(days=1)
     return chunks
 
@@ -109,7 +110,8 @@ def finmind_get(url: str, *, params: dict | None = None, headers: dict | None = 
 
     for attempt in range(1, FINMIND_MAX_RETRIES + 1):
         try:
-            response = requests.get(url, params=params, headers=headers, timeout=timeout)
+            response = requests.get(
+                url, params=params, headers=headers, timeout=timeout)
             if response.status_code not in retry_statuses:
                 return response
             reason = f"HTTP {response.status_code}"
@@ -126,7 +128,8 @@ def finmind_get(url: str, *, params: dict | None = None, headers: dict | None = 
         retry_after = 0.0
         if response is not None:
             try:
-                retry_after = float(response.headers.get("Retry-After", 0) or 0)
+                retry_after = float(
+                    response.headers.get("Retry-After", 0) or 0)
             except (TypeError, ValueError):
                 retry_after = 0.0
         wait_seconds = max(
@@ -957,11 +960,13 @@ def fetch_rows_for_data_id(dataset_name: str, token: str, data_id: str, start_da
             params.update(req_params)
 
         label = f"{dataset_name}/{data_id}/{chunk_start}..{chunk_end or 'open'}"
-        response = finmind_get(API_URL, params=params, headers=req_headers, label=label)
+        response = finmind_get(API_URL, params=params,
+                               headers=req_headers, label=label)
         try:
             payload = response.json()
         except Exception as exc:
-            raise RuntimeError(f"FinMind response is not JSON ({label}): {exc}") from exc
+            raise RuntimeError(
+                f"FinMind response is not JSON ({label}): {exc}") from exc
 
         if response.status_code != 200:
             msg = payload.get("msg") or payload.get(
@@ -1147,11 +1152,13 @@ def fetch_rows_all_market(dataset_name: str, token: str, include_data_id_all: bo
             f"{dataset_name}/all-market/data_id_all={include_data_id_all}/"
             f"{chunk_start}..{chunk_end or 'open'}"
         )
-        response = finmind_get(API_URL, params=params, headers=req_headers, label=label)
+        response = finmind_get(API_URL, params=params,
+                               headers=req_headers, label=label)
         try:
             payload = response.json()
         except Exception as exc:
-            raise RuntimeError(f"FinMind response is not JSON ({label}): {exc}") from exc
+            raise RuntimeError(
+                f"FinMind response is not JSON ({label}): {exc}") from exc
 
         if response.status_code != 200:
             msg = payload.get("msg") or payload.get(
