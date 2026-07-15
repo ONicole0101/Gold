@@ -25,8 +25,7 @@ if _raw_output_dir.name.lower() == "dataset":
     OUTPUT_DIR = _raw_output_dir
 else:
     OUTPUT_DIR = _raw_output_dir / "Dataset"
-HISTORY_DIR = OUTPUT_DIR / "his"
-LEGACY_HISTORY_DIR = OUTPUT_DIR / "His"
+HISTORY_DIR = OUTPUT_DIR / "His"
 START_DATE = "2020-04-01"
 FINMIND_USAGE_LOG_FILE = os.getenv(
     "FINMIND_USAGE_LOG_FILE", "finmind_token_usage_log.csv"
@@ -580,10 +579,6 @@ def load_all_dataset_outputs(dataset_name: str) -> pd.DataFrame:
     candidates.extend(list_dataset_files(dataset_name))
     if HISTORY_DIR.exists():
         candidates.extend(sorted(HISTORY_DIR.glob(f"{dataset_name}_*.csv")))
-    if LEGACY_HISTORY_DIR.exists() and LEGACY_HISTORY_DIR != HISTORY_DIR:
-        candidates.extend(
-            sorted(LEGACY_HISTORY_DIR.glob(f"{dataset_name}_*.csv"))
-        )
 
     # Annual archive files are also part of cumulative history.
     candidates.extend(list_annual_archive_files(dataset_name))
@@ -747,19 +742,10 @@ def extract_dataset_exec_date(dataset_name: str, path: Path) -> str | None:
     return m.group(1)
 
 
-def should_archive_cross_day_files(dataset_name: str, mode: str, exec_ts: str, existing_files: list[Path], new_file_name: str) -> bool:
-    if mode != "incremental" or not existing_files:
+def should_archive_previous_files(existing_files: list[Path], new_file_name: str) -> bool:
+    if not existing_files:
         return False
-
-    latest = existing_files[-1]
-    if latest.name == new_file_name:
-        return False
-
-    latest_date = extract_dataset_exec_date(dataset_name, latest)
-    if not latest_date:
-        return False
-
-    return latest_date != exec_ts
+    return any(path.name != new_file_name for path in existing_files)
 
 
 def archive_dataset_files_to_history(files: list[Path]) -> list[str]:
@@ -1409,9 +1395,11 @@ def sync_one_dataset(dataset_name: str, token: str, mode: str, target_ids: list[
         rows_written = len(final_df)
 
     archived_files: list[str] = []
-    if keep_history and should_archive_cross_day_files(dataset_name, mode, exec_ts, existing_files_before_write, output_path.name):
-        archived_files = archive_dataset_files_to_history(
-            existing_files_before_write)
+    files_to_archive = [
+        path for path in existing_files_before_write if path.name != output_path.name
+    ]
+    if keep_history and should_archive_previous_files(existing_files_before_write, output_path.name):
+        archived_files = archive_dataset_files_to_history(files_to_archive)
 
     if not keep_history:
         remove_older_dataset_files(dataset_name, output_path)
