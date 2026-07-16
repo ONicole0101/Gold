@@ -36,24 +36,9 @@ REMOTE_DATASET_SUBDIR = str(
     os.getenv("R_DATASET_REMOTE_SUBDIR", "Dataset") or "Dataset"
 ).strip()
 
-DATASETS_RANGE = [
-    "TaiwanStockPrice",
-    "TaiwanStockWeekPrice",
-    "TaiwanStockMonthPrice",
-    "TaiwanStockPER",
-    "TaiwanStockMarginPurchaseShortSale",
-    "TaiwanStockTradingDailyReport",
-    "TaiwanStockFinancialStatements",
-    "TaiwanStockBalanceSheet",
-    "TaiwanStockIndustryChain",
-    "TaiwanStockMonthRevenue",
-    "TaiwanStockDividend",
-    "TaiwanStockDispositionSecuritiesPeriod"
-]
+DATASETS_RANGE = ["TaiwanStockTradingDailyReport"]
 
-DATASETS_ONE_DAY = [
-    "TaiwanStockNews",
-]
+DATASETS_ONE_DAY = []
 
 TRADING_DAILY_REPORT_LOOKBACK_DAYS = 20
 
@@ -72,25 +57,17 @@ SPECIAL_ENDPOINT_DATASETS = set()
 # stocks.csv-targeted per-stock fetch mode.
 PER_STOCK_ONLY_DATASETS = {
     "TaiwanStockTradingDailyReport",
-    "TaiwanStockPrice",
-    "TaiwanStockMonthPrice",
-    "TaiwanStockMarginPurchaseShortSale",
 }
 
 NO_EMPTY_OUTPUT_DATASETS = {
     "TaiwanStockTradingDailyReport",
-    "TaiwanStockPrice",
-    "TaiwanStockMonthPrice",
-    "TaiwanStockMarginPurchaseShortSale",
 }
 
 ANNUAL_ARCHIVE_DATASETS = {
     "TaiwanStockTradingDailyReport",
 }
 
-ONE_TIME_BACKFILL_DATASETS = {
-    "TaiwanStockPrice",
-}
+ONE_TIME_BACKFILL_DATASETS = set()
 
 GOOGLE_DRIVE_SCOPES = ["https://www.googleapis.com/auth/drive"]
 
@@ -1440,6 +1417,146 @@ def sync_one_dataset(dataset_name: str, token: str, mode: str, target_ids: list[
     }
 
 
+def _resolve_broker_column(frame: pd.DataFrame) -> str | None:
+    for name in ["securities_trader_id", "securities_trader", "broker"]:
+        if name in frame.columns:
+            return name
+    return None
+
+
+def build_chip_summary_per_stock_day(trading_df: pd.DataFrame) -> pd.DataFrame:
+    if trading_df is None or trading_df.empty:
+        return pd.DataFrame()
+
+    broker_column = _resolve_broker_column(trading_df)
+    required = {"stock_id", "date", "buy", "sell"}
+    if broker_column is None or not required.issubset(trading_df.columns):
+        return pd.DataFrame()
+
+    work = trading_df[["stock_id", "date", broker_column, "buy", "sell"]].copy()
+    work["stock_id"] = work["stock_id"].astype(str).str.strip()
+    work["date"] = pd.to_datetime(work["date"], errors="coerce")
+    work["buy"] = pd.to_numeric(work["buy"], errors="coerce").fillna(0.0)
+    work["sell"] = pd.to_numeric(work["sell"], errors="coerce").fillna(0.0)
+    work = work.dropna(subset=["date"])
+    work = work[work["stock_id"] != ""]
+    if work.empty:
+        return pd.DataFrame()
+
+    work["net_buy"] = work["buy"] - work["sell"]
+    work["buy_broker"] = work[broker_column].where(work["buy"] > 0)
+    work["sell_broker"] = work[broker_column].where(work["sell"] > 0)
+
+    group_cols = ["stock_id", "date"]
+    grouped = work.groupby(group_cols, as_index=False)
+    daily = grouped.agg(
+        total_buy=("buy", "sum"),
+        total_sell=("sell", "sum"),
+        active_buyers=("buy_broker", "nunique"),
+        active_sellers=("sell_broker", "nunique"),
+    )
+
+    def _main_force(series: pd.Series) -> float:
+        sorted_values = series.sort_values(ascending=False)
+        return float(sorted_values.head(15).sum() + sorted_values.tail(15).sum())
+
+    main_force = (
+        work.groupby(group_cols)["net_buy"]
+        .apply(_main_force)
+        .rename("main_force_net")
+        .reset_index()
+    )
+
+    summary = daily.merge(main_force, on=group_cols, how="left")
+    summary["total_volume"] = summary["total_buy"] + summary["total_sell"]
+    summary["broker_diff"] = (
+        pd.to_numeric(summary["active_buyers"], errors="coerce").fillna(0)
+        - pd.to_numeric(summary["active_sellers"], errors="coerce").fillna(0)
+    )
+
+    concentration = (
+        summary["main_force_net"].abs() / summary["total_volume"].where(summary["total_volume"] != 0)
+    ) * 100.0
+    summary["chip_concentration_pct"] = concentration
+    summary["date"] = summary["date"].dt.strftime("%Y-%m-%d")
+
+    summary = summary[[
+        "stock_id",
+        "date",
+        "main_force_net",
+        "broker_diff",
+        "total_volume",
+        "chip_concentration_pct",
+        "active_buyers",
+        "active_sellers",
+    ]]
+    summary = summary.sort_values(["stock_id", "date"], ascending=[True, False]).reset_index(drop=True)
+    return summary
+
+
+def resolve_trading_daily_source_file(dataset_summaries: list[dict]) -> Path:
+    for item in dataset_summaries:
+        if item.get("dataset") != "TaiwanStockTradingDailyReport":
+            continue
+        output_path = Path(str(item.get("output_path") or "").strip())
+        if output_path.exists() and output_path.is_file():
+            return output_path
+
+    candidates = []
+    for path in list_dataset_files("TaiwanStockTradingDailyReport"):
+        if path.name.startswith("TaiwanStockTradingDailyReport_Y"):
+            continue
+        if path.exists() and path.is_file():
+            candidates.append(path)
+
+    if not candidates:
+        raise RuntimeError("TaiwanStockTradingDailyReport parquet file not found for chip summary generation")
+    return sorted(candidates)[-1]
+
+
+def generate_chip_summary_parquet(dataset_summaries: list[dict], exec_ts: str) -> dict:
+    source_path = resolve_trading_daily_source_file(dataset_summaries)
+    source_df = pd.read_parquet(source_path, engine="pyarrow")
+    chip_df = build_chip_summary_per_stock_day(source_df)
+    if chip_df.empty:
+        raise RuntimeError(
+            "TaiwanStockTradingDailyReport chip summary is empty (missing required columns or no usable rows)"
+        )
+
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_path = OUTPUT_DIR / f"TaiwanStockTradingDailyReportChipSummary_{exec_ts}.parquet"
+    write_parquet(chip_df, output_path)
+
+    existing_files = sorted(OUTPUT_DIR.glob("TaiwanStockTradingDailyReportChipSummary_*.parquet"))
+    keep_history = should_keep_history_files()
+    archived_files: list[str] = []
+    if keep_history:
+        files_to_archive = [p for p in existing_files if p.name != output_path.name]
+        archived_files = archive_dataset_files_to_history(files_to_archive)
+    else:
+        for path in existing_files:
+            if path.name != output_path.name:
+                path.unlink(missing_ok=True)
+
+    print(
+        "TaiwanStockTradingDailyReportChipSummary: "
+        f"source={source_path.name}, rows={len(chip_df)}, output={output_path.name}",
+        flush=True,
+    )
+    return {
+        "dataset": "TaiwanStockTradingDailyReportChipSummary",
+        "mode": "derived",
+        "source_file": source_path.name,
+        "output_file": output_path.name,
+        "output_path": str(output_path),
+        "output_exists": output_path.exists(),
+        "output_size": output_path.stat().st_size if output_path.exists() else 0,
+        "rows_written": len(chip_df),
+        "history_files_kept": keep_history,
+        "archived_to_His": archived_files,
+    }
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Sync multiple FinMind datasets into date-stamped CSV files.")
@@ -1527,6 +1644,16 @@ def main() -> None:
             print(f"{dataset_name}: failed, skipped. reason={msg}", flush=True)
             failures.append(
                 {"dataset": dataset_name, "mode": mode, "error": msg})
+
+    try:
+        chip_summary = generate_chip_summary_parquet(summaries, exec_ts)
+        summaries.append(chip_summary)
+    except Exception as exc:
+        msg = str(exc)
+        print(f"TaiwanStockTradingDailyReportChipSummary: failed, skipped. reason={msg}", flush=True)
+        failures.append(
+            {"dataset": "TaiwanStockTradingDailyReportChipSummary", "mode": "derived", "error": msg}
+        )
 
     summary = {
         "synced_at_utc": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
