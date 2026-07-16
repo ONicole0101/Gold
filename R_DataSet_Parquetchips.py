@@ -1433,7 +1433,8 @@ def build_chip_summary_per_stock_day(trading_df: pd.DataFrame) -> pd.DataFrame:
     if broker_column is None or not required.issubset(trading_df.columns):
         return pd.DataFrame()
 
-    work = trading_df[["stock_id", "date", broker_column, "buy", "sell"]].copy()
+    work = trading_df[["stock_id", "date",
+                       broker_column, "buy", "sell"]].copy()
     work["stock_id"] = work["stock_id"].astype(str).str.strip()
     work["date"] = pd.to_datetime(work["date"], errors="coerce")
     work["buy"] = pd.to_numeric(work["buy"], errors="coerce").fillna(0.0)
@@ -1475,7 +1476,8 @@ def build_chip_summary_per_stock_day(trading_df: pd.DataFrame) -> pd.DataFrame:
     )
 
     concentration = (
-        summary["main_force_net"].abs() / summary["total_volume"].where(summary["total_volume"] != 0)
+        summary["main_force_net"].abs(
+        ) / summary["total_volume"].where(summary["total_volume"] != 0)
     ) * 100.0
     summary["chip_concentration_pct"] = concentration
     summary["date"] = summary["date"].dt.strftime("%Y-%m-%d")
@@ -1490,7 +1492,8 @@ def build_chip_summary_per_stock_day(trading_df: pd.DataFrame) -> pd.DataFrame:
         "active_buyers",
         "active_sellers",
     ]]
-    summary = summary.sort_values(["stock_id", "date"], ascending=[True, False]).reset_index(drop=True)
+    summary = summary.sort_values(["stock_id", "date"], ascending=[
+                                  True, False]).reset_index(drop=True)
     return summary
 
 
@@ -1510,7 +1513,8 @@ def resolve_trading_daily_source_file(dataset_summaries: list[dict]) -> Path:
             candidates.append(path)
 
     if not candidates:
-        raise RuntimeError("TaiwanStockTradingDailyReport parquet file not found for chip summary generation")
+        raise RuntimeError(
+            "TaiwanStockTradingDailyReport parquet file not found for chip summary generation")
     return sorted(candidates)[-1]
 
 
@@ -1524,14 +1528,17 @@ def generate_chip_summary_parquet(dataset_summaries: list[dict], exec_ts: str) -
         )
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    output_path = OUTPUT_DIR / f"TaiwanStockTradingDailyReportChipSummary_{exec_ts}.parquet"
+    output_path = OUTPUT_DIR / \
+        f"TaiwanStockTradingDailyReportChipSummary_{exec_ts}.parquet"
     write_parquet(chip_df, output_path)
 
-    existing_files = sorted(OUTPUT_DIR.glob("TaiwanStockTradingDailyReportChipSummary_*.parquet"))
+    existing_files = sorted(OUTPUT_DIR.glob(
+        "TaiwanStockTradingDailyReportChipSummary_*.parquet"))
     keep_history = should_keep_history_files()
     archived_files: list[str] = []
     if keep_history:
-        files_to_archive = [p for p in existing_files if p.name != output_path.name]
+        files_to_archive = [
+            p for p in existing_files if p.name != output_path.name]
         archived_files = archive_dataset_files_to_history(files_to_archive)
     else:
         for path in existing_files:
@@ -1650,9 +1657,11 @@ def main() -> None:
         summaries.append(chip_summary)
     except Exception as exc:
         msg = str(exc)
-        print(f"TaiwanStockTradingDailyReportChipSummary: failed, skipped. reason={msg}", flush=True)
+        print(
+            f"TaiwanStockTradingDailyReportChipSummary: failed, skipped. reason={msg}", flush=True)
         failures.append(
-            {"dataset": "TaiwanStockTradingDailyReportChipSummary", "mode": "derived", "error": msg}
+            {"dataset": "TaiwanStockTradingDailyReportChipSummary",
+                "mode": "derived", "error": msg}
         )
 
     summary = {
