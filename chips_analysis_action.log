@@ -1,46 +1,44 @@
-[32m2026-07-15 15:34:10.233[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-07-15 15:34:10.401[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-16 08:30:54.244[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-16 08:30:54.388[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 156/6000, remain=5844
+FinMind usage: 1521/6000, remain=4479
 Build chips: total=171, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv
-[1/171] 1319 東陽 status=ok date=2026-07-15 main=-405890 diff=155 state=bearish_distributed
-[25/171] 2330 台積電 status=ok date=2026-07-15 main=-2775129 diff=9 state=bearish_distributed
-[134/171] 6451 訊芯-KY status=no_data date=- main=- diff=- state=no_data
-❌ chip analysis API error 6510: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
-[138/171] 6640 均華 status=no_data date=- main=- diff=- state=no_data
-❌ chip analysis API error 6643: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
-[143/171] 6669 緯穎 status=no_data date=- main=- diff=- state=no_data
-❌ chip analysis API error 6683: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+[50/171] 2885 元大金 status=ok date=2026-07-16 main=-4151248 diff=238 state=bearish_distributed
+[125/171] 6213 聯茂 status=ok date=2026-07-15 main=62049 diff=44 state=bullish_distributed
+[133/171] 6291 沛亨 status=no_data date=- main=- diff=- state=no_data
+❌ chip analysis API error 6451: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+[138/171] 6531 愛普* status=no_data date=- main=- diff=- state=no_data
+❌ chip analysis API error 6640: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
 stock_id name chip_latest_date main_force_net broker_diff   chip_signal_state chips_status
-    1101   台泥       2026-07-15        4142998        -134             neutral           ok
-    1216   統一       2026-07-15         796547        -176             neutral           ok
-    1319   東陽       2026-07-15        -405890         155 bearish_distributed           ok
-    1326   台化       2026-07-15        3355402           4 bullish_distributed           ok
-    1476   儒鴻       2026-07-15        -245208         274             neutral           ok
+    1101   台泥       2026-07-16        4366793        -193             neutral           ok
+    1216   統一       2026-07-16       -1210656         -69             neutral           ok
+    1319   東陽       2026-07-16        -173970         123 bearish_distributed           ok
+    1326   台化       2026-07-16       -2543103           2             neutral           ok
+    1476   儒鴻       2026-07-16         -76392         -69             bearish           ok
     1503   士電       2026-07-15        -219895         142 bearish_distributed           ok
-    1513  中興電       2026-07-15         517738         -79             neutral           ok
-    1514   亞力       2026-07-15       -1190402         179 bearish_distributed           ok
-    1519   華城       2026-07-15         -35640         164             neutral           ok
-    1532   勤美       2026-07-15          52384         -47             neutral           ok
-    1560   中砂       2026-07-15         547569        -321             neutral           ok
-    1597   直得       2026-07-15         -75263         -17             neutral           ok
-    1727  中華化       2026-07-15         209749           4             neutral           ok
-    1760 寶齡富錦       2026-07-15          11000         -13             neutral           ok
-    1802   台玻       2026-07-15       -1220666          17 bearish_distributed           ok
-    2049   上銀       2026-07-15        -254103          60 bearish_distributed           ok
-    2059   川湖       2026-07-15           3007        -148             neutral           ok
+    1513  中興電       2026-07-16        -430523         114             neutral           ok
+    1514   亞力       2026-07-16        -701797         244 bearish_distributed           ok
+    1519   華城       2026-07-16        -123395         341 bearish_distributed           ok
+    1532   勤美       2026-07-16          79301         -25             neutral           ok
+    1560   中砂       2026-07-16          63274          71             neutral           ok
+    1597   直得       2026-07-16          10474          28             neutral           ok
+    1727  中華化       2026-07-16        -113839          87             neutral           ok
+    1760 寶齡富錦       2026-07-16           6191          17             neutral           ok
+    1802   台玻       2026-07-16       -1143254          58 bearish_distributed           ok
+    2049   上銀       2026-07-16          52387          -9             neutral           ok
+    2059   川湖       2026-07-16          22506           0 bullish_distributed           ok
     2233   宇隆       2026-07-15         -28407           4 bearish_distributed           ok
-    2301  光寶科       2026-07-15         666779         -15             neutral           ok
-    2303   聯電       2026-07-15        -625753          -7             neutral           ok
-    2308  台達電       2026-07-15        -109206          14 bearish_distributed           ok
-    2313   華通       2026-07-15       12900714         -62 bullish_distributed           ok
-    2317   鴻海       2026-07-15         773117           8             neutral           ok
-    2327  國巨*       2026-07-15        -781450          -1             neutral           ok
-    2330  台積電       2026-07-15       -2775129           9 bearish_distributed           ok
-    2344  華邦電       2026-07-15       28297823         -50             neutral           ok
+    2301  光寶科       2026-07-16        -774493           5             neutral           ok
+    2303   聯電       2026-07-16      -11463714          12             neutral           ok
+    2308  台達電       2026-07-16        -197666          48 bearish_distributed           ok
+    2313   華通       2026-07-16        -828390          13             neutral           ok
+    2317   鴻海       2026-07-16        1647404          -2             neutral           ok
+    2327  國巨*       2026-07-16       -1920303          10             neutral           ok
+    2330  台積電       2026-07-16        -882710           5 bearish_distributed           ok
+    2344  華邦電       2026-07-16      -13088767           6             neutral           ok
     2345   智邦       2026-07-15         -53352          70 bearish_distributed           ok
-    2353   宏碁       2026-07-15       -8181843          63 bearish_distributed           ok
-    2357   華碩       2026-07-15         209327         -10 bullish_distributed           ok
-    2360   致茂       2026-07-15          -4743          39             neutral           ok
+    2353   宏碁       2026-07-16       -8503606         173 bearish_distributed           ok
+    2357   華碩       2026-07-16          13315          40 bullish_distributed           ok
+    2360   致茂       2026-07-16          13057         -36             neutral           ok
 rows= 171
 status= {'ok': 171}
