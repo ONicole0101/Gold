@@ -557,6 +557,12 @@ def should_run_one_time_backfill_missing() -> bool:
     return value in {"1", "true", "yes", "on"}
 
 
+def should_run_backfill_missing_history() -> bool:
+    value = (os.getenv("R_DATASET_BACKFILL_MISSING_HISTORY")
+             or "1").strip().lower()
+    return value in {"1", "true", "yes", "on"}
+
+
 def load_target_stock_ids_from_stocks_csv() -> list[str]:
     path = Path(__file__).resolve().parent / "stocks.csv"
     if not path.exists():
@@ -648,6 +654,73 @@ def detect_missing_history_stock_ids(existing_df: pd.DataFrame, target_ids: list
         if min_dt is None or pd.isna(min_dt) or min_dt > required_ts:
             missing.append(sid)
     return missing
+
+
+def detect_missing_stock_ids_on_date(existing_df: pd.DataFrame, target_ids: list[str], date_str: str) -> list[str]:
+    if not target_ids:
+        return []
+
+    if existing_df is None or existing_df.empty:
+        return list(target_ids)
+
+    if "stock_id" not in existing_df.columns or "date" not in existing_df.columns:
+        return list(target_ids)
+
+    target_set = {str(x).strip() for x in target_ids if str(x).strip()}
+    if not target_set:
+        return []
+
+    work = existing_df[["stock_id", "date"]].copy()
+    work["stock_id"] = work["stock_id"].astype(str).str.strip()
+    work["date"] = pd.to_datetime(work["date"], errors="coerce")
+    target_ts = pd.to_datetime(date_str, errors="coerce")
+    if pd.isna(target_ts):
+        return list(target_set)
+
+    rows = work.loc[work["date"] == target_ts]
+    present = set(rows["stock_id"].dropna().astype(str).str.strip().tolist())
+    return sorted(target_set - present)
+
+
+def build_stock_coverage_snapshot(existing_df: pd.DataFrame, target_ids: list[str], date_str: str) -> dict:
+    target_set = {str(x).strip() for x in (target_ids or []) if str(x).strip()}
+    expected = len(target_set)
+
+    result = {
+        "check_date": date_str,
+        "target_stock_count": expected,
+        "actual_stock_count": 0,
+        "missing_stock_count": expected,
+        "has_required_columns": False,
+    }
+
+    if expected == 0:
+        result["missing_stock_count"] = 0
+        result["has_required_columns"] = True
+        return result
+
+    if existing_df is None or existing_df.empty:
+        return result
+
+    if "stock_id" not in existing_df.columns or "date" not in existing_df.columns:
+        return result
+
+    result["has_required_columns"] = True
+    work = existing_df[["stock_id", "date"]].copy()
+    work["stock_id"] = work["stock_id"].astype(str).str.strip()
+    work["date"] = pd.to_datetime(work["date"], errors="coerce")
+    target_ts = pd.to_datetime(date_str, errors="coerce")
+    if pd.isna(target_ts):
+        return result
+
+    day_rows = work.loc[work["date"] == target_ts]
+    present_targets = set(
+        day_rows["stock_id"].dropna().astype(str).str.strip().tolist())
+    present_targets = present_targets & target_set
+
+    result["actual_stock_count"] = len(present_targets)
+    result["missing_stock_count"] = max(expected - len(present_targets), 0)
+    return result
 
 
 def fetch_rows_backfill_missing_stocks(dataset_name: str, token: str, stock_ids: list[str], start_date: str, end_date: str | None) -> list[dict]:
@@ -1325,6 +1398,30 @@ def sync_one_dataset(dataset_name: str, token: str, mode: str, target_ids: list[
     if dataset_name in DATASETS_NO_END_DATE:
         request_end_date = None
 
+    coverage_snapshot = None
+    missing_latest_ids: list[str] = []
+    if request_end_date and target_ids and (
+        dataset_name in PER_STOCK_ONLY_DATASETS
+        or dataset_name == "TaiwanStockTradingDailyReport"
+    ):
+        coverage_snapshot = build_stock_coverage_snapshot(
+            existing_df=base_df,
+            target_ids=target_ids,
+            date_str=request_end_date,
+        )
+        missing_latest_ids = detect_missing_stock_ids_on_date(
+            existing_df=base_df,
+            target_ids=target_ids,
+            date_str=request_end_date,
+        )
+        print(
+            f"{dataset_name}: latest CSV stock check ({request_end_date}) "
+            f"expected={coverage_snapshot.get('target_stock_count')}, "
+            f"actual={coverage_snapshot.get('actual_stock_count')}, "
+            f"missing={coverage_snapshot.get('missing_stock_count')}",
+            flush=True,
+        )
+
     effective_start_date = start_date
     if is_empty_fetch_window(start_date, request_end_date):
         print(
@@ -1334,9 +1431,67 @@ def sync_one_dataset(dataset_name: str, token: str, mode: str, target_ids: list[
         rows = []
         if request_end_date:
             effective_start_date = request_end_date
+
+        if request_end_date and missing_latest_ids:
+            print(
+                f"{dataset_name}: empty incremental window but missing stocks on {request_end_date}, "
+                f"targeted refill stocks={len(missing_latest_ids)}",
+                flush=True,
+            )
+            if dataset_name == "TaiwanStockTradingDailyReport":
+                refill_rows: list[dict] = []
+                for sid in missing_latest_ids:
+                    try:
+                        refill_rows.extend(
+                            fetch_rows_trading_daily_report_one_day_for_stock(
+                                token=token,
+                                stock_id=sid,
+                                date_str=request_end_date,
+                            )
+                        )
+                    except Exception as exc:
+                        print(
+                            f"{dataset_name}: targeted refill skip {sid}, reason={exc}",
+                            flush=True,
+                        )
+                rows.extend(refill_rows)
+            else:
+                refill_rows = fetch_rows_backfill_missing_stocks(
+                    dataset_name=dataset_name,
+                    token=token,
+                    stock_ids=missing_latest_ids,
+                    start_date=request_end_date,
+                    end_date=request_end_date,
+                )
+                rows.extend(refill_rows)
     else:
         rows = fetch_dataset_rows(
             dataset_name, token, effective_start_date, request_end_date, target_ids, mode)
+
+    if (
+        should_run_backfill_missing_history()
+        and dataset_name in PER_STOCK_ONLY_DATASETS
+        and target_ids
+    ):
+        missing_history_ids = detect_missing_history_stock_ids(
+            existing_df=base_df,
+            target_ids=target_ids,
+            required_start=START_DATE,
+        )
+        if missing_history_ids:
+            print(
+                f"{dataset_name}: history refill missing stocks={len(missing_history_ids)}/{len(target_ids)}",
+                flush=True,
+            )
+            history_rows = fetch_rows_backfill_missing_stocks(
+                dataset_name=dataset_name,
+                token=token,
+                stock_ids=missing_history_ids,
+                start_date=START_DATE,
+                end_date=request_end_date,
+            )
+            if history_rows:
+                rows.extend(history_rows)
 
     if should_run_one_time_backfill_missing() and dataset_name in ONE_TIME_BACKFILL_DATASETS:
         stock_ids = load_target_stock_ids_from_stocks_csv()
@@ -1379,6 +1534,7 @@ def sync_one_dataset(dataset_name: str, token: str, mode: str, target_ids: list[
             "rows_received": len(rows),
             "start_date": effective_start_date,
             "end_date": request_end_date,
+            "stock_coverage": coverage_snapshot,
         })
         return write_info
 
@@ -1438,6 +1594,7 @@ def sync_one_dataset(dataset_name: str, token: str, mode: str, target_ids: list[
         "rows_written": rows_written,
         "start_date": effective_start_date,
         "end_date": request_end_date,
+        "stock_coverage": coverage_snapshot,
         "history_files_kept": keep_history,
         "archived_to_his": archived_files,
     }
