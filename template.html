@@ -944,13 +944,13 @@
           { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "short_margin_ratio_score", label: "券資比%<br><small>3天趨勢</small>", tooltip: "券資比%＝融券餘額 ÷ 融資餘額 × 100。數值越高代表放空籌碼占比越高，常見於市場偏保守或避險需求升高時；需搭配價格趨勢與主力買賣超共同判讀。" },
-          { key: "chip_concentration_score", label: "籌碼集中%<br><small>3天趨勢</small>", tooltip: "籌碼集中%＝主力分點淨買賣力道的絕對值 ÷ 全市場買賣量合計 × 100。數值越高代表籌碼越集中；需搭配主力買賣超正負方向判斷。" },
-          { key: "main_force_score", label: "主力買賣超<br><small>3天趨勢</small>", tooltip: "主力買賣超＝前15大買超分點淨買超 + 前15大賣超分點淨賣超。正值偏主力買進，負值偏主力賣出。" },
+          { key: "chip_concentration_score", label: "籌碼集中%<br><small>3天趨勢</small>", tooltip: "籌碼集中%採 CMoney 近似口徑＝主力買賣超張數 ÷ 成交量張數 × 100，保留正負號。正值代表主力集中買超，負值代表主力集中賣超；數值絕對值越大代表集中度越高。" },
+          { key: "main_force_score", label: "主力買賣超<br><small>3天趨勢</small>", tooltip: "主力買賣超採 CMoney 近似口徑：依券商分點彙總後，取買超前15大分點與賣超前15大分點互抵，並以張為單位。正值偏主力買進，負值偏主力賣出。" },
           { key: "broker_diff", label: "買賣家數差<br><small>趨勢</small>", tooltip: "買賣家數差＝有買進的券商分點家數 - 有賣出的券商分點家數。正值代表參與買方家數較多，負值代表買方較集中或賣方家數較多。" },
-          { key: "main_force_buy_rate_5d_pct", label: "5日主力<br><small>買超率%</small>", tooltip: "5日主力買超率＝最近5天主力買賣超加總 ÷ 最近5天總成交量 × 100。" },
+          { key: "main_force_buy_rate_5d_pct", label: "5日主力<br><small>集中度%</small>", tooltip: "5日主力集中度%採 CMoney 近似口徑＝5日主力買賣超張數 ÷ 5日成交量張數 × 100，保留正負號。" },
           { key: "chip_concentration_5d", label: "5日籌碼<br><small>平均/變化</small>", tooltip: "5日籌碼集中度顯示最近5天平均集中度；變化＝今日集中度 - 5日資料最早一日集中度。" },
           { key: "broker_diff_5d", label: "5日買賣<br><small>家數差</small>", tooltip: "5日買賣家數差＝最近5天買方券商家數 - 賣方券商家數的平均。" },
-          { key: "main_force_buy_rate_20d_pct", label: "20日主力<br><small>買超率%</small>", tooltip: "20日主力買超率＝最近20天主力買賣超加總 ÷ 最近20天總成交量 × 100。" },
+          { key: "main_force_buy_rate_20d_pct", label: "20日主力<br><small>集中度%</small>", tooltip: "20日主力集中度%採 CMoney 近似口徑＝20日主力買賣超張數 ÷ 20日成交量張數 × 100，保留正負號。" },
           { key: "chip_concentration_20d", label: "20日籌碼<br><small>平均/變化</small>", tooltip: "20日籌碼集中度顯示最近20天平均集中度；變化＝今日集中度 - 20日資料最早一日集中度。" },
           { key: "broker_diff_20d", label: "20日買賣<br><small>家數差</small>", tooltip: "20日買賣家數差＝最近20天買方券商家數 - 賣方券商家數的平均。" }
         ]
@@ -1439,8 +1439,8 @@
       return `
         <div class="stock-value">
           <div class="table-lv1 ${distClass(rate)}">${signedFmt(rate, "%")}</div>
-          <div class="table-lv2 ${distClass(mainForce)}">主力 ${signedFmt(mainForce, "張")}</div>
-          <div class="table-lv2">總量 ${fmt(totalVolume, "張")}</div>
+          <div class="table-lv2 ${distClass(mainForce)}">買賣超 ${signedFmt(mainForce, "張")}</div>
+          <div class="table-lv2">成交量 ${fmt(totalVolume, "張")}</div>
         </div>`;
     }
 
@@ -1790,10 +1790,10 @@
           <div class="stock-item"><div class="stock-label">籌碼集中% 3天趨勢</div>${renderChipConcentrationBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">主力買賣超 3天趨勢</div>${renderMainForceBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">買賣家數差 趨勢</div>${renderBrokerDiffBlock(s)}</div>
-          <div class="stock-item"><div class="stock-label">5日主力買超率%</div>${renderMainForceBuyRateContent(s, 5)}</div>
+          <div class="stock-item"><div class="stock-label">5日主力集中度%</div>${renderMainForceBuyRateContent(s, 5)}</div>
           <div class="stock-item"><div class="stock-label">5日籌碼集中度</div>${renderChipConcentrationWindowContent(s, 5)}</div>
           <div class="stock-item"><div class="stock-label">5日買賣家數差</div>${renderBrokerDiffWindowContent(s, 5)}</div>
-          <div class="stock-item"><div class="stock-label">20日主力買超率%</div>${renderMainForceBuyRateContent(s, 20)}</div>
+          <div class="stock-item"><div class="stock-label">20日主力集中度%</div>${renderMainForceBuyRateContent(s, 20)}</div>
           <div class="stock-item"><div class="stock-label">20日籌碼集中度</div>${renderChipConcentrationWindowContent(s, 20)}</div>
           <div class="stock-item"><div class="stock-label">20日買賣家數差</div>${renderBrokerDiffWindowContent(s, 20)}</div>
         </div>`;

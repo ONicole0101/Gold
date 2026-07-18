@@ -786,10 +786,76 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         except Exception:
             return None
 
+    def _shares_to_lots(value):
+        """
+        CMoney 顯示主力買賣超以「張」為單位。
+        FinMind TaiwanStockTradingDailyReport 的 buy/sell 多數為股數，
+        這裡統一換算為張，避免 HTML 把股數誤標成張數。
+        """
+        try:
+            num = float(value)
+            if pd.isna(num):
+                return None
+            return int(round(num / 1000.0))
+        except Exception:
+            return None
+
+    def _actual_volume_shares(buy_sum, sell_sum):
+        """
+        券商分點資料的買進合計與賣出合計代表同一批成交的兩邊。
+        CMoney 集中度分母使用成交量，不使用 buy+sell 的雙邊加總。
+        因此以買進/賣出合計的平均值近似實際成交股數。
+        """
+        try:
+            buy_num = float(buy_sum)
+            sell_num = float(sell_sum)
+            if pd.isna(buy_num) and pd.isna(sell_num):
+                return None
+            if pd.isna(buy_num):
+                return sell_num
+            if pd.isna(sell_num):
+                return buy_num
+            return (buy_num + sell_num) / 2.0
+        except Exception:
+            return None
+
+    def _cmoney_concentration_pct(main_force_lots, total_volume_lots):
+        """
+        CMoney 口徑：集中度帶正負號。
+        主力買賣超為正，集中度為正；主力買賣超為負，集中度為負。
+        """
+        try:
+            main_num = float(main_force_lots)
+            vol_num = float(total_volume_lots)
+            if pd.isna(main_num) or pd.isna(vol_num) or vol_num == 0:
+                return None
+            return float(main_num / vol_num * 100)
+        except Exception:
+            return None
+
+    def _calc_cmoney_main_force_from_brokers(broker_df):
+        """
+        CMoney 近似口徑：
+        先依券商分點彙總指定期間買賣，再取買超前 15 大與賣超前 15 大互抵。
+        回傳值以「張」為單位。
+        """
+        if broker_df is None or broker_df.empty:
+            return None
+        work = broker_df.copy()
+        work["buy"] = pd.to_numeric(work.get("buy"), errors="coerce").fillna(0)
+        work["sell"] = pd.to_numeric(
+            work.get("sell"), errors="coerce").fillna(0)
+        work["net_buy"] = work["buy"] - work["sell"]
+        sorted_group = work.sort_values("net_buy", ascending=False)
+        top_buy = sorted_group.head(15)["net_buy"].sum()
+        top_sell = sorted_group.tail(15)["net_buy"].sum()
+        return _shares_to_lots(float(top_buy + top_sell))
+
     try:
         start_date = datetime.today().date() - timedelta(days=lookback_days)
         end_date = datetime.today().date()
         daily_by_date = {}
+        broker_frames_by_date = {}
         current_date = end_date
         min_required_days = max(days, 20)
 
@@ -877,19 +943,27 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                 current_date -= timedelta(days=1)
                 continue
 
-            df["net_buy"] = df["buy"] - df["sell"]
-            active_buyers = df.loc[df["buy"] > 0, broker_column].nunique()
-            active_sellers = df.loc[df["sell"] > 0, broker_column].nunique()
+            broker_daily = (
+                df.groupby(broker_column, as_index=False)[["buy", "sell"]]
+                .sum()
+                .rename(columns={broker_column: "broker"})
+            )
+            broker_daily["net_buy"] = broker_daily["buy"] - \
+                broker_daily["sell"]
+
+            active_buyers = broker_daily.loc[broker_daily["buy"] > 0, "broker"].nunique(
+            )
+            active_sellers = broker_daily.loc[broker_daily["sell"] > 0, "broker"].nunique(
+            )
             broker_diff = int(active_buyers - active_sellers)
 
-            sorted_group = df.sort_values("net_buy", ascending=False)
-            top_buy = sorted_group.head(15)["net_buy"].sum()
-            top_sell = sorted_group.tail(15)["net_buy"].sum()
-            main_force_net = float(top_buy + top_sell)
-            total_turnover = float((df["buy"] + df["sell"]).sum())
-            concentration_pct = (
-                abs(main_force_net) / total_turnover * 100
-            ) if total_turnover else None
+            main_force_net = _calc_cmoney_main_force_from_brokers(broker_daily)
+            total_volume_shares = _actual_volume_shares(
+                broker_daily["buy"].sum(), broker_daily["sell"].sum()
+            )
+            total_volume_lots = _shares_to_lots(total_volume_shares)
+            concentration_pct = _cmoney_concentration_pct(
+                main_force_net, total_volume_lots)
 
             margin_purchase_balance = None
             short_sale_balance = None
@@ -935,8 +1009,11 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                 "short_margin_ratio_pct": short_margin_ratio_pct,
                 "main_force_net": main_force_net,
                 "broker_diff": broker_diff,
-                "total_volume": total_turnover,
+                "total_volume": total_volume_lots,
             }
+            broker_daily["date"] = actual_date
+            broker_frames_by_date[actual_date] = broker_daily[[
+                "date", "broker", "buy", "sell"]].copy()
 
             current_date -= timedelta(days=1)
             if len(daily_by_date) >= min_required_days:
@@ -965,10 +1042,35 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                     f"broker_diff_avg_{window_days}d": None,
                 }
 
-            main_force_sum = pd.to_numeric(
-                window_df["main_force_net"], errors="coerce").sum()
-            total_volume_sum = pd.to_numeric(
-                window_df.get("total_volume"), errors="coerce").sum()
+            selected_dates = list(window_df["date"])
+            frames = [
+                broker_frames_by_date.get(d)
+                for d in selected_dates
+                if broker_frames_by_date.get(d) is not None
+            ]
+
+            main_force_window = None
+            total_volume_sum = None
+            buy_rate_pct = None
+            if frames:
+                brokers_window = pd.concat(frames, ignore_index=True)
+                broker_agg = brokers_window.groupby("broker", as_index=False)[
+                    ["buy", "sell"]].sum()
+                main_force_window = _calc_cmoney_main_force_from_brokers(
+                    broker_agg)
+
+                daily_volume_lots = []
+                for frame in frames:
+                    actual_volume = _actual_volume_shares(
+                        frame["buy"].sum(), frame["sell"].sum())
+                    lots = _shares_to_lots(actual_volume)
+                    if lots is not None:
+                        daily_volume_lots.append(lots)
+                total_volume_sum = sum(
+                    daily_volume_lots) if daily_volume_lots else None
+                buy_rate_pct = _cmoney_concentration_pct(
+                    main_force_window, total_volume_sum)
+
             concentration_series = pd.to_numeric(
                 window_df["chip_concentration_pct"], errors="coerce")
             broker_series = pd.to_numeric(
@@ -982,12 +1084,8 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             if pd.notna(latest_conc) and pd.notna(oldest_conc):
                 concentration_change = float(latest_conc - oldest_conc)
 
-            buy_rate_pct = None
-            if pd.notna(total_volume_sum) and float(total_volume_sum) != 0:
-                buy_rate_pct = float(main_force_sum / total_volume_sum * 100)
-
             return {
-                f"main_force_net_{window_days}d": _int_or_none(main_force_sum),
+                f"main_force_net_{window_days}d": _int_or_none(main_force_window),
                 f"total_volume_{window_days}d": _int_or_none(total_volume_sum),
                 f"main_force_buy_rate_{window_days}d_pct": _round_or_none(buy_rate_pct, 2),
                 f"chip_concentration_avg_{window_days}d": _round_or_none(concentration_series.mean(), 2),
@@ -999,7 +1097,7 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         main_neg = int((report["main_force_net"] < 0).sum())
         diff_pos = int((report["broker_diff"] > 0).sum())
         diff_neg = int((report["broker_diff"] < 0).sum())
-        conc_ok = report["chip_concentration_pct"].fillna(0) >= threshold
+        conc_ok = report["chip_concentration_pct"].abs().fillna(0) >= threshold
         conc_pos = int(((report["main_force_net"] > 0) & conc_ok).sum())
         conc_neg = int(((report["main_force_net"] < 0) & conc_ok).sum())
         short_ratio_series = pd.to_numeric(
