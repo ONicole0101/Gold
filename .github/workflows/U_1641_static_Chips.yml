@@ -1,4 +1,4 @@
-name: U_1641_Static_Chips CSV
+name: U_1641 Static_Chips CSV
 on:
   workflow_dispatch:
     inputs:
