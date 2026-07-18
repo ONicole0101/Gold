@@ -15,11 +15,13 @@ jobs:
       - name: Delete workflow runs older than 10 minutes
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           NOW=$(date -u +%s)
           CUTOFF=$((NOW - 600))
 
           gh run list \
+            --repo "$GH_REPO" \
             --status completed \
             --limit 1000 \
             --json databaseId,createdAt \
@@ -29,6 +31,6 @@ jobs:
 
             if [ "$CREATED_TS" -lt "$CUTOFF" ]; then
               echo "Deleting run $ID created at $CREATED_AT"
-              gh run delete "$ID"
+              gh run delete "$ID" --repo "$GH_REPO"
             fi
           done
