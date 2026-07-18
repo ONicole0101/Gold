@@ -276,6 +276,14 @@ def get_support_resistance_levels(
         "support_distance_pct": None,
         "resistance_touch_count": None,
         "support_touch_count": None,
+        "resistance_price2": None,
+        "support_price2": None,
+        "resistance_date2": None,
+        "support_date2": None,
+        "resistance_distance_pct2": None,
+        "support_distance_pct2": None,
+        "resistance_touch_count2": None,
+        "support_touch_count2": None,
     }
 
     def _safe_float(value):
@@ -358,7 +366,7 @@ def get_support_resistance_levels(
             })
         return result
 
-    def _select_nearest_cluster(candidates, side, latest_close, tolerance):
+    def _select_nearest_clusters(candidates, side, latest_close, tolerance, count=2):
         side_candidates = []
         min_distance = max(float(min_distance_pct or 0), 0) / 100
 
@@ -377,7 +385,13 @@ def get_support_resistance_levels(
             side_candidates.append(enriched)
 
         if not side_candidates:
-            return None
+            return []
+
+        sort_key = lambda c: (
+            -_date_rank(c.get("last_date")),
+            c["distance_pct"],
+            -int(c.get("touch_count") or 0),
+        )
 
         for band in price_bands_pct:
             if band is None:
@@ -408,17 +422,12 @@ def get_support_resistance_levels(
                 cluster["distance_pct"] = distance_pct
                 valid_clusters.append(cluster)
 
-            if valid_clusters:
-                return min(
-                    valid_clusters,
-                    key=lambda c: (
-                        -_date_rank(c.get("last_date")),
-                        c["distance_pct"],
-                        -int(c.get("touch_count") or 0),
-                    ),
-                )
+            is_last_band = band == price_bands_pct[-1]
+            if valid_clusters and (len(valid_clusters) >= count or is_last_band):
+                valid_clusters.sort(key=sort_key)
+                return valid_clusters[:count]
 
-        return None
+        return []
 
     try:
         if df is None or df.empty:
@@ -503,25 +512,27 @@ def get_support_resistance_levels(
             _append_extreme(resistance_candidates, resistance_seen, frame, "max", "max")
             _append_extreme(support_candidates, support_seen, frame, "min", "min")
 
-        resistance = _select_nearest_cluster(resistance_candidates, "resistance", latest_close, tolerance)
-        support = _select_nearest_cluster(support_candidates, "support", latest_close, tolerance)
+        resistances = _select_nearest_clusters(resistance_candidates, "resistance", latest_close, tolerance)
+        supports = _select_nearest_clusters(support_candidates, "support", latest_close, tolerance)
 
         result = empty.copy()
-        if resistance:
+        for idx, resistance in enumerate(resistances[:2]):
+            suffix = "" if idx == 0 else "2"
             rp = resistance["price"]
             result.update({
-                "resistance_price": _round_or_none(rp),
-                "resistance_date": _date_text(resistance.get("last_date")),
-                "resistance_distance_pct": _round_or_none((rp - latest_close) / latest_close * 100),
-                "resistance_touch_count": int(resistance.get("touch_count") or 0),
+                f"resistance_price{suffix}": _round_or_none(rp),
+                f"resistance_date{suffix}": _date_text(resistance.get("last_date")),
+                f"resistance_distance_pct{suffix}": _round_or_none((rp - latest_close) / latest_close * 100),
+                f"resistance_touch_count{suffix}": int(resistance.get("touch_count") or 0),
             })
-        if support:
+        for idx, support in enumerate(supports[:2]):
+            suffix = "" if idx == 0 else "2"
             sp = support["price"]
             result.update({
-                "support_price": _round_or_none(sp),
-                "support_date": _date_text(support.get("last_date")),
-                "support_distance_pct": _round_or_none((latest_close - sp) / latest_close * 100),
-                "support_touch_count": int(support.get("touch_count") or 0),
+                f"support_price{suffix}": _round_or_none(sp),
+                f"support_date{suffix}": _date_text(support.get("last_date")),
+                f"support_distance_pct{suffix}": _round_or_none((latest_close - sp) / latest_close * 100),
+                f"support_touch_count{suffix}": int(support.get("touch_count") or 0),
             })
         return result
 

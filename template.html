@@ -1090,20 +1090,22 @@
       return value ? value.replace("/", "") : fallback;
     }
 
-    function renderSupportResistanceBlock(s, type) {
+    function renderSupportResistanceLevel(s, type, suffix) {
       const isResistance = type === "resistance";
-      const price = isResistance ? s.resistance_price : s.support_price;
-      const distance = isResistance ? s.resistance_distance_pct : s.support_distance_pct;
-      const dateText = isResistance ? s.resistance_date : s.support_date;
+      const price = isResistance ? s[`resistance_price${suffix}`] : s[`support_price${suffix}`];
+      const distance = isResistance ? s[`resistance_distance_pct${suffix}`] : s[`support_distance_pct${suffix}`];
+      const dateText = isResistance ? s[`resistance_date${suffix}`] : s[`support_date${suffix}`];
       const dateLabel = chipDateMMDD(dateText);
       const dateLine = dateLabel || "-";
       const priceLine = isNil(price) ? "-" : fmt(price);
       const distanceText = isNil(distance) ? "-" : `${isResistance ? "+" : "-"}${fmt(distance, "%")}`;
-      return `<div class="stock-value">
+      return `
         <div class="table-lv2">${dateLine}</div>
-        <div class="table-lv1 ${isResistance ? "text-red" : "text-green"}">${priceLine}</div>
-        <div class="table-lv2">${distanceText}</div>
-      </div>`;
+        <div><span class="table-lv1 ${isResistance ? "text-red" : "text-green"}">${priceLine}</span> <span class="table-lv2">${distanceText}</span></div>`;
+    }
+
+    function renderSupportResistanceBlock(s, type) {
+      return `<div class="stock-value">${renderSupportResistanceLevel(s, type, "")}<div style="margin-top:3px">${renderSupportResistanceLevel(s, type, "2")}</div></div>`;
     }
 
     function chipValueClass(current, previous) {
