@@ -1,4 +1,4 @@
-name: 1_16:10 Static CSV
+name: 1_1610 Static CSV
 
 on:
   workflow_dispatch:
