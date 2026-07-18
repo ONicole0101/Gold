@@ -12,13 +12,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Delete workflow runs older than 10 minutes
+      - name: Delete workflow runs older than 5 days
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
           NOW=$(date -u +%s)
-          CUTOFF=$((NOW - 600))
+          CUTOFF=$((NOW - 5 * 24 * 60 * 60))
 
           gh run list \
             --repo "$GH_REPO" \
