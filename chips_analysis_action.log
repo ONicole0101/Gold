@@ -1,26 +1,26 @@
-[32m2026-07-17 08:26:02.374[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-07-17 08:26:02.485[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-18 04:09:25.755[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-18 04:09:25.907[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 1546/6000, remain=4454
+FinMind usage: 1699/6000, remain=4301
 Build chips: total=170, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv
 stock_id name chip_latest_date main_force_net broker_diff   chip_signal_state chips_status
     1101   台泥       2026-07-17        6925745         -91             neutral           ok
-    1216   統一       2026-07-16       -1210656         -69             neutral           ok
+    1216   統一       2026-07-17        2557500        -410             neutral           ok
     1319   東陽       2026-07-17        -292598         187 bearish_distributed           ok
     1326   台化       2026-07-17        1144869           8             neutral           ok
-    1476   儒鴻       2026-07-16         -76392         -69             bearish           ok
-    1503   士電       2026-07-16        -155930         265 bearish_distributed           ok
-    1513  中興電       2026-07-16        -430523         114             neutral           ok
-    1514   亞力       2026-07-16        -701797         244 bearish_distributed           ok
-    1519   華城       2026-07-16        -123395         341 bearish_distributed           ok
-    1532   勤美       2026-07-16          79301         -25             neutral           ok
-    1560   中砂       2026-07-16          63274          71             neutral           ok
-    1597   直得       2026-07-16          10474          28             neutral           ok
-    1727  中華化       2026-07-16        -113839          87             neutral           ok
-    1760 寶齡富錦       2026-07-16           6191          17             neutral           ok
-    1802   台玻       2026-07-16       -1143254          58 bearish_distributed           ok
-    2049   上銀       2026-07-16          52387          -9             neutral           ok
-    2059   川湖       2026-07-16          22506           0 bullish_distributed           ok
+    1476   儒鴻       2026-07-17        -334240         -31             bearish           ok
+    1503   士電       2026-07-17        -350701         276 bearish_distributed           ok
+    1513  中興電       2026-07-17        -445763         107             neutral           ok
+    1514   亞力       2026-07-17         121161         125             neutral           ok
+    1519   華城       2026-07-17         -89596         191 bearish_distributed           ok
+    1532   勤美       2026-07-17          43000          -6             neutral           ok
+    1560   中砂       2026-07-17        -283910         363             neutral           ok
+    1597   直得       2026-07-17          46418          35             neutral           ok
+    1727  中華化       2026-07-17        -786928         246             neutral           ok
+    1760 寶齡富錦       2026-07-17         -77991          72             neutral           ok
+    1802   台玻       2026-07-17       -3280650          52 bearish_distributed           ok
+    2049   上銀       2026-07-17         -19786         144             neutral           ok
+    2059   川湖       2026-07-17         -13201         216             neutral           ok
     2233   宇隆       2026-07-17         169641          46             neutral           ok
     2301  光寶科       2026-07-17       -2764999          97             neutral           ok
     2303   聯電       2026-07-17      -37488071          47             bearish           ok
