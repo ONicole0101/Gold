@@ -1,10 +1,8 @@
-[32m2026-07-18 10:16:49.243[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-07-18 10:16:49.393[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-19 06:17:54.203[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-19 06:17:54.317[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 3/6000, remain=5997
+FinMind usage: 3117/6000, remain=2883
 Build chips: total=170, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv
-[168/170] 8358 金居 status=no_data date=- main=- diff=- state=no_data
-❌ chip analysis API error 8996: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
 stock_id name chip_latest_date main_force_net broker_diff    chip_signal_state chips_status
     1101   台泥       2026-07-17          11782         -91 bullish_concentrated           ok
     1216   統一       2026-07-17           7453        -410 bullish_concentrated           ok

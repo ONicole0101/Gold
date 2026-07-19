@@ -107,7 +107,6 @@ ORDERED_COLS = ["stock_id", "name"] + CHIP_DATA_COLS + [
 NOISY_LOG_PATTERNS = (
     "chip analysis request:",
     "chip analysis response status:",
-    "FinMind API 起始剩餘次數",
     "Login success",
 )
 

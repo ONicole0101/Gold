@@ -1101,7 +1101,7 @@
       const distanceText = isNil(distance) ? "-" : `${isResistance ? "+" : "-"}${fmt(distance, "%")}`;
       return `
         <div class="table-lv2">${dateLine}</div>
-        <div><span class="table-lv1 ${isResistance ? "text-red" : "text-green"}">${priceLine}</span> <span class="table-lv2">${distanceText}</span></div>`;
+        <div><span class="table-lv2 ${isResistance ? "text-red" : "text-green"}">${priceLine}</span> <span class="table-lv2">${distanceText}</span></div>`;
     }
 
     function renderSupportResistanceBlock(s, type) {

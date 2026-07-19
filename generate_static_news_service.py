@@ -27,108 +27,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, List
 
+from finmind_auth import (
+    get_finmind_auth_headers,
+    get_finmind_user_info,
+    resolve_finmind_token,
+)
 API_URL = "https://api.finmindtrade.com/api/v4/data"
 USER_INFO_URL = "https://api.web.finmindtrade.com/v2/user_info"
-
-
-def _get_finmind_env_token() -> str:
-    """Read FinMind token directly from the standardized environment variable.
-
-    Standardize on FINMIND_TOKEN only.
-    The token is read from the current process environment at runtime,
-    so changes to the environment are reflected on each run.
-    """
-    value = os.getenv("FINMIND_TOKEN")
-    return str(value).strip() if value and str(value).strip() else ""
-
-
-def _get_finmind_env_token_with_retry() -> str:
-    """Read FINMIND_TOKEN with short retries for CI timing windows."""
-    retries_text = os.getenv("FINMIND_TOKEN_READ_RETRIES", "3")
-    wait_ms_text = os.getenv("FINMIND_TOKEN_READ_WAIT_MS", "300")
-
-    try:
-        retries = max(int(str(retries_text).strip() or "3"), 1)
-    except Exception:
-        retries = 3
-
-    try:
-        wait_ms = max(int(str(wait_ms_text).strip() or "300"), 0)
-    except Exception:
-        wait_ms = 300
-
-    for attempt in range(retries):
-        token = _get_finmind_env_token()
-        if token:
-            return token
-        if attempt + 1 < retries and wait_ms > 0:
-            time.sleep(wait_ms / 1000.0)
-
-    return ""
-
-
-def _get_finmind_auth_headers(token: str | None = None) -> dict:
-    token = str(token or "").strip(
-    ) if token is not None else _get_finmind_env_token_with_retry()
-    return {"Authorization": f"Bearer {token}"} if token else {}
-
-
-def _mask_token(token: str) -> str:
-    token = str(token or "").strip()
-    if not token:
-        return ""
-    if len(token) <= 8:
-        return "*" * len(token)
-    return token[:4] + "..." + token[-4:]
-
-
-def _get_finmind_user_info_snapshot() -> dict:
-    """Runtime token/login/quota snapshot for log annotation."""
-    token = _get_finmind_env_token_with_retry()
-
-    info = {
-        "token_present": bool(token),
-        "token_source": "FINMIND_TOKEN" if token else "",
-        "token_masked": _mask_token(token),
-        "login_status": "missing_token",
-        "user_count": 0,
-        "api_request_limit": 0,
-        "remain": 0,
-    }
-    if not token:
-        return info
-
-    req_headers = _get_finmind_auth_headers(token)
-    req_headers.setdefault("User-Agent", "Mozilla/5.0")
-    req_headers.setdefault("Accept", "application/json")
-
-    try:
-        req = urllib.request.Request(USER_INFO_URL, headers=req_headers)
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            status_code = getattr(resp, "status", None) or resp.getcode()
-            raw = resp.read().decode("utf-8", errors="ignore")
-        payload = _safe_json_dict(raw)
-
-        used = payload.get("user_count")
-        limit = payload.get("api_request_limit")
-        try:
-            used_int = int(used or 0)
-            limit_int = int(limit or 0)
-            remain_int = max(limit_int - used_int, 0) if limit_int else 0
-        except Exception:
-            used_int = 0
-            limit_int = 0
-            remain_int = 0
-
-        info["login_status"] = "ok" if status_code == 200 and not payload.get(
-            "error") else "error"
-        info["user_count"] = used_int
-        info["api_request_limit"] = limit_int
-        info["remain"] = remain_int
-        return info
-    except Exception:
-        info["login_status"] = "error"
-        return info
 
 
 try:
@@ -340,7 +245,7 @@ def _extract_finmind_date_text(item: dict) -> str:
 
 def finmind_request_headers(token: str | None = None) -> dict:
     # Build headers from the current process environment at request time.
-    req_headers = _get_finmind_auth_headers(token)
+    req_headers = get_finmind_auth_headers(token)
     req_headers.setdefault("User-Agent", "Mozilla/5.0")
     req_headers.setdefault("Accept", "application/json")
     return req_headers
@@ -465,7 +370,7 @@ def fetch_finmind_news(stock: Stock, loop_days: int = 7, max_loops: int = 4, tar
     today = dt.datetime.now(TAIWAN_TZ).date()
 
     def _fetch_one_day(query_date: dt.date) -> List[dict]:
-        token = _get_finmind_env_token_with_retry()
+        token = resolve_finmind_token()
         req_headers = finmind_request_headers(token=token)
         params_dict = {
             "dataset": "TaiwanStockNews",
@@ -756,7 +661,10 @@ def main() -> None:
         f"Start AllStatic_news at {dt.datetime.now(TAIWAN_TZ).strftime('%Y-%m-%d %H:%M:%S')}", flush=True)
     print(f"stocks={len(stocks)}, loop_days=7, max_loops=4, target_news_items=5, out={out_csv}, cache={cache_path}", flush=True)
 
-    finmind_info = _get_finmind_user_info_snapshot()
+    finmind_info = get_finmind_user_info(
+        write_log=False,
+        source="generate_static_news_service",
+    )
     token_msg = (
         f"token_present={finmind_info.get('token_present')}, "
         f"source={finmind_info.get('token_source')}, "
@@ -772,7 +680,7 @@ def main() -> None:
 
     print(
         "settings="
-        f"finmind_token_present={bool(_get_finmind_env_token())}, "
+        f"finmind_token_present={bool(resolve_finmind_token())}, "
         f"skip_same_titles={_env('NEWS_SKIP_IF_SAME_TITLES', '1')}, "
         f"news_chars={_env('NEWS_SUMMARY_CHARS', '150')}, "
         f"finmind_log_full_url_with_token={_env('FINMIND_LOG_FULL_URL_WITH_TOKEN', '0')}, "

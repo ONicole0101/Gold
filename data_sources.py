@@ -4,31 +4,27 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 import requests
-from FinMind.data import DataLoader
 from loguru import logger
+from finmind_auth import (
+    get_finmind_auth_headers,
+    get_finmind_token_status as _shared_get_finmind_token_status,
+    get_finmind_user_info as _shared_get_finmind_user_info,
+    mask_token,
+    resolve_finmind_token,
+)
 
-# Standardize on FINMIND_TOKEN only.
-FINMIND_token = os.getenv("FINMIND_TOKEN")
-FINMIND_TOKEN_SOURCE = "FINMIND_TOKEN" if FINMIND_token else ""
-headers = {"Authorization": f"Bearer {FINMIND_token}"} if FINMIND_token else {}
+# Standardize on FINMIND_TOKEN only (runtime-resolved, no import-time cache).
+FINMIND_token = ""
+FINMIND_TOKEN_SOURCE = ""
+headers = {}
 API_URL = 'https://api.finmindtrade.com/api/v4/data'
 USER_INFO_URL = "https://api.web.finmindtrade.com/v2/user_info"
 FINMIND_USAGE_LOG_FILE = os.getenv(
     "FINMIND_USAGE_LOG_FILE", "finmind_token_usage_log.csv")
 
-api = DataLoader()
-FINMIND_TOKEN_LOGIN_STATUS = "missing_token"
-FINMIND_TOKEN_LOGIN_MESSAGE = "FINMIND_TOKEN is not set"
-if FINMIND_token:
-    try:
-        api.login_by_token(api_token=FINMIND_token)
-        FINMIND_TOKEN_LOGIN_STATUS = "ok"
-        FINMIND_TOKEN_LOGIN_MESSAGE = "DataLoader.login_by_token succeeded"
-    except Exception as e:
-        FINMIND_TOKEN_LOGIN_STATUS = "error"
-        FINMIND_TOKEN_LOGIN_MESSAGE = str(e)
+FINMIND_TOKEN_LOGIN_STATUS = "not_checked"
+FINMIND_TOKEN_LOGIN_MESSAGE = "login not checked in this process yet"
 
-_INITIAL_QUOTA_PRINTED = False
 FINMIND_API_CALL_COUNT = 0
 FINMIND_DATASET_CALL_COUNTS = {}
 
@@ -40,12 +36,16 @@ logging.getLogger('FinMind').setLevel(logging.WARNING)
 def _mask_token(token=None):
     """Return a safe token display value, never the full token."""
     token = token if token is not None else FINMIND_token
-    if not token:
-        return ""
-    token = str(token)
-    if len(token) <= 8:
-        return "*" * len(token)
-    return token[:4] + "..." + token[-4:]
+    return mask_token(token)
+
+
+def _refresh_finmind_runtime_auth():
+    """Resolve FINMIND_TOKEN and auth headers at runtime for each request path."""
+    global FINMIND_token, FINMIND_TOKEN_SOURCE, headers
+    FINMIND_token = resolve_finmind_token()
+    FINMIND_TOKEN_SOURCE = "FINMIND_TOKEN" if FINMIND_token else ""
+    headers = get_finmind_auth_headers(FINMIND_token)
+    return FINMIND_token, headers
 
 
 def _append_finmind_usage_event(
@@ -103,6 +103,8 @@ def log_finmind_static_event(event, message="", **kwargs):
 
 def _record_finmind_request(source, stock_id="", dataset=""):
     """Count and log each FinMind API/DataLoader call in one place."""
+    _refresh_finmind_runtime_auth()
+
     global FINMIND_API_CALL_COUNT
     FINMIND_API_CALL_COUNT += 1
     FINMIND_DATASET_CALL_COUNTS[dataset] = FINMIND_DATASET_CALL_COUNTS.get(
@@ -119,17 +121,16 @@ def _record_finmind_request(source, stock_id="", dataset=""):
 
 
 def get_finmind_token_status():
-    """Return local evidence that the FinMind token was loaded and DataLoader login ran."""
-    return {
-        "token_present": bool(FINMIND_token),
-        "token_source": FINMIND_TOKEN_SOURCE,
-        "token_masked": _mask_token(),
-        "login_status": FINMIND_TOKEN_LOGIN_STATUS,
-        "login_message": FINMIND_TOKEN_LOGIN_MESSAGE,
-        "request_count": FINMIND_API_CALL_COUNT,
-        "dataset_call_counts": dict(FINMIND_DATASET_CALL_COUNTS),
-        "usage_log_file": FINMIND_USAGE_LOG_FILE,
-    }
+    """Return runtime token/login evidence, always using fresh runtime secret."""
+    global FINMIND_TOKEN_LOGIN_STATUS, FINMIND_TOKEN_LOGIN_MESSAGE
+    _refresh_finmind_runtime_auth()
+    status = _shared_get_finmind_token_status()
+    FINMIND_TOKEN_LOGIN_STATUS = status.get("login_status") or "error"
+    FINMIND_TOKEN_LOGIN_MESSAGE = status.get("login_message") or ""
+    status["request_count"] = FINMIND_API_CALL_COUNT
+    status["dataset_call_counts"] = dict(FINMIND_DATASET_CALL_COUNTS)
+    status["usage_log_file"] = FINMIND_USAGE_LOG_FILE
+    return status
 
 
 def get_finmind_user_info(write_log=True, source="user_info"):
@@ -141,96 +142,26 @@ def get_finmind_user_info(write_log=True, source="user_info"):
     - HTTP status/body proves FinMind accepted or rejected it
     - user_count/api_request_limit/remain shows actual account quota usage
     """
-    if not FINMIND_token:
-        info = {
-            "ok": False,
-            "token_present": False,
-            "token_source": "",
-            "token_masked": "",
-            "login_status": FINMIND_TOKEN_LOGIN_STATUS,
-            "login_message": FINMIND_TOKEN_LOGIN_MESSAGE,
-            "user_count": None,
-            "api_request_limit": None,
-            "remain": None,
-            "status_code": None,
-            "message": "FINMIND_TOKEN is not set",
-        }
-        if write_log:
-            _append_finmind_usage_event(
-                event="token_check",
-                source=source,
-                status="missing_token",
-                message=info["message"],
-            )
-        return info
+    global FINMIND_TOKEN_LOGIN_STATUS, FINMIND_TOKEN_LOGIN_MESSAGE
+    _refresh_finmind_runtime_auth()
 
-    try:
-        res = requests.get(USER_INFO_URL, headers=headers, timeout=300)
-        data = _safe_response_json(res)
-        used = data.get("user_count")
-        limit = data.get("api_request_limit")
+    info = _shared_get_finmind_user_info(write_log=False, source=source)
+    FINMIND_TOKEN_LOGIN_STATUS = info.get("login_status") or "error"
+    FINMIND_TOKEN_LOGIN_MESSAGE = info.get("login_message") or ""
 
-        try:
-            used_int = int(used or 0)
-            limit_int = int(limit or 0)
-            remain = max(limit_int - used_int, 0) if limit_int else None
-        except Exception:
-            used_int = used
-            limit_int = limit
-            remain = None
-
-        ok = res.status_code == 200 and not data.get("error")
-        msg = data.get("msg") or data.get(
-            "message") or data.get("status") or res.text[:200]
-        info = {
-            "ok": ok,
-            "token_present": True,
-            "token_source": FINMIND_TOKEN_SOURCE,
-            "token_masked": _mask_token(),
-            "login_status": FINMIND_TOKEN_LOGIN_STATUS,
-            "login_message": FINMIND_TOKEN_LOGIN_MESSAGE,
-            "user_count": used_int,
-            "api_request_limit": limit_int,
-            "remain": remain,
-            "status_code": res.status_code,
-            "message": msg,
-        }
-
-        if write_log:
-            _append_finmind_usage_event(
-                event="token_check",
-                source=source,
-                status="ok" if ok else "error",
-                status_code=res.status_code,
-                user_count=used_int,
-                api_request_limit=limit_int,
-                remain=remain,
-                message=msg,
-            )
-        return info
-
-    except Exception as e:
-        info = {
-            "ok": False,
-            "token_present": True,
-            "token_source": FINMIND_TOKEN_SOURCE,
-            "token_masked": _mask_token(),
-            "login_status": FINMIND_TOKEN_LOGIN_STATUS,
-            "login_message": FINMIND_TOKEN_LOGIN_MESSAGE,
-            "user_count": None,
-            "api_request_limit": None,
-            "remain": None,
-            "status_code": None,
-            "message": str(e),
-        }
-        if write_log:
-            _append_finmind_usage_event(
-                event="token_check",
-                source=source,
-                status="error",
-                message=str(e),
-            )
-        return info
+    if write_log:
+        _append_finmind_usage_event(
+            event="token_check",
+            source=source,
+            status="ok" if info.get("ok") else (
+                info.get("login_status") or "error"),
+            status_code=info.get("status_code"),
+            user_count=info.get("user_count"),
+            api_request_limit=info.get("api_request_limit"),
+            remain=info.get("remain"),
+            message=info.get("message") or "",
+        )
+    return info
 
 
 def _safe_response_json(res):
@@ -239,45 +170,6 @@ def _safe_response_json(res):
         return res.json()
     except Exception:
         return {}
-
-
-def _extract_remaining_quota(data, res=None):
-    """從 FinMind 回傳 body/header 中盡量抓出剩餘次數/額度資訊。"""
-    if res is not None:
-        for key in [
-            "X-RateLimit-Remaining", "X-Rate-Limit-Remaining",
-            "RateLimit-Remaining", "x-ratelimit-remaining"
-        ]:
-            value = res.headers.get(key)
-            if value not in [None, ""]:
-                return f"header {key}={value}"
-
-    for key in [
-        "api_usage", "api_remaining", "remaining", "remaining_count",
-        "quota", "limit", "msg", "message", "status"
-    ]:
-        value = data.get(key) if isinstance(data, dict) else None
-        if value not in [None, ""]:
-            text = str(value)
-            if any(word in text.lower() for word in [
-                "remaining", "quota", "limit", "api", "剩餘", "次數", "額度"
-            ]):
-                return text
-    return None
-
-
-def _print_initial_quota_once(data, res=None):
-    """第一次收到 API 回應時，印出起始剩餘次數。"""
-    global _INITIAL_QUOTA_PRINTED
-    if _INITIAL_QUOTA_PRINTED:
-        return
-
-    quota_msg = _extract_remaining_quota(data, res)
-    if quota_msg is None:
-        quota_msg = "API 回應未提供剩餘次數欄位"
-
-    print(f"🔢 FinMind API 起始剩餘次數: {quota_msg}")
-    _INITIAL_QUOTA_PRINTED = True
 
 
 def _print_api_status_error(source, stock_id, res, data=None):
@@ -305,7 +197,6 @@ def get_stock_data(stock_id):
         res = requests.get(API_URL, params=params,
                            headers=headers, timeout=300)
         data = _safe_response_json(res)
-        _print_initial_quota_once(data, res)
 
         if res.status_code == 402:
             _print_api_status_error('get_stock_data', stock_id, res, data)
@@ -374,7 +265,6 @@ def get_revenue_raw(stock_id):
         res = requests.get(API_URL, params=params,
                            headers=headers, timeout=300)
         res_data = _safe_response_json(res)
-        _print_initial_quota_once(res_data, res)
 
         if res.status_code != 200:
             _print_api_status_error('revenue source', stock_id, res, res_data)
@@ -401,7 +291,6 @@ def get_profit_ratio(stock_id):
         res = requests.get(API_URL, params=params,
                            headers=headers, timeout=300)
         data = _safe_response_json(res)
-        _print_initial_quota_once(data, res)
 
         if res.status_code != 200:
             _print_api_status_error('profit source', stock_id, res, data)
@@ -426,7 +315,6 @@ def get_balance_sheet_raw(stock_id):
         res = requests.get(API_URL, params=params,
                            headers=headers, timeout=300)
         data = _safe_response_json(res)
-        _print_initial_quota_once(data, res)
 
         if res.status_code != 200:
             _print_api_status_error(
@@ -452,7 +340,6 @@ def get_eps_raw(stock_id):
         res = requests.get(API_URL, params=params,
                            headers=headers, timeout=300)
         data = _safe_response_json(res)
-        _print_initial_quota_once(data, res)
 
         if res.status_code != 200:
             _print_api_status_error('EPS source', stock_id, res, data)
@@ -477,7 +364,6 @@ def get_dividend_raw(stock_id):
         res = requests.get(API_URL, params=params,
                            headers=headers, timeout=300)
         data = _safe_response_json(res)
-        _print_initial_quota_once(data, res)
 
         if res.status_code != 200:
             _print_api_status_error('dividend source', stock_id, res, data)
@@ -500,7 +386,6 @@ def get_per_raw(stock_id):
         res = requests.get(API_URL, params=params,
                            headers=headers, timeout=300)
         data = _safe_response_json(res)
-        _print_initial_quota_once(data, res)
 
         if res.status_code != 200:
             _print_api_status_error('PER source', stock_id, res, data)
@@ -541,7 +426,6 @@ def get_per_pbr_60d_stats(stock_id, days=60):
         res = requests.get(API_URL, params=params,
                            headers=headers, timeout=300)
         res_data = _safe_response_json(res)
-        _print_initial_quota_once(res_data, res)
 
         if res.status_code != 200:
             _print_api_status_error('PER/PBR 60D', stock_id, res, res_data)
@@ -888,7 +772,6 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                 print(f"🔄 chip analysis response status: {res.status_code}")
 
             res_data = _safe_response_json(res)
-            _print_initial_quota_once(res_data, res)
 
             if res.status_code != 200:
                 _print_api_status_error(
@@ -1222,7 +1105,6 @@ def get_disposition_securities_period(stock_id):
         res = requests.get(API_URL, params=params,
                            headers=headers, timeout=300)
         res_data = _safe_response_json(res)
-        _print_initial_quota_once(res_data, res)
 
         if res.status_code != 200:
             _print_api_status_error(
