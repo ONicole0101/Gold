@@ -159,6 +159,37 @@
       color: #8b949e;
     }
 
+    .cb-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .cb-issue-block {
+      min-height: 42px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed #30363d;
+    }
+
+    .cb-issue-block:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .cb-pressure-high {
+      color: #f85149;
+      font-weight: 700;
+    }
+
+    .cb-pressure-medium {
+      color: #d29922;
+      font-weight: 700;
+    }
+
+    .cb-pressure-low {
+      color: #3fb950;
+    }
+
     .up {
       color: #f85149;
     }
@@ -789,6 +820,7 @@
       <button type="button" class="tab-btn" data-tab="technical">技術面</button>
       <button type="button" class="tab-btn" data-tab="chip">籌碼面</button>
       <button type="button" class="tab-btn" data-tab="fundamental">基本面</button>
+      <button type="button" class="tab-btn" data-tab="cb">CB</button>
       <span class="tab-note" id="tabNote">總覽：價格、漲跌、量、KD、布林、訊號</span>
     </div>
 
@@ -875,6 +907,18 @@
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
         </select><input data-filter-key="broker_diff_filter" type="number" step="1" placeholder="家數"></div>
+      <div class="filter-item"><label>CB溢價%</label><select data-filter-op="cb_premium_pct">
+          <option value=">">&gt;</option>
+          <option value="<">&lt;</option>
+        </select><input data-filter-key="cb_premium_pct" type="number" step="0.01" placeholder="%"></div>
+      <div class="filter-item"><label>CB距損平%</label><select data-filter-op="cb_distance_to_break_even_pct">
+          <option value=">">&gt;</option>
+          <option value="<">&lt;</option>
+        </select><input data-filter-key="cb_distance_to_break_even_pct" type="number" step="0.01" placeholder="%"></div>
+      <div class="filter-item"><label>CB壓力天數</label><select data-filter-op="cb_pressure_days">
+          <option value=">">&gt;</option>
+          <option value="<">&lt;</option>
+        </select><input data-filter-key="cb_pressure_days" type="number" step="0.01" placeholder="天"></div>
       <div class="filter-actions">
         <button type="button" id="applyFilterBtn">套用</button>
         <button type="button" class="secondary" id="clearFilterBtn">清除</button>
@@ -896,6 +940,7 @@
 
   <script>
     const stocks = {{ stocks | tojson }};
+    const cbMeta = {{ cb_meta | default({}) | tojson }};
     const baseStocks = Array.isArray(stocks) ? [...stocks] : [];
     let sortedStocks = [...baseStocks];
     let currentSortKey = "";
@@ -970,6 +1015,21 @@
           { key: "per_latest", label: "日PER<br><small>60天L/H</small>" },
           { key: "pbr_latest", label: "日PBR<br><small>60天L/H</small>" },
           { key: "news_summary", label: "新聞", cls: "news-summary-col" }
+        ]
+      },
+      cb: {
+        note: "CB：T為交易日、M為月度快照；價格採漲紅跌綠，其餘紅＝轉換壓力增加、綠＝壓力下降；屬風險篩選，不代表股價必然下跌",
+        columns: [
+          { key: "code", label: "股票<br><small>名稱</small>" },
+          { key: "cb_issue", label: "CB代號<br><small>名稱</small>" },
+          { key: "cb_market", label: "股價 / CB價<br><small>T/T-1/T-2</small>", tooltip: "CB價採 FinMind 每日總覽的 ReferencePrice；股價優先採同一份 CB 總覽的標的股價。此欄單純採台股慣例：上漲紅、下跌綠，不等同壓力判定。" },
+          { key: "cb_conversion", label: "轉換價<br><small>價內程度 T趨勢</small>", tooltip: "價內程度＝(股價 ÷ 轉換價 − 1) × 100%。數值上升代表轉換誘因提高，顯示紅色；下降顯示綠色。大於0仍不代表立即轉換最有利。" },
+          { key: "cb_parity_premium", label: "轉換價值 / 溢價<br><small>T/T-1/T-2</small>", tooltip: "轉換價值＝100 × 股價 ÷ 轉換價；溢價率＝(CB價 ÷ 轉換價值 − 1) × 100%。溢價下降表示更接近轉換價值，因此以紅色表示壓力增加。" },
+          { key: "cb_break_even", label: "損平股價 / 距離<br><small>T/T-1/T-2</small>", tooltip: "損平股價＝轉換價 × CB價 ÷ 100；距離%＝(目前股價 ÷ 損平股價 − 1) × 100%。距離上升或由負轉正，表示更接近或跨過損平區，以紅色表示。" },
+          { key: "cb_balance", label: "餘額 / 剩餘比例<br><small>M/M-1/M-2</small>", tooltip: "剩餘比例＝上月底發行餘額 ÷ 原始發行總額。增加以紅色、下降以綠色表示未來潛在供給方向；但下降可能來自轉換、贖回、賣回或償還，不能單獨認定為轉換。" },
+          { key: "cb_supply", label: "潛在張數 M趨勢<br><small>壓力天數 T趨勢</small>", tooltip: "潛在張數＝未轉換餘額 ÷ 轉換價 ÷ 1,000；壓力天數＝潛在張數 ÷ 近20日平均成交量。上升紅、下降綠。若近20日量缺漏，會以當日量替代並標示；此為極端上限估算。" },
+          { key: "cb_period", label: "轉換迄日<br><small>剩餘天數</small>" },
+          { key: "cb_pressure_rank", label: "壓力關注<br><small>T/T-1/T-2</small>", tooltip: "高關注：轉換已具經濟性或進入提前贖回期，且潛在供給約達5個平均成交日以上；中關注：股價已高於轉換價、距損平10%內或提前贖回中；其餘為低關注。總趨勢由溢價、距損平、壓力天數與分類變化投票，不重複計入高度相關的價內程度與轉換價值。" }
         ]
       },
     };
@@ -1633,6 +1693,137 @@
       return `<div class="stock-signal">${renderSignalText(s.signal_text)}${s.entry_note ? `<div class="table-lv2">${escapeHtml(cleanSignalOutput(s.entry_note))}</div>` : ""}</div>`;
     }
 
+    function cbItems(s) {
+      return Array.isArray(s?.cb_items) ? s.cb_items : [];
+    }
+
+    function renderCbStack(s, renderer) {
+      const items = cbItems(s);
+      if (!items.length) return `<div class="table-lv2">-</div>`;
+      return `<div class="cb-stack">${items.map((item, index) => `<div class="cb-issue-block">${renderer(item, index)}</div>`).join("")}</div>`;
+    }
+
+    function cbAmountMillion(value) {
+      if (isNil(value) || value === "") return "-";
+      return `${fmt(Number(value) / 1000000)}百萬`;
+    }
+
+    function cbPressureClass(label) {
+      if (label === "高關注") return "cb-pressure-high";
+      if (label === "中關注") return "cb-pressure-medium";
+      return "cb-pressure-low";
+    }
+
+    function cbHistory(item, monthly = false) {
+      const values = monthly ? item?.cb_monthly_history : item?.cb_history;
+      return Array.isArray(values) ? values : [];
+    }
+
+    function cbChangeClass(current, previous, mode = "pressure_up") {
+      if (isNil(current) || isNil(previous)) return "";
+      const now = Number(current);
+      const before = Number(previous);
+      if (Number.isNaN(now) || Number.isNaN(before) || now === before) return "";
+      if (mode === "neutral") return "";
+      const increase = now > before;
+      const pressureIncrease = mode === "pressure_down" ? !increase : increase;
+      return pressureIncrease ? "up" : "dn";
+    }
+
+    function cbChangeArrow(current, previous) {
+      if (isNil(current) || isNil(previous)) return "";
+      const now = Number(current);
+      const before = Number(previous);
+      if (Number.isNaN(now) || Number.isNaN(before) || now === before) return "→";
+      return now > before ? "↑" : "↓";
+    }
+
+    function renderCbMetricHistory(item, key, suffix = "", mode = "pressure_up", monthly = false) {
+      const history = cbHistory(item, monthly);
+      if (!history.length) return `<div class="table-lv2">-</div>`;
+      const prefix = monthly ? "M" : "T";
+      return history.slice(0, 3).map((point, index) => {
+        const previous = history[index + 1];
+        const value = point?.[key];
+        const previousValue = previous?.[key];
+        const cls = previous ? cbChangeClass(value, previousValue, mode) : "";
+        const arrow = previous ? cbChangeArrow(value, previousValue) : "";
+        const label = index === 0 ? prefix : `${prefix}-${index}`;
+        return `<div class="${index === 0 ? "table-lv1" : "table-lv2"} ${cls}">${label} ${fmt(value, suffix)} ${arrow}</div>`;
+      }).join("");
+    }
+
+    function renderCbCombinedHistory(item, leftKey, leftLabel, rightKey, rightLabel, suffix, mode) {
+      const history = cbHistory(item);
+      if (!history.length) return `<div class="table-lv2">-</div>`;
+      return history.slice(0, 3).map((point, index) => {
+        const previous = history[index + 1];
+        const value = point?.[rightKey];
+        const previousValue = previous?.[rightKey];
+        const cls = previous ? cbChangeClass(value, previousValue, mode) : "";
+        const arrow = previous ? cbChangeArrow(value, previousValue) : "";
+        const label = index === 0 ? "T" : `T-${index}`;
+        return `<div class="${index === 0 ? "table-lv1" : "table-lv2"} ${cls}">${label} ${leftLabel}${fmt(point?.[leftKey])}／${rightLabel}${fmt(value, suffix)} ${arrow}</div>`;
+      }).join("");
+    }
+
+    function renderCbMarketHistory(item) {
+      const history = cbHistory(item);
+      if (!history.length) return `<div class="table-lv2">-</div>`;
+      return history.slice(0, 3).map((point, index) => {
+        const previous = history[index + 1];
+        const label = index === 0 ? "T" : `T-${index}`;
+        const stockClass = previous ? cbChangeClass(point.cb_underlying_price, previous.cb_underlying_price, "pressure_up") : "";
+        const cbClass = previous ? cbChangeClass(point.cb_price, previous.cb_price, "pressure_up") : "";
+        const stockArrow = previous ? cbChangeArrow(point.cb_underlying_price, previous.cb_underlying_price) : "";
+        const cbArrow = previous ? cbChangeArrow(point.cb_price, previous.cb_price) : "";
+        return `<div class="${index === 0 ? "table-lv1" : "table-lv2"}">${label} <span class="${stockClass}">股${fmt(point.cb_underlying_price)} ${stockArrow}</span>／<span class="${cbClass}">CB${fmt(point.cb_price)} ${cbArrow}</span></div>`;
+      }).join("");
+    }
+
+    function renderCbMonthlyBalance(item) {
+      const history = cbHistory(item, true);
+      if (!history.length) return `<div class="table-lv2">-</div>`;
+      return history.slice(0, 3).map((point, index) => {
+        const previous = history[index + 1];
+        const currentValue = point?.cb_outstanding_amount;
+        const previousValue = previous?.cb_outstanding_amount;
+        const cls = previous ? cbChangeClass(currentValue, previousValue, "pressure_up") : "";
+        const arrow = previous ? cbChangeArrow(currentValue, previousValue) : "";
+        const label = index === 0 ? "M" : `M-${index}`;
+        return `<div class="${index === 0 ? "table-lv1" : "table-lv2"} ${cls}">${label} ${cbAmountMillion(currentValue)}／${fmt(point?.cb_remaining_pct, "%")} ${arrow}</div>`;
+      }).join("");
+    }
+
+    function renderCbPressureHistory(item) {
+      const history = cbHistory(item);
+      if (!history.length) return `<div class="table-lv2">-</div>`;
+      const trendClassName = Number(item.cb_trend_score ?? 0) > 0 ? "up" : Number(item.cb_trend_score ?? 0) < 0 ? "dn" : "";
+      const trendArrow = Number(item.cb_trend_score ?? 0) > 0 ? "↑" : Number(item.cb_trend_score ?? 0) < 0 ? "↓" : "→";
+      const lines = history.slice(0, 3).map((point, index) => {
+        const label = index === 0 ? "T" : `T-${index}`;
+        return `<div class="${index === 0 ? "table-lv1" : "table-lv2"} ${cbPressureClass(point.cb_pressure_label)}">${label} ${escapeHtml(point.cb_pressure_label || "-")}</div>`;
+      }).join("");
+      return `<div class="table-lv2 ${trendClassName}">${trendArrow} ${escapeHtml(item.cb_trend_label || "資料不足")}</div>${lines}`;
+    }
+
+    function renderCbMobileGrid(s) {
+      return cbItems(s).map(item => `
+        <div class="stock-item summary-mobile-item">
+          <div class="stock-label">${escapeHtml(item.cb_name || item.cb_id || "CB")}</div>
+          <div class="stock-value">
+            ${renderCbPressureHistory(item)}
+            <div class="table-lv2">CB價 ${fmt(item.cb_price)}／轉換價 ${fmt(item.cb_conversion_price)}</div>
+            ${renderCbCombinedHistory(item, "cb_parity", "轉值", "cb_premium_pct", "溢價", "%", "pressure_down")}
+            ${renderCbCombinedHistory(item, "cb_break_even_price", "損平", "cb_distance_to_break_even_pct", "距離", "%", "pressure_up")}
+            ${renderCbMonthlyBalance(item)}
+            <div class="table-lv2">潛在 ${fmt(item.cb_potential_lots)}張</div>
+            ${renderCbMetricHistory(item, "cb_pressure_days", "天", "pressure_up")}
+            <div class="table-lv3">${escapeHtml(item.cb_volume_basis || "成交量資料不足")}；轉換迄 ${escapeHtml(item.cb_conversion_end || "-")}</div>
+          </div>
+        </div>`).join("");
+    }
+
     function renderCell(s, key) {
       switch (key) {
         case "code":
@@ -1666,6 +1857,47 @@
               <div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-" : `${fmtTrend(s.volume_ratio)}${fmt(s.volume_ratio, "%")}`}</div>
               <div class="table-lv3">${isNil(s.volume_add) ? "-" : `${fmt(s.volume_add)}張`}</div>
             </td>`;
+        case "cb_issue":
+          return `<td>${renderCbStack(s, item => `
+            <div class="table-lv1">${escapeHtml(item.cb_id || "-")}</div>
+            <div class="table-lv2">${escapeHtml(item.cb_name || "-")}</div>`)}</td>`;
+        case "cb_market":
+          return `<td>${renderCbStack(s, item => `
+            ${renderCbMarketHistory(item)}
+            <div class="table-lv3">漲紅跌綠｜${escapeHtml(item.cb_date || "-")}</div>`)}</td>`;
+        case "cb_conversion":
+          return `<td>${renderCbStack(s, item => `
+            <div class="table-lv1">${fmt(item.cb_conversion_price)}</div>
+            ${cbHistory(item).length > 1 && Number(cbHistory(item)[0]?.cb_conversion_price) !== Number(cbHistory(item)[1]?.cb_conversion_price)
+              ? `<div class="table-lv2">轉換價調整：${fmt(cbHistory(item)[1]?.cb_conversion_price)} → ${fmt(cbHistory(item)[0]?.cb_conversion_price)}</div>` : ""}
+            ${renderCbMetricHistory(item, "cb_moneyness_pct", "%", "pressure_up")}`)}</td>`;
+        case "cb_parity_premium":
+          return `<td>${renderCbStack(s, item => renderCbCombinedHistory(
+            item, "cb_parity", "轉值", "cb_premium_pct", "溢價", "%", "pressure_down"
+          ))}</td>`;
+        case "cb_break_even":
+          return `<td>${renderCbStack(s, item => renderCbCombinedHistory(
+            item, "cb_break_even_price", "損平", "cb_distance_to_break_even_pct", "距離", "%", "pressure_up"
+          ))}</td>`;
+        case "cb_balance":
+          return `<td>${renderCbStack(s, item => `
+            ${renderCbMonthlyBalance(item)}
+            <div class="table-lv3">下降可能含轉換、贖回、賣回或償還</div>`)}</td>`;
+        case "cb_supply":
+          return `<td>${renderCbStack(s, item => `
+            <div class="table-lv3">潛在張數（M）</div>
+            ${renderCbMetricHistory(item, "cb_potential_lots", "張", "pressure_up", true)}
+            <div class="table-lv3">壓力天數（T）</div>
+            ${renderCbMetricHistory(item, "cb_pressure_days", "天", "pressure_up")}
+            <div class="table-lv3">${escapeHtml(item.cb_volume_basis || "量資料不足")}</div>`)}</td>`;
+        case "cb_period":
+          return `<td>${renderCbStack(s, item => `
+            <div class="table-lv1">${escapeHtml(item.cb_conversion_end || "-")}</div>
+            <div class="table-lv2">${isNil(item.cb_days_to_due) ? "-" : `${fmt(item.cb_days_to_due)}天`}</div>`)}</td>`;
+        case "cb_pressure_rank":
+          return `<td>${renderCbStack(s, item => `
+            ${renderCbPressureHistory(item)}
+            ${item.cb_early_redemption_active ? `<div class="table-lv2 text-red">提前贖回期</div>` : ""}`)}</td>`;
         case "short_margin_ratio_score":
           return renderShortMarginRatioCell(s);
         case "chip_concentration_score":
@@ -1814,6 +2046,11 @@
           <div class="stock-item summary-mobile-item"><div class="stock-label">新聞</div><div class="stock-value">${escapeHtml(s.news_summary || "-")}</div></div>
         </div>`;
 
+      const cbGrid = `
+        <div class="stock-grid">
+          ${renderCbMobileGrid(s)}
+        </div>`;
+
       const overviewGrid = `
         <div class="stock-grid">
           <div class="stock-item"><div class="stock-label">價格L/H 3天趨勢</div>${renderPriceLHTrendBlock(s)}</div>
@@ -1828,8 +2065,9 @@
       if (tab === "technical") bodyGrid = technicalGrid;
       if (tab === "chip") bodyGrid = chipGrid;
       if (tab === "fundamental") bodyGrid = fundamentalGrid;
+      if (tab === "cb") bodyGrid = cbGrid;
 
-      const signalFooter = tab === "fundamental" ? "" : renderMobileSignalFooter(s);
+      const signalFooter = (tab === "fundamental" || tab === "cb") ? "" : renderMobileSignalFooter(s);
 
       return `
         <div class="stock-card">
@@ -1871,6 +2109,22 @@
           return Number(s.broker_diff_avg_5d ?? -999999);
         case "broker_diff_20d":
           return Number(s.broker_diff_avg_20d ?? -999999);
+        case "cb_issue":
+          return String(s.cb_id ?? "");
+        case "cb_market":
+          return Number(s.cb_price ?? -999999);
+        case "cb_conversion":
+          return Number(s.cb_conversion_price ?? -999999);
+        case "cb_parity_premium":
+          return Number(s.cb_premium_pct ?? -999999);
+        case "cb_break_even":
+          return Number(s.cb_distance_to_break_even_pct ?? -999999);
+        case "cb_balance":
+          return Number(s.cb_outstanding_amount ?? -999999);
+        case "cb_supply":
+          return Number(s.cb_pressure_days ?? -999999);
+        case "cb_period":
+          return Number(s.cb_days_to_due ?? -999999);
         case "per_latest":
         case "pbr_latest":
           return Number(s[key] ?? -999999);
@@ -1911,12 +2165,17 @@
     }
 
     function renderAll() {
+      const visibleRows = currentTab === "cb"
+        ? sortedStocks.filter(stock => Number(stock.cb_count ?? 0) > 0)
+        : sortedStocks;
       renderHead();
-      renderTable(sortedStocks);
-      renderMobileCards(sortedStocks);
+      renderTable(visibleRows);
+      renderMobileCards(visibleRows);
       updateSortIndicators();
       const countEl = document.getElementById("filterCount");
-      if (countEl) countEl.innerText = `顯示 ${sortedStocks.length} / ${baseStocks.length} 筆`;
+      if (countEl) countEl.innerText = currentTab === "cb"
+        ? `顯示 ${visibleRows.length} 檔含CB股票 / ${sortedStocks.length} 筆篩選結果`
+        : `顯示 ${visibleRows.length} / ${baseStocks.length} 筆`;
     }
 
     function updateSortIndicators() {
@@ -1950,7 +2209,16 @@
           currentTab = nextTab;
           document.querySelectorAll(".tab-btn[data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === currentTab));
           const note = document.getElementById("tabNote");
-          if (note) note.innerText = TAB_CONFIG[currentTab].note;
+          if (note) {
+            if (currentTab === "cb") {
+              const statusText = (cbMeta.status === "ok" || cbMeta.status === "partial_ok")
+                ? `資料日 ${cbMeta.as_of || "-"}`
+                : `資料未取得${cbMeta.reason ? `：${cbMeta.reason}` : ""}`;
+              note.innerText = `${TAB_CONFIG[currentTab].note}｜${statusText}`;
+            } else {
+              note.innerText = TAB_CONFIG[currentTab].note;
+            }
+          }
           renderAll();
         });
       });

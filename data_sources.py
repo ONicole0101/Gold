@@ -251,6 +251,142 @@ def get_stock_data(stock_id):
         return pd.DataFrame()
 
 
+def get_latest_convertible_bond_overview(
+    lookback_days=14, trend_days=3, monthly_points=3
+):
+    """Fetch latest, T/T-1/T-2 and M/M-1/M-2 all-market CB snapshots.
+
+    Daily snapshots drive conversion-incentive trends.  Monthly snapshots use
+    the latest available business day of each month because FinMind's
+    ``OutstandingAmount`` is an end-of-prior-month balance and should not be
+    presented as a genuinely changing daily value.
+    """
+    dataset = "TaiwanStockConvertibleBondDailyOverview"
+    today = (datetime.utcnow() + timedelta(hours=8)).date()
+    last_reason = ""
+    cache = {}
+
+    def fetch_date(query_date):
+        nonlocal last_reason
+        date_text = query_date.isoformat()
+        if date_text in cache:
+            return cache[date_text]
+        if query_date.weekday() >= 5:
+            cache[date_text] = {"status": "no_data", "date": date_text, "rows": []}
+            return cache[date_text]
+        try:
+            params = {
+                "dataset": dataset,
+                "start_date": date_text,
+                "token": FINMIND_token,
+            }
+            _record_finmind_request("CB daily overview", "", dataset)
+            res = requests.get(
+                API_URL, params=params, headers=headers, timeout=300)
+            payload = _safe_response_json(res)
+            if res.status_code == 402:
+                last_reason = str(payload.get("msg") or "FinMind quota exceeded")
+                result = {
+                    "status": "limited", "date": date_text,
+                    "reason": last_reason, "rows": [],
+                }
+                cache[date_text] = result
+                return result
+            if res.status_code != 200:
+                last_reason = str(
+                    payload.get("msg") or payload.get("message") or
+                    f"HTTP {res.status_code}"
+                )
+                result = {
+                    "status": "error", "date": date_text,
+                    "reason": last_reason, "rows": [],
+                }
+                cache[date_text] = result
+                return result
+            rows = payload.get("data") or []
+            if not rows:
+                last_reason = str(payload.get("msg") or f"{date_text} no data")
+                result = {"status": "no_data", "date": date_text, "rows": []}
+                cache[date_text] = result
+                return result
+            newest = max(
+                (str(row.get("date") or "") for row in rows),
+                default=date_text,
+            )
+            latest_rows = [
+                row for row in rows
+                if str(row.get("date") or newest) == newest
+            ]
+            result = {"status": "ok", "date": newest, "rows": latest_rows}
+            cache[date_text] = result
+            return result
+        except Exception as exc:
+            last_reason = str(exc)
+            result = {
+                "status": "error", "date": date_text,
+                "reason": last_reason, "rows": [],
+            }
+            cache[date_text] = result
+            return result
+
+    daily_snapshots = []
+    seen_dates = set()
+    for offset in range(max(int(lookback_days or 1), 1)):
+        result = fetch_date(today - timedelta(days=offset))
+        if result.get("status") == "limited" and not daily_snapshots:
+            return {
+                "status": "limited", "as_of": "", "reason": last_reason,
+                "rows": [], "daily_snapshots": [], "monthly_snapshots": [],
+            }
+        if result.get("status") != "ok" or result.get("date") in seen_dates:
+            continue
+        daily_snapshots.append(result)
+        seen_dates.add(result.get("date"))
+        if len(daily_snapshots) >= max(int(trend_days or 1), 1):
+            break
+
+    if not daily_snapshots:
+        return {
+            "status": "no_data", "as_of": "",
+            "reason": last_reason or "No CB overview found in lookback window",
+            "rows": [], "daily_snapshots": [], "monthly_snapshots": [],
+        }
+
+    monthly_snapshots = [daily_snapshots[0]]
+    cursor = daily_snapshots[0]["date"]
+    cursor = datetime.strptime(cursor, "%Y-%m-%d").date()
+    # Search backwards from each prior calendar month-end.  Seven calendar
+    # days covers weekends and ordinary exchange holidays without daily scans.
+    while len(monthly_snapshots) < max(int(monthly_points or 1), 1):
+        first_this_month = cursor.replace(day=1)
+        month_end = first_this_month - timedelta(days=1)
+        found = None
+        for offset in range(7):
+            result = fetch_date(month_end - timedelta(days=offset))
+            if result.get("status") == "ok":
+                found = result
+                break
+            if result.get("status") == "limited":
+                break
+        if not found:
+            break
+        monthly_snapshots.append(found)
+        cursor = datetime.strptime(found["date"], "%Y-%m-%d").date()
+
+    complete = (
+        len(daily_snapshots) >= max(int(trend_days or 1), 1)
+        and len(monthly_snapshots) >= max(int(monthly_points or 1), 1)
+    )
+    return {
+        "status": "ok" if complete else "partial_ok",
+        "as_of": daily_snapshots[0]["date"],
+        "reason": "" if complete else (last_reason or "CB history is incomplete"),
+        "rows": daily_snapshots[0]["rows"],
+        "daily_snapshots": daily_snapshots,
+        "monthly_snapshots": monthly_snapshots,
+    }
+
+
 def get_revenue_raw(stock_id):
     try:
         params = {

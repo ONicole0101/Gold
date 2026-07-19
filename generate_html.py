@@ -6,7 +6,10 @@ from jinja2 import Template
 
 import config
 from custom_categories import CUSTOM_CATEGORY_COLUMN, category_text, split_category_text
-from data_sources import get_finmind_user_info
+from data_sources import (
+    get_finmind_user_info,
+    get_latest_convertible_bond_overview,
+)
 from main import get_full_stock_analysis
 from stock_service import load_chips_static_map, load_news_static_map, load_static_map
 
@@ -90,6 +93,364 @@ def collect_category_options(stocks):
             if text:
                 options.update(split_category_text(text))
     return sorted(options)
+
+
+def _cb_num(value):
+    try:
+        if value in (None, "") or pd.isna(value):
+            return None
+        number = float(value)
+        return number if pd.notna(number) else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _cb_date(value):
+    try:
+        parsed = pd.to_datetime(value, errors="coerce")
+        return None if pd.isna(parsed) else parsed.date()
+    except Exception:
+        return None
+
+
+def _match_cb_stock_id(cb_id, stock_ids):
+    """Match a CB issue code to an issuer already present in the report."""
+    code = str(cb_id or "").strip()
+    candidates = [sid for sid in stock_ids if code.startswith(sid)]
+    if not candidates:
+        return ""
+    # Prefer the longest exact prefix so non-four-digit security identifiers
+    # do not get accidentally matched to a shorter code.
+    return max(candidates, key=len)
+
+
+def _cb_pressure_label(item):
+    """Transparent screening label, not a forecast of actual selling."""
+    premium = item.get("cb_premium_pct")
+    distance = item.get("cb_distance_to_break_even_pct")
+    moneyness = item.get("cb_moneyness_pct")
+    pressure_days = item.get("cb_pressure_days")
+    early_redemption = item.get("cb_early_redemption_active")
+
+    conversion_economic = (
+        early_redemption
+        or (premium is not None and premium <= 3)
+        or (distance is not None and distance >= 0)
+    )
+    large_supply = pressure_days is not None and pressure_days >= 5
+    if conversion_economic and (large_supply or early_redemption):
+        return "高關注", 3
+    if (
+        early_redemption
+        or (moneyness is not None and moneyness >= 0)
+        or (distance is not None and distance >= -10)
+    ):
+        return "中關注", 2
+    return "低關注", 1
+
+
+def _cb_metric_snapshot(raw, fallback_price, avg_volume, volume_basis, as_of_value):
+    """Calculate one issue's comparable metrics for one snapshot date."""
+    conversion_price = _cb_num(raw.get("ConversionPrice"))
+    cb_price = _cb_num(raw.get("ReferencePrice"))
+    underlying_price = (
+        _cb_num(raw.get("PriceOfUnderlyingStock")) or fallback_price
+    )
+    issuance = _cb_num(raw.get("IssuanceAmount"))
+    outstanding = _cb_num(raw.get("OutstandingAmount"))
+    if not conversion_price or conversion_price <= 0:
+        return None
+
+    parity = (
+        100 * underlying_price / conversion_price
+        if underlying_price is not None else None
+    )
+    premium = (
+        (cb_price / parity - 1) * 100
+        if cb_price is not None and parity not in (None, 0) else None
+    )
+    break_even = (
+        conversion_price * cb_price / 100
+        if cb_price is not None else None
+    )
+    distance = (
+        (underlying_price / break_even - 1) * 100
+        if underlying_price is not None and break_even not in (None, 0)
+        else None
+    )
+    moneyness = (
+        (underlying_price / conversion_price - 1) * 100
+        if underlying_price is not None else None
+    )
+    remaining_pct = (
+        outstanding / issuance * 100
+        if outstanding is not None and issuance not in (None, 0) else None
+    )
+    potential_shares = (
+        outstanding / conversion_price if outstanding is not None else None
+    )
+    potential_lots = (
+        potential_shares / 1000 if potential_shares is not None else None
+    )
+    pressure_days = (
+        potential_lots / avg_volume
+        if potential_lots is not None and avg_volume not in (None, 0) else None
+    )
+    as_of = _cb_date(as_of_value or raw.get("date"))
+    early_start = _cb_date(raw.get("InitialDateOfEarlyRedemption"))
+    early_end = _cb_date(raw.get("DueDateOfEarlyRedemption"))
+    early_active = bool(
+        as_of and early_start and early_end and early_start <= as_of <= early_end
+    )
+    metric = {
+        "date": str(raw.get("date") or as_of_value or ""),
+        "cb_price": cb_price,
+        "cb_underlying_price": underlying_price,
+        "cb_conversion_price": conversion_price,
+        "cb_moneyness_pct": round(moneyness, 2) if moneyness is not None else None,
+        "cb_parity": round(parity, 2) if parity is not None else None,
+        "cb_premium_pct": round(premium, 2) if premium is not None else None,
+        "cb_break_even_price": round(break_even, 2) if break_even is not None else None,
+        "cb_distance_to_break_even_pct": round(distance, 2) if distance is not None else None,
+        "cb_outstanding_amount": outstanding,
+        "cb_remaining_pct": round(remaining_pct, 2) if remaining_pct is not None else None,
+        "cb_potential_lots": round(potential_lots) if potential_lots is not None else None,
+        "cb_pressure_days": round(pressure_days, 2) if pressure_days is not None else None,
+        "cb_volume_basis": volume_basis,
+        "cb_early_redemption_active": early_active,
+    }
+    label, rank = _cb_pressure_label(metric)
+    metric["cb_pressure_label"] = label
+    metric["cb_pressure_rank"] = rank
+    return metric
+
+
+def _cb_overall_trend(history):
+    """Summarize pressure direction using non-duplicative core indicators."""
+    if len(history or []) < 2:
+        return "資料不足", 0
+    current, previous = history[0], history[1]
+    votes = []
+
+    def vote(key, pressure_when_up=True, tolerance=0.01):
+        now = _cb_num(current.get(key))
+        before = _cb_num(previous.get(key))
+        if now is None or before is None or abs(now - before) <= tolerance:
+            return
+        direction = 1 if now > before else -1
+        votes.append(direction if pressure_when_up else -direction)
+
+    # Premium falling, distance-to-break-even rising and supply-days rising
+    # each contribute one vote.  Moneyness/parity are intentionally excluded
+    # because they duplicate the distance signal.
+    vote("cb_premium_pct", pressure_when_up=False)
+    vote("cb_distance_to_break_even_pct", pressure_when_up=True)
+    vote("cb_pressure_days", pressure_when_up=True)
+    rank_now = _cb_num(current.get("cb_pressure_rank"))
+    rank_before = _cb_num(previous.get("cb_pressure_rank"))
+    if rank_now is not None and rank_before is not None and rank_now != rank_before:
+        votes.append(1 if rank_now > rank_before else -1)
+
+    score = sum(votes)
+    if score > 0:
+        return "壓力增加", 1
+    if score < 0:
+        return "壓力下降", -1
+    return "大致持平", 0
+
+
+def attach_cb_analysis(results, snapshot):
+    """Attach issue-level CB conversion and supply-pressure metrics."""
+    output = [dict(item) for item in results if item]
+    stock_ids = {
+        str(item.get("code") or item.get("stock_id") or "").strip()
+        for item in output
+    }
+    stock_ids.discard("")
+    raw_by_stock = {sid: [] for sid in stock_ids}
+    daily_by_cb = {}
+    monthly_by_cb = {}
+
+    daily_snapshots = snapshot.get("daily_snapshots") or [
+        {"date": snapshot.get("as_of"), "rows": snapshot.get("rows") or []}
+    ]
+    for snap in daily_snapshots:
+        for raw in snap.get("rows") or []:
+            cb_id = str(raw.get("cb_id") or "")
+            if cb_id:
+                daily_by_cb.setdefault(cb_id, []).append(raw)
+
+    for snap in snapshot.get("monthly_snapshots") or []:
+        for raw in snap.get("rows") or []:
+            cb_id = str(raw.get("cb_id") or "")
+            if cb_id:
+                monthly_by_cb.setdefault(cb_id, []).append(raw)
+
+    for raw in snapshot.get("rows") or []:
+        sid = _match_cb_stock_id(raw.get("cb_id"), stock_ids)
+        if sid:
+            raw_by_stock.setdefault(sid, []).append(raw)
+
+    as_of = _cb_date(snapshot.get("as_of"))
+    for stock in output:
+        sid = str(stock.get("code") or stock.get("stock_id") or "").strip()
+        items = []
+        total_volume_20d = _cb_num(stock.get("total_volume_20d"))
+        available_days = _cb_num(stock.get("chip_available_days"))
+        avg_volume_20d = None
+        volume_basis = ""
+        if total_volume_20d is not None and total_volume_20d > 0:
+            denominator = min(max(int(available_days or 20), 1), 20)
+            avg_volume_20d = total_volume_20d / denominator
+            volume_basis = f"近{denominator}日均量"
+        else:
+            daily_volume = _cb_num(stock.get("volume"))
+            if daily_volume is not None and daily_volume > 0:
+                avg_volume_20d = daily_volume
+                volume_basis = "當日量替代"
+
+        for raw in raw_by_stock.get(sid, []):
+            conversion_price = _cb_num(raw.get("ConversionPrice"))
+            cb_price = _cb_num(raw.get("ReferencePrice"))
+            underlying_price = (
+                _cb_num(raw.get("PriceOfUnderlyingStock"))
+                or _cb_num(stock.get("price"))
+            )
+            issuance = _cb_num(raw.get("IssuanceAmount"))
+            outstanding = _cb_num(raw.get("OutstandingAmount"))
+
+            if not conversion_price or conversion_price <= 0:
+                continue
+            if outstanding is not None and outstanding <= 0:
+                continue
+
+            parity = (
+                100 * underlying_price / conversion_price
+                if underlying_price is not None else None
+            )
+            premium = (
+                (cb_price / parity - 1) * 100
+                if cb_price is not None and parity not in (None, 0) else None
+            )
+            break_even = (
+                conversion_price * cb_price / 100
+                if cb_price is not None else None
+            )
+            distance_to_break_even = (
+                (underlying_price / break_even - 1) * 100
+                if underlying_price is not None and break_even not in (None, 0)
+                else None
+            )
+            moneyness = (
+                (underlying_price / conversion_price - 1) * 100
+                if underlying_price is not None else None
+            )
+            remaining_pct = (
+                outstanding / issuance * 100
+                if outstanding is not None and issuance not in (None, 0)
+                else None
+            )
+            potential_shares = (
+                outstanding / conversion_price
+                if outstanding is not None else None
+            )
+            potential_lots = (
+                potential_shares / 1000 if potential_shares is not None else None
+            )
+            pressure_days = (
+                potential_lots / avg_volume_20d
+                if potential_lots is not None and avg_volume_20d not in (None, 0)
+                else None
+            )
+
+            early_start = _cb_date(raw.get("InitialDateOfEarlyRedemption"))
+            early_end = _cb_date(raw.get("DueDateOfEarlyRedemption"))
+            early_active = bool(
+                as_of and early_start and early_end and
+                early_start <= as_of <= early_end
+            )
+            due_date = _cb_date(raw.get("DueDateOfConversion"))
+            days_to_due = (
+                (due_date - as_of).days if due_date and as_of else None
+            )
+
+            item = {
+                "cb_id": str(raw.get("cb_id") or ""),
+                "cb_name": str(raw.get("cb_name") or ""),
+                "cb_date": str(raw.get("date") or snapshot.get("as_of") or ""),
+                "cb_price": cb_price,
+                "cb_conversion_price": conversion_price,
+                "cb_underlying_price": underlying_price,
+                "cb_parity": round(parity, 2) if parity is not None else None,
+                "cb_premium_pct": round(premium, 2) if premium is not None else None,
+                "cb_break_even_price": round(break_even, 2) if break_even is not None else None,
+                "cb_distance_to_break_even_pct": round(distance_to_break_even, 2) if distance_to_break_even is not None else None,
+                "cb_moneyness_pct": round(moneyness, 2) if moneyness is not None else None,
+                "cb_issuance_amount": issuance,
+                "cb_outstanding_amount": outstanding,
+                "cb_remaining_pct": round(remaining_pct, 2) if remaining_pct is not None else None,
+                "cb_potential_shares": round(potential_shares) if potential_shares is not None else None,
+                "cb_potential_lots": round(potential_lots) if potential_lots is not None else None,
+                "cb_avg_volume_20d": round(avg_volume_20d, 2) if avg_volume_20d is not None else None,
+                "cb_pressure_days": round(pressure_days, 2) if pressure_days is not None else None,
+                "cb_volume_basis": volume_basis,
+                "cb_conversion_start": str(raw.get("InitialDateOfConversion") or ""),
+                "cb_conversion_end": str(raw.get("DueDateOfConversion") or ""),
+                "cb_days_to_due": days_to_due,
+                "cb_early_redemption_active": early_active,
+            }
+            label, rank = _cb_pressure_label(item)
+            item["cb_pressure_label"] = label
+            item["cb_pressure_rank"] = rank
+
+            history = []
+            for hist_raw in daily_by_cb.get(item["cb_id"], [])[:3]:
+                metric = _cb_metric_snapshot(
+                    hist_raw,
+                    _cb_num(stock.get("price")),
+                    avg_volume_20d,
+                    volume_basis,
+                    hist_raw.get("date"),
+                )
+                if metric:
+                    history.append(metric)
+            item["cb_history"] = history
+            trend_label, trend_score = _cb_overall_trend(history)
+            item["cb_trend_label"] = trend_label
+            item["cb_trend_score"] = trend_score
+
+            monthly_history = []
+            for month_raw in monthly_by_cb.get(item["cb_id"], [])[:3]:
+                metric = _cb_metric_snapshot(
+                    month_raw,
+                    _cb_num(stock.get("price")),
+                    avg_volume_20d,
+                    volume_basis,
+                    month_raw.get("date"),
+                )
+                if metric:
+                    monthly_history.append(metric)
+            item["cb_monthly_history"] = monthly_history
+            items.append(item)
+
+        items.sort(
+            key=lambda item: (
+                item.get("cb_pressure_rank") or 0,
+                -(abs(item.get("cb_distance_to_break_even_pct"))
+                  if item.get("cb_distance_to_break_even_pct") is not None
+                  else 999999),
+                item.get("cb_outstanding_amount") or 0,
+            ),
+            reverse=True,
+        )
+        stock["cb_items"] = items
+        stock["cb_count"] = len(items)
+        if items:
+            primary = items[0]
+            for key, value in primary.items():
+                stock[key] = value
+
+    return output
 
 
 def format_output(results):
@@ -197,6 +558,18 @@ def main():
             print("⚠️ 無分析結果")
             return
 
+        print("📄 讀取最新可轉債總覽...")
+        cb_snapshot = get_latest_convertible_bond_overview()
+        results = attach_cb_analysis(results, cb_snapshot)
+        print(
+            "CB snapshot: "
+            f"status={cb_snapshot.get('status')}, "
+            f"as_of={cb_snapshot.get('as_of') or '-'}, "
+            f"issues={len(cb_snapshot.get('rows') or [])}, "
+            f"daily_points={len(cb_snapshot.get('daily_snapshots') or [])}, "
+            f"monthly_points={len(cb_snapshot.get('monthly_snapshots') or [])}"
+        )
+
         data = format_output(results)
         text_data = build_strings(data)
 
@@ -218,6 +591,20 @@ def main():
                 report_type=report_type,
                 generated_time=now_dt.strftime("%Y-%m-%d %H:%M"),
                 tech_columns=TECH_COLUMNS,
+                cb_meta={
+                    "status": cb_snapshot.get("status") or "no_data",
+                    "as_of": cb_snapshot.get("as_of") or "",
+                    "reason": cb_snapshot.get("reason") or "",
+                    "issue_count": len(cb_snapshot.get("rows") or []),
+                    "daily_dates": [
+                        point.get("date") for point in
+                        cb_snapshot.get("daily_snapshots") or []
+                    ],
+                    "monthly_dates": [
+                        point.get("date") for point in
+                        cb_snapshot.get("monthly_snapshots") or []
+                    ],
+                },
                 custom_category_options=collect_category_options(
                     data["stocks"]),
             )
