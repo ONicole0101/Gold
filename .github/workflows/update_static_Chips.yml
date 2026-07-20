@@ -6,6 +6,10 @@ on:
         description: Stock list file
         required: false
         default: "stocks.csv"
+      stock_id:
+        description: Optional single stock_id to run, e.g. 2330
+        required: false
+        default: 
       output_file:
         description: Chip static output file
         required: false
@@ -30,6 +34,7 @@ concurrency:
 env:
   REPORT_TYPE: ${{ vars.REPORT_TYPE || '持股' }}
   CSV_FILE: ${{ github.event.inputs.csv_file || vars.CSV_FILE || 'stocks.csv' }}
+  CHIP_STOCK_ID: ${{ github.event.inputs.stock_id || vars.CHIP_STOCK_ID || '2330' }}
   REPORT_TITLE: ${{ vars.REPORT_TITLE || '(持股)技術分析報告' }}
   OUTPUT_FILE: ${{ vars.OUTPUT_FILE || '持股' }}
   STATIC_OUTPUT_FILE: ${{ vars.STATIC_OUTPUT_FILE || 'AllStatic.csv' }}
@@ -69,7 +74,7 @@ jobs:
           for name in [
               'REPORT_TYPE','CSV_FILE','REPORT_TITLE','OUTPUT_FILE',
               'STATIC_OUTPUT_FILE','STATIC_CHIP_OUTPUT_FILE',
-              'CHIP_TREND_DAYS','CHIP_CONCENTRATION_THRESHOLD',
+              'CHIP_STOCK_ID','CHIP_TREND_DAYS','CHIP_CONCENTRATION_THRESHOLD',
               'CHIP_LOOKBACK_DAYS','CHIP_WORKERS','CHIP_SLEEP_SEC'
           ]:
               print(f'{name}={os.environ.get(name)}')
@@ -86,6 +91,7 @@ jobs:
             --no-prompt \
             --csv-file "${CSV_FILE}" \
             --output "${STATIC_CHIP_OUTPUT_FILE}" \
+            --stock-id "${CHIP_STOCK_ID}" \
             --trend-days "${CHIP_TREND_DAYS}" \
             --concentration-threshold "${CHIP_CONCENTRATION_THRESHOLD}" \
             --lookback-days "${CHIP_LOOKBACK_DAYS}" \
@@ -98,9 +104,38 @@ jobs:
           path = os.environ['STATIC_CHIP_OUTPUT_FILE']
           df = pd.read_csv(path, encoding='utf-8-sig', dtype=str)
           cols = ['stock_id','name','chip_latest_date','main_force_net','broker_diff','chip_signal_state','chips_status']
-          print(df[cols].head(30).to_string(index=False))
+          for _, row in df[cols].head(30).iterrows():
+              for col in cols:
+                  print(f'{col}={row[col]}')
+              print('---')
           print('rows=', len(df))
           print('status=', df['chips_status'].value_counts(dropna=False).to_dict())
+          PY
+
+      - name: Print 2330 output
+        run: |
+          python - <<'PY' | tee -a chips_analysis_action.log
+          import os
+          import pandas as pd
+
+          path = os.environ['STATIC_CHIP_OUTPUT_FILE']
+          stock_id = os.environ.get('CHIP_STOCK_ID', '2330').strip()
+          df = pd.read_csv(path, encoding='utf-8-sig', dtype=str)
+          row = df.loc[df['stock_id'].astype(str).str.strip() == stock_id]
+          if row.empty:
+              print(f'{stock_id} not found in {path}')
+          else:
+              cols = [
+                  'stock_id', 'name', 'chip_latest_date', 'chip_available_days',
+                  'main_force_net', 'chip_concentration_pct', 'broker_diff',
+                  'main_force_net_5d', 'main_force_buy_rate_5d_pct', 'broker_diff_avg_5d',
+                  'main_force_net_20d', 'main_force_buy_rate_20d_pct', 'broker_diff_avg_20d',
+                  'chip_signal_state', 'chip_signal_text'
+              ]
+              cols = [col for col in cols if col in row.columns]
+              record = row.iloc[0]
+              for col in cols:
+                print(f'{col}={record[col]}')
           PY
 
       - name: Upload chip artifacts
