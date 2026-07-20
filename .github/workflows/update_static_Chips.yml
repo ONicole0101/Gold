@@ -83,7 +83,6 @@ jobs:
       - name: Build chip static file
         env:
           FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
-          STATIC_CHIP_FILE: ${{ env.STATIC_CHIP_OUTPUT_FILE }}
           STATIC_CHIPS_FILE: ${{ env.STATIC_CHIP_OUTPUT_FILE }}
         run: |
           set -o pipefail

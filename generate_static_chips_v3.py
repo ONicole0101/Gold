@@ -161,7 +161,6 @@ def resolve_csv_file(csv_file: str | None = None) -> str:
 def resolve_output_file(output_file: str | None = None) -> str:
     return str(
         output_file
-        or os.getenv("STATIC_CHIP_FILE")
         or os.getenv("STATIC_CHIPS_FILE")
         or cfg("STATIC_CHIP_OUTPUT_FILE")
         or cfg("STATIC_CHIPS_OUTPUT_FILE")

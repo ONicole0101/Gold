@@ -15,8 +15,7 @@ from technical_indicators import add_indicators, clean_ohlc_data, get_kd_trend, 
 
 
 STATIC_CSV_PATH = os.getenv("STATIC_CSV_FILE", "AllStatic.csv")
-STATIC_CHIPS_CSV_PATH = os.getenv("STATIC_CHIPS_FILE") or os.getenv(
-    "STATIC_CHIP_FILE", "AllStatic_Chips.csv")
+STATIC_CHIPS_CSV_PATH = os.getenv("STATIC_CHIPS_FILE", "AllStatic_Chips.csv")
 STATIC_NEWS_CSV_PATH = (
     os.getenv("ALLSTATIC_NEWS_OUTPUT_FILE")
     or os.getenv("ALLSTATIC_NEWS_FILE")

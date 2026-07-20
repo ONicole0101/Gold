@@ -132,7 +132,6 @@ jobs:
         env:
           FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
           STATIC_CSV_FILE: ${{ env.STATIC_OUTPUT_FILE }}
-          STATIC_CHIP_FILE: ${{ env.STATIC_CHIP_OUTPUT_FILE }}
           STATIC_CHIPS_FILE: ${{ env.STATIC_CHIP_OUTPUT_FILE }}
         run: python generate_html.py
 
