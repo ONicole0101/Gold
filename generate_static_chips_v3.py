@@ -640,7 +640,8 @@ def main() -> None:
     if args.version:
         print(SCRIPT_VERSION)
         return
-    selected_stock_id = str(args.stock_id or os.getenv("CHIP_STOCK_ID") or "").strip()
+    selected_stock_id = str(args.stock_id or os.getenv(
+        "CHIP_STOCK_ID") or "").strip()
     stock_list = filter_stock_list(
         load_stock_list(resolve_csv_file(args.csv_file)),
         selected_stock_id,
