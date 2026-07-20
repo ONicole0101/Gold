@@ -1,38 +1,33 @@
-[32m2026-07-20 11:28:08.191[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-07-20 11:28:08.328[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-20 15:29:42.399[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-20 15:29:42.537[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 1630/6000, remain=4370
-Build chips: total=170, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv
-stock_id name chip_latest_date main_force_net broker_diff    chip_signal_state chips_status
-    1101   台泥       2026-07-20          11195        -149 bullish_concentrated           ok
-    1216   統一       2026-07-20           3650        -236 bullish_concentrated           ok
-    1319   東陽       2026-07-20           -657         239  bearish_distributed           ok
-    1326   台化       2026-07-20          -3287          12  bearish_distributed           ok
-    1476   儒鴻       2026-07-20            178         -87              neutral           ok
-    1503   士電       2026-07-20            221          33              neutral           ok
-    1513  中興電       2026-07-20            132          64              neutral           ok
-    1514   亞力       2026-07-20            -76          78              neutral           ok
-    1519   華城       2026-07-20            192          46              neutral           ok
-    1532   勤美       2026-07-20             28         -12 bullish_concentrated           ok
-    1560   中砂       2026-07-20            -54         178  bearish_distributed           ok
-    1597   直得       2026-07-20            164          -8              neutral           ok
-    1727  中華化       2026-07-20            415          64              neutral           ok
-    1760 寶齡富錦       2026-07-20            -46          24              neutral           ok
-    1802   台玻       2026-07-20           1529          32              neutral           ok
-    2049   上銀       2026-07-20            171          81              neutral           ok
-    2059   川湖       2026-07-20            -42         149              bearish           ok
-    2233   宇隆       2026-07-20            -54         111              neutral           ok
-    2301  光寶科       2026-07-20            225          40              neutral           ok
-    2303   聯電       2026-07-20         -26966           3  bearish_distributed           ok
-    2308  台達電       2026-07-20           -102          29  bearish_distributed           ok
-    2313   華通       2026-07-20           -712          17  bearish_distributed           ok
-    2317   鴻海       2026-07-20           3712           2              neutral           ok
-    2327  國巨*       2026-07-20           1330          11              neutral           ok
-    2330  台積電       2026-07-20           -284           5  bearish_distributed           ok
-    2344  華邦電       2026-07-20           5331           1              neutral           ok
-    2345   智邦       2026-07-20            -45         139  bearish_distributed           ok
-    2353   宏碁       2026-07-20          -1282          74  bearish_distributed           ok
-    2357   華碩       2026-07-20            179         -27  bullish_distributed           ok
-    2360   致茂       2026-07-20             28          50  bullish_distributed           ok
-rows= 170
-status= {'ok': 170}
+FinMind usage: 185/6000, remain=5815
+Build chips: total=1, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv
+[1/1] 2330 台積電 status=ok date=2026-07-20 main=-284 diff=5 state=bearish_distributed
+2330 籌碼分頁結果 date=2026-07-20 ; main_force=-284 ; concentration=-0.59 ; broker_diff=5
+Done: rows=1, status={'ok': 1}, preserved=0, elapsed=25.8s, output=AllStatic_Chips.csv
+stock_id=2330
+name=台積電
+chip_latest_date=2026-07-20
+main_force_net=-284
+broker_diff=5
+chip_signal_state=bearish_distributed
+chips_status=ok
+---
+rows= 1
+status= {'ok': 1}
+stock_id=2330
+name=台積電
+chip_latest_date=2026-07-20
+chip_available_days=3
+main_force_net=-284
+chip_concentration_pct=-0.59
+broker_diff=5
+main_force_net_5d=-51958
+main_force_buy_rate_5d_pct=-21.26
+broker_diff_avg_5d=8.8
+main_force_net_20d=-71908
+main_force_buy_rate_20d_pct=-12.88
+broker_diff_avg_20d=11.93
+chip_signal_state=bearish_distributed
+chip_signal_text=主力連3賣、買賣家數差連3正，籌碼流向散戶風險高
