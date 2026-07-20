@@ -9,7 +9,7 @@ on:
       stock_id:
         description: Optional single stock_id to run, e.g. 2330
         required: false
-        default: 
+        default: ""
       output_file:
         description: Chip static output file
         required: false
@@ -34,7 +34,7 @@ concurrency:
 env:
   REPORT_TYPE: ${{ vars.REPORT_TYPE || '持股' }}
   CSV_FILE: ${{ github.event.inputs.csv_file || vars.CSV_FILE || 'stocks.csv' }}
-  CHIP_STOCK_ID: ${{ github.event.inputs.stock_id || vars.CHIP_STOCK_ID || '2330' }}
+  CHIP_STOCK_ID: ${{ github.event.inputs.stock_id || vars.CHIP_STOCK_ID || '' }}
   REPORT_TITLE: ${{ vars.REPORT_TITLE || '(持股)技術分析報告' }}
   OUTPUT_FILE: ${{ vars.OUTPUT_FILE || '持股' }}
   STATIC_OUTPUT_FILE: ${{ vars.STATIC_OUTPUT_FILE || 'AllStatic.csv' }}
@@ -111,14 +111,17 @@ jobs:
           print('status=', df['chips_status'].value_counts(dropna=False).to_dict())
           PY
 
-      - name: Print 2330 output
+      - name: Print selected stock output
         run: |
           python - <<'PY' | tee -a chips_analysis_action.log
           import os
           import pandas as pd
 
           path = os.environ['STATIC_CHIP_OUTPUT_FILE']
-          stock_id = os.environ.get('CHIP_STOCK_ID', '2330').strip()
+          stock_id = os.environ.get('CHIP_STOCK_ID', '').strip()
+          if not stock_id:
+              print('No stock_id selected; skip single-stock print.')
+              raise SystemExit(0)
           df = pd.read_csv(path, encoding='utf-8-sig', dtype=str)
           row = df.loc[df['stock_id'].astype(str).str.strip() == stock_id]
           if row.empty:
