@@ -1312,8 +1312,9 @@ def build_chip_summary_per_stock_day(trading_df: pd.DataFrame) -> pd.DataFrame:
     )
 
     def _main_force(series: pd.Series) -> float:
-        sorted_values = series.sort_values(ascending=False)
-        return float(sorted_values.head(15).sum() + sorted_values.tail(15).sum())
+        sorted_buy = series[series > 0].sort_values(ascending=False).head(15)
+        sorted_sell = series[series < 0].sort_values(ascending=True).head(15)
+        return float(sorted_buy.sum() + sorted_sell.sum())
 
     main_force = (
         work.groupby(group_cols)["net_buy"]
@@ -1330,8 +1331,8 @@ def build_chip_summary_per_stock_day(trading_df: pd.DataFrame) -> pd.DataFrame:
     )
 
     concentration = (
-        summary["main_force_net"].abs(
-        ) / summary["total_volume"].where(summary["total_volume"] != 0)
+        summary["main_force_net"]
+        / summary["total_volume"].where(summary["total_volume"] != 0)
     ) * 100.0
     summary["chip_concentration_pct"] = concentration
     summary["date"] = summary["date"].dt.strftime("%Y-%m-%d")

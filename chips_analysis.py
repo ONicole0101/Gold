@@ -29,6 +29,17 @@ try:
         # FinMind 欄位說明：date(日期), broker(券商), buy(買進張數), sell(賣出張數)
         df['net_buy'] = df['buy'] - df['sell']  # 計算每家券商的淨買超
 
+        def top_15_main_force(group):
+            buy_group = group[group['net_buy'] > 0].sort_values(
+                by=['net_buy', 'broker'], ascending=[False, True]
+            ).head(15)
+            sell_group = group[group['net_buy'] < 0].sort_values(
+                by=['net_buy', 'broker'], ascending=[True, True]
+            ).head(15)
+            top_15_buy = buy_group['net_buy'].sum()
+            top_15_sell = sell_group['net_buy'].sum()
+            return top_15_buy + top_15_sell
+
         daily_report = []
 
         # 依日期分組計算
@@ -38,11 +49,8 @@ try:
             active_sellers = group[group['sell'] > 0]['broker'].nunique()
             broker_diff = active_buyers - active_sellers
 
-            # 計算主力買賣超（取淨買超前 15 大與淨賣超前 15 大）
-            sorted_group = group.sort_values(by='net_buy', ascending=False)
-            top_15_buy = sorted_group.head(15)['net_buy'].sum()
-            top_15_sell = sorted_group.tail(15)['net_buy'].sum()
-            main_force_net = top_15_buy + top_15_sell  # 賣超為負數，相加即為差額
+            # 計算主力買賣超（買超前 15 名合計 - 賣超前 15 名合計）
+            main_force_net = top_15_main_force(group)
 
             daily_report.append({
                 'Date': date,

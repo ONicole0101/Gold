@@ -444,6 +444,17 @@ def load_stock_list(csv_file: str | None = None) -> list[dict]:
     return df[["stock_id", "name"]].to_dict(orient="records")
 
 
+def filter_stock_list(stock_list: list[dict], stock_id: str | None) -> list[dict]:
+    stock_id = str(stock_id or "").strip()
+    if not stock_id:
+        return stock_list
+    filtered = [stock for stock in stock_list if str(
+        stock.get("stock_id") or "").strip() == stock_id]
+    if not filtered:
+        raise ValueError(f"stock_id not found in stock list: {stock_id}")
+    return filtered
+
+
 def should_log_progress(index: int, total: int, log_every: int) -> bool:
     return index == 1 or index == total or (log_every > 0 and index % log_every == 0)
 
@@ -457,6 +468,39 @@ def summarize_row(row: dict) -> str:
         f"diff={row.get('broker_diff') if row.get('broker_diff') is not None else row.get('broker_diff_t0') if row.get('broker_diff_t0') is not None else '-'} "
         f"state={row.get('chip_signal_state') or '-'}"
     )
+
+
+def format_chip_calc_result(row: dict) -> str:
+    recent_rows = _pick_recent_rows(row)
+    recent_text = []
+    for rec in recent_rows[:3]:
+        date_text = _date_text(_row_value(
+            rec, "date", "Date", "chip_date")) or "-"
+        main_force = _row_value(rec, "main_force_net", "主力買賣超")
+        concentration = _row_value(
+            rec, "chip_concentration_pct", "籌碼集中度%", "concentration_pct")
+        broker_diff = _row_value(rec, "broker_diff", "買賣家數差")
+        recent_text.append(
+            f"{date_text}: main_force={main_force}, concentration={concentration}, broker_diff={broker_diff}"
+        )
+
+    main_force = row.get("main_force_net_t0") if row.get(
+        "main_force_net_t0") is not None else row.get("main_force_net")
+    concentration = row.get("chip_concentration_pct_t0") if row.get(
+        "chip_concentration_pct_t0") is not None else row.get("chip_concentration_pct")
+    broker_diff = row.get("broker_diff_t0") if row.get(
+        "broker_diff_t0") is not None else row.get("broker_diff")
+    latest_date = row.get("chip_date_t0") or row.get("chip_latest_date") or "-"
+
+    parts = [
+        f"2330 籌碼分頁結果 date={latest_date}",
+        f"main_force={main_force}",
+        f"concentration={concentration}",
+        f"broker_diff={broker_diff}",
+    ]
+    if recent_text:
+        parts.append("recent=[" + " | ".join(recent_text) + "]")
+    return " ; ".join(parts)
 
 
 def build_static_chips(stock_list: list[dict], output_file: str, trend_days: int, concentration_threshold: float, lookback_days: int | None = None, workers: int = 1, day_workers: int | None = None, sleep_sec: float = 0.0, log_every: int = 25, verbose: bool = False, suppress_api_logs: bool = True) -> pd.DataFrame:
@@ -537,6 +581,11 @@ def build_static_chips(stock_list: list[dict], output_file: str, trend_days: int
         else:
             rows.append(row)
     final_df = normalize_chips_df(pd.DataFrame(rows))
+    target_2330 = final_df.loc[final_df["stock_id"].astype(
+        str).str.strip() == "2330"]
+    if not target_2330.empty:
+        print(format_chip_calc_result(target_2330.iloc[0].where(
+            pd.notna(target_2330.iloc[0]), None).to_dict()), flush=True)
     atomic_write_csv(final_df, output_file)
     elapsed = (datetime.utcnow() - started).total_seconds()
     status_counts = final_df["chips_status"].astype(
@@ -562,6 +611,8 @@ def parse_args() -> argparse.Namespace:
                         help="Stock list file. Supports Ticker/Name or stock_id/name columns.")
     parser.add_argument("--output", default=None,
                         help="Chip static output file.")
+    parser.add_argument("--stock-id", default=None,
+                        help="Only run chip analysis for a single stock_id, e.g. 2330.")
     parser.add_argument("--trend-days", type=int,
                         default=None, help="Override CHIP_TREND_DAYS.")
     parser.add_argument("--concentration-threshold", type=float,
@@ -590,7 +641,10 @@ def main() -> None:
     if args.version:
         print(SCRIPT_VERSION)
         return
-    stock_list = load_stock_list(resolve_csv_file(args.csv_file))
+    stock_list = filter_stock_list(
+        load_stock_list(resolve_csv_file(args.csv_file)),
+        args.stock_id or cfg("CHIP_STOCK_ID"),
+    )
     build_static_chips(
         stock_list=stock_list,
         output_file=resolve_output_file(args.output),

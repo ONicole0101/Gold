@@ -272,7 +272,8 @@ def get_latest_convertible_bond_overview(
         if date_text in cache:
             return cache[date_text]
         if query_date.weekday() >= 5:
-            cache[date_text] = {"status": "no_data", "date": date_text, "rows": []}
+            cache[date_text] = {"status": "no_data",
+                                "date": date_text, "rows": []}
             return cache[date_text]
         try:
             params = {
@@ -285,7 +286,8 @@ def get_latest_convertible_bond_overview(
                 API_URL, params=params, headers=headers, timeout=300)
             payload = _safe_response_json(res)
             if res.status_code == 402:
-                last_reason = str(payload.get("msg") or "FinMind quota exceeded")
+                last_reason = str(payload.get(
+                    "msg") or "FinMind quota exceeded")
                 result = {
                     "status": "limited", "date": date_text,
                     "reason": last_reason, "rows": [],
@@ -853,10 +855,56 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         except Exception:
             return None
 
+    def _broker_trading_top_rows(broker_df, limit=15):
+        """
+        依 Yahoo broker-trading 口徑拆出當日買超前 N 名與賣超前 N 名。
+
+        買超榜：以淨買超張數由大到小排序。
+        賣超榜：以淨賣超張數由大到小排序（也就是淨買超由小到大）。
+        """
+        if broker_df is None or broker_df.empty:
+            return [], []
+
+        work = broker_df.copy()
+        work["buy"] = pd.to_numeric(work.get("buy"), errors="coerce").fillna(0)
+        work["sell"] = pd.to_numeric(
+            work.get("sell"), errors="coerce").fillna(0)
+        work["net_buy"] = work["buy"] - work["sell"]
+
+        buy_sorted = (
+            work.loc[work["net_buy"] > 0]
+            .sort_values(["net_buy", "broker"], ascending=[False, True])
+            .head(limit)
+            .reset_index(drop=True)
+        )
+        sell_sorted = (
+            work.loc[work["net_buy"] < 0]
+            .sort_values(["net_buy", "broker"], ascending=[True, True])
+            .head(limit)
+            .reset_index(drop=True)
+        )
+
+        def _build_rows(frame, side):
+            rows = []
+            for idx, (_, rec) in enumerate(frame.iterrows(), start=1):
+                net_buy = float(rec.get("net_buy") or 0)
+                rows.append({
+                    "rank": idx,
+                    "broker": rec.get("broker"),
+                    "buy": _shares_to_lots(rec.get("buy")),
+                    "sell": _shares_to_lots(rec.get("sell")),
+                    "net_buy": _shares_to_lots(net_buy),
+                    "net_sell": _shares_to_lots(abs(net_buy)) if side == "sell" else None,
+                    "side": side,
+                })
+            return rows
+
+        return _build_rows(buy_sorted, "buy"), _build_rows(sell_sorted, "sell")
+
     def _calc_cmoney_main_force_from_brokers(broker_df):
         """
-        CMoney 近似口徑：
-        先依券商分點彙總指定期間買賣，再取買超前 15 大與賣超前 15 大互抵。
+        CMoney / Yahoo broker-trading 近似口徑：
+        先依券商分點彙總指定期間買賣，再分別取買超前 15 大與賣超前 15 大互抵。
         回傳值以「張」為單位。
         """
         if broker_df is None or broker_df.empty:
@@ -866,9 +914,18 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         work["sell"] = pd.to_numeric(
             work.get("sell"), errors="coerce").fillna(0)
         work["net_buy"] = work["buy"] - work["sell"]
-        sorted_group = work.sort_values("net_buy", ascending=False)
-        top_buy = sorted_group.head(15)["net_buy"].sum()
-        top_sell = sorted_group.tail(15)["net_buy"].sum()
+        top_buy = (
+            work.loc[work["net_buy"] > 0]
+            .sort_values(["net_buy", "broker"], ascending=[False, True])
+            .head(15)["net_buy"]
+            .sum()
+        )
+        top_sell = (
+            work.loc[work["net_buy"] < 0]
+            .sort_values(["net_buy", "broker"], ascending=[True, True])
+            .head(15)["net_buy"]
+            .sum()
+        )
         return _shares_to_lots(float(top_buy + top_sell))
 
     try:
@@ -969,6 +1026,8 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             )
             broker_daily["net_buy"] = broker_daily["buy"] - \
                 broker_daily["sell"]
+            top_buy_rows, top_sell_rows = _broker_trading_top_rows(
+                broker_daily)
 
             active_buyers = broker_daily.loc[broker_daily["buy"] > 0, "broker"].nunique(
             )
@@ -1029,6 +1088,8 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                 "main_force_net": main_force_net,
                 "broker_diff": broker_diff,
                 "total_volume": total_volume_lots,
+                "broker_trading_top_buy_15": top_buy_rows,
+                "broker_trading_top_sell_15": top_sell_rows,
             }
             broker_daily["date"] = actual_date
             broker_frames_by_date[actual_date] = broker_daily[[
@@ -1156,12 +1217,18 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             date_value = r["date"]
             date_text = date_value.strftime(
                 "%Y-%m-%d") if hasattr(date_value, "strftime") else str(date_value)[:10]
+            date_key = date_value.date() if hasattr(date_value, "date") else date_value
+            broker_top_buy_15, broker_top_sell_15 = _broker_trading_top_rows(
+                broker_frames_by_date.get(date_key)
+            )
             recent_rows.append({
                 "date": date_text,
                 "short_margin_ratio_pct": _round_or_none(r.get("short_margin_ratio_pct"), 2),
                 "chip_concentration_pct": _round_or_none(r["chip_concentration_pct"], 2),
                 "main_force_net": _int_or_none(r["main_force_net"]),
                 "broker_diff": _int_or_none(r["broker_diff"]),
+                "broker_trading_top_buy_15": broker_top_buy_15,
+                "broker_trading_top_sell_15": broker_top_sell_15,
             })
 
         result = {
