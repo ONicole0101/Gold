@@ -747,18 +747,32 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         "broker_diff_t1": None,
         "broker_diff_t2": None,
         "broker_diff_score": None,
+        "foreign_investor_net": None,
+        "foreign_investor_net_t0": None,
+        "foreign_investor_net_t1": None,
+        "foreign_investor_net_t2": None,
+        "foreign_investor_net_score": None,
+        "investment_trust_net": None,
+        "investment_trust_net_t0": None,
+        "investment_trust_net_t1": None,
+        "investment_trust_net_t2": None,
+        "investment_trust_net_score": None,
+        "dealer_net": None,
+        "dealer_net_t0": None,
+        "dealer_net_t1": None,
+        "dealer_net_t2": None,
+        "dealer_net_score": None,
+        "institutional_total_net": None,
+        "institutional_total_net_t0": None,
+        "institutional_total_net_t1": None,
+        "institutional_total_net_t2": None,
+        "institutional_total_net_score": None,
         "main_force_net_5d": None,
         "total_volume_5d": None,
         "main_force_buy_rate_5d_pct": None,
         "chip_concentration_avg_5d": None,
         "chip_concentration_change_5d": None,
         "broker_diff_avg_5d": None,
-        "main_force_net_20d": None,
-        "total_volume_20d": None,
-        "main_force_buy_rate_20d_pct": None,
-        "chip_concentration_avg_20d": None,
-        "chip_concentration_change_20d": None,
-        "broker_diff_avg_20d": None,
         "chip_signal_state": "no_data",
         "chip_signal_text": "籌碼資料不足",
         "recent_rows": [],
@@ -928,13 +942,107 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         )
         return _shares_to_lots(float(top_buy + top_sell))
 
+    def _institutional_row_net(row):
+        explicit = _first_non_na(
+            row.get("buy_sell"),
+            row.get("buy_sell_diff"),
+            row.get("net_buy_sell"),
+            row.get("買賣超"),
+            row.get("買賣差額"),
+        )
+        explicit_value = _int_or_none(explicit)
+        if explicit_value is not None:
+            return explicit_value
+
+        buy_value = _first_non_na(
+            row.get("buy"),
+            row.get("Buy"),
+            row.get("buy_volume"),
+            row.get("買進股數"),
+            row.get("買進張數"),
+        )
+        sell_value = _first_non_na(
+            row.get("sell"),
+            row.get("Sell"),
+            row.get("sell_volume"),
+            row.get("賣出股數"),
+            row.get("賣出張數"),
+        )
+        try:
+            if buy_value is None or sell_value is None:
+                return None
+            return _int_or_none(float(buy_value) - float(sell_value))
+        except Exception:
+            return None
+
+    def _classify_institutional_type(row):
+        parts = [
+            row.get("name"),
+            row.get("investor"),
+            row.get("institutional_investor"),
+            row.get("買賣別"),
+            row.get("dealer"),
+        ]
+        text = " ".join(str(v or "") for v in parts).strip().lower()
+        if not text:
+            return None
+        if "投信" in text or "investment" in text and "trust" in text:
+            return "investment_trust_net"
+        if "自營商" in text or "dealer" in text:
+            return "dealer_net"
+        if "外資" in text or "foreign" in text:
+            return "foreign_investor_net"
+        return None
+
+    def _sum_or_none(*values):
+        total = 0
+        has_value = False
+        for value in values:
+            if value is None:
+                continue
+            try:
+                number = float(value)
+                if pd.isna(number):
+                    continue
+                total += number
+                has_value = True
+            except Exception:
+                continue
+        if not has_value:
+            return None
+        return _int_or_none(total)
+
+    def _institutional_trend_score(t0, t1, t2):
+        comparisons = []
+        pairs = [(t0, t1), (t1, t2)]
+        for current, previous in pairs:
+            if current is None or previous is None:
+                continue
+            try:
+                cur = float(current)
+                prev = float(previous)
+                if pd.isna(cur) or pd.isna(prev):
+                    continue
+                if cur > prev:
+                    comparisons.append(1)
+                elif cur < prev:
+                    comparisons.append(-1)
+                else:
+                    comparisons.append(0)
+            except Exception:
+                continue
+        if not comparisons:
+            return 0
+        score = sum(comparisons)
+        return _score_by_ratio(score / len(comparisons))
+
     try:
         start_date = datetime.today().date() - timedelta(days=lookback_days)
         end_date = datetime.today().date()
         daily_by_date = {}
         broker_frames_by_date = {}
         current_date = end_date
-        min_required_days = max(days, 20)
+        min_required_days = max(days, 5)
 
         suppress_api_logs = str(os.getenv("CHIP_SUPPRESS_API_LOGS", "1")).strip().lower() in {
             "1", "true", "yes", "y", "on"
@@ -1110,6 +1218,66 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         if report.empty:
             return empty
 
+        institutional_map_by_date = {}
+        try:
+            institutional_params = {
+                "dataset": "TaiwanStockInstitutionalInvestorsBuySell",
+                "data_id": str(stock_id),
+                "start_date": all_report["date"].min().strftime("%Y-%m-%d"),
+                "end_date": all_report["date"].max().strftime("%Y-%m-%d"),
+                "token": FINMIND_token,
+            }
+            _record_finmind_request(
+                "chip analysis", stock_id, "TaiwanStockInstitutionalInvestorsBuySell"
+            )
+            institutional_res = requests.get(
+                API_URL,
+                params=institutional_params,
+                headers=headers,
+                timeout=300,
+            )
+            if institutional_res.status_code == 200:
+                institutional_rows = _safe_response_json(
+                    institutional_res).get("data", [])
+                if institutional_rows:
+                    institutional_df = pd.DataFrame(institutional_rows)
+                    if "stock_id" in institutional_df.columns:
+                        institutional_df = institutional_df[
+                            institutional_df["stock_id"].astype(
+                                str) == str(stock_id)
+                        ]
+                    institutional_df["date"] = pd.to_datetime(
+                        institutional_df.get("date"), errors="coerce"
+                    )
+                    institutional_df = institutional_df.dropna(
+                        subset=["date"])
+
+                    for date_value, group_df in institutional_df.groupby(institutional_df["date"].dt.date):
+                        day_values = {
+                            "foreign_investor_net": None,
+                            "investment_trust_net": None,
+                            "dealer_net": None,
+                        }
+                        for _, record in group_df.iterrows():
+                            key = _classify_institutional_type(record)
+                            if not key:
+                                continue
+                            net_value = _institutional_row_net(record)
+                            if net_value is None:
+                                continue
+                            current_value = day_values.get(key)
+                            day_values[key] = net_value if current_value is None else _int_or_none(
+                                current_value + net_value)
+
+                        day_values["institutional_total_net"] = _sum_or_none(
+                            day_values.get("foreign_investor_net"),
+                            day_values.get("investment_trust_net"),
+                            day_values.get("dealer_net"),
+                        )
+                        institutional_map_by_date[date_value] = day_values
+        except Exception:
+            institutional_map_by_date = {}
+
         def _window_metrics(window_days: int) -> dict:
             window_df = all_report.head(window_days).copy()
             if window_df.empty:
@@ -1218,6 +1386,7 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             date_text = date_value.strftime(
                 "%Y-%m-%d") if hasattr(date_value, "strftime") else str(date_value)[:10]
             date_key = date_value.date() if hasattr(date_value, "date") else date_value
+            institutional_day = institutional_map_by_date.get(date_key, {})
             broker_top_buy_15, broker_top_sell_15 = _broker_trading_top_rows(
                 broker_frames_by_date.get(date_key)
             )
@@ -1227,9 +1396,70 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                 "chip_concentration_pct": _round_or_none(r["chip_concentration_pct"], 2),
                 "main_force_net": _int_or_none(r["main_force_net"]),
                 "broker_diff": _int_or_none(r["broker_diff"]),
+                "foreign_investor_net": _int_or_none(
+                    institutional_day.get("foreign_investor_net")
+                ),
+                "investment_trust_net": _int_or_none(
+                    institutional_day.get("investment_trust_net")
+                ),
+                "dealer_net": _int_or_none(
+                    institutional_day.get("dealer_net")
+                ),
+                "institutional_total_net": _int_or_none(
+                    institutional_day.get("institutional_total_net")
+                ),
                 "broker_trading_top_buy_15": broker_top_buy_15,
                 "broker_trading_top_sell_15": broker_top_sell_15,
             })
+
+        foreign_t0 = _int_or_none(_first_non_na(
+            recent_rows[0].get("foreign_investor_net") if len(
+                recent_rows) > 0 else None
+        ))
+        foreign_t1 = _int_or_none(_first_non_na(
+            recent_rows[1].get("foreign_investor_net") if len(
+                recent_rows) > 1 else None
+        ))
+        foreign_t2 = _int_or_none(_first_non_na(
+            recent_rows[2].get("foreign_investor_net") if len(
+                recent_rows) > 2 else None
+        ))
+
+        trust_t0 = _int_or_none(_first_non_na(
+            recent_rows[0].get("investment_trust_net") if len(
+                recent_rows) > 0 else None
+        ))
+        trust_t1 = _int_or_none(_first_non_na(
+            recent_rows[1].get("investment_trust_net") if len(
+                recent_rows) > 1 else None
+        ))
+        trust_t2 = _int_or_none(_first_non_na(
+            recent_rows[2].get("investment_trust_net") if len(
+                recent_rows) > 2 else None
+        ))
+
+        dealer_t0 = _int_or_none(_first_non_na(
+            recent_rows[0].get("dealer_net") if len(recent_rows) > 0 else None
+        ))
+        dealer_t1 = _int_or_none(_first_non_na(
+            recent_rows[1].get("dealer_net") if len(recent_rows) > 1 else None
+        ))
+        dealer_t2 = _int_or_none(_first_non_na(
+            recent_rows[2].get("dealer_net") if len(recent_rows) > 2 else None
+        ))
+
+        total_t0 = _int_or_none(_first_non_na(
+            recent_rows[0].get("institutional_total_net") if len(
+                recent_rows) > 0 else None
+        ))
+        total_t1 = _int_or_none(_first_non_na(
+            recent_rows[1].get("institutional_total_net") if len(
+                recent_rows) > 1 else None
+        ))
+        total_t2 = _int_or_none(_first_non_na(
+            recent_rows[2].get("institutional_total_net") if len(
+                recent_rows) > 2 else None
+        ))
 
         result = {
             "chip_trend_days": days,
@@ -1244,13 +1474,32 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             "main_force_score": main_score,
             "broker_diff": _int_or_none(latest["broker_diff"]),
             "broker_diff_score": broker_score,
+            "foreign_investor_net": foreign_t0,
+            "foreign_investor_net_t0": foreign_t0,
+            "foreign_investor_net_t1": foreign_t1,
+            "foreign_investor_net_t2": foreign_t2,
+            "foreign_investor_net_score": _institutional_trend_score(foreign_t0, foreign_t1, foreign_t2),
+            "investment_trust_net": trust_t0,
+            "investment_trust_net_t0": trust_t0,
+            "investment_trust_net_t1": trust_t1,
+            "investment_trust_net_t2": trust_t2,
+            "investment_trust_net_score": _institutional_trend_score(trust_t0, trust_t1, trust_t2),
+            "dealer_net": dealer_t0,
+            "dealer_net_t0": dealer_t0,
+            "dealer_net_t1": dealer_t1,
+            "dealer_net_t2": dealer_t2,
+            "dealer_net_score": _institutional_trend_score(dealer_t0, dealer_t1, dealer_t2),
+            "institutional_total_net": total_t0,
+            "institutional_total_net_t0": total_t0,
+            "institutional_total_net_t1": total_t1,
+            "institutional_total_net_t2": total_t2,
+            "institutional_total_net_score": _institutional_trend_score(total_t0, total_t1, total_t2),
             "chip_signal_state": state,
             "chip_signal_text": text,
             "recent_rows": recent_rows,
         }
 
         result.update(_window_metrics(5))
-        result.update(_window_metrics(20))
 
         for idx, rec in enumerate(recent_rows[:3]):
             suffix = f"t{idx}"
