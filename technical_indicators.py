@@ -7,7 +7,8 @@ def clean_ohlc_data(df):
         return df
 
     data = df.copy()
-    price_cols = [col for col in ("open", "close", "max", "min") if col in data.columns]
+    price_cols = [col for col in (
+        "open", "close", "max", "min") if col in data.columns]
     for col in price_cols:
         data[col] = pd.to_numeric(data[col], errors="coerce")
 
@@ -87,12 +88,13 @@ def add_indicators(df):
         df['BIAS20'] = (df['close'] - df['MA20']) / df['MA20'] * 100
         df['BIAS60'] = (df['close'] - df['MA60']) / df['MA60'] * 100
 
-        df['BIAS5_60D_HIGH'] = df['BIAS5'].rolling(60, min_periods=30).max()
-        df['BIAS5_60D_LOW'] = df['BIAS5'].rolling(60, min_periods=30).min()
-        df['BIAS20_60D_HIGH'] = df['BIAS20'].rolling(60, min_periods=30).max()
-        df['BIAS20_60D_LOW'] = df['BIAS20'].rolling(60, min_periods=30).min()
-        df['BIAS60_60D_HIGH'] = df['BIAS60'].rolling(60, min_periods=30).max()
-        df['BIAS60_60D_LOW'] = df['BIAS60'].rolling(60, min_periods=30).min()
+        # Keep legacy column names for compatibility, but compute over 90 trading days.
+        df['BIAS5_60D_HIGH'] = df['BIAS5'].rolling(90, min_periods=45).max()
+        df['BIAS5_60D_LOW'] = df['BIAS5'].rolling(90, min_periods=45).min()
+        df['BIAS20_60D_HIGH'] = df['BIAS20'].rolling(90, min_periods=45).max()
+        df['BIAS20_60D_LOW'] = df['BIAS20'].rolling(90, min_periods=45).min()
+        df['BIAS60_60D_HIGH'] = df['BIAS60'].rolling(90, min_periods=45).max()
+        df['BIAS60_60D_LOW'] = df['BIAS60'].rolling(90, min_periods=45).min()
 
         return df
     except Exception as e:
@@ -189,7 +191,8 @@ def get_MABias(df):
 
         bias_series = (df['close'] - ma_series) / ma_series * 100
         latest_bias = bias_series.iloc[-1]
-        bias_60 = bias_series.iloc[-60:]
+        # Keep legacy key names, but read 90-trading-day range.
+        bias_60 = bias_series.iloc[-90:]
 
         stats[f'bias{p}'] = round(
             latest_bias, 2) if pd.notna(latest_bias) else None
@@ -244,7 +247,6 @@ def safe_pos(value, low, high):
     if value is None or low is None or high is None or high == low:
         return None
     return (value - low) / (high - low)
-
 
 
 def get_support_resistance_levels(
@@ -349,7 +351,8 @@ def get_support_resistance_levels(
         for cluster in clusters:
             items = cluster["items"]
             weight_sum = sum(i["weight"] for i in items)
-            avg_price = sum(i["price"] * i["weight"] for i in items) / weight_sum
+            avg_price = sum(i["price"] * i["weight"]
+                            for i in items) / weight_sum
             representative = max(
                 items,
                 key=lambda i: (
@@ -387,7 +390,7 @@ def get_support_resistance_levels(
         if not side_candidates:
             return []
 
-        sort_key = lambda c: (
+        def sort_key(c): return (
             -_date_rank(c.get("last_date")),
             c["distance_pct"],
             -int(c.get("touch_count") or 0),
@@ -466,8 +469,10 @@ def get_support_resistance_levels(
             pivot_window += 1
         tolerance = max(float(tolerance_pct or 1.2), 0.1) / 100
 
-        high_roll = window["max"].rolling(pivot_window, center=True, min_periods=3).max()
-        low_roll = window["min"].rolling(pivot_window, center=True, min_periods=3).min()
+        high_roll = window["max"].rolling(
+            pivot_window, center=True, min_periods=3).max()
+        low_roll = window["min"].rolling(
+            pivot_window, center=True, min_periods=3).min()
         pivot_highs = window[window["max"].eq(high_roll)].copy()
         pivot_lows = window[window["min"].eq(low_roll)].copy()
 
@@ -480,7 +485,8 @@ def get_support_resistance_levels(
             price = _safe_float(row.get(price_col))
             if price is None or price <= 0:
                 return
-            volume = _safe_float(row.get("volume")) if "volume" in row.index else None
+            volume = _safe_float(
+                row.get("volume")) if "volume" in row.index else None
             date_value = row.get("date") if "date" in row.index else None
             key = (round(price, 4), str(date_value)[:10], price_col)
             if key in seen:
@@ -493,7 +499,8 @@ def get_support_resistance_levels(
             })
 
         for _, row in pivot_highs.iterrows():
-            _append_candidate(resistance_candidates, resistance_seen, row, "max")
+            _append_candidate(resistance_candidates,
+                              resistance_seen, row, "max")
 
         for _, row in pivot_lows.iterrows():
             _append_candidate(support_candidates, support_seen, row, "min")
@@ -508,12 +515,17 @@ def get_support_resistance_levels(
             _append_candidate(target, seen, frame.loc[idx], price_col)
 
         for span in (20, 60, 120, None):
-            frame = window if span is None else window.tail(min(int(span), len(window)))
-            _append_extreme(resistance_candidates, resistance_seen, frame, "max", "max")
-            _append_extreme(support_candidates, support_seen, frame, "min", "min")
+            frame = window if span is None else window.tail(
+                min(int(span), len(window)))
+            _append_extreme(resistance_candidates,
+                            resistance_seen, frame, "max", "max")
+            _append_extreme(support_candidates, support_seen,
+                            frame, "min", "min")
 
-        resistances = _select_nearest_clusters(resistance_candidates, "resistance", latest_close, tolerance)
-        supports = _select_nearest_clusters(support_candidates, "support", latest_close, tolerance)
+        resistances = _select_nearest_clusters(
+            resistance_candidates, "resistance", latest_close, tolerance)
+        supports = _select_nearest_clusters(
+            support_candidates, "support", latest_close, tolerance)
 
         result = empty.copy()
         for idx, resistance in enumerate(resistances[:2]):

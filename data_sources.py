@@ -535,7 +535,7 @@ def get_per_raw(stock_id):
         return []
 
 
-def get_per_pbr_60d_stats(stock_id, days=60):
+def get_per_pbr_60d_stats(stock_id, days=90):
     """
     Latest valid PER/PBR plus rolling high/low.
     If the newest FinMind row has blank PER/PBR, walk backward to the newest valid value.
@@ -560,13 +560,13 @@ def get_per_pbr_60d_stats(stock_id, days=60):
             "start_date": (datetime.today() - timedelta(days=max(days * 3, 240))).strftime("%Y-%m-%d"),
             "token": FINMIND_token,
         }
-        _record_finmind_request("PER/PBR 60D", stock_id, "TaiwanStockPER")
+        _record_finmind_request("PER/PBR 90D", stock_id, "TaiwanStockPER")
         res = requests.get(API_URL, params=params,
                            headers=headers, timeout=300)
         res_data = _safe_response_json(res)
 
         if res.status_code != 200:
-            _print_api_status_error('PER/PBR 60D', stock_id, res, res_data)
+            _print_api_status_error('PER/PBR 90D', stock_id, res, res_data)
             return empty
 
         data = res_data.get("data", [])
@@ -582,8 +582,9 @@ def get_per_pbr_60d_stats(stock_id, days=60):
             return empty
 
         latest_row_date = df["date"].max()
-        cutoff = latest_row_date - pd.Timedelta(days=days)
-        df_win = df[df["date"] >= cutoff].copy()
+        # Use the latest N trading rows instead of calendar-day subtraction.
+        trading_window = max(int(days or 90), 1)
+        df_win = df.tail(trading_window).copy()
         if df_win.empty:
             df_win = df.copy()
 
@@ -632,7 +633,7 @@ def get_per_pbr_60d_stats(stock_id, days=60):
             "pbr_is_prev": pbr_is_prev,
         }
     except Exception as e:
-        print(f"❌ PER/PBR 60D error {stock_id}: {e}")
+        print(f"❌ PER/PBR 90D error {stock_id}: {e}")
         return empty
 
 

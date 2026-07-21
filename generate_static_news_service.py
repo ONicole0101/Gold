@@ -219,6 +219,29 @@ def _to_datetime_safe(value: str):
         return None
 
 
+def should_refresh_news(
+    existing_news: str,
+    cache_row: dict | None,
+    force_refresh: bool,
+    refresh_hours: float,
+) -> bool:
+    if force_refresh:
+        return True
+    if not str(existing_news or "").strip():
+        return True
+    if not cache_row:
+        return True
+
+    updated_at = _to_datetime_safe(str(cache_row.get("updated_at") or ""))
+    if updated_at is None:
+        return True
+
+    if refresh_hours <= 0:
+        return False
+    now_local = dt.datetime.now(TAIWAN_TZ).replace(tzinfo=None)
+    return (now_local - updated_at).total_seconds() > (float(refresh_hours) * 3600.0)
+
+
 def _extract_finmind_title(item: dict) -> str:
     for key in ("title", "news_title", "headline", "summary"):
         value = str(item.get(key) or "").strip()
@@ -574,16 +597,56 @@ def write_allstatic_news(
 ) -> None:
     news_chars = _env_int("NEWS_SUMMARY_CHARS", 150)
     skip_same_titles = _env_bool("NEWS_SKIP_IF_SAME_TITLES", True)
+    incremental = _env_bool("NEWS_INCREMENTAL", True)
+    force_refresh = _env_bool("NEWS_FORCE_REFRESH", False)
+    refresh_hours = _env_float("NEWS_REFRESH_HOURS", 24.0)
+    max_refresh_stocks = _env_int("NEWS_MAX_REFRESH_STOCKS", 0)
 
     existing = load_existing_news(out_path)
     cache = load_cache(cache_path)
 
     rows = []
     stock_list = list(stocks)
+    refreshed = 0
+    reused = 0
     for i, stock in enumerate(stock_list, start=1):
         existing_row = existing.get(stock.stock_id, {})
         existing_news = str(existing_row.get(
             "新聞") or existing_row.get("news_summary") or "").strip()
+        cache_row = cache.get(stock.stock_id, {})
+
+        can_skip_api = incremental and not should_refresh_news(
+            existing_news=existing_news,
+            cache_row=cache_row,
+            force_refresh=force_refresh,
+            refresh_hours=refresh_hours,
+        )
+
+        if can_skip_api:
+            news = _compact_text(
+                normalize_summary_text(existing_news), news_chars)
+            rows.append({
+                "stock_id": stock.stock_id,
+                "name": stock.name,
+                "新聞": news,
+            })
+            reused += 1
+            print(
+                f"[{i}/{len(stock_list)}] {stock.stock_id} {stock.name} cache/fresh_skip", flush=True)
+            continue
+
+        if max_refresh_stocks > 0 and refreshed >= max_refresh_stocks and existing_news:
+            news = _compact_text(
+                normalize_summary_text(existing_news), news_chars)
+            rows.append({
+                "stock_id": stock.stock_id,
+                "name": stock.name,
+                "新聞": news,
+            })
+            reused += 1
+            print(
+                f"[{i}/{len(stock_list)}] {stock.stock_id} {stock.name} cache/deferred_by_cap", flush=True)
+            continue
 
         try:
             news_items = fetch_finmind_news(
@@ -594,7 +657,6 @@ def write_allstatic_news(
             news_items = []
 
         title_hash = news_titles_hash(news_items)
-        cache_row = cache.get(stock.stock_id, {})
         same_titles = bool(title_hash and cache_row.get(
             "news_titles_hash") == title_hash)
 
@@ -612,6 +674,7 @@ def write_allstatic_news(
             "name": stock.name,
             "新聞": news,
         })
+        refreshed += 1
 
         cache[stock.stock_id] = {
             "name": stock.name,
@@ -628,6 +691,10 @@ def write_allstatic_news(
 
     atomic_write_csv(rows, out_path)
     save_cache(cache_path, cache)
+    print(
+        f"AllStatic_news incremental summary: refreshed={refreshed}, reused={reused}, total={len(rows)}",
+        flush=True,
+    )
 
 
 def get_default_stocks_csv() -> str:
@@ -682,6 +749,10 @@ def main() -> None:
         "settings="
         f"finmind_token_present={bool(resolve_finmind_token())}, "
         f"skip_same_titles={_env('NEWS_SKIP_IF_SAME_TITLES', '1')}, "
+        f"incremental={_env('NEWS_INCREMENTAL', '1')}, "
+        f"force_refresh={_env('NEWS_FORCE_REFRESH', '0')}, "
+        f"refresh_hours={_env('NEWS_REFRESH_HOURS', '24')}, "
+        f"max_refresh_stocks={_env('NEWS_MAX_REFRESH_STOCKS', '0')}, "
         f"news_chars={_env('NEWS_SUMMARY_CHARS', '150')}, "
         f"finmind_log_full_url_with_token={_env('FINMIND_LOG_FULL_URL_WITH_TOKEN', '0')}, "
         "openai_removed=True, google_news_removed=True",

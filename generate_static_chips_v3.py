@@ -15,6 +15,7 @@ import pandas as pd
 
 SCRIPT_VERSION = "chips-static-v20260601-v3-standalone-quiet"
 DEFAULT_OUTPUT_FILE = "AllStatic_Chips.csv"
+DEFAULT_PROBE_STOCK_ID = "2330"
 
 # Keep third-party libraries quiet before importing project modules.
 os.environ.setdefault("LOGURU_LEVEL", "WARNING")
@@ -287,6 +288,47 @@ def should_preserve_existing_row(new_row: dict, existing_row: dict | None) -> bo
     return new_status in {"no_data", "error", "incomplete"} or new_state in {"no_data", "error"}
 
 
+def row_effective_chip_date(row: dict | None) -> str:
+    if not row:
+        return ""
+    for key in ("chip_latest_date", "chip_date_t0", "chips_updated_at"):
+        value = _date_text(row.get(key))
+        if value:
+            return value
+    return ""
+
+
+def max_existing_chip_date(existing_by_id: dict[str, dict]) -> str:
+    dates = [row_effective_chip_date(row) for row in existing_by_id.values()]
+    dates = [value for value in dates if value]
+    return max(dates) if dates else ""
+
+
+def should_refresh_stock(existing_row: dict | None, latest_available_date: str) -> bool:
+    if not existing_row:
+        return True
+    status = str(existing_row.get("chips_status") or "").strip().lower()
+    if status in {"", "error", "no_data", "incomplete"}:
+        return True
+    if not has_valid_chip_data(existing_row):
+        return True
+    existing_date = row_effective_chip_date(existing_row)
+    if latest_available_date and existing_date != latest_available_date:
+        return True
+    return existing_date == ""
+
+
+def pick_probe_stock(stock_list: list[dict], preferred_stock_id: str = DEFAULT_PROBE_STOCK_ID) -> tuple[int, dict] | None:
+    if not stock_list:
+        return None
+    preferred_stock_id = str(preferred_stock_id or "").strip()
+    if preferred_stock_id:
+        for idx, stock in enumerate(stock_list, 1):
+            if str(stock.get("stock_id") or "").strip() == preferred_stock_id:
+                return idx, stock
+    return 1, stock_list[0]
+
+
 def atomic_write_csv(df: pd.DataFrame, path: str) -> None:
     tmp_path = path + ".tmp"
     df = normalize_chips_df(df)
@@ -516,7 +558,7 @@ def format_chip_calc_result(row: dict) -> str:
     return " ; ".join(parts)
 
 
-def build_static_chips(stock_list: list[dict], output_file: str, trend_days: int, concentration_threshold: float, lookback_days: int | None = None, workers: int = 1, day_workers: int | None = None, sleep_sec: float = 0.0, log_every: int = 25, verbose: bool = False, suppress_api_logs: bool = True) -> pd.DataFrame:
+def build_static_chips(stock_list: list[dict], output_file: str, trend_days: int, concentration_threshold: float, lookback_days: int | None = None, workers: int = 1, day_workers: int | None = None, sleep_sec: float = 0.0, log_every: int = 25, verbose: bool = False, suppress_api_logs: bool = True, incremental: bool = True, probe_stock_id: str = DEFAULT_PROBE_STOCK_ID) -> pd.DataFrame:
     started = datetime.utcnow()
     existing_df = read_existing_chips(output_file)
     existing_by_id = {
@@ -529,12 +571,57 @@ def build_static_chips(stock_list: list[dict], output_file: str, trend_days: int
     except Exception as exc:
         print(f"Cannot check FinMind usage, continue: {exc}", flush=True)
     total = len(stock_list)
-    workers = max(1, min(int(workers or 1), max(total, 1)))
     rows_by_index: dict[int, dict] = {}
     notable: list[str] = []
+    skipped = 0
+    latest_available_date = ""
+    pending_items = list(enumerate(stock_list, 1))
+
+    if incremental and existing_by_id and stock_list:
+        probe = pick_probe_stock(stock_list, probe_stock_id)
+        probe_row = None
+        probe_idx = None
+        if probe is not None:
+            probe_idx, probe_stock = probe
+            probe_row = build_chip_row(
+                probe_stock,
+                trend_days,
+                concentration_threshold,
+                lookback_days,
+                day_workers,
+                suppress_api_logs and not verbose,
+            )
+            latest_available_date = row_effective_chip_date(probe_row)
+            rows_by_index[probe_idx] = probe_row
+            print(
+                f"Incremental probe: stock_id={probe_stock.get('stock_id')}, latest_date={latest_available_date or '-'}, status={probe_row.get('chips_status')}",
+                flush=True,
+            )
+        if not latest_available_date:
+            latest_available_date = max_existing_chip_date(existing_by_id)
+            if latest_available_date:
+                print(
+                    f"Incremental probe returned no date; fallback latest existing date={latest_available_date}",
+                    flush=True,
+                )
+
+        pending_items = []
+        for idx, stock in enumerate(stock_list, 1):
+            sid = str(stock.get("stock_id") or "").strip()
+            if probe_idx == idx and idx in rows_by_index:
+                continue
+            existing = existing_by_id.get(sid)
+            if should_refresh_stock(existing, latest_available_date):
+                pending_items.append((idx, stock))
+            else:
+                rows_by_index[idx] = existing
+                skipped += 1
+
+    workers = max(1, min(int(workers or 1), max(len(pending_items), 1)))
     print(
         f"Build chips: total={total}, workers={workers}, trend_days={trend_days}, "
-        f"threshold={concentration_threshold:g}, lookback_days={lookback_days}, output={output_file}",
+        f"threshold={concentration_threshold:g}, lookback_days={lookback_days}, output={output_file}, "
+        f"incremental={incremental}, skipped={skipped}, pending={len(pending_items)}, latest_date={latest_available_date or '-'}",
         flush=True,
     )
 
@@ -547,11 +634,11 @@ def build_static_chips(stock_list: list[dict], output_file: str, trend_days: int
 
     if workers <= 1:
         iterator = ((idx, task((idx, stock))[1])
-                    for idx, stock in enumerate(stock_list, 1))
+                    for idx, stock in pending_items)
     else:
         executor = ThreadPoolExecutor(max_workers=workers)
         futures = {executor.submit(
-            task, (idx, stock)): idx for idx, stock in enumerate(stock_list, 1)}
+            task, (idx, stock)): idx for idx, stock in pending_items}
 
         def completed_iter():
             try:
@@ -560,7 +647,8 @@ def build_static_chips(stock_list: list[dict], output_file: str, trend_days: int
                     try:
                         yield future.result()
                     except Exception as exc:
-                        stock = stock_list[idx - 1]
+                        stock = next(stock for item_idx,
+                                     stock in pending_items if item_idx == idx)
                         row = empty_chip_row(stock)
                         row["chips_status"] = "error"
                         row["chips_reason"] = compact_text(str(exc))
@@ -569,7 +657,7 @@ def build_static_chips(stock_list: list[dict], output_file: str, trend_days: int
                 executor.shutdown(wait=True)
         iterator = completed_iter()
 
-    completed = 0
+    completed = len(rows_by_index)
     for idx, row in iterator:
         rows_by_index[idx] = row
         completed += 1
@@ -603,7 +691,7 @@ def build_static_chips(stock_list: list[dict], output_file: str, trend_days: int
     elapsed = (datetime.utcnow() - started).total_seconds()
     status_counts = final_df["chips_status"].astype(
         str).str.lower().value_counts().to_dict() if not final_df.empty else {}
-    print(f"Done: rows={len(final_df)}, status={status_counts}, preserved={preserved}, elapsed={elapsed:.1f}s, output={output_file}", flush=True)
+    print(f"Done: rows={len(final_df)}, status={status_counts}, preserved={preserved}, skipped={skipped}, elapsed={elapsed:.1f}s, output={output_file}", flush=True)
     if notable and not verbose:
         print("Notable rows:", flush=True)
         for line in notable[:10]:
@@ -646,6 +734,12 @@ def parse_args() -> argparse.Namespace:
                         default=read_bool_env("CHIP_SUPPRESS_API_LOGS", True), help="Suppress noisy API request/status logs.")
     parser.add_argument("--no-suppress-api-logs", dest="suppress_api_logs",
                         action="store_false", help="Show noisy API request/status logs.")
+    parser.add_argument("--incremental", dest="incremental", action="store_true",
+                        default=read_bool_env("CHIP_INCREMENTAL", True), help="Reuse existing output and only refresh missing/stale rows.")
+    parser.add_argument("--full-refresh", dest="incremental",
+                        action="store_false", help="Ignore incremental skip logic and refresh every stock.")
+    parser.add_argument("--probe-stock-id", default=None,
+                        help="Benchmark stock_id used to detect the latest available chip date for incremental runs.")
     return parser.parse_args()
 
 
@@ -679,6 +773,9 @@ def main() -> None:
             "CHIP_LOG_EVERY", 25), 25, 0, 10000),
         verbose=bool(args.verbose),
         suppress_api_logs=bool(args.suppress_api_logs),
+        incremental=bool(args.incremental),
+        probe_stock_id=str(args.probe_stock_id or cfg(
+            "CHIP_PROBE_STOCK_ID", DEFAULT_PROBE_STOCK_ID) or DEFAULT_PROBE_STOCK_ID).strip(),
     )
 
 

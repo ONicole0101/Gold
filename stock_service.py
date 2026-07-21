@@ -36,19 +36,20 @@ def get_price_60d_high_low(df):
             "price_60d_high": None,
             "price_60d_low": None,
         }
-    df_60 = df.tail(60)
-    max_price60 = pd.to_numeric(df_60["max"], errors="coerce").max()
-    min_price60 = pd.to_numeric(df_60["min"], errors="coerce").min()
+    # Keep legacy key names for compatibility, but compute over 90 trading days.
+    df_90 = df.tail(90)
+    max_price90 = pd.to_numeric(df_90["max"], errors="coerce").max()
+    min_price90 = pd.to_numeric(df_90["min"], errors="coerce").min()
 
-    if pd.isna(max_price60) or pd.isna(min_price60):
+    if pd.isna(max_price90) or pd.isna(min_price90):
         return {
             "price_60d_high": None,
             "price_60d_low": None,
         }
 
     return {
-        "price_60d_high": float(max_price60),
-        "price_60d_low": float(min_price60),
+        "price_60d_high": float(max_price90),
+        "price_60d_low": float(min_price90),
     }
 
 
@@ -446,6 +447,12 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             bb_pct = float(bb_pct)
         bb_pct_t1 = _bb_pct_from_row(prev)
         bb_pct_t2 = _bb_pct_from_row(prev2)
+        bb_pct_window = df.tail(90).apply(_bb_pct_from_row, axis=1)
+        bb_pct_window = pd.to_numeric(bb_pct_window, errors="coerce")
+        bb_pct_90d_low = float(round(bb_pct_window.min(), 1)
+                               ) if bb_pct_window.notna().any() else None
+        bb_pct_90d_high = float(
+            round(bb_pct_window.max(), 1)) if bb_pct_window.notna().any() else None
 
         def _bias_from_row(row, period):
             bias_col = f"BIAS{period}"
@@ -653,6 +660,8 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             "bb_pct_t0": float(bb_pct) if bb_pct is not None else None,
             "bb_pct_t1": float(bb_pct_t1) if bb_pct_t1 is not None else None,
             "bb_pct_t2": float(bb_pct_t2) if bb_pct_t2 is not None else None,
+            "bb_pct_90d_low": bb_pct_90d_low,
+            "bb_pct_90d_high": bb_pct_90d_high,
             "bb_upper": float(round(bb_upper, 2)) if bb_upper is not None and pd.notna(bb_upper) else None,
             "bb_lower": float(round(bb_lower, 2)) if bb_lower is not None and pd.notna(bb_lower) else None,
             "bb_3d_up": bb_trend.get("bb_3d_up"),

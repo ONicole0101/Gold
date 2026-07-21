@@ -638,6 +638,41 @@
       padding-right: 4px;
     }
 
+    .col-cb-id {
+      width: 92px;
+      min-width: 92px;
+    }
+
+    .col-cb-market {
+      width: 132px;
+      min-width: 132px;
+    }
+
+    .col-cb-conversion {
+      width: 126px;
+      min-width: 126px;
+    }
+
+    .col-cb-wide {
+      width: 156px;
+      min-width: 156px;
+    }
+
+    .col-cb-supply {
+      width: 184px;
+      min-width: 184px;
+    }
+
+    .col-cb-period {
+      width: 110px;
+      min-width: 110px;
+    }
+
+    .col-cb-rank {
+      width: 124px;
+      min-width: 124px;
+    }
+
 
     thead th[data-tooltip]::before {
       content: "ⓘ";
@@ -871,6 +906,10 @@
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
         </select><input data-filter-key="gross_margin" type="number" step="0.01" placeholder="數值"></div>
+      <div class="filter-item"><label>日PER</label><select data-filter-op="per_latest">
+          <option value=">">&gt;</option>
+          <option value="<">&lt;</option>
+        </select><input data-filter-key="per_latest" type="number" step="0.01" placeholder="數值"></div>
       <div class="filter-item"><label>日KD</label><select data-filter-op="k">
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
@@ -952,7 +991,7 @@
         note: "總覽：價格、漲跌、量、KD、布林、訊號",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "price", label: "價格<br><small>60天LH</small>" },
+          { key: "price", label: "價格<br><small>90日LH</small>" },
           { key: "chg", label: "漲跌<br><small>LH</small>" },
           { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
@@ -962,22 +1001,22 @@
         ]
       },
       technical: {
-        note: "技術面：價格趨勢、壓力/支撐、KD、布林、Bias、PER/PBR 60天區間",
+        note: "技術面：價格趨勢、壓力/支撐、KD、布林、Bias、PER/PBR 90日區間",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "price", label: "價格<br><small>60天L/H</small>" },
+          { key: "price", label: "價格<br><small>90日LH</small>" },
           { key: "price_lh_trend", label: "價格L/H<br><small>3天趨勢</small>", cls: "col-md" },
           { key: "resistance_price", label: "壓力點<br><small>距離%</small>", tooltip: "壓力點距離%＝(壓力點價格 - 目前收盤價) ÷ 目前收盤價 × 100。數值越小代表越接近上方壓力，突破後可能轉為支撐。" },
           { key: "support_price", label: "支撐點<br><small>距離%</small>", tooltip: "支撐點距離%＝(目前收盤價 - 支撐點價格) ÷ 目前收盤價 × 100。數值越小代表越接近下方支撐，跌破後可能轉為壓力。" },
           { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "k", label: "日KD<br><small>3天趨勢</small>" },
-          { key: "bb_pct", label: "日布林%<br><small>L/H</small>" },
-          { key: "bias5", label: "日Bias5<br><small>L/H</small>" },
-          { key: "bias20", label: "日Bias20<br><small>L/H</small>" },
-          { key: "bias60", label: "日Bias60<br><small>L/H</small>", cls: "col-lg" },
-          { key: "per_latest", label: "日PER<br><small>60天L/H</small>", cls: "col-lg" },
-          { key: "pbr_latest", label: "日PBR<br><small>60天L/H</small>", cls: "col-lg" },
+          { key: "bb_pct", label: "日布林%<br><small>90日LH</small>" },
+          { key: "bias5", label: "日Bias5<br><small>90日LH</small>" },
+          { key: "bias20", label: "日Bias20<br><small>90日LH</small>" },
+          { key: "bias60", label: "日Bias60<br><small>90日LH</small>", cls: "col-lg" },
+          { key: "per_latest", label: "日PER<br><small>90日LH</small>", cls: "col-lg" },
+          { key: "pbr_latest", label: "日PBR<br><small>90日LH</small>", cls: "col-lg" },
           { key: "sig", label: "訊號" }
         ]
       },
@@ -985,7 +1024,7 @@
         note: "籌碼面：籌碼集中、主力買賣超、買賣家數差與三日趨勢",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "price", label: "價格<br><small>60天L/H</small>" },
+          { key: "price", label: "價格<br><small>90日LH</small>" },
           { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "short_margin_ratio_score", label: "券資比%<br><small>3天趨勢</small>", tooltip: "券資比%＝融券餘額 ÷ 融資餘額 × 100。數值越高代表放空籌碼占比越高，常見於市場偏保守或避險需求升高時；需搭配價格趨勢與主力買賣超共同判讀。" },
@@ -1005,7 +1044,7 @@
         note: "基本面：EPS、ROE、營收、毛利率、營益率、淨利率、殖利率、PER/PBR、新聞",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "price", label: "價格<br><small>60天L/H </small>" },
+          { key: "price", label: "價格<br><small>90日LH </small>" },
           { key: "eps_Y", label: "EPS<br><small>TTM</small>" },
           { key: "roe", label: "ROE%<br><small>TTM</small>" },
           { key: "rev", label: "營收(bn)<br><small>M / Q / Y</small>" },
@@ -1013,23 +1052,23 @@
           { key: "operating_margin", label: "營益率%<br><small>QoQ / YoY</small>" },
           { key: "net_margin", label: "淨利率%<br><small>QoQ / Y</small>" },
           { key: "yield_value", label: "殖利率<br><small>估65%</small>", cls: "col-md" },
-          { key: "per_latest", label: "日PER<br><small>60天L/H</small>" },
-          { key: "pbr_latest", label: "日PBR<br><small>60天L/H</small>" },
+          { key: "per_latest", label: "日PER<br><small>90日LH</small>" },
+          { key: "pbr_latest", label: "日PBR<br><small>90日LH</small>" },
           { key: "news_summary", label: "新聞", cls: "news-summary-col" }
         ]
       },
       cb: {
         note: "CB：T為交易日、M為月度快照；價格採漲紅跌綠，其餘紅＝轉換壓力增加、綠＝壓力下降；屬風險篩選，不代表股價必然下跌",
         columns: [
-          { key: "cb_issue", label: "CB代號<br><small>名稱</small>" },
-          { key: "cb_market", label: "股價 / CB價<br><small>T/T-1/T-2</small>", tooltip: "CB價採 FinMind 每日總覽的 ReferencePrice；股價優先採同一份 CB 總覽的標的股價。此欄單純採台股慣例：上漲紅、下跌綠，不等同壓力判定。" },
-          { key: "cb_conversion", label: "轉換價<br><small>價內程度 T趨勢</small>", tooltip: "價內程度＝(股價 ÷ 轉換價 − 1) × 100%。數值上升代表轉換誘因提高，顯示紅色；下降顯示綠色。大於0仍不代表立即轉換最有利。" },
-          { key: "cb_parity_premium", label: "轉換價值 / 溢價<br><small>T/T-1/T-2</small>", tooltip: "轉換價值＝100 × 股價 ÷ 轉換價；溢價率＝(CB價 ÷ 轉換價值 − 1) × 100%。溢價下降表示更接近轉換價值，因此以紅色表示壓力增加。" },
-          { key: "cb_break_even", label: "損平股價 / 距離<br><small>T/T-1/T-2</small>", tooltip: "損平股價＝轉換價 × CB價 ÷ 100；距離%＝(目前股價 ÷ 損平股價 − 1) × 100%。距離上升或由負轉正，表示更接近或跨過損平區，以紅色表示。" },
-          { key: "cb_balance", label: "餘額 / 剩餘比例<br><small>M/M-1/M-2</small>", tooltip: "剩餘比例＝上月底發行餘額 ÷ 原始發行總額。增加以紅色、下降以綠色表示未來潛在供給方向；但下降可能來自轉換、贖回、賣回或償還，不能單獨認定為轉換。" },
-          { key: "cb_supply", label: "潛在張數 M趨勢<br><small>壓力天數 T趨勢</small>", tooltip: "潛在張數＝未轉換餘額 ÷ 轉換價 ÷ 1,000；壓力天數＝潛在張數 ÷ 近20日平均成交量。上升紅、下降綠。若近20日量缺漏，會以當日量替代並標示；此為極端上限估算。" },
-          { key: "cb_period", label: "轉換迄日<br><small>剩餘天數</small>" },
-          { key: "cb_pressure_rank", label: "壓力關注<br><small>T/T-1/T-2</small>", tooltip: "高關注：轉換已具經濟性或進入提前贖回期，且潛在供給約達5個平均成交日以上；中關注：股價已高於轉換價、距損平10%內或提前贖回中；其餘為低關注。總趨勢由溢價、距損平、壓力天數與分類變化投票，不重複計入高度相關的價內程度與轉換價值。" }
+          { key: "cb_issue", label: "CB代號<br><small>名稱</small>", cls: "col-cb-id" },
+          { key: "cb_market", label: "股價 / CB價<br><small>T/T-1/T-2</small>", cls: "col-cb-market", tooltip: "CB價採 FinMind 每日總覽的 ReferencePrice；股價優先採同一份 CB 總覽的標的股價。此欄單純採台股慣例：上漲紅、下跌綠，不等同壓力判定。" },
+          { key: "cb_conversion", label: "轉換價<br><small>價內程度 T趨勢</small>", cls: "col-cb-conversion", tooltip: "價內程度＝(股價 ÷ 轉換價 − 1) × 100%。數值上升代表轉換誘因提高，顯示紅色；下降顯示綠色。大於0仍不代表立即轉換最有利。" },
+          { key: "cb_parity_premium", label: "轉換價值 / 溢價<br><small>T/T-1/T-2</small>", cls: "col-cb-wide", tooltip: "轉換價值＝100 × 股價 ÷ 轉換價；溢價率＝(CB價 ÷ 轉換價值 − 1) × 100%。溢價下降表示更接近轉換價值，因此以紅色表示壓力增加。" },
+          { key: "cb_break_even", label: "損平股價 / 距離<br><small>T/T-1/T-2</small>", cls: "col-cb-wide", tooltip: "損平股價＝轉換價 × CB價 ÷ 100；距離%＝(目前股價 ÷ 損平股價 − 1) × 100%。距離上升或由負轉正，表示更接近或跨過損平區，以紅色表示。" },
+          { key: "cb_balance", label: "餘額 / 剩餘比例<br><small>M/M-1/M-2</small>", cls: "col-cb-wide", tooltip: "剩餘比例＝上月底發行餘額 ÷ 原始發行總額。增加以紅色、下降以綠色表示未來潛在供給方向；但下降可能來自轉換、贖回、賣回或償還，不能單獨認定為轉換。" },
+          { key: "cb_supply", label: "潛在張數 M趨勢<br><small>壓力天數 T趨勢</small>", cls: "col-cb-supply", tooltip: "潛在張數＝未轉換餘額 ÷ 轉換價 ÷ 1,000；壓力天數＝潛在張數 ÷ 近20日平均成交量。上升紅、下降綠。若近20日量缺漏，會以當日量替代並標示；此為極端上限估算。" },
+          { key: "cb_period", label: "轉換迄日<br><small>剩餘天數</small>", cls: "col-cb-period" },
+          { key: "cb_pressure_rank", label: "壓力關注<br><small>T/T-1/T-2</small>", cls: "col-cb-rank", tooltip: "高關注：轉換已具經濟性或進入提前贖回期，且潛在供給約達5個平均成交日以上；中關注：股價已高於轉換價、距損平10%內或提前贖回中；其餘為低關注。總趨勢由溢價、距損平、壓力天數與分類變化投票，不重複計入高度相關的價內程度與轉換價值。" }
         ]
       },
     };
@@ -1338,9 +1377,11 @@
     }
 
     function renderBBTechnicalContent(s) {
+      const low = pickFirst(s.bb_pct_90d_low, s.bb_pct_low, s.bb_lower);
+      const high = pickFirst(s.bb_pct_90d_high, s.bb_pct_high, s.bb_upper);
       return `
         ${renderDayPairContent(s, "bb_pct", "%")}
-        <div class="table-lv3">${fmt(s.bb_lower)} / ${fmt(s.bb_upper)}</div>`;
+        <div class="table-lv3">${fmt(low)} / ${fmt(high)}</div>`;
     }
 
     function renderBiasTechnicalContent(s, key) {
@@ -2075,8 +2116,8 @@
           <div class="stock-item"><div class="stock-label">營益率</div><div class="stock-value">${renderMetric3(s.operating_margin, null, s.operating_margin_qoq, s.operating_margin_yoy_diff)}</div></div>
           <div class="stock-item"><div class="stock-label">淨利率</div><div class="stock-value">${renderMetric3(s.net_margin, null, s.net_margin_qoq, s.net_margin_yoy_diff)}</div></div>
           <div class="stock-item"><div class="stock-label">殖利率 估65%</div><div class="stock-value">${fmt(Number(s.yield_value ?? 0) * 0.65, "%")}</div></div>
-          <div class="stock-item"><div class="stock-label">日PER 60天L/H</div><div class="stock-value">${renderRangeMetric(s.per_latest, s.per_60d_low, s.per_60d_high)}</div></div>
-          <div class="stock-item"><div class="stock-label">日PBR 60天L/H</div><div class="stock-value">${renderRangeMetric(s.pbr_latest, s.pbr_60d_low, s.pbr_60d_high)}</div></div>
+          <div class="stock-item"><div class="stock-label">日PER 90日LH</div><div class="stock-value">${renderRangeMetric(s.per_latest, s.per_60d_low, s.per_60d_high)}</div></div>
+          <div class="stock-item"><div class="stock-label">日PBR 90日LH</div><div class="stock-value">${renderRangeMetric(s.pbr_latest, s.pbr_60d_low, s.pbr_60d_high)}</div></div>
           <div class="stock-item summary-mobile-item"><div class="stock-label">新聞</div><div class="stock-value">${escapeHtml(s.news_summary || "-")}</div></div>
         </div>`;
 
