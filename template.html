@@ -658,9 +658,14 @@
       min-width: 156px;
     }
 
-    .col-cb-supply {
-      width: 184px;
-      min-width: 184px;
+    .col-cb-potential {
+      width: 132px;
+      min-width: 132px;
+    }
+
+    .col-cb-pressure-days {
+      width: 132px;
+      min-width: 132px;
     }
 
     .col-cb-period {
@@ -1066,7 +1071,8 @@
           { key: "cb_parity_premium", label: "轉換價值 / 溢價<br><small>T/T-1/T-2</small>", cls: "col-cb-wide", tooltip: "轉換價值＝100 × 股價 ÷ 轉換價；溢價率＝(CB價 ÷ 轉換價值 − 1) × 100%。溢價下降表示更接近轉換價值，因此以紅色表示壓力增加。" },
           { key: "cb_break_even", label: "損平股價 / 距離<br><small>T/T-1/T-2</small>", cls: "col-cb-wide", tooltip: "損平股價＝轉換價 × CB價 ÷ 100；距離%＝(目前股價 ÷ 損平股價 − 1) × 100%。距離上升或由負轉正，表示更接近或跨過損平區，以紅色表示。" },
           { key: "cb_balance", label: "餘額 / 剩餘比例<br><small>M/M-1/M-2</small>", cls: "col-cb-wide", tooltip: "剩餘比例＝上月底發行餘額 ÷ 原始發行總額。增加以紅色、下降以綠色表示未來潛在供給方向；但下降可能來自轉換、贖回、賣回或償還，不能單獨認定為轉換。" },
-          { key: "cb_supply", label: "潛在張數 M趨勢<br><small>壓力天數 T趨勢</small>", cls: "col-cb-supply", tooltip: "潛在張數＝未轉換餘額 ÷ 轉換價 ÷ 1,000；壓力天數＝潛在張數 ÷ 近20日平均成交量。上升紅、下降綠。若近20日量缺漏，會以當日量替代並標示；此為極端上限估算。" },
+          { key: "cb_potential_lots", label: "潛在張數 M趨勢", cls: "col-cb-potential", tooltip: "潛在張數＝未轉換餘額 ÷ 轉換價 ÷ 1,000。上升紅、下降綠。" },
+          { key: "cb_pressure_days", label: "壓力天數 T趨勢", cls: "col-cb-pressure-days", tooltip: "壓力天數＝潛在張數 ÷ 近20日平均成交量。上升紅、下降綠。若近20日量缺漏，會以當日量替代並標示；此為極端上限估算。" },
           { key: "cb_period", label: "轉換迄日<br><small>剩餘天數</small>", cls: "col-cb-period" },
           { key: "cb_pressure_rank", label: "壓力關注<br><small>T/T-1/T-2</small>", cls: "col-cb-rank", tooltip: "高關注：轉換已具經濟性或進入提前贖回期，且潛在供給約達5個平均成交日以上；中關注：股價已高於轉換價、距損平10%內或提前贖回中；其餘為低關注。總趨勢由溢價、距損平、壓力天數與分類變化投票，不重複計入高度相關的價內程度與轉換價值。" }
         ]
@@ -1945,11 +1951,12 @@
           return `<td>${renderCbStack(s, item => `
             ${renderCbMonthlyBalance(item)}
             <div class="table-lv3">下降可能含轉換、贖回、賣回或償還</div>`)}</td>`;
-        case "cb_supply":
+        case "cb_potential_lots":
           return `<td>${renderCbStack(s, item => `
-            <div class="table-lv3">潛在張數（M）</div>
             ${renderCbMetricHistory(item, "cb_potential_lots", "張", "pressure_up", true)}
-            <div class="table-lv3">壓力天數（T）</div>
+            <div class="table-lv3">潛在張數（M）</div>`)} </td>`;
+        case "cb_pressure_days":
+          return `<td>${renderCbStack(s, item => `
             ${renderCbMetricHistory(item, "cb_pressure_days", "天", "pressure_up")}
             <div class="table-lv3">${escapeHtml(item.cb_volume_basis || "量資料不足")}</div>`)}</td>`;
         case "cb_period":
@@ -2200,7 +2207,9 @@
           return Number(s.cb_distance_to_break_even_pct ?? -999999);
         case "cb_balance":
           return Number(s.cb_outstanding_amount ?? -999999);
-        case "cb_supply":
+        case "cb_potential_lots":
+          return Number(s.cb_potential_lots ?? -999999);
+        case "cb_pressure_days":
           return Number(s.cb_pressure_days ?? -999999);
         case "cb_period":
           return Number(s.cb_days_to_due ?? -999999);
