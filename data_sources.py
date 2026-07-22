@@ -944,16 +944,35 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         return _shares_to_lots(float(top_buy + top_sell))
 
     def _institutional_row_net(row):
-        explicit = _first_non_na(
-            row.get("buy_sell"),
-            row.get("buy_sell_diff"),
-            row.get("net_buy_sell"),
-            row.get("買賣超"),
-            row.get("買賣差額"),
-        )
-        explicit_value = _int_or_none(explicit)
-        if explicit_value is not None:
-            return explicit_value
+        def _to_lots(value, already_lots=False):
+            try:
+                number = float(value)
+                if pd.isna(number):
+                    return None
+                if already_lots:
+                    return _int_or_none(number)
+                return _int_or_none(number / 1000.0)
+            except Exception:
+                return None
+
+        explicit_candidates = [
+            ("buy_sell_lot", True),
+            ("buy_sell_diff_lot", True),
+            ("net_buy_sell_lot", True),
+            ("買賣超張數", True),
+            ("buy_sell", False),
+            ("buy_sell_diff", False),
+            ("net_buy_sell", False),
+            ("買賣超", False),
+            ("買賣差額", False),
+        ]
+        for key, already_lots in explicit_candidates:
+            value = row.get(key)
+            if value in (None, ""):
+                continue
+            converted = _to_lots(value, already_lots=already_lots)
+            if converted is not None:
+                return converted
 
         buy_value = _first_non_na(
             row.get("buy"),
@@ -972,7 +991,26 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         try:
             if buy_value is None or sell_value is None:
                 return None
-            return _int_or_none(float(buy_value) - float(sell_value))
+
+            buy_key = _first_non_na(
+                "buy" if row.get("buy") not in (None, "") else None,
+                "Buy" if row.get("Buy") not in (None, "") else None,
+                "buy_volume" if row.get(
+                    "buy_volume") not in (None, "") else None,
+                "買進股數" if row.get("買進股數") not in (None, "") else None,
+                "買進張數" if row.get("買進張數") not in (None, "") else None,
+            )
+            sell_key = _first_non_na(
+                "sell" if row.get("sell") not in (None, "") else None,
+                "Sell" if row.get("Sell") not in (None, "") else None,
+                "sell_volume" if row.get(
+                    "sell_volume") not in (None, "") else None,
+                "賣出股數" if row.get("賣出股數") not in (None, "") else None,
+                "賣出張數" if row.get("賣出張數") not in (None, "") else None,
+            )
+            lots_mode = any(k in ("買進張數", "賣出張數") for k in (buy_key, sell_key))
+            diff_value = float(buy_value) - float(sell_value)
+            return _to_lots(diff_value, already_lots=lots_mode)
         except Exception:
             return None
 
