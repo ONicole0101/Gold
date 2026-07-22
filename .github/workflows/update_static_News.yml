@@ -3,8 +3,8 @@ name: U_1510 Static News
 on:
   schedule:
     # GitHub Actions cron uses UTC.
-    # 07:10 UTC = Taiwan time 15:10.
-    - cron: "10 7 * * *"
+    # 06:10 UTC = Taiwan time 14:10.
+    - cron: "10 6 * * *"
   workflow_dispatch:
 
 jobs:
