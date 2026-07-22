@@ -16,7 +16,7 @@ on:
         required: false
         default: ""
   schedule:
-    - cron: "11 7 * * 1-5"
+    - cron: "41 8 * * 1-5"
 
 permissions:
   contents: write
