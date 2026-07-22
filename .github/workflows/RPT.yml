@@ -16,6 +16,8 @@ on:
         required: false
         default: ""
   schedule:
+    # GitHub Actions cron uses UTC.
+    # 08:41 UTC = Taiwan time 16:41
     - cron: "41 8 * * 1-5"
 
 permissions:
