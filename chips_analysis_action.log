@@ -1,12 +1,11 @@
-[32m2026-07-26 10:52:32.029[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-07-26 10:52:32.194[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-26 15:05:00.452[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-26 15:05:00.565[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
 FinMind usage: 0/6000, remain=6000
 Incremental probe: stock_id=2330, latest_date=2026-07-24, status=ok
-Build chips: total=170, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=160, pending=9, latest_date=2026-07-24
-[170/170] 7899 景美 status=ok date=2026-07-24 main=-36 diff=192 state=bearish_distributed
+Build chips: total=170, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=169, pending=0, latest_date=2026-07-24
 2330 籌碼分頁結果 date=2026-07-24 ; main_force=-6848 ; concentration=-27.85 ; broker_diff=32
-Done: rows=170, status={'ok': 170}, preserved=0, skipped=160, elapsed=27.9s, output=AllStatic_Chips.csv
+Done: rows=170, status={'ok': 170}, preserved=0, skipped=169, elapsed=7.7s, output=AllStatic_Chips.csv
 stock_id=1101
 name=台泥
 chip_latest_date=2026-07-24
