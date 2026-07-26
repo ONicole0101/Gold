@@ -339,7 +339,7 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             x.update({
                 "signal": "資料不足",
                 "signal_text": "資料不足",
-                "reason": f"不足 {len(df)}/90筆",
+                "reason": f" {len(df)}/90筆",
             })
             x.update(_build_static_fields(static_row))
             x.update(_build_chip_fields(chip_row))
