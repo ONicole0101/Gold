@@ -334,12 +334,12 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             x.update(_build_news_fields(news_row))
             return x
 
-        if len(df) < 60:
+        if len(df) < 90:
             x = base.copy()
             x.update({
                 "signal": "資料不足",
                 "signal_text": "資料不足",
-                "reason": f"歷史資料不足60日，僅有 {len(df)} 筆",
+                "reason": f"歷史資料不足90日，僅有 {len(df)} 筆",
             })
             x.update(_build_static_fields(static_row))
             x.update(_build_chip_fields(chip_row))

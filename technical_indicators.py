@@ -390,9 +390,11 @@ def get_support_resistance_levels(
         if not side_candidates:
             return []
 
+        # Prefer nearest valid level first for UI layer-1/layer-2 display,
+        # then use recency and touch count as tie-breakers.
         def sort_key(c): return (
-            -_date_rank(c.get("last_date")),
             c["distance_pct"],
+            -_date_rank(c.get("last_date")),
             -int(c.get("touch_count") or 0),
         )
 
