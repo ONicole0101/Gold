@@ -1,9 +1,12 @@
-[32m2026-07-24 09:59:48.795[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-07-24 09:59:48.911[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-26 10:52:32.029[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-07-26 10:52:32.194[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 70/6000, remain=5930
+FinMind usage: 0/6000, remain=6000
 Incremental probe: stock_id=2330, latest_date=2026-07-24, status=ok
-Build chips: total=170, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=169, latest_date=2026-07-24
+Build chips: total=170, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=160, pending=9, latest_date=2026-07-24
+[170/170] 7899 景美 status=ok date=2026-07-24 main=-36 diff=192 state=bearish_distributed
+2330 籌碼分頁結果 date=2026-07-24 ; main_force=-6848 ; concentration=-27.85 ; broker_diff=32
+Done: rows=170, status={'ok': 170}, preserved=0, skipped=160, elapsed=27.9s, output=AllStatic_Chips.csv
 stock_id=1101
 name=台泥
 chip_latest_date=2026-07-24
@@ -70,18 +73,18 @@ chips_status=ok
 ---
 stock_id=1519
 name=華城
-chip_latest_date=2026-07-23
-main_force_net=116
-broker_diff=86
+chip_latest_date=2026-07-24
+main_force_net=13
+broker_diff=227
 chip_signal_state=bullish_distributed
 chips_status=ok
 ---
 stock_id=1532
 name=勤美
-chip_latest_date=2026-07-23
-main_force_net=26
-broker_diff=0
-chip_signal_state=neutral
+chip_latest_date=2026-07-24
+main_force_net=37
+broker_diff=-4
+chip_signal_state=bullish_distributed
 chips_status=ok
 ---
 stock_id=1560
@@ -134,9 +137,9 @@ chips_status=ok
 ---
 stock_id=2059
 name=川湖
-chip_latest_date=2026-07-23
-main_force_net=20
-broker_diff=21
+chip_latest_date=2026-07-24
+main_force_net=-24
+broker_diff=305
 chip_signal_state=neutral
 chips_status=ok
 ---
