@@ -1011,6 +1011,8 @@
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>90日LH</small>" },
           { key: "price_lh_trend", label: "價格L/H<br><small>3天趨勢</small>", cls: "col-md" },
+          { key: "per_latest", label: "日PER<br><small>90日LH</small>", cls: "col-lg" },
+          { key: "pbr_latest", label: "日PBR<br><small>90日LH</small>", cls: "col-lg" },
           { key: "resistance_price", label: "壓力點<br><small>距離%</small>", tooltip: "壓力點距離%＝(壓力點價格 - 目前收盤價) ÷ 目前收盤價 × 100。數值越小代表越接近上方壓力，突破後可能轉為支撐。" },
           { key: "support_price", label: "支撐點<br><small>距離%</small>", tooltip: "支撐點距離%＝(目前收盤價 - 支撐點價格) ÷ 目前收盤價 × 100。數值越小代表越接近下方支撐，跌破後可能轉為壓力。" },
           { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
@@ -1020,8 +1022,6 @@
           { key: "bias5", label: "日Bias5<br><small>90日LH</small>" },
           { key: "bias20", label: "日Bias20<br><small>90日LH</small>" },
           { key: "bias60", label: "日Bias60<br><small>90日LH</small>", cls: "col-lg" },
-          { key: "per_latest", label: "日PER<br><small>90日LH</small>", cls: "col-lg" },
-          { key: "pbr_latest", label: "日PBR<br><small>90日LH</small>", cls: "col-lg" },
           { key: "sig", label: "訊號" }
         ]
       },
@@ -1030,7 +1030,7 @@
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>90日LH</small>" },
-          { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
+          { key: "chgPct", label: "價格 %<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "short_margin_ratio_score", label: "券資比%<br><small>3天趨勢</small>", tooltip: "券資比%＝融券餘額 ÷ 融資餘額 × 100。數值越高代表放空籌碼占比越高，常見於市場偏保守或避險需求升高時；需搭配價格趨勢與主力買賣超共同判讀。" },
           { key: "chip_concentration_score", label: "籌碼集中%<br><small>3天趨勢</small>", tooltip: "籌碼集中%採 CMoney 近似口徑＝主力買賣超張數 ÷ 成交量張數 × 100，保留正負號。正值代表主力集中買超，負值代表主力集中賣超；數值絕對值越大代表集中度越高。" },
@@ -1171,8 +1171,8 @@
       return `
         <div class="table-lv1 ${chgClass(s)}">${chgSign(s)}${fmt(s.chgPct, "%")}</div>
         <div class="table-lv2 ${distClass(priceChange)}">${isNil(priceChange) ? "-" : `${priceChange > 0 ? "+" : ""}${fmt(priceChange)}`}</div>
-        <div class="table-lv2">震幅 ${fmt(s.amp, "%")}</div>
-        <div class="table-lv2">震幅 ${fmt(priceAmplitude)}</div>`;
+        <div class="table-lv2">幅${fmt(s.amp, "%")}</div>
+        <div class="table-lv2">幅${fmt(priceAmplitude)}</div>`;
     }
 
     function distClass(val) {
@@ -1234,7 +1234,7 @@
       const colorCls = previousValue === undefined ? "" : chipValueClass(value, previousValue);
       const label = chipDateMMDD(dateText, fallbackLabel);
       const displayValue = isNil(value) ? "-" : `${fmt(value, suffix)}${unit}`;
-      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：` : ""}${displayValue}</div>`;
+      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：`:""}${displayValue}</div>`;
     }
 
     function dayLabel(idx) {
@@ -1292,7 +1292,7 @@
       const label = dayDateLabel(s, idx, "kd");
       const colorCls = isNil(previousK) ? "" : chipValueClass(kValue, previousK);
       const dPart = isNil(dVal) ? "" : ` / D ${fmt(dVal)}`;
-      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：` : ""}K ${fmt(kValue)}${dPart}</div>`;
+      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：`:""}K ${fmt(kValue)}${dPart}</div>`;
     }
 
     function kdDayScore(s) {
@@ -1359,7 +1359,7 @@
       const previous = dayMetricValue(s, key, idx + 1);
       const colorCls = isNil(previous) ? "" : chipValueClass(value, previous);
       const label = dayDateLabel(s, idx, "date");
-      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：` : ""}${fmt(value, suffix)}</div>`;
+      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：`:""}${fmt(value, suffix)}</div>`;
     }
 
     function dayMetricScore(s, key) {
@@ -1745,7 +1745,7 @@
       return `
         <td class="signal-cell">
           <div class="signal-wrap">
-            ${renderSignalText(s.signal_text)}
+            ${renderSignalText(s.signal)}
             ${s.entry_note ? `<div class="table-lv2">${escapeHtml(cleanSignalOutput(s.entry_note))}</div>` : ""}
           </div>
         </td>`;
@@ -1758,7 +1758,7 @@
     }
 
     function renderMobileSignalFooter(s) {
-      return `<div class="stock-signal">${renderSignalText(s.signal_text)}${s.entry_note ? `<div class="table-lv2">${escapeHtml(cleanSignalOutput(s.entry_note))}</div>` : ""}</div>`;
+      return `<div class="stock-signal">${renderSignalText(s.signal)}${s.entry_note ? `<div class="table-lv2">${escapeHtml(cleanSignalOutput(s.entry_note))}</div>` : ""}</div>`;
     }
 
     function cbItems(s) {
@@ -2301,7 +2301,7 @@
             if (currentTab === "cb") {
               const statusText = (cbMeta.status === "ok" || cbMeta.status === "partial_ok")
                 ? `資料日 ${cbMeta.as_of || "-"}`
-                : `資料未取得${cbMeta.reason ? `：${cbMeta.reason}` : ""}`;
+                : `資料未取得${cbMeta.reason ? `：${cbMeta.reason}`:""}`;
               note.innerText = `${TAB_CONFIG[currentTab].note}｜${statusText}`;
             } else {
               note.innerText = TAB_CONFIG[currentTab].note;

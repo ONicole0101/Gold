@@ -270,7 +270,6 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
         "sig": 0,
         "signal": "資料異常",
         "score": 0,
-        "signal_text": "資料異常",
         "reason": "",
         "entry_note": "",
         "resistance_price": None,
@@ -301,7 +300,6 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             x = base.copy()
             x.update({
                 "signal": "無資料",
-                "signal_text": "查無資料",
                 "reason": "get_stock_data 回傳 None",
             })
             x.update(_build_static_fields(static_row))
@@ -313,7 +311,6 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             x = base.copy()
             x.update({
                 "signal": "無資料",
-                "signal_text": "查無資料",
                 "reason": "股價資料為空",
             })
             x.update(_build_static_fields(static_row))
@@ -326,7 +323,6 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             x = base.copy()
             x.update({
                 "signal": "資料異常",
-                "signal_text": "資料異常",
                 "reason": "OHLC 價格資料皆為無效值",
             })
             x.update(_build_static_fields(static_row))
@@ -338,7 +334,6 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             x = base.copy()
             x.update({
                 "signal": "資料不足",
-                "signal_text": "資料不足",
                 "reason": f" {len(df)}/90筆",
             })
             x.update(_build_static_fields(static_row))
@@ -538,15 +533,14 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
                 chip_trend_days=merged_static_fields.get("chip_trend_days"),
                 chip_concentration_threshold=merged_static_fields.get(
                     "chip_concentration_threshold"),
-            ) or {"signal": "等待觀察", "reason": "", "signal_text": "等待觀察"}
+            ) or {"signal": "等待觀察", "reason": ""}
         except Exception as e:
             print(f"❌ signal error {stock_id}: {e}")
             signal_res = {"signal": "等待觀察",
-                          "reason": f"signal error: {e}", "signal_text": "等待觀察"}
+                          "reason": f"signal error: {e}"}
 
         signal = signal_res.get("signal", "等待觀察")
         reason = signal_res.get("reason", "")
-        signal_text = signal_res.get("signal_text", "等待觀察")
         position_zone = signal_res.get("position_zone")
         price_volume_state = signal_res.get("price_volume_state")
         trend_stage = signal_res.get("trend_stage")
@@ -721,7 +715,6 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             "sig": int(sig),
             "signal": signal,
             "score": float(score),
-            "signal_text": signal_text,
             "reason": reason,
             "position_zone": position_zone,
             "price_volume_state": price_volume_state,
@@ -743,7 +736,6 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
         x.update(_build_news_fields(news_row))
         x.update({
             "signal": "資料異常",
-            "signal_text": "資料異常",
             "reason": f"process error: {e}",
         })
         return x

@@ -405,7 +405,6 @@ def get_tech_signal(
         return {
             'signal': '中性',
             'reason': '缺少收盤價資料',
-            'signal_text': '技術面：資料不足\n籌碼面：訊號尚未明確',
         }
 
     # === KD 判斷 ===
@@ -695,7 +694,6 @@ def get_tech_signal(
         return {
             'signal': '偏空',
             'reason': '主力連續賣超且買賣家數差擴散，搭配股價轉弱，籌碼流向散戶風險高',
-            'signal_text': _format_signal_sections(reasons, chip_reasons),
         }
 
     # 0-1) 主力連買但家數擴散：虛胖型上漲，不追高。
@@ -707,7 +705,6 @@ def get_tech_signal(
         return {
             'signal': '偏空' if position_zone == '頂部區域' else '中性',
             'reason': '雖有主力買超，但買賣家數差擴散，屬偏分散的虛胖型上漲，避免追高',
-            'signal_text': _format_signal_sections(reasons, chip_reasons),
         }
 
     # 0-2) 籌碼集中偏多：低調吸籌或起漲初期，給偏多觀察/買進。
@@ -721,7 +718,6 @@ def get_tech_signal(
         return {
             'signal': '偏多',
             'reason': '主力買超且買賣家數差收斂，籌碼集中偏多，可跟隨低佈局但避免追高',
-            'signal_text': _format_signal_sections(reasons, chip_reasons),
         }
 
     # 1) 起漲保護：聯發科 2454 類型，剛站回月線 + 價量/KD轉強，不因短線高檔或剛獲利而調節。
@@ -729,7 +725,6 @@ def get_tech_signal(
         return {
             'signal': '偏多',
             'reason': '剛突破月線且價量/KD轉強，屬起漲或轉強初期，持股不宜過早調節',
-            'signal_text': _format_signal_sections(reasons, chip_reasons),
         }
 
     # 2) 明確調節：高檔過熱後價跌量增，或已跌破月線，才直接轉空。
@@ -741,7 +736,6 @@ def get_tech_signal(
         return {
             'signal': '偏空',
             'reason': '高檔過熱或下跌途中出現價跌量增，且動能/均線轉弱',
-            'signal_text': _format_signal_sections(reasons, chip_reasons),
         }
 
     # 3) 明確調節：連續量增下跌且跌破月線。
@@ -754,7 +748,6 @@ def get_tech_signal(
         return {
             'signal': '偏空',
             'reason': '連續放量下跌並跌破月線，轉弱訊號明確',
-            'signal_text': _format_signal_sections(reasons, chip_reasons),
         }
 
     # 4) 高檔轉弱：只要尚未跌破月線，不直接出清，以分批留意賣點為主。
@@ -767,7 +760,6 @@ def get_tech_signal(
         return {
             'signal': '偏空',
             'reason': '高檔過熱且動能降溫，但尚未跌破月線，宜分批停利而非一次出清',
-            'signal_text': _format_signal_sections(reasons, chip_reasons),
         }
 
     # 5) 主升段保護：月線上方、趨勢仍受支撐，KD高檔或短線降溫不視為調節。
@@ -779,7 +771,6 @@ def get_tech_signal(
         return {
             'signal': '偏多' if price_volume_state in ('價漲量增', '價平量增') and kd_strong else '中性',
             'reason': '股價仍在上漲途中且月線趨勢未破，持股以續抱觀察為主，不因KD高檔過早調節',
-            'signal_text': _format_signal_sections(reasons, chip_reasons),
         }
 
     # 6) 上漲途中放量下跌：提高警戒，但未跌破月線前不直接轉空。
@@ -792,7 +783,6 @@ def get_tech_signal(
         return {
             'signal': '偏空',
             'reason': '上漲途中出現價跌量增與動能轉弱，若跌破月線應降低持股',
-            'signal_text': _format_signal_sections(reasons, chip_reasons),
         }
 
     # 7) 下跌途中反彈：不急著買，除非重新站回月線且價量/KD同步轉強。
@@ -804,7 +794,6 @@ def get_tech_signal(
         return {
             'signal': '中性',
             'reason': '仍在下跌途中，反彈或量縮尚不足以確認轉強',
-            'signal_text': _format_signal_sections(reasons, chip_reasons),
         }
 
     # 8) 底部轉強：底部區 + 價漲量增 + KD/MACD改善；偏多但避免一次重壓。
@@ -817,7 +806,6 @@ def get_tech_signal(
         return {
             'signal': '偏多',
             'reason': '底部區域出現價漲量增與動能改善，可觀察低檔轉強，但宜分批不宜重壓',
-            'signal_text': _format_signal_sections(reasons, chip_reasons),
         }
 
     # 9) 底部止跌：底部區 + 價跌量縮 / 價平量縮，只能當止跌觀察。
@@ -829,7 +817,6 @@ def get_tech_signal(
         return {
             'signal': '中性',
             'reason': '底部區域跌勢趨緩，但尚未出現明確價漲量增，先觀察止穩',
-            'signal_text': _format_signal_sections(reasons, chip_reasons),
         }
 
     # 10) 明確買進：突破或站上月線，價漲量增，KD/MACD轉強，且未明顯過熱。
@@ -843,7 +830,6 @@ def get_tech_signal(
         return {
             'signal': '偏多',
             'reason': '價漲量增，動能轉強，股價站上月線，技術面偏多',
-            'signal_text': _format_signal_sections(reasons, chip_reasons),
         }
 
     # 11) 上漲途中但價漲量縮：不追高，但也不急賣。
@@ -856,7 +842,6 @@ def get_tech_signal(
         return {
             'signal': '中性',
             'reason': '上漲途中出現價漲量縮，持股可觀察但不宜追高',
-            'signal_text': _format_signal_sections(reasons, chip_reasons),
         }
 
     # 12) 上漲途中轉弱：月線上方先觀察，不因 KD 高檔或短線轉弱過早調節。
@@ -870,7 +855,6 @@ def get_tech_signal(
         return {
             'signal': '中性',
             'reason': '上漲途中動能轉弱但尚未跌破月線，先觀察不急賣',
-            'signal_text': _format_signal_sections(reasons, chip_reasons),
         }
 
     # 13) 盤整區：價平量縮或訊號混雜。
@@ -881,12 +865,10 @@ def get_tech_signal(
         return {
             'signal': '中性',
             'reason': '位階與價量尚未形成明確方向，留意突破或跌破確認',
-            'signal_text': _format_signal_sections(reasons, chip_reasons),
         }
 
     # 14) 保守預設。
     return {
         'signal': '中性',
         'reason': '價格、量能、KD與布林尚未形成明確方向',
-        'signal_text': _format_signal_sections(reasons, chip_reasons),
     }
