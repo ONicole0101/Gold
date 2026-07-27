@@ -44,7 +44,7 @@ def enrich_html_fields(results):
         if x.get("macd_hist") is not None:
             parts.append(f"MACD柱 {x.get('macd_hist')}")
         x["tech_summary"] = " / ".join(
-            parts) if parts else x.get("signal", "")
+            parts) if parts else x.get("signal_text", "")
         out.append(x)
     return out
 

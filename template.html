@@ -1745,7 +1745,7 @@
       return `
         <td class="signal-cell">
           <div class="signal-wrap">
-            ${renderSignalText(s.signal)}
+            ${renderSignalText(s.signal_text)}
             ${s.entry_note ? `<div class="table-lv2">${escapeHtml(cleanSignalOutput(s.entry_note))}</div>` : ""}
           </div>
         </td>`;
@@ -1758,7 +1758,7 @@
     }
 
     function renderMobileSignalFooter(s) {
-      return `<div class="stock-signal">${renderSignalText(s.signal)}${s.entry_note ? `<div class="table-lv2">${escapeHtml(cleanSignalOutput(s.entry_note))}</div>` : ""}</div>`;
+      return `<div class="stock-signal">${renderSignalText(s.signal_text)}${s.entry_note ? `<div class="table-lv2">${escapeHtml(cleanSignalOutput(s.entry_note))}</div>` : ""}</div>`;
     }
 
     function cbItems(s) {
