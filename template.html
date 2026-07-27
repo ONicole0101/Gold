@@ -1234,7 +1234,7 @@
       const colorCls = previousValue === undefined ? "" : chipValueClass(value, previousValue);
       const label = chipDateMMDD(dateText, fallbackLabel);
       const displayValue = isNil(value) ? "-" : `${fmt(value, suffix)}${unit}`;
-      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：`:""}${displayValue}</div>`;
+      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：` : ""}${displayValue}</div>`;
     }
 
     function dayLabel(idx) {
@@ -1292,7 +1292,7 @@
       const label = dayDateLabel(s, idx, "kd");
       const colorCls = isNil(previousK) ? "" : chipValueClass(kValue, previousK);
       const dPart = isNil(dVal) ? "" : ` / D ${fmt(dVal)}`;
-      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：`:""}K ${fmt(kValue)}${dPart}</div>`;
+      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：` : ""}K ${fmt(kValue)}${dPart}</div>`;
     }
 
     function kdDayScore(s) {
@@ -1359,7 +1359,7 @@
       const previous = dayMetricValue(s, key, idx + 1);
       const colorCls = isNil(previous) ? "" : chipValueClass(value, previous);
       const label = dayDateLabel(s, idx, "date");
-      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：`:""}${fmt(value, suffix)}</div>`;
+      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：` : ""}${fmt(value, suffix)}</div>`;
     }
 
     function dayMetricScore(s, key) {
@@ -2301,7 +2301,7 @@
             if (currentTab === "cb") {
               const statusText = (cbMeta.status === "ok" || cbMeta.status === "partial_ok")
                 ? `資料日 ${cbMeta.as_of || "-"}`
-                : `資料未取得${cbMeta.reason ? `：${cbMeta.reason}`:""}`;
+                : `資料未取得${cbMeta.reason ? `：${cbMeta.reason}` : ""}`;
               note.innerText = `${TAB_CONFIG[currentTab].note}｜${statusText}`;
             } else {
               note.innerText = TAB_CONFIG[currentTab].note;

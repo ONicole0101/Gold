@@ -87,7 +87,8 @@ def _calc_chip_scenario(
     except Exception:
         main_buy_days = 0
     try:
-        main_sell_days = int(main_sell_days) if main_sell_days is not None else 0
+        main_sell_days = int(
+            main_sell_days) if main_sell_days is not None else 0
     except Exception:
         main_sell_days = 0
 
@@ -97,9 +98,11 @@ def _calc_chip_scenario(
 
     high_zone = ('高檔' in zone_text) or ('頂部' in zone_text)
     low_zone = ('低檔' in zone_text) or ('底部' in zone_text)
-    range_or_flat = bool(price_flat) or price_volume_state in ('價平量增', '價平量縮', '價量中性')
+    range_or_flat = bool(price_flat) or price_volume_state in (
+        '價平量增', '價平量縮', '價量中性')
     price_up_or_high_range = bool(price_up) or (high_zone and range_or_flat)
-    volume_expanding = bool(volume_up) or price_volume_state in ('價漲量增', '價跌量增', '價平量增')
+    volume_expanding = bool(volume_up) or price_volume_state in (
+        '價漲量增', '價跌量增', '價平量增')
 
     if high_zone and main_sell_days >= 2:
         return {
@@ -390,7 +393,8 @@ def get_tech_signal(
     broker_diff_score = _num(broker_diff_score)
     chip_concentration_pct = _num(chip_concentration_pct)
     try:
-        chip_trend_days = int(chip_trend_days) if chip_trend_days is not None else None
+        chip_trend_days = int(
+            chip_trend_days) if chip_trend_days is not None else None
     except Exception:
         chip_trend_days = None
     chip_concentration_threshold = _num(chip_concentration_threshold)
@@ -664,9 +668,11 @@ def get_tech_signal(
     # 「籌碼震盪 / 籌碼混亂」是保守 fallback，若無條件加入，
     # 會讓每檔股票都出現「籌碼震盪（中性）：籌碼震盪，方向未定。」且與前面的籌碼描述重複。
     chip_scenario_name = str(chip_scenario.get('scenario') or '').strip()
-    chip_scenario_description = str(chip_scenario.get('description') or '').strip()
+    chip_scenario_description = str(
+        chip_scenario.get('description') or '').strip()
     if chip_scenario_name and chip_scenario_name not in ('籌碼震盪', '籌碼混亂'):
-        chip_reasons.append(f"{chip_scenario_name}：{chip_scenario_description}")
+        chip_reasons.append(
+            f"{chip_scenario_name}：{chip_scenario_description}")
     if repeat_buy_brokers is not None and repeat_buy_brokers >= 3:
         chip_reasons.append('三日重複買超券商增加，主力承接連續性較佳')
     if repeat_sell_brokers is not None and repeat_sell_brokers >= 3:
@@ -675,10 +681,13 @@ def get_tech_signal(
     # === 強弱輔助條件 ===
     kd_strong = kd_gold_cross or kd_turn_strong or k_trend_up
     kd_weak = kd_dead_cross or kd_turn_weak or k_trend_down
-    trend_supported = above_ma18 and (ma18_up or ma50_up or above_ma50 or ma18_break)
-    early_uptrend = ma18_break and kd_strong and price_volume_state in ('價漲量增', '價平量增', '價量中性')
+    trend_supported = above_ma18 and (
+        ma18_up or ma50_up or above_ma50 or ma18_break)
+    early_uptrend = ma18_break and kd_strong and price_volume_state in (
+        '價漲量增', '價平量增', '價量中性')
     main_uptrend = position_zone == '上漲途中' and trend_supported and not ma18_fall_break
-    overheat_confirmed = bb_overheat or (bb_high and bias_high_zone) or (bias_high_zone and kd_high)
+    overheat_confirmed = bb_overheat or (
+        bb_high and bias_high_zone) or (bias_high_zone and kd_high)
     trend_break_confirmed = ma18_fall_break or (below_ma18 and kd_weak)
 
     # ============================================================
