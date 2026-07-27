@@ -306,3 +306,4 @@
 2026-07-22 01:49:20,api_call,dividend source,4958,TaiwanStockDividend,False,,,missing_token,FINMIND_TOKEN is not set,305,102,,,,sent,,FinMind request sent with token in query params and/or Authorization header
 2026-07-22 01:49:22,api_call,PER source,4958,TaiwanStockPER,False,,,missing_token,FINMIND_TOKEN is not set,306,102,,,,sent,,FinMind request sent with token in query params and/or Authorization header
 2026-07-22 01:49:23,api_call,get_stock_data,4971,TaiwanStockPrice,False,,,missing_token,FINMIND_TOKEN is not set,307,103,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-07-27 15:36:59,api_call,chip analysis,1101,TaiwanStockTradingDailyReport,False,,,not_checked,login not checked in this process yet,1,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header

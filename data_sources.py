@@ -823,6 +823,79 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         except Exception:
             return None
 
+    def _fetch_short_margin_ratio_with_fallback(target_date, max_back_days=5):
+        """
+        券資比資料有時晚於分點資料發布，若 T 日抓不到，往前回補最近可用日。
+        回傳 (ratio_pct, source_date)。
+        """
+        try:
+            max_back_days = max(0, min(int(max_back_days), 10))
+        except Exception:
+            max_back_days = 5
+
+        for offset in range(max_back_days + 1):
+            query_date = target_date - timedelta(days=offset)
+            query_date_str = query_date.strftime("%Y-%m-%d")
+            margin_params = {
+                "dataset": "TaiwanStockMarginPurchaseShortSale",
+                "data_id": str(stock_id),
+                "start_date": query_date_str,
+                "end_date": query_date_str,
+                "token": FINMIND_token,
+            }
+
+            _record_finmind_request(
+                "chip analysis", stock_id, "TaiwanStockMarginPurchaseShortSale"
+            )
+            margin_res = requests.get(
+                API_URL, params=margin_params, headers=headers, timeout=300
+            )
+            if margin_res.status_code != 200:
+                continue
+
+            margin_data = _safe_response_json(margin_res).get("data", [])
+            if not margin_data:
+                continue
+
+            margin_df = pd.DataFrame(margin_data)
+            if "stock_id" in margin_df.columns:
+                margin_df = margin_df[
+                    margin_df["stock_id"].astype(str) == str(stock_id)
+                ]
+            if "date" in margin_df.columns:
+                margin_df["date"] = pd.to_datetime(
+                    margin_df["date"], errors="coerce"
+                )
+                margin_df = margin_df[
+                    margin_df["date"].dt.date == query_date
+                ]
+            if margin_df.empty:
+                continue
+
+            margin_purchase_balance = _first_non_na(
+                margin_df.get("MarginPurchaseTodayBalance"),
+                margin_df.get("margin_purchase_today_balance"),
+                margin_df.get("MarginPurchase"),
+                margin_df.get("margin_purchase"),
+                margin_df.get("融資今日餘額"),
+                margin_df.get("融資餘額"),
+            )
+            short_sale_balance = _first_non_na(
+                margin_df.get("ShortSaleTodayBalance"),
+                margin_df.get("short_sale_today_balance"),
+                margin_df.get("ShortSale"),
+                margin_df.get("short_sale"),
+                margin_df.get("融券今日餘額"),
+                margin_df.get("融券餘額"),
+            )
+            short_margin_ratio_pct = _safe_ratio_pct(
+                short_sale_balance, margin_purchase_balance
+            )
+            if short_margin_ratio_pct is not None:
+                return short_margin_ratio_pct, query_date
+
+        return None, None
+
     def _shares_to_lots(value):
         """
         CMoney 顯示主力買賣超以「張」為單位。
@@ -1086,6 +1159,9 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         suppress_api_logs = str(os.getenv("CHIP_SUPPRESS_API_LOGS", "1")).strip().lower() in {
             "1", "true", "yes", "y", "on"
         }
+        margin_ratio_lookback_days = _env_int(
+            "CHIP_MARGIN_RATIO_LOOKBACK_DAYS", 5, min_value=0, max_value=10
+        )
 
         while current_date >= start_date:
             date_str = current_date.strftime("%Y-%m-%d")
@@ -1190,44 +1266,19 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             concentration_pct = _cmoney_concentration_pct(
                 main_force_net, total_volume_lots)
 
-            margin_purchase_balance = None
-            short_sale_balance = None
-            margin_params = {
-                "dataset": "TaiwanStockMarginPurchaseShortSale",
-                "data_id": str(stock_id),
-                "start_date": date_str,
-                "end_date": date_str,
-                "token": FINMIND_token,
-            }
-            _record_finmind_request(
-                "chip analysis", stock_id, "TaiwanStockMarginPurchaseShortSale"
-            )
-            margin_res = requests.get(API_URL, params=margin_params,
-                                      headers=headers, timeout=300)
-            margin_data = _safe_response_json(margin_res).get("data", [])
-            if margin_res.status_code == 200 and margin_data:
-                margin_df = pd.DataFrame(margin_data)
-                margin_purchase_balance = _first_non_na(
-                    margin_df.get("MarginPurchaseTodayBalance"),
-                    margin_df.get("margin_purchase_today_balance"),
-                    margin_df.get("MarginPurchase"),
-                    margin_df.get("margin_purchase"),
-                    margin_df.get("融資今日餘額"),
-                    margin_df.get("融資餘額"),
-                )
-                short_sale_balance = _first_non_na(
-                    margin_df.get("ShortSaleTodayBalance"),
-                    margin_df.get("short_sale_today_balance"),
-                    margin_df.get("ShortSale"),
-                    margin_df.get("short_sale"),
-                    margin_df.get("融券今日餘額"),
-                    margin_df.get("融券餘額"),
-                )
-            short_margin_ratio_pct = _safe_ratio_pct(
-                short_sale_balance, margin_purchase_balance
+            short_margin_ratio_pct, short_margin_source_date = _fetch_short_margin_ratio_with_fallback(
+                target_day.date(), max_back_days=margin_ratio_lookback_days
             )
 
             actual_date = df["date"].max().date()
+            if (
+                not suppress_api_logs
+                and short_margin_source_date is not None
+                and short_margin_source_date != actual_date
+            ):
+                print(
+                    f"ℹ️ chip analysis short margin fallback {stock_id}: {actual_date} -> {short_margin_source_date}"
+                )
             daily_by_date[actual_date] = {
                 "date": actual_date,
                 "chip_concentration_pct": concentration_pct,
