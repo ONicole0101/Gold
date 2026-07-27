@@ -1019,9 +1019,9 @@
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "k", label: "日KD<br><small>3天趨勢</small>" },
           { key: "bb_pct", label: "日布林%<br><small>90日LH</small>" },
-          { key: "bias5", label: "日Bias5<br><small>90日LH</small>" },
-          { key: "bias20", label: "日Bias20<br><small>90日LH</small>" },
-          { key: "bias60", label: "日Bias60<br><small>90日LH</small>", cls: "col-lg" },
+          { key: "bias5", label: "日Bias5<br><small>90日LH</small>", tooltip: "日Bias5＝(收盤價 - 5日均線MA5) ÷ MA5 × 100。正值代表股價在5日均線之上，負值代表在均線之下。" },
+          { key: "bias20", label: "日Bias20<br><small>90日LH</small>", tooltip: "日Bias20＝(收盤價 - 20日均線MA20) ÷ MA20 × 100。數值越大代表短中期乖離越高，越小代表偏離均線下方。" },
+          { key: "bias60", label: "日Bias60<br><small>90日LH</small>", cls: "col-lg", tooltip: "日Bias60＝(收盤價 - 60日均線MA60) ÷ MA60 × 100。用來觀察相對中長期均線的偏離程度，正負號分別代表在均線上/下方。" },
           { key: "sig", label: "訊號" }
         ]
       },
