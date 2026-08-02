@@ -748,3 +748,11 @@
 2026-08-02 14:29:29,api_call,PER/PBR 90D,4772,TaiwanStockPER,False,,,missing_token,FINMIND_TOKEN is not set,246,146,,,,sent,,FinMind request sent with token in query params and/or Authorization header
 2026-08-02 14:29:30,api_call,dividend source,4772,TaiwanStockDividend,False,,,missing_token,FINMIND_TOKEN is not set,247,101,,,,sent,,FinMind request sent with token in query params and/or Authorization header
 2026-08-02 14:29:30,api_call,PER/PBR 90D,4958,TaiwanStockPER,False,,,missing_token,FINMIND_TOKEN is not set,248,147,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-02 14:29:31,api_call,dividend source,4958,TaiwanStockDividend,False,,,missing_token,FINMIND_TOKEN is not set,249,102,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-02 14:29:32,api_call,PER/PBR 90D,4971,TaiwanStockPER,False,,,missing_token,FINMIND_TOKEN is not set,250,148,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-02 14:29:33,api_call,dividend source,4971,TaiwanStockDividend,False,,,missing_token,FINMIND_TOKEN is not set,251,103,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-02 14:29:34,api_call,PER/PBR 90D,4977,TaiwanStockPER,False,,,missing_token,FINMIND_TOKEN is not set,252,149,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-02 14:29:35,api_call,dividend source,4977,TaiwanStockDividend,False,,,missing_token,FINMIND_TOKEN is not set,253,104,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-02 14:29:36,api_call,PER/PBR 90D,4979,TaiwanStockPER,False,,,missing_token,FINMIND_TOKEN is not set,254,150,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-02 14:29:37,api_call,dividend source,4979,TaiwanStockDividend,False,,,missing_token,FINMIND_TOKEN is not set,255,105,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-02 14:29:38,api_call,PER/PBR 90D,4991,TaiwanStockPER,False,,,missing_token,FINMIND_TOKEN is not set,256,151,,,,sent,,FinMind request sent with token in query params and/or Authorization header
