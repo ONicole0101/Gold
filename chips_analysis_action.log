@@ -1,9 +1,12 @@
-[32m2026-07-31 10:13:15.644[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-07-31 10:13:15.755[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-08-02 09:36:05.625[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-08-02 09:36:05.729[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 176/6000, remain=5824
+FinMind usage: 1050/6000, remain=4950
 Incremental probe: stock_id=2330, latest_date=2026-07-31, status=ok
-Build chips: total=169, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=168, latest_date=2026-07-31
+Build chips: total=169, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=167, pending=1, latest_date=2026-07-31
+[169/169] 3587 閎康 status=ok date=2026-07-30 main=17 diff=107 state=bullish_distributed
+2330 籌碼分頁結果 date=2026-07-31 ; main_force=21627 ; concentration=33.77 ; broker_diff=-7
+Done: rows=169, status={'ok': 169}, preserved=0, skipped=167, elapsed=14.5s, output=AllStatic_Chips.csv
 stock_id=1101
 name=台泥
 chip_latest_date=2026-07-31
