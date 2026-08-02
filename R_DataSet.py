@@ -51,7 +51,8 @@ DATASETS_RANGE = [
     "TaiwanStockIndustryChain",
     "TaiwanStockMonthRevenue",
     "TaiwanStockDividend",
-    "TaiwanStockDispositionSecuritiesPeriod"
+    "TaiwanStockDispositionSecuritiesPeriod",
+    "TaiwanStockTotalReturnIndex",
 ]
 
 DATASETS_ONE_DAY = []
@@ -76,6 +77,12 @@ DATASETS_NO_END_DATE = {
 }
 
 DATASETS_FORCE_ONE_DAY = {
+}
+
+# Datasets that require specific fixed data_id values (not per-stock, not 所有).
+# Each entry maps dataset_name → list of data_ids to fetch and combine.
+INDEX_SPECIFIC_DATA_IDS: dict[str, list[str]] = {
+    "TaiwanStockTotalReturnIndex": ["TAIEX", "TPEx"],
 }
 
 # These datasets often returned only a single-day snapshot in earlier runs.
@@ -1177,6 +1184,28 @@ def fetch_dataset_rows(
             flush=True,
         )
         return []
+
+    if dataset_name in INDEX_SPECIFIC_DATA_IDS:
+        rows: list[dict] = []
+        for data_id in INDEX_SPECIFIC_DATA_IDS[dataset_name]:
+            try:
+                item_rows = fetch_rows_for_data_id(
+                    dataset_name=dataset_name,
+                    data_id=data_id,
+                    start_date=start_date,
+                    end_date=end_date,
+                )
+                rows.extend(item_rows)
+                print(
+                    f"{dataset_name}: data_id={data_id} returned {len(item_rows)} rows",
+                    flush=True,
+                )
+            except Exception as exc:
+                print(
+                    f"{dataset_name}: data_id={data_id} failed, reason={exc}",
+                    flush=True,
+                )
+        return rows
 
     errors: list[str] = []
     try:

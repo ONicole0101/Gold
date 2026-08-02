@@ -10,6 +10,7 @@ from data_sources import (
     get_finmind_user_info,
     get_latest_convertible_bond_overview,
 )
+from index_data import get_market_index_rows
 from main import get_full_stock_analysis
 from stock_service import load_chips_static_map, load_news_static_map, load_static_map
 
@@ -573,6 +574,13 @@ def main():
         data = format_output(results)
         text_data = build_strings(data)
 
+        print("[index] loading market index rows (TAIEX / TPEX)...")
+        try:
+            index_rows = get_market_index_rows()
+        except Exception as e:
+            print(f"⚠️ 指數資料載入失敗: {e}")
+            index_rows = []
+
         now_dt = datetime.utcnow() + timedelta(hours=8)
         now_str = now_dt.strftime("%m%d%H%M")
         filename = f"{output_file}_{now_str}.html"
@@ -583,6 +591,7 @@ def main():
 
             html_content = template.render(
                 stocks=data["stocks"],
+                index_rows=index_rows,
                 top_stocks=text_data["top_str"],
                 weak_stocks=text_data["weak_str"],
                 rebound_list=text_data["rebound_str"],
