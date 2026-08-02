@@ -52,11 +52,6 @@ on:
         required: true
         default: false
         type: boolean
-      generate_trading_daily_parquet:
-        description: "5) Generate/update TradingDaily Parquet (independent job)"
-        required: true
-        default: true
-        type: boolean
       generate_parquet_chips:
         description: "6) Generate per-stock/day Parquet chip summaries"
         required: true
@@ -109,7 +104,6 @@ jobs:
           echo "convert_csv_to_parquet=${{ github.event_name == 'workflow_dispatch' && inputs.convert_csv_to_parquet }}"
           echo "generate_parquet=${{ github.event_name == 'workflow_dispatch' && inputs.generate_parquet }}"
           echo "generate_trading_daily_csv=${{ github.event_name == 'workflow_dispatch' && inputs.generate_trading_daily_csv }}"
-          echo "generate_trading_daily_parquet=${{ github.event_name == 'workflow_dispatch' && inputs.generate_trading_daily_parquet }}"
           echo "generate_parquet_chips=${{ github.event_name == 'workflow_dispatch' && inputs.generate_parquet_chips }}"
 
       - name: Check FINMIND_TOKEN and user_info stats
@@ -203,7 +197,7 @@ jobs:
 
   sync-trading-daily:
     needs: sync-dataset
-    if: ${{ always() && (github.event_name == 'schedule' || inputs.generate_trading_daily_csv || inputs.generate_trading_daily_parquet) }}
+    if: ${{ always() && (github.event_name == 'schedule' || inputs.generate_trading_daily_csv) }}
     runs-on: ubuntu-latest
 
     env:
@@ -238,7 +232,6 @@ jobs:
         run: |
           echo "event=${{ github.event_name }}"
           echo "generate_trading_daily_csv=${{ github.event_name == 'schedule' || inputs.generate_trading_daily_csv }}"
-          echo "generate_trading_daily_parquet=${{ github.event_name == 'workflow_dispatch' && inputs.generate_trading_daily_parquet }}"
 
       - name: Run TradingDaily CSV sync
         if: ${{ github.event_name == 'schedule' || inputs.generate_trading_daily_csv }}
@@ -248,15 +241,6 @@ jobs:
           export R_DATASET_KEEP_HISTORY_FILES="${KEEP_HISTORY_FILES}"
           echo "Run TradingDaily CSV mode=${MODE}, keep_history_files=${KEEP_HISTORY_FILES}"
           python R_DataSet_TradingDaily.py --mode "${MODE}"
-
-      - name: Run TradingDaily Parquet sync
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.generate_trading_daily_parquet }}
-        run: |
-          MODE="${{ github.event.inputs.mode || 'incremental' }}"
-          KEEP_HISTORY_FILES="${{ github.event.inputs.keep_history_files || '1' }}"
-          export R_DATASET_KEEP_HISTORY_FILES="${KEEP_HISTORY_FILES}"
-          echo "Run TradingDaily Parquet mode=${MODE}, keep_history_files=${KEEP_HISTORY_FILES}"
-          python R_DataSet_TradingDaily_Parquet.py --mode "${MODE}"
 
       - name: Show TradingDaily generated files
         if: ${{ always() }}
