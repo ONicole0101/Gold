@@ -8,13 +8,17 @@ from financial_analysis import (
     calc_eps_score,
     calc_margin_score,
     calc_trend_score,
-    get_dividend_yield,
 )
 from signals import get_tech_signal
 from technical_indicators import add_indicators, clean_ohlc_data, get_kd_trend, get_bb_trend, get_MABias, get_support_resistance_levels
 
 
 STATIC_CSV_PATH = os.getenv("STATIC_CSV_FILE", "AllStatic.csv")
+STATIC_VALUATION_CSV_PATH = (
+    os.getenv("STATIC_VALUATION_OUTPUT_FILE")
+    or os.getenv("STATIC_VALUATION_FILE")
+    or os.getenv("STATIC_VALUATION_CSV", "AllStatic_Valuation.csv")
+)
 STATIC_CHIPS_CSV_PATH = os.getenv("STATIC_CHIPS_FILE", "AllStatic_Chips.csv")
 STATIC_NEWS_CSV_PATH = (
     os.getenv("ALLSTATIC_NEWS_OUTPUT_FILE")
@@ -23,6 +27,8 @@ STATIC_NEWS_CSV_PATH = (
 )
 _STATIC_MAP_CACHE = None
 _STATIC_MAP_MTIME = None
+_VALUATION_STATIC_MAP_CACHE = None
+_VALUATION_STATIC_MAP_MTIME = None
 _CHIPS_STATIC_MAP_CACHE = None
 _CHIPS_STATIC_MAP_MTIME = None
 _NEWS_STATIC_MAP_CACHE = None
@@ -81,6 +87,35 @@ def load_static_map(static_csv_path=STATIC_CSV_PATH, force_reload=False):
             stock_id = str(row["stock_id"]).strip()
             static_map[stock_id] = row.to_dict()
 
+        valuation_map = load_valuation_static_map(force_reload=force_reload)
+        if valuation_map:
+            valuation_keys = [
+                "per_latest",
+                "per_60d_high",
+                "per_60d_low",
+                "pbr_latest",
+                "pbr_60d_high",
+                "pbr_60d_low",
+                "yield_value",
+                "per_latest_is_prev",
+                "pbr_latest_is_prev",
+                "valuation_updated_at",
+                "valuation_status",
+                "valuation_reason",
+                "finmind_token_status",
+                "finmind_token_source",
+                "finmind_token_masked",
+                "finmind_user_count",
+                "finmind_api_request_limit",
+                "finmind_remain",
+                "finmind_usage_checked_at",
+            ]
+            for stock_id, valuation_row in valuation_map.items():
+                base = static_map.setdefault(stock_id, {"stock_id": stock_id})
+                for key in valuation_keys:
+                    if key in valuation_row:
+                        base[key] = valuation_row.get(key)
+
         _STATIC_MAP_CACHE = static_map
         _STATIC_MAP_MTIME = mtime
         print(f"✅ 已載入靜態資料: {static_csv_path}, 筆數={len(static_map)}")
@@ -88,6 +123,42 @@ def load_static_map(static_csv_path=STATIC_CSV_PATH, force_reload=False):
 
     except Exception as e:
         print(f"❌ 讀取 AllStatic.csv 失敗: {e}")
+        return {}
+
+
+def load_valuation_static_map(static_valuation_csv_path=STATIC_VALUATION_CSV_PATH, force_reload=False):
+    global _VALUATION_STATIC_MAP_CACHE, _VALUATION_STATIC_MAP_MTIME
+
+    try:
+        if not os.path.exists(static_valuation_csv_path):
+            return {}
+
+        mtime = os.path.getmtime(static_valuation_csv_path)
+        if (not force_reload) and _VALUATION_STATIC_MAP_CACHE is not None and _VALUATION_STATIC_MAP_MTIME == mtime:
+            return _VALUATION_STATIC_MAP_CACHE
+
+        df = pd.read_csv(static_valuation_csv_path,
+                         encoding="utf-8-sig", dtype={"stock_id": str})
+        df.columns = df.columns.str.strip()
+
+        if "stock_id" not in df.columns:
+            print(f"⚠️ AllStatic_Valuation.csv 缺少 stock_id 欄位: {static_valuation_csv_path}")
+            return {}
+
+        df = df.where(pd.notna(df), None)
+
+        valuation_map = {}
+        for _, row in df.iterrows():
+            stock_id = str(row["stock_id"]).strip()
+            valuation_map[stock_id] = row.to_dict()
+
+        _VALUATION_STATIC_MAP_CACHE = valuation_map
+        _VALUATION_STATIC_MAP_MTIME = mtime
+        print(f"✅ 已載入估值靜態資料: {static_valuation_csv_path}, 筆數={len(valuation_map)}")
+        return valuation_map
+
+    except Exception as e:
+        print(f"❌ 讀取 AllStatic_Valuation.csv 失敗: {e}")
         return {}
 
 
@@ -361,20 +432,6 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
         amp = round((chgamp / prev["close"]) * 100, 2)
 
         try:
-            yield_raw = get_dividend_yield(stock_id, latest["close"])
-        except Exception as e:
-            print(f"❌ dividend error {stock_id}: {e}")
-            yield_raw = None
-
-        dividend = None
-        yield_value = None
-        if isinstance(yield_raw, dict):
-            dividend = yield_raw.get("dividend")
-            yield_value = yield_raw.get("yield")
-        elif isinstance(yield_raw, (int, float)):
-            yield_value = float(yield_raw)
-
-        try:
             ma_stats = get_MABias(df) or {}
         except Exception as e:
             print(f"❌ ma bias error {stock_id}: {e}")
@@ -637,8 +694,6 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             **news_fields,
             **recent_technical_fields,
 
-            "dividend": float(dividend) if dividend is not None else None,
-            "yield_value": float(yield_value) if yield_value is not None and not pd.isna(yield_value) else None,
             "k": float(round(k, 2)) if k is not None else None,
             "d": float(round(d, 2)) if d is not None else None,
             "prev_k": float(round(prev_k, 2)) if prev_k is not None else None,
@@ -788,6 +843,7 @@ def _build_static_fields(static_row):
         "pbr_latest": to_float_or_none(static_row.get("pbr_latest")),
         "pbr_60d_high": to_float_or_none(static_row.get("pbr_60d_high")),
         "pbr_60d_low": to_float_or_none(static_row.get("pbr_60d_low")),
+        "yield_value": to_float_or_none(static_row.get("yield_value")),
 
         "period_start": to_str_or_none(period_start),
         "period_end": to_str_or_none(period_end),

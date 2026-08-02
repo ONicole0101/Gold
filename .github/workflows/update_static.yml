@@ -31,6 +31,7 @@ env:
   WORKFLOW_VERSION: "financial-only-20260531-002"
   CSV_FILE: ${{ github.event.inputs.csv_file || vars.CSV_FILE || 'stocks.csv' }}
   STATIC_OUTPUT_FILE: ${{ github.event.inputs.output_file || vars.STATIC_OUTPUT_FILE || 'AllStatic.csv' }}
+  STATIC_VALUATION_OUTPUT_FILE: ${{ vars.STATIC_VALUATION_OUTPUT_FILE || 'AllStatic_Valuation.csv' }}
   STATIC_SLEEP_SEC: ${{ github.event.inputs.sleep_sec || vars.STATIC_SLEEP_SEC || '0.2' }}
   FINMIND_USAGE_LOG_FILE: /tmp/finmind_token_usage_log.csv
   FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
@@ -131,6 +132,12 @@ jobs:
             --output "${STATIC_OUTPUT_FILE}" \
             --sleep-sec "${STATIC_SLEEP_SEC}"
 
+      - name: Generate AllStatic_Valuation.csv
+        run: |
+          set -o pipefail
+          python generate_static_valuation_csv.py \
+            --output "${STATIC_VALUATION_OUTPUT_FILE}"
+
       - name: Show changed files
         run: |
           git status --short
@@ -141,6 +148,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add "${STATIC_OUTPUT_FILE}"
+          git add "${STATIC_VALUATION_OUTPUT_FILE}"
 
           if git diff --cached --quiet; then
             echo "No financial static changes to commit."

@@ -50,6 +50,7 @@ env:
   OUTPUT_FILE: ${{ github.event.inputs.output_file || vars.OUTPUT_FILE || '持股' }}
   REPORT_SUBTITLE: ${{ vars.REPORT_SUBTITLE || '' }}
   STATIC_OUTPUT_FILE: ${{ vars.STATIC_OUTPUT_FILE || 'AllStatic.csv' }}
+  STATIC_VALUATION_OUTPUT_FILE: ${{ vars.STATIC_VALUATION_OUTPUT_FILE || 'AllStatic_Valuation.csv' }}
   STATIC_CHIP_OUTPUT_FILE: ${{ vars.STATIC_CHIP_OUTPUT_FILE || 'AllStatic_Chips.csv' }}
   ALLSTATIC_NEWS_OUTPUT_FILE: ${{ vars.ALLSTATIC_NEWS_OUTPUT_FILE || 'AllStatic_news.csv' }}
   CHIP_TREND_DAYS: ${{ vars.CHIP_TREND_DAYS || '3' }}
@@ -104,6 +105,11 @@ jobs:
           python generate_static_csv.py \
             --output "${STATIC_OUTPUT_FILE}" \
             --sleep-sec "${{ github.event.inputs.sleep_sec || vars.STATIC_SLEEP_SEC || '0.2' }}"
+
+      - name: Generate AllStatic_Valuation.csv
+        run: |
+          python generate_static_valuation_csv.py \
+            --output "${STATIC_VALUATION_OUTPUT_FILE}"
 
       - name: Generate AllStatic_Chips.csv
         run: |
