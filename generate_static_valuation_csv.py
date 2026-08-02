@@ -92,8 +92,10 @@ def build_row(stock: dict, usage_info: dict | None = None):
         row["pbr_latest"] = valuation.get("pbr")
         row["pbr_60d_high"] = valuation.get("pbr_60d_high")
         row["pbr_60d_low"] = valuation.get("pbr_60d_low")
-        row["per_latest_is_prev"] = "True" if valuation.get("per_is_prev") else "False"
-        row["pbr_latest_is_prev"] = "True" if valuation.get("pbr_is_prev") else "False"
+        row["per_latest_is_prev"] = "True" if valuation.get(
+            "per_is_prev") else "False"
+        row["pbr_latest_is_prev"] = "True" if valuation.get(
+            "pbr_is_prev") else "False"
         yield_raw = get_dividend_yield(stock_id)
         if isinstance(yield_raw, dict):
             row["yield_value"] = yield_raw.get("yield")
@@ -111,7 +113,8 @@ def build_row(stock: dict, usage_info: dict | None = None):
         row["valuation_reason"] = str(exc)[:180]
 
     usage_info = usage_info or get_finmind_token_status()
-    row["finmind_token_status"] = usage_info.get("login_status") or ("ok" if usage_info.get("token_present") else "missing_token")
+    row["finmind_token_status"] = usage_info.get("login_status") or (
+        "ok" if usage_info.get("token_present") else "missing_token")
     row["finmind_token_source"] = usage_info.get("token_source") or ""
     row["finmind_token_masked"] = usage_info.get("token_masked") or ""
     row["finmind_user_count"] = usage_info.get("user_count")
@@ -122,7 +125,8 @@ def build_row(stock: dict, usage_info: dict | None = None):
 
 
 def build_daily_valuation(stock_list, output_file):
-    info = get_finmind_user_info(write_log=True, source="generate_static_valuation_csv")
+    info = get_finmind_user_info(
+        write_log=True, source="generate_static_valuation_csv")
     used = int(info.get("user_count") or 0)
     limit = int(info.get("api_request_limit") or 0)
     remain = info.get("remain")
@@ -144,20 +148,23 @@ def build_daily_valuation(stock_list, output_file):
     rows = []
     for idx, stock in enumerate(stock_list, 1):
         stock_id = str(stock.get("stock_id") or "").strip()
-        print(f"Processing valuation {idx}/{len(stock_list)}: {stock_id} {stock.get('name') or ''}", flush=True)
+        print(
+            f"Processing valuation {idx}/{len(stock_list)}: {stock_id} {stock.get('name') or ''}", flush=True)
         rows.append(build_row(stock, usage_info=info))
 
     final_df = normalize_df(pd.DataFrame(rows))
     atomic_write_csv(final_df, output_file)
 
-    status_counts = final_df["valuation_status"].astype(str).str.lower().value_counts().to_dict() if not final_df.empty else {}
+    status_counts = final_df["valuation_status"].astype(
+        str).str.lower().value_counts().to_dict() if not final_df.empty else {}
     log_finmind_static_event(
         "generate_static_valuation_end",
         source="generate_static_valuation_csv",
         status="completed",
         message=f"rows={len(final_df)}, output={output_file}",
     )
-    print(f"AllStatic valuation rebuild: {status_counts}, total={len(final_df)}", flush=True)
+    print(
+        f"AllStatic valuation rebuild: {status_counts}, total={len(final_df)}", flush=True)
 
 
 def main():

@@ -142,7 +142,8 @@ def load_valuation_static_map(static_valuation_csv_path=STATIC_VALUATION_CSV_PAT
         df.columns = df.columns.str.strip()
 
         if "stock_id" not in df.columns:
-            print(f"⚠️ AllStatic_Valuation.csv 缺少 stock_id 欄位: {static_valuation_csv_path}")
+            print(
+                f"⚠️ AllStatic_Valuation.csv 缺少 stock_id 欄位: {static_valuation_csv_path}")
             return {}
 
         df = df.where(pd.notna(df), None)
@@ -154,7 +155,8 @@ def load_valuation_static_map(static_valuation_csv_path=STATIC_VALUATION_CSV_PAT
 
         _VALUATION_STATIC_MAP_CACHE = valuation_map
         _VALUATION_STATIC_MAP_MTIME = mtime
-        print(f"✅ 已載入估值靜態資料: {static_valuation_csv_path}, 筆數={len(valuation_map)}")
+        print(
+            f"✅ 已載入估值靜態資料: {static_valuation_csv_path}, 筆數={len(valuation_map)}")
         return valuation_map
 
     except Exception as e:

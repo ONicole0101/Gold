@@ -562,3 +562,6 @@
 2026-08-02 14:26:29,api_call,PER source,2303,TaiwanStockPER,False,,,missing_token,FINMIND_TOKEN is not set,60,40,,,,sent,,FinMind request sent with token in query params and/or Authorization header
 2026-08-02 14:26:30,api_call,PER/PBR 90D,2308,TaiwanStockPER,False,,,missing_token,FINMIND_TOKEN is not set,61,41,,,,sent,,FinMind request sent with token in query params and/or Authorization header
 2026-08-02 14:26:31,api_call,dividend source,2308,TaiwanStockDividend,False,,,missing_token,FINMIND_TOKEN is not set,62,21,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-02 14:26:32,api_call,PER source,2308,TaiwanStockPER,False,,,missing_token,FINMIND_TOKEN is not set,63,42,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-02 14:26:33,api_call,PER/PBR 90D,2313,TaiwanStockPER,False,,,missing_token,FINMIND_TOKEN is not set,64,43,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-02 14:26:34,api_call,dividend source,2313,TaiwanStockDividend,False,,,missing_token,FINMIND_TOKEN is not set,65,22,,,,sent,,FinMind request sent with token in query params and/or Authorization header
