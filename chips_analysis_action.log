@@ -1,17 +1,18 @@
-[32m2026-08-04 10:17:44.741[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-08-04 10:17:44.904[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-08-05 10:15:10.377[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-08-05 10:15:10.553[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
 FinMind usage: 743/6000, remain=5257
-Incremental probe: stock_id=2330, latest_date=2026-08-04, status=ok
-Build chips: total=188, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=187, latest_date=2026-08-04
+Incremental probe: stock_id=2330, latest_date=2026-08-05, status=ok
+Build chips: total=188, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=187, latest_date=2026-08-05
 [8/188] 0089 2 富邦台灣半導體 status=no_data date=- main=- diff=- state=no_data
-[16/188] 0098 1A 主動統一台股增長 status=no_data date=- main=- diff=- state=no_data
-[75/188] 3023 信邦 status=ok date=2026-08-04 main=-37 diff=63 state=neutral
+[14/188] 0098 1A 主動統一台股增長 status=no_data date=- main=- diff=- state=no_data
+[22/188] 0099 1A 主動復華未來50 status=no_data date=- main=- diff=- state=no_data
+[100/188] 3443 創意 status=ok date=2026-08-05 main=156 diff=-123 state=neutral
 stock_id=0056
 name=元大高股息
-chip_latest_date=2026-08-04
-main_force_net=13589.0
-broker_diff=-29.0
+chip_latest_date=2026-08-05
+main_force_net=32495.0
+broker_diff=-50.0
 chip_signal_state=bullish_distributed
 chips_status=ok
 ---
@@ -161,89 +162,89 @@ chips_status=no_data
 ---
 stock_id=1101
 name=台泥
-chip_latest_date=2026-08-04
-main_force_net=-9616.0
-broker_diff=333.0
+chip_latest_date=2026-08-05
+main_force_net=2420.0
+broker_diff=-27.0
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1216
 name=統一
-chip_latest_date=2026-08-04
-main_force_net=-247.0
-broker_diff=189.0
+chip_latest_date=2026-08-05
+main_force_net=-3746.0
+broker_diff=440.0
 chip_signal_state=bearish_distributed
 chips_status=ok
 ---
 stock_id=1319
 name=東陽
-chip_latest_date=2026-08-04
-main_force_net=-55.0
-broker_diff=67.0
-chip_signal_state=bearish_distributed
+chip_latest_date=2026-08-05
+main_force_net=179.0
+broker_diff=-42.0
+chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1326
 name=台化
-chip_latest_date=2026-08-04
-main_force_net=-949.0
-broker_diff=11.0
-chip_signal_state=bearish_distributed
+chip_latest_date=2026-08-05
+main_force_net=760.0
+broker_diff=15.0
+chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1476
 name=儒鴻
-chip_latest_date=2026-08-04
-main_force_net=130.0
+chip_latest_date=2026-08-05
+main_force_net=109.0
 broker_diff=-53.0
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1503
 name=士電
-chip_latest_date=2026-08-04
-main_force_net=-7.0
-broker_diff=157.0
+chip_latest_date=2026-08-05
+main_force_net=135.0
+broker_diff=12.0
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1513
 name=中興電
-chip_latest_date=2026-08-04
-main_force_net=901.0
-broker_diff=-91.0
+chip_latest_date=2026-08-05
+main_force_net=667.0
+broker_diff=-84.0
 chip_signal_state=bullish_concentrated
 chips_status=ok
 ---
 stock_id=1514
 name=亞力
-chip_latest_date=2026-08-04
-main_force_net=-84.0
-broker_diff=117.0
+chip_latest_date=2026-08-05
+main_force_net=120.0
+broker_diff=-4.0
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1519
 name=華城
-chip_latest_date=2026-08-04
-main_force_net=138.0
-broker_diff=98.0
+chip_latest_date=2026-08-05
+main_force_net=-238.0
+broker_diff=233.0
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1532
 name=勤美
-chip_latest_date=2026-08-04
-main_force_net=10.0
-broker_diff=28.0
-chip_signal_state=neutral
+chip_latest_date=2026-08-05
+main_force_net=27.0
+broker_diff=-21.0
+chip_signal_state=bullish_distributed
 chips_status=ok
 ---
 stock_id=1560
 name=中砂
-chip_latest_date=2026-08-04
-main_force_net=-20.0
-broker_diff=5.0
+chip_latest_date=2026-08-05
+main_force_net=-61.0
+broker_diff=12.0
 chip_signal_state=neutral
 chips_status=ok
 ---
