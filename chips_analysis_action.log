@@ -1,29 +1,10 @@
-[32m2026-08-06 10:16:56.936[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-08-06 10:16:57.048[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-08-07 08:38:02.757[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-08-07 08:38:02.923[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
 FinMind usage: 743/6000, remain=5257
 Incremental probe: stock_id=2330, latest_date=2026-08-06, status=ok
-Build chips: total=188, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=187, latest_date=2026-08-06
-[4/188] 0063 1L 元大台灣50正2 status=no_data date=- main=- diff=- state=no_data
-[10/188] 0094 1 中信上游半導體 status=no_data date=- main=- diff=- state=no_data
-[11/188] 0093 7B 群益ESG投等債20+ status=no_data date=- main=- diff=- state=no_data
-[15/188] 0098 24 群益美國科技巨頭 status=no_data date=- main=- diff=- state=no_data
-[50/188] 2375 凱美 status=ok date=2026-08-06 main=180 diff=9 state=bullish_distributed
-[188/188] 8358 金居 status=ok date=2026-08-06 main=1140 diff=-17 state=neutral
-2330 籌碼分頁結果 date=2026-08-06 ; main_force=-4251.0 ; concentration=-17.59 ; broker_diff=37.0
-Done: rows=188, status={'ok': 170, 'no_data': 18}, preserved=0, skipped=0, elapsed=286.5s, output=AllStatic_Chips.csv
-Notable rows:
-- 0068 7B 國泰20年美債 status=no_data date=- main=- diff=- state=no_data reason=籌碼資料不足
-- 0087 8 國泰永續高股息 status=no_data date=- main=- diff=- state=no_data reason=籌碼資料不足
-- 0063 1L 元大台灣50正2 status=no_data date=- main=- diff=- state=no_data reason=籌碼資料不足
-- 0067 9B 元大美債20年 status=no_data date=- main=- diff=- state=no_data reason=籌碼資料不足
-- 0068 5L 群益臺灣加權正2 status=no_data date=- main=- diff=- state=no_data reason=籌碼資料不足
-- 0089 2 富邦台灣半導體 status=no_data date=- main=- diff=- state=no_data reason=籌碼資料不足
-- 0091 9 群益台灣精選高息 status=no_data date=- main=- diff=- state=no_data reason=籌碼資料不足
-- 0094 1 中信上游半導體 status=no_data date=- main=- diff=- state=no_data reason=籌碼資料不足
-- 0093 7B 群益ESG投等債20+ status=no_data date=- main=- diff=- state=no_data reason=籌碼資料不足
-- 0095 3B 群益優選非投等債 status=no_data date=- main=- diff=- state=no_data reason=籌碼資料不足
-- ... 8 more
+Build chips: total=188, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=169, pending=18, latest_date=2026-08-06
+[172/188] 0089 2 富邦台灣半導體 status=no_data date=- main=- diff=- state=no_data
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-08-06
