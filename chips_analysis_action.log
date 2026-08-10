@@ -1,13 +1,13 @@
-[32m2026-08-09 23:08:07.740[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-08-09 23:08:07.851[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-08-10 09:01:13.425[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-08-10 09:01:13.539[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 0/6000, remain=6000
-Incremental probe: stock_id=2330, latest_date=2026-08-07, status=ok
-Build chips: total=189, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=188, latest_date=2026-08-07
+FinMind usage: 1416/6000, remain=4584
+Incremental probe: stock_id=2330, latest_date=2026-08-10, status=ok
+Build chips: total=189, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=188, latest_date=2026-08-10
 [8/189] 0089 2 富邦台灣半導體 status=no_data date=- main=- diff=- state=no_data
 [14/189] 0098 1A 主動統一台股增長 status=no_data date=- main=- diff=- state=no_data
-[21/189] 0099 1A 主動復華未來50 status=no_data date=- main=- diff=- state=no_data
-[75/189] 3026 禾伸堂 status=ok date=2026-08-07 main=-411 diff=300 state=neutral
+[22/189] 0099 1A 主動復華未來50 status=no_data date=- main=- diff=- state=no_data
+[100/189] 3450 聯鈞 status=ok date=2026-08-10 main=3198 diff=-102 state=neutral
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-08-07
@@ -186,17 +186,17 @@ chips_status=ok
 ---
 stock_id=1326
 name=台化
-chip_latest_date=2026-08-07
-main_force_net=-994.0
-broker_diff=5.0
-chip_signal_state=neutral
+chip_latest_date=2026-08-10
+main_force_net=-2646.0
+broker_diff=38.0
+chip_signal_state=bearish_distributed
 chips_status=ok
 ---
 stock_id=1476
 name=儒鴻
-chip_latest_date=2026-08-07
-main_force_net=-592.0
-broker_diff=240.0
+chip_latest_date=2026-08-10
+main_force_net=-522.0
+broker_diff=319.0
 chip_signal_state=neutral
 chips_status=ok
 ---
@@ -210,34 +210,34 @@ chips_status=ok
 ---
 stock_id=1513
 name=中興電
-chip_latest_date=2026-08-07
-main_force_net=-160.0
-broker_diff=165.0
+chip_latest_date=2026-08-10
+main_force_net=283.0
+broker_diff=12.0
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1514
 name=亞力
-chip_latest_date=2026-08-07
-main_force_net=-203.0
-broker_diff=169.0
+chip_latest_date=2026-08-10
+main_force_net=100.0
+broker_diff=2.0
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1519
 name=華城
-chip_latest_date=2026-08-07
-main_force_net=-200.0
-broker_diff=351.0
-chip_signal_state=bearish_distributed
+chip_latest_date=2026-08-10
+main_force_net=86.0
+broker_diff=108.0
+chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1532
 name=勤美
-chip_latest_date=2026-08-07
-main_force_net=50.0
-broker_diff=-13.0
-chip_signal_state=bullish_distributed
+chip_latest_date=2026-08-10
+main_force_net=-69.0
+broker_diff=43.0
+chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1560
