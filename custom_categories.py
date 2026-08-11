@@ -10,9 +10,9 @@ if TYPE_CHECKING:
 
 CUSTOM_CATEGORY_COLUMN = "自選分類"
 CUSTOM_CATEGORY_SEPARATOR = ";"
-STOCK_CODE_PATTERN = re.compile(r"(?<!\d)(\d{4})(?!\d)")
+STOCK_CODE_PATTERN = re.compile(r"(?<![0-9A-Z])(\d{4,6}[A-Z]?)(?![0-9A-Z])")
 COMBINED_STOCK_PATTERN = re.compile(
-    r"(?<!\d)(\d{4})(?!\d)\s*[-:：]?\s*([^\d\s].*)"
+    r"(?<![0-9A-Z])(\d{4,6}[A-Z]?)(?![0-9A-Z])\s*[-:：]?\s*([^\d\s].*)"
 )
 
 CATEGORY_ALIAS_MAP = {
@@ -49,6 +49,22 @@ def _clean_text(value: Any) -> str:
     return "" if text.lower() in {"nan", "none", "null"} else text
 
 
+def _normalize_stock_code(value: Any) -> str:
+    text = _clean_text(value).upper()
+    if not text:
+        return ""
+
+    left6 = re.sub(r"[\s\u3000]+", "", text[:6])
+    if re.match(r"^\d{4,6}[A-Z]?$", left6):
+        return left6
+
+    compact = re.sub(r"[\s\u3000]+", "", text)
+    if re.match(r"^\d{4,6}[A-Z]?$", compact):
+        return compact
+
+    return ""
+
+
 def normalize_category_label(label: Any) -> str:
     """Normalize category labels to avoid option mismatch caused by naming variants."""
     text = _clean_text(label)
@@ -74,7 +90,7 @@ def _extract_stock_columns(df: pd.DataFrame) -> pd.DataFrame:
     if stock_col and name_col:
         out = df[[stock_col, name_col]].copy()
         out.columns = ["stock_id", "name"]
-        out["stock_id"] = out["stock_id"].map(_clean_text)
+        out["stock_id"] = out["stock_id"].map(_normalize_stock_code)
         out["name"] = out["name"].map(_clean_text)
         out = out[(out["stock_id"] != "") & (out["name"] != "")]
         return out
@@ -100,23 +116,31 @@ def _parse_combined_stock_text(raw: Any) -> tuple[str, str]:
     if len(text) < 5:
         return "", ""
 
+    left6_code = _normalize_stock_code(text[:6])
+    if left6_code:
+        name = _clean_text(text[6:])
+        if name:
+            return left6_code, name
+
     match = COMBINED_STOCK_PATTERN.search(text)
     if match:
-        ticker = _clean_text(match.group(1))
+        ticker = _normalize_stock_code(match.group(1))
         name = _clean_text(match.group(2))
         if ticker and name:
             return ticker, name
 
-    ticker = text[:4]
-    if len(ticker) == 4 and ticker.isdigit():
-        name = _clean_text(text[4:])
-        if name:
+    token_match = re.match(r"^(\d{4,6}[A-Z]?)\s+(.+)$", text, flags=re.IGNORECASE)
+    if token_match:
+        ticker = _normalize_stock_code(token_match.group(1))
+        name = _clean_text(token_match.group(2))
+        if ticker and name:
             return ticker, name
+
     return "", ""
 
 
 def _looks_like_stock_code(text: str) -> bool:
-    return bool(text) and len(text) == 4 and text.isdigit()
+    return bool(_normalize_stock_code(text))
 
 
 def _pick_name_candidate(cells: list[str], code_index: int) -> str:
@@ -180,7 +204,7 @@ def _extract_stock_columns_from_excel(df: pd.DataFrame) -> pd.DataFrame:
         if not row_pairs:
             for cell in cells:
                 for match in STOCK_CODE_PATTERN.finditer(cell):
-                    ticker = _clean_text(match.group(1))
+                    ticker = _normalize_stock_code(match.group(1))
                     remainder = _clean_text(cell[match.end():])
                     if ticker and remainder:
                         row_pairs.append((ticker, remainder))
