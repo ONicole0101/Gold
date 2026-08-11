@@ -1,12 +1,9 @@
-[32m2026-08-11 08:35:22.825[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-08-11 08:35:22.939[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-08-11 14:11:54.350[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-08-11 14:11:54.513[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 1027/6000, remain=4973
+FinMind usage: 782/6000, remain=5218
 Incremental probe: stock_id=2330, latest_date=2026-08-11, status=ok
-Build chips: total=189, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=188, latest_date=2026-08-11
-[8/189] 0089 2 富邦台灣半導體 status=no_data date=- main=- diff=- state=no_data
-[14/189] 0098 1A 主動統一台股增長 status=no_data date=- main=- diff=- state=no_data
-[20/189] 0099 1A 主動復華未來50 status=no_data date=- main=- diff=- state=no_data
+Build chips: total=191, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=165, pending=25, latest_date=2026-08-11
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-08-11
@@ -15,149 +12,37 @@ broker_diff=87.0
 chip_signal_state=neutral
 chips_status=ok
 ---
-stock_id=0063
-name=1L 元大台灣50正2
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
+stock_id=00878
+name=國泰永續高股息
+chip_latest_date=2026-08-11
+main_force_net=-14608
+broker_diff=134
+chip_signal_state=neutral
+chips_status=ok
 ---
-stock_id=0067
-name=9B 元大美債20年
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
+stock_id=00892
+name=富邦台灣半導體
+chip_latest_date=2026-08-11
+main_force_net=1
+broker_diff=77
+chip_signal_state=neutral
+chips_status=ok
 ---
-stock_id=0068
-name=5L 群益臺灣加權正2
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
+stock_id=00919
+name=群益台灣精選高息
+chip_latest_date=2026-08-11
+main_force_net=14158
+broker_diff=4
+chip_signal_state=bullish_distributed
+chips_status=ok
 ---
-stock_id=0068
-name=7B 國泰20年美債
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
----
-stock_id=0087
-name=8 國泰永續高股息
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
----
-stock_id=0089
-name=2 富邦台灣半導體
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
----
-stock_id=0091
-name=9 群益台灣精選高息
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
----
-stock_id=0093
-name=7B 群益ESG投等債20+
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
----
-stock_id=0094
-name=1 中信上游半導體
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
----
-stock_id=0094
-name=2B 台新美A公司債20+
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
----
-stock_id=0095
-name=3B 群益優選非投等債
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
----
-stock_id=0098
-name=1A 主動統一台股增長
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
----
-stock_id=0098
-name=20 元大納斯達克精選
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
----
-stock_id=0098
-name=23 群益S&P500
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
----
-stock_id=0098
-name=24 群益美國科技巨頭
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
----
-stock_id=0098
-name=7A 主動台新優勢成長
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
----
-stock_id=0098
-name=16 凱基台灣TOP50
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
----
-stock_id=0099
-name=1A 主動復華未來50
-chip_latest_date=nan
-main_force_net=nan
-broker_diff=nan
-chip_signal_state=no_data
-chips_status=no_data
+stock_id=00941
+name=中信上游半導體
+chip_latest_date=2026-08-11
+main_force_net=88
+broker_diff=-1
+chip_signal_state=bullish_distributed
+chips_status=ok
 ---
 stock_id=1101
 name=台泥
@@ -247,6 +132,118 @@ broker_diff=205.0
 chip_signal_state=neutral
 chips_status=ok
 ---
-rows= 189
-status= {'ok': 171, 'no_data': 18}
+stock_id=1597
+name=直得
+chip_latest_date=2026-08-11
+main_force_net=29.0
+broker_diff=23.0
+chip_signal_state=neutral
+chips_status=ok
+---
+stock_id=1727
+name=中華化
+chip_latest_date=2026-08-11
+main_force_net=-242.0
+broker_diff=72.0
+chip_signal_state=neutral
+chips_status=ok
+---
+stock_id=1760
+name=寶齡富錦
+chip_latest_date=2026-08-11
+main_force_net=-1.0
+broker_diff=17.0
+chip_signal_state=neutral
+chips_status=ok
+---
+stock_id=1802
+name=台玻
+chip_latest_date=2026-08-11
+main_force_net=3613.0
+broker_diff=-13.0
+chip_signal_state=neutral
+chips_status=ok
+---
+stock_id=2049
+name=上銀
+chip_latest_date=2026-08-11
+main_force_net=-974.0
+broker_diff=94.0
+chip_signal_state=neutral
+chips_status=ok
+---
+stock_id=2059
+name=川湖
+chip_latest_date=2026-08-11
+main_force_net=-11.0
+broker_diff=97.0
+chip_signal_state=neutral
+chips_status=ok
+---
+stock_id=2233
+name=宇隆
+chip_latest_date=2026-08-11
+main_force_net=-45.0
+broker_diff=115.0
+chip_signal_state=neutral
+chips_status=ok
+---
+stock_id=2301
+name=光寶科
+chip_latest_date=2026-08-11
+main_force_net=-3490.0
+broker_diff=3.0
+chip_signal_state=neutral
+chips_status=ok
+---
+stock_id=2303
+name=聯電
+chip_latest_date=2026-08-11
+main_force_net=4178.0
+broker_diff=2.0
+chip_signal_state=neutral
+chips_status=ok
+---
+stock_id=2308
+name=台達電
+chip_latest_date=2026-08-11
+main_force_net=-2205.0
+broker_diff=25.0
+chip_signal_state=neutral
+chips_status=ok
+---
+stock_id=2313
+name=華通
+chip_latest_date=2026-08-11
+main_force_net=-582.0
+broker_diff=14.0
+chip_signal_state=bearish_distributed
+chips_status=ok
+---
+stock_id=2317
+name=鴻海
+chip_latest_date=2026-08-11
+main_force_net=-885.0
+broker_diff=24.0
+chip_signal_state=neutral
+chips_status=ok
+---
+stock_id=2327
+name=國巨*
+chip_latest_date=2026-08-11
+main_force_net=1251.0
+broker_diff=2.0
+chip_signal_state=neutral
+chips_status=ok
+---
+stock_id=2330
+name=台積電
+chip_latest_date=2026-08-11
+main_force_net=3209
+broker_diff=-5
+chip_signal_state=neutral
+chips_status=ok
+---
+rows= 191
+status= {'ok': 191}
 No stock_id selected; skip single-stock print.
