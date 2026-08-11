@@ -129,7 +129,8 @@ def _parse_combined_stock_text(raw: Any) -> tuple[str, str]:
         if ticker and name:
             return ticker, name
 
-    token_match = re.match(r"^(\d{4,6}[A-Z]?)\s+(.+)$", text, flags=re.IGNORECASE)
+    token_match = re.match(
+        r"^(\d{4,6}[A-Z]?)\s+(.+)$", text, flags=re.IGNORECASE)
     if token_match:
         ticker = _normalize_stock_code(token_match.group(1))
         name = _clean_text(token_match.group(2))
