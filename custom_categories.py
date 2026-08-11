@@ -54,13 +54,18 @@ def _normalize_stock_code(value: Any) -> str:
     if not text:
         return ""
 
-    left6 = re.sub(r"[\s\u3000]+", "", text[:6])
+    # Rule: stock code should come from text before the first whitespace.
+    # This avoids mixing code with name initials (e.g. "4971 IET-KY" -> "4971").
+    left_token = re.split(r"[\s\u3000]+", text, maxsplit=1)[0]
+    left_token = re.sub(r"[^0-9A-Z]", "", left_token)
+    left6 = left_token[:6]
     if re.match(r"^\d{4,6}[A-Z]?$", left6):
         return left6
 
     compact = re.sub(r"[\s\u3000]+", "", text)
+    compact = re.sub(r"[^0-9A-Z]", "", compact)
     if re.match(r"^\d{4,6}[A-Z]?$", compact):
-        return compact
+        return compact[:6]
 
     return ""
 
@@ -116,9 +121,15 @@ def _parse_combined_stock_text(raw: Any) -> tuple[str, str]:
     if len(text) < 5:
         return "", ""
 
-    left6_code = _normalize_stock_code(text[:6])
+    left6_code = _normalize_stock_code(text)
     if left6_code:
-        name = _clean_text(text[6:])
+        # Name is everything after first whitespace when available.
+        # If no whitespace separator, fallback to fixed-width split by code length.
+        parts = re.split(r"[\s\u3000]+", text, maxsplit=1)
+        if len(parts) == 2:
+            name = _clean_text(parts[1])
+        else:
+            name = _clean_text(text[len(left6_code):])
         if name:
             return left6_code, name
 
