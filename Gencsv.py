@@ -26,6 +26,10 @@ def _parse_a_column_text(raw: str) -> tuple[str, str]:
     return ticker, name
 
 
+def _is_market_index_sheet(sheet_name: str) -> bool:
+    return sheet_name.strip().casefold().startswith(("taiex", "tpex"))
+
+
 def _build_stock_list_from_excel(excel_path: Path) -> pd.DataFrame:
     if not excel_path.exists():
         raise FileNotFoundError(f"Excel file not found: {excel_path}")
@@ -42,7 +46,12 @@ def _build_stock_list_from_excel(excel_path: Path) -> pd.DataFrame:
             report_lines.append(f"{sheet_name}\tempty\t0\t0")
             continue
 
-        parsed = _extract_stock_columns_from_excel(df)
+        if _is_market_index_sheet(sheet_name) and len(df.columns) >= 2:
+            market_df = df.iloc[:, :2].copy()
+            market_df.columns = ["Ticker", "Name"]
+            parsed = _extract_stock_columns_from_excel(market_df)
+        else:
+            parsed = _extract_stock_columns_from_excel(df)
         if parsed.empty:
             print(f"sheet {sheet_name}: parsed 0 rows", flush=True)
             report_lines.append(
