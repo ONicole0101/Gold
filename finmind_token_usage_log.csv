@@ -1318,3 +1318,8 @@
 2026-08-13 16:32:30,api_call,get_stock_data,6223,TaiwanStockPrice,False,,,missing_token,FINMIND_TOKEN is not set,216,216,,,,sent,,FinMind request sent with token in query params and/or Authorization header
 2026-08-13 16:32:31,api_call,get_stock_data,6239,TaiwanStockPrice,False,,,missing_token,FINMIND_TOKEN is not set,217,217,,,,sent,,FinMind request sent with token in query params and/or Authorization header
 2026-08-13 16:32:32,api_call,get_stock_data,6243,TaiwanStockPrice,False,,,missing_token,FINMIND_TOKEN is not set,218,218,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-13 16:32:33,api_call,get_stock_data,6257,TaiwanStockPrice,False,,,missing_token,FINMIND_TOKEN is not set,219,219,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-13 16:32:34,api_call,get_stock_data,6274,TaiwanStockPrice,False,,,missing_token,FINMIND_TOKEN is not set,220,220,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-13 16:32:35,api_call,get_stock_data,6278,TaiwanStockPrice,False,,,missing_token,FINMIND_TOKEN is not set,221,221,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-13 16:32:36,api_call,get_stock_data,6282,TaiwanStockPrice,False,,,missing_token,FINMIND_TOKEN is not set,222,222,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-13 16:32:37,api_call,get_stock_data,6285,TaiwanStockPrice,False,,,missing_token,FINMIND_TOKEN is not set,223,223,,,,sent,,FinMind request sent with token in query params and/or Authorization header
