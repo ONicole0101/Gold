@@ -322,6 +322,17 @@ def build_recent_technical_fields(*rows):
         fields[f"d_{suffix}"] = round_float_or_none(row.get("D"), 2)
         fields[f"price_min_{suffix}"] = round_float_or_none(row.get("min"), 2)
         fields[f"price_max_{suffix}"] = round_float_or_none(row.get("max"), 2)
+        fields[f"macd_hist_{suffix}"] = round_float_or_none(
+            row.get("MACD_HIST") if "MACD_HIST" in row else row.get(
+                "macd_hist"), 4
+        )
+        fields[f"rsi_{suffix}"] = round_float_or_none(
+            row.get("RSI") if "RSI" in row else row.get("rsi"), 2
+        )
+        fields[f"margin_cost_line_{suffix}"] = round_float_or_none(
+            row.get("margin_cost_line") if "margin_cost_line" in row else row.get(
+                "margin_cost"), 2
+        )
     return fields
 
 
@@ -476,6 +487,14 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             latest["MACD_HIST"]) else None
         prev_macd_hist = prev["MACD_HIST"] if "MACD_HIST" in prev and pd.notna(
             prev["MACD_HIST"]) else None
+        prev2_macd_hist = prev2["MACD_HIST"] if "MACD_HIST" in prev2 and pd.notna(
+            prev2["MACD_HIST"]) else None
+        rsi = latest["RSI"] if "RSI" in latest and pd.notna(
+            latest["RSI"]) else None
+        prev_rsi = prev["RSI"] if "RSI" in prev and pd.notna(
+            prev["RSI"]) else None
+        prev2_rsi = prev2["RSI"] if "RSI" in prev2 and pd.notna(
+            prev2["RSI"]) else None
         close = latest["close"]
         prev_close = prev["close"]
 
@@ -669,6 +688,10 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             "price": float(round(close, 2)),
             "price_max": float(round(max_price, 2)),
             "price_min": float(round(min_price, 2)),
+            "margin_cost_line": None,
+            "margin_cost_line_t0": None,
+            "margin_cost_line_t1": None,
+            "margin_cost_line_t2": None,
             "price_60d_high": price_stats.get("price_60d_high"),
             "price_60d_low": price_stats.get("price_60d_low"),
             "resistance_price": support_resistance.get("resistance_price"),
@@ -761,8 +784,15 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             "ma50": float(round(ma60, 2)) if ma60 is not None else safe_ma_stats.get("ma60"),
             "prev_ma50": float(round(prev_ma60, 2)) if prev_ma60 is not None else None,
             "macd_hist": float(round(macd_hist, 4)) if macd_hist is not None else None,
+            "macd_hist_t0": float(round(macd_hist, 4)) if macd_hist is not None else None,
+            "macd_hist_t1": float(round(prev_macd_hist, 4)) if prev_macd_hist is not None else None,
+            "macd_hist_t2": float(round(prev2_macd_hist, 4)) if prev2_macd_hist is not None else None,
             "prev_macd_hist": float(round(prev_macd_hist, 4)) if prev_macd_hist is not None else None,
             "macd_hist_delta": float(round(macd_hist - prev_macd_hist, 4)) if macd_hist is not None and prev_macd_hist is not None else None,
+            "rsi": float(round(rsi, 2)) if rsi is not None else None,
+            "rsi_t0": float(round(rsi, 2)) if rsi is not None else None,
+            "rsi_t1": float(round(prev_rsi, 2)) if prev_rsi is not None else None,
+            "rsi_t2": float(round(prev2_rsi, 2)) if prev2_rsi is not None else None,
             "bias60": bias60,
             "bias60_t0": bias60,
             "bias60_t1": bias60_t1,
@@ -883,6 +913,10 @@ def _build_chip_fields(chip_row):
         "main_force_score": to_float_or_none(chip_row.get("main_force_score")),
         "broker_diff": latest_broker_diff,
         "broker_diff_score": to_float_or_none(chip_row.get("broker_diff_score")),
+        "margin_cost_line": to_float_or_none(chip_row.get("margin_cost_line") or chip_row.get("margin_cost")),
+        "margin_cost_line_t0": to_float_or_none(chip_row.get("margin_cost_line_t0") or chip_row.get("margin_cost_t0") or chip_row.get("margin_cost_line") or chip_row.get("margin_cost")),
+        "margin_cost_line_t1": to_float_or_none(chip_row.get("margin_cost_line_t1") or chip_row.get("margin_cost_t1")),
+        "margin_cost_line_t2": to_float_or_none(chip_row.get("margin_cost_line_t2") or chip_row.get("margin_cost_t2")),
         "foreign_investor_net": to_int_or_none(chip_row.get("foreign_investor_net")),
         "foreign_investor_net_score": to_float_or_none(chip_row.get("foreign_investor_net_score")),
         "investment_trust_net": to_int_or_none(chip_row.get("investment_trust_net")),

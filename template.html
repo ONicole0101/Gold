@@ -906,7 +906,7 @@
       <button type="button" class="tab-btn" data-tab="fundamental">基本面</button>
       <button type="button" class="tab-btn" data-tab="cb">CB</button>
       <button type="button" class="index-toggle-btn active" id="indexToggleBtn" title="切換顯示加權/櫃買指數固定列">📊 顯示指數</button>
-      <span class="tab-note" id="tabNote">總覽：價格、漲跌、量、KD、布林、訊號</span>
+      <span class="tab-note" id="tabNote">總覽：價格、漲跌、量、KD、布林</span>
     </div>
 
     <div class="filter-panel" id="filterPanel">
@@ -1045,39 +1045,38 @@
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>90日LH</small>" },
           { key: "chg", label: "漲跌<br><small>LH</small>" },
-          { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
+          { key: "chgPct", label: "價格漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "k", label: "日KD<br><small>3天趨勢</small>" },
           { key: "bb_pct", label: "日布林%<br><small>T/T-1</small>", cls: "col-md" },
-          { key: "sig", label: "訊號" }
+          { key: "sig", label: "訊號", tooltip: "技術面與籌碼面的整合判斷結果，顯示買/賣/盤整等方向訊號。" }
         ]
       },
       technical: {
-        note: "技術面：價格趨勢、壓力/支撐、KD、布林、Bias、PER/PBR 90日區間",
+        note: "技術面：價格趨勢、壓力/支撐、KD、布林、MACD、RSI、Bias 90日區間",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>90日LH</small>" },
-          { key: "price_lh_trend", label: "價格L/H<br><small>3天趨勢</small>", cls: "col-md" },
-          { key: "per_latest", label: "日PER<br><small>90日LH</small>", cls: "col-lg" },
-          { key: "pbr_latest", label: "日PBR<br><small>90日LH</small>", cls: "col-lg" },
+          { key: "chgPct", label: "價格漲跌%<br><small>漲跌/震幅</small>" },
           { key: "resistance_price", label: "壓力點<br><small>距離%</small>", tooltip: "壓力點距離%＝(壓力點價格 - 目前收盤價) ÷ 目前收盤價 × 100。數值越小代表越接近上方壓力，突破後可能轉為支撐。" },
           { key: "support_price", label: "支撐點<br><small>距離%</small>", tooltip: "支撐點距離%＝(目前收盤價 - 支撐點價格) ÷ 目前收盤價 × 100。數值越小代表越接近下方支撐，跌破後可能轉為壓力。" },
-          { key: "chgPct", label: "漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "k", label: "日KD<br><small>3天趨勢</small>" },
-          { key: "bb_pct", label: "日布林%<br><small>90日LH</small>" },
+          { key: "bb_pct", label: "日布林%<br><small>T/T-1/T-2</small>", tooltip: "布林% ＝ (收盤價 - BB下軌) ÷ (BB上軌 - BB下軌) × 100。當值越高代表股價偏向上軌、越低代表偏向下軌，並以箭頭與 T/T-1/T-2 顯示趨勢變化。" },
+          { key: "macd_hist", label: "MACD值<br><small>T/T-1/T-2</small>", tooltip: "MACD值 = DIF - DEA；柱狀體轉正代表動能轉強，轉負代表動能轉弱，箭頭與 T/T-1/T-2 展示最近三天變化。" },
+          { key: "rsi", label: "RSI值<br><small>T/T-1/T-2</small>", tooltip: "RSI = 100 - 100 ÷ (1 + RS)。通常 70 以上偏熱、30 以下偏冷，箭頭與 T/T-1/T-2 顯示相對強弱變化。" },
           { key: "bias5", label: "日Bias5<br><small>90日LH</small>", tooltip: "日Bias5＝(收盤價 - 5日均線MA5) ÷ MA5 × 100。正值代表股價在5日均線之上，負值代表在均線之下。" },
           { key: "bias20", label: "日Bias20<br><small>90日LH</small>", tooltip: "日Bias20＝(收盤價 - 20日均線MA20) ÷ MA20 × 100。數值越大代表短中期乖離越高，越小代表偏離均線下方。" },
-          { key: "bias60", label: "日Bias60<br><small>90日LH</small>", cls: "col-lg", tooltip: "日Bias60＝(收盤價 - 60日均線MA60) ÷ MA60 × 100。用來觀察相對中長期均線的偏離程度，正負號分別代表在均線上/下方。" },
-          { key: "sig", label: "訊號" }
+          { key: "bias60", label: "日Bias60<br><small>90日LH</small>", cls: "col-lg", tooltip: "日Bias60＝(收盤價 - 60日均線MA60) ÷ MA60 × 100。用來觀察相對中長期均線的偏離程度，正負號分別代表在均線上/下方。" }
         ]
       },
       chip: {
-        note: "籌碼面：籌碼集中、主力買賣超、買賣家數差與三日趨勢",
+        note: "籌碼面：價格趨勢、融資成本線、籌碼集中、主力買賣超、買賣家數差與三日趨勢",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>90日LH</small>" },
-          { key: "chgPct", label: "價格 %<br><small>漲跌/震幅</small>" },
+          { key: "price_lh_trend", label: "價格LH3天趨勢<br><small>T/T-1/T-2</small>", cls: "col-md" },
+          { key: "margin_cost_line", label: "融資成本線<br><small>T/T-1/T-2</small>", tooltip: "融資成本線取自 FinMind dataset TaiwanStockMarginMaintenance；數值越高代表融資成本壓力升高，箭頭與 T/T-1/T-2 展示近三日方向。資料來源：TaiwanStockMarginMaintenance。" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "short_margin_ratio_score", label: "券資比%<br><small>3天趨勢</small>", tooltip: "券資比%＝融券餘額 ÷ 融資餘額 × 100。數值越高代表放空籌碼占比越高，常見於市場偏保守或避險需求升高時；需搭配價格趨勢與主力買賣超共同判讀。" },
           { key: "chip_concentration_score", label: "籌碼集中%<br><small>3天趨勢</small>", tooltip: "籌碼集中%採 CMoney 近似口徑＝主力買賣超張數 ÷ 成交量張數 × 100，保留正負號。正值代表主力集中買超，負值代表主力集中賣超；數值絕對值越大代表集中度越高。" },
@@ -1429,12 +1428,40 @@
         ${dayMetricLine(s, key, 1, suffix)}`;
     }
 
+    function renderThreeDayMetricContent(s, key, suffix = "") {
+      const cur = dayMetricValue(s, key, 0);
+      const prev = dayMetricValue(s, key, 1);
+      const score = isNil(cur) || isNil(prev) ? 0 : Number(cur) > Number(prev) ? 0.5 : Number(cur) < Number(prev) ? -0.5 : 0;
+      const line = (idx) => {
+        const value = dayMetricValue(s, key, idx);
+        if (isNil(value)) return "";
+        const previous = idx < 2 ? dayMetricValue(s, key, idx + 1) : null;
+        const cls = isNil(previous) ? "" : chipValueClass(value, previous);
+        const label = idx === 0 ? "T" : idx === 1 ? "T-1" : "T-2";
+        const arrow = isNil(previous) ? "" : Number(value) > Number(previous) ? " ↑" : Number(value) < Number(previous) ? " ↓" : " →";
+        return `<div class="table-lv2 ${cls}">${label} ${fmt(value, suffix)}${arrow}</div>`;
+      };
+      return `
+        <div class="table-lv1 ${trendClass(score)}">${fmtTrend(score)}</div>
+        ${line(0)}
+        ${line(1)}
+        ${line(2)}`;
+    }
+
     function renderBBTechnicalContent(s) {
       const low = pickFirst(s.bb_pct_90d_low, s.bb_pct_low, s.bb_lower);
       const high = pickFirst(s.bb_pct_90d_high, s.bb_pct_high, s.bb_upper);
       return `
-        ${renderDayPairContent(s, "bb_pct", "%")}
+        ${renderThreeDayMetricContent(s, "bb_pct", "%")}
         <div class="table-lv3">${fmt(low)} / ${fmt(high)}</div>`;
+    }
+
+    function renderMacdTechnicalContent(s) {
+      return renderThreeDayMetricContent(s, "macd_hist");
+    }
+
+    function renderRsiTechnicalContent(s) {
+      return renderThreeDayMetricContent(s, "rsi", "%");
     }
 
     function renderBiasTechnicalContent(s, key) {
@@ -2068,6 +2095,12 @@
             return `<td>${renderBBTechnicalContent(s)}</td>`;
           }
           return `<td>${renderBBBlock(s)}</td>`;
+        case "macd_hist":
+          return `<td>${renderMacdTechnicalContent(s)}</td>`;
+        case "rsi":
+          return `<td>${renderRsiTechnicalContent(s)}</td>`;
+        case "margin_cost_line":
+          return `<td>${renderThreeDayMetricContent(s, "margin_cost_line", "%")}</td>`;
         case "bias5":
           return `<td>${renderBiasTechnicalContent(s, "bias5")}</td>`;
         case "bias20":
@@ -2142,10 +2175,11 @@
 
       const technicalGrid = `
         <div class="stock-grid">
-          <div class="stock-item"><div class="stock-label">漲跌% / 漲跌 / 震幅</div><div class="stock-value">${renderChangePctBlock(s)}</div></div>
-          <div class="stock-item"><div class="stock-label">價格LH 3天趨勢</div>${renderPriceLHTrendBlock(s)}</div>
+          <div class="stock-item"><div class="stock-label">價格漲跌% / 漲跌 / 震幅</div><div class="stock-value">${renderChangePctBlock(s)}</div></div>
           <div class="stock-item"><div class="stock-label">日KD 3天趨勢</div>${renderKDBlock(s)}</div>
-          <div class="stock-item"><div class="stock-label">日布林% (T/T-1)</div><div class="stock-value">${renderBBTechnicalContent(s)}</div></div>
+          <div class="stock-item"><div class="stock-label">日布林% (T/T-1/T-2)</div><div class="stock-value">${renderBBTechnicalContent(s)}</div></div>
+          <div class="stock-item"><div class="stock-label">MACD 值 (T/T-1/T-2)</div><div class="stock-value">${renderMacdTechnicalContent(s)}</div></div>
+          <div class="stock-item"><div class="stock-label">RSI 值 (T/T-1/T-2)</div><div class="stock-value">${renderRsiTechnicalContent(s)}</div></div>
           <div class="stock-item"><div class="stock-label">日Bias5 (T/T-1+LH)</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias5")}</div></div>
           <div class="stock-item"><div class="stock-label">日Bias20 (T/T-1+LH)</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias20")}</div></div>
           <div class="stock-item"><div class="stock-label">日Bias60 (T/T-1+LH)</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias60")}</div></div>
@@ -2156,6 +2190,8 @@
 
       const chipGrid = `
         <div class="stock-grid">
+          <div class="stock-item"><div class="stock-label">價格LH 3天趨勢</div>${renderPriceLHTrendBlock(s)}</div>
+          <div class="stock-item"><div class="stock-label">融資成本線 T/T-1/T-2</div>${renderThreeDayMetricContent(s, "margin_cost_line", "%")}</div>
           <div class="stock-item"><div class="stock-label">券資比% 3天趨勢</div>${renderShortMarginRatioBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">籌碼集中% 3天趨勢</div>${renderChipConcentrationBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">主力買賣超 3天趨勢</div>${renderMainForceBlock(s)}</div>
@@ -2191,11 +2227,10 @@
       const overviewGrid = `
         <div class="stock-grid">
           <div class="stock-item"><div class="stock-label">價格L/H 3天趨勢</div>${renderPriceLHTrendBlock(s)}</div>
-          <div class="stock-item"><div class="stock-label">漲跌% / 漲跌 / 震幅</div><div class="stock-value">${renderChangePctBlock(s)}</div></div>
+          <div class="stock-item"><div class="stock-label">價格漲跌% / 漲跌 / 震幅</div><div class="stock-value">${renderChangePctBlock(s)}</div></div>
           <div class="stock-item"><div class="stock-label">日KD 3天趨勢</div>${renderKDBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">日布林% (T/T-1)</div><div class="stock-value">${renderBBTechnicalContent(s)}</div></div>
           <div class="stock-item"><div class="stock-label">量 / 昨 / 增 / 張</div><div class="stock-value"><div>${fmt(s.volume)} 張</div><div class="table-lv2">昨 ${fmt(s.prev_volume)}</div><div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-" : `${fmtTrend(s.volume_ratio)} ${fmt(s.volume_ratio, "%")}`}</div><div class="table-lv2">${isNil(s.volume_add) ? "-" : `${fmt(s.volume_add)} 張`}</div></div></div>
-          <div class="stock-item"><div class="stock-label">買賣方向</div><div class="stock-value">${renderSignalBadge(s)}</div></div>
         </div>`;
 
       let bodyGrid = overviewGrid;

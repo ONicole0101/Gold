@@ -120,6 +120,19 @@ def _record_finmind_request(source, stock_id="", dataset=""):
     )
 
 
+def _warn_missing_finmind_token(dataset_name, stock_id=""):
+    """Clear warning when a dataset cannot be fetched because the runtime token is missing."""
+    if FINMIND_token:
+        return False
+    logger.warning(
+        "FinMind dataset {} skipped for stock_id={} because FINMIND_TOKEN is not set. "
+        "Set the environment variable and rerun the report.",
+        dataset_name,
+        stock_id,
+    )
+    return True
+
+
 def get_finmind_token_status():
     """Return runtime token/login evidence, always using fresh runtime secret."""
     global FINMIND_TOKEN_LOGIN_STATUS, FINMIND_TOKEN_LOGIN_MESSAGE
@@ -1368,6 +1381,85 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         except Exception:
             institutional_map_by_date = {}
 
+        margin_cost_map_by_date = {}
+        if _warn_missing_finmind_token("TaiwanStockMarginMaintenance", stock_id):
+            margin_cost_map_by_date = {}
+        else:
+            try:
+                margin_cost_params = {
+                    "dataset": "TaiwanStockMarginMaintenance",
+                    "data_id": str(stock_id),
+                    "start_date": all_report["date"].min().strftime("%Y-%m-%d"),
+                    "end_date": all_report["date"].max().strftime("%Y-%m-%d"),
+                    "token": FINMIND_token,
+                }
+                _record_finmind_request(
+                    "chip analysis", stock_id, "TaiwanStockMarginMaintenance"
+                )
+                margin_cost_res = requests.get(
+                    API_URL,
+                    params=margin_cost_params,
+                    headers=headers,
+                    timeout=300,
+                )
+                if margin_cost_res.status_code == 200:
+                    margin_cost_rows = _safe_response_json(
+                        margin_cost_res).get("data", [])
+                    if margin_cost_rows:
+                        margin_cost_df = pd.DataFrame(margin_cost_rows)
+                        if "stock_id" in margin_cost_df.columns:
+                            margin_cost_df = margin_cost_df[
+                                margin_cost_df["stock_id"].astype(
+                                    str) == str(stock_id)
+                            ]
+                        date_col = "date" if "date" in margin_cost_df.columns else "Date"
+                        if date_col in margin_cost_df.columns:
+                            margin_cost_df[date_col] = pd.to_datetime(
+                                margin_cost_df[date_col], errors="coerce"
+                            )
+                            margin_cost_df = margin_cost_df.dropna(
+                                subset=[date_col])
+                            for date_value, group_df in margin_cost_df.groupby(date_col):
+                                candidate_columns = []
+                                for col in group_df.columns:
+                                    key = str(col).lower().replace(
+                                        " ", "").replace("_", "")
+                                    if any(token in key for token in (
+                                        "margincost",
+                                        "融資成本",
+                                        "costline",
+                                        "marginmaintenance",
+                                        "maintenance",
+                                        "margincostrate",
+                                    )):
+                                        candidate_columns.append(col)
+                                if not candidate_columns:
+                                    continue
+                                value = None
+                                for col in candidate_columns:
+                                    value = _first_non_na(group_df.get(col))
+                                    if value is not None:
+                                        break
+                                if value is None:
+                                    continue
+                                margin_cost_map_by_date[date_value.date()] = _round_or_none(
+                                    value, 2)
+                elif margin_cost_res.status_code != 200:
+                    logger.warning(
+                        "TaiwanStockMarginMaintenance request failed for stock_id={} status={} body={}",
+                        stock_id,
+                        margin_cost_res.status_code,
+                        (margin_cost_res.text[:200] if hasattr(
+                            margin_cost_res, 'text') else ''),
+                    )
+            except Exception as exc:
+                logger.warning(
+                    "TaiwanStockMarginMaintenance failed for stock_id={} error={}",
+                    stock_id,
+                    exc,
+                )
+                margin_cost_map_by_date = {}
+
         def _window_metrics(window_days: int) -> dict:
             window_df = all_report.head(window_days).copy()
             if window_df.empty:
@@ -1486,6 +1578,7 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                 "chip_concentration_pct": _round_or_none(r["chip_concentration_pct"], 2),
                 "main_force_net": _int_or_none(r["main_force_net"]),
                 "broker_diff": _int_or_none(r["broker_diff"]),
+                "margin_cost_line": _round_or_none(margin_cost_map_by_date.get(date_key), 2),
                 "foreign_investor_net": _int_or_none(
                     institutional_day.get("foreign_investor_net")
                 ),
@@ -1550,6 +1643,12 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             recent_rows[2].get("institutional_total_net") if len(
                 recent_rows) > 2 else None
         ))
+        margin_cost_t0 = _round_or_none(recent_rows[0].get(
+            "margin_cost_line") if len(recent_rows) > 0 else None, 2)
+        margin_cost_t1 = _round_or_none(recent_rows[1].get(
+            "margin_cost_line") if len(recent_rows) > 1 else None, 2)
+        margin_cost_t2 = _round_or_none(recent_rows[2].get(
+            "margin_cost_line") if len(recent_rows) > 2 else None, 2)
 
         result = {
             "chip_trend_days": days,
@@ -1564,6 +1663,10 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             "main_force_score": main_score,
             "broker_diff": _int_or_none(latest["broker_diff"]),
             "broker_diff_score": broker_score,
+            "margin_cost_line": margin_cost_t0,
+            "margin_cost_line_t0": margin_cost_t0,
+            "margin_cost_line_t1": margin_cost_t1,
+            "margin_cost_line_t2": margin_cost_t2,
             "foreign_investor_net": foreign_t0,
             "foreign_investor_net_t0": foreign_t0,
             "foreign_investor_net_t1": foreign_t1,
@@ -1598,6 +1701,7 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             result[f"chip_concentration_pct_{suffix}"] = rec["chip_concentration_pct"]
             result[f"main_force_net_{suffix}"] = rec["main_force_net"]
             result[f"broker_diff_{suffix}"] = rec["broker_diff"]
+            result[f"margin_cost_line_{suffix}"] = rec["margin_cost_line"]
 
         for suffix in ("t0", "t1", "t2"):
             result.setdefault(f"chip_date_{suffix}", None)
@@ -1605,6 +1709,7 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             result.setdefault(f"chip_concentration_pct_{suffix}", None)
             result.setdefault(f"main_force_net_{suffix}", None)
             result.setdefault(f"broker_diff_{suffix}", None)
+            result.setdefault(f"margin_cost_line_{suffix}", None)
 
         return result
 

@@ -1,10 +1,17 @@
 import datetime
+
 import pandas as pd
 from FinMind.data import DataLoader
 
-# 1. 初始化 FinMind 實體 (若有 Token 可以填入，沒有的話免費版有流量限制)
+from finmind_auth import resolve_finmind_token
+
+# 1. 依照專案其他 FinMind 入口的方式，統一從環境變數讀取 token
+TOKEN = resolve_finmind_token()
 dl = DataLoader()
-# dl.login(token="你的FinMindToken") # 選填
+if TOKEN:
+    dl.login_by_token(api_token=TOKEN)
+else:
+    print("[INFO] 未設定 FINMIND_TOKEN，將以未登入模式執行；如需完整資料請先設定環境變數。")
 
 # 2. 設定觀察設定
 stock_id = "2330"  # 你想觀察的股票代碼

@@ -55,6 +55,23 @@ def calculate_kd(rsv, initial_value=50.0):
     )
 
 
+def calculate_rsi(series, period=14):
+    """Calculate RSI using Wilder's smoothing approach."""
+    s = pd.to_numeric(series, errors="coerce")
+    delta = s.diff()
+    gains = delta.clip(lower=0)
+    losses = (-delta.clip(upper=0))
+
+    avg_gain = gains.ewm(
+        alpha=1 / period, min_periods=period, adjust=False).mean()
+    avg_loss = losses.ewm(
+        alpha=1 / period, min_periods=period, adjust=False).mean()
+    rs = avg_gain / avg_loss.replace(0, pd.NA)
+    rsi = 100 - (100 / (1 + rs))
+    rsi = rsi.fillna(50.0)
+    return pd.Series(rsi, index=s.index, dtype="float64")
+
+
 def add_indicators(df):
     try:
         df = clean_ohlc_data(df)
@@ -79,6 +96,7 @@ def add_indicators(df):
         df['MACD_DIF'] = ema12 - ema26
         df['MACD_DEA'] = df['MACD_DIF'].ewm(span=9, adjust=False).mean()
         df['MACD_HIST'] = df['MACD_DIF'] - df['MACD_DEA']
+        df['RSI'] = calculate_rsi(df['close'])
 
         std = df['close'].rolling(20).std()
         df['BB_upper'] = df['MA20'] + 2 * std
