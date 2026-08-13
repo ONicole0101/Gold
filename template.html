@@ -964,10 +964,24 @@
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
         </select><input data-filter-key="k" type="number" step="0.01" placeholder="數值"></div>
+      <div class="filter-item"><label for="kdDirectionFilter">日KD方向</label><select id="kdDirectionFilter"
+          data-direction-filter>
+          <option value="">全部</option>
+          <option value="up">↑</option>
+          <option value="down">↓</option>
+          <option value="flat">→</option>
+        </select></div>
       <div class="filter-item"><label>日布林%</label><select data-filter-op="bb_pct">
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
         </select><input data-filter-key="bb_pct" type="number" step="0.01" placeholder="數值"></div>
+      <div class="filter-item"><label for="bbDirectionFilter">日布林方向</label><select id="bbDirectionFilter"
+          data-direction-filter>
+          <option value="">全部</option>
+          <option value="up">↑</option>
+          <option value="down">↓</option>
+          <option value="flat">→</option>
+        </select></div>
       <div class="filter-item"><label>壓力點距離%</label><select data-filter-op="resistance_distance_pct">
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
@@ -976,20 +990,6 @@
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
         </select><input data-filter-key="support_distance_pct" type="number" step="0.01" placeholder="%"></div>
-      <div class="filter-item"><label for="kdDirectionFilter">日KD方向</label><select id="kdDirectionFilter"
-          data-direction-filter>
-          <option value="">全部</option>
-          <option value="up">↑</option>
-          <option value="down">↓</option>
-          <option value="flat">→</option>
-        </select></div>
-      <div class="filter-item"><label for="bbDirectionFilter">日布林方向</label><select id="bbDirectionFilter"
-          data-direction-filter>
-          <option value="">全部</option>
-          <option value="up">↑</option>
-          <option value="down">↓</option>
-          <option value="flat">→</option>
-        </select></div>
       <div class="filter-item"><label>日Bias5</label><select data-filter-op="bias5">
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
@@ -1014,6 +1014,10 @@
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
         </select><input data-filter-key="main_force_net_filter" type="number" step="1" placeholder="張數"></div>
+      <div class="filter-item"><label>三大法人合計</label><select data-filter-op="institutional_total_net_filter">
+          <option value=">">&gt;</option>
+          <option value="<">&lt;</option>
+        </select><input data-filter-key="institutional_total_net_filter" type="number" step="1" placeholder="張數"></div>
       <div class="filter-item"><label>買賣家數差</label><select data-filter-op="broker_diff_filter">
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
@@ -2458,6 +2462,12 @@
       }
       if (key === "main_force_net_filter") {
         const value = pickFirst(s?.main_force_net_t0, s?.main_force_net);
+        if (isNil(value) || value === "") return null;
+        const num = Number(value);
+        return Number.isNaN(num) ? null : num;
+      }
+      if (key === "institutional_total_net_filter") {
+        const value = pickFirst(s?.institutional_total_net_t0, s?.institutional_total_net);
         if (isNil(value) || value === "") return null;
         const num = Number(value);
         return Number.isNaN(num) ? null : num;
