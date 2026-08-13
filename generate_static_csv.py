@@ -596,7 +596,7 @@ def repair_legacy_status_only(df: pd.DataFrame) -> pd.DataFrame:
     return normalize_static_df(pd.DataFrame(repaired))
 
 
-def build_incremental(stock_list, output_file, max_rows=None, min_remain=None, retry_errors=False, retry_no_data=False, force=False, sleep_sec=0.2, repair_only=False, check_every=10, refresh_hours=0):
+def build_incremental(stock_list, output_file, max_rows=None, min_remain=None, retry_errors=False, retry_no_data=False, force=False, sleep_sec=0.2, repair_only=False, check_every=10, refresh_hours=24):
     """Incrementally refresh AllStatic.csv using existing rows as the base."""
     token_status = get_finmind_token_status()
     existing_df = read_existing_static(output_file)
@@ -750,7 +750,7 @@ def main():
                         default=0.2, help="Sleep between stocks.")
     parser.add_argument("--check-every", type=int, default=10,
                         help="Check FinMind usage before first stock and every N processed stocks. Use 1 for every stock.")
-    parser.add_argument("--refresh-hours", type=int, default=0,
+    parser.add_argument("--refresh-hours", type=int, default=24,
                         help="Refresh OK rows older than this many hours. 0 means keep current OK rows indefinitely.")
     args = parser.parse_args()
 
