@@ -763,7 +763,8 @@ def main():
         return
 
     if args.stock_id:
-        requested_ids = {str(stock_id).strip() for stock_id in args.stock_id if str(stock_id).strip()}
+        requested_ids = {str(stock_id).strip()
+                         for stock_id in args.stock_id if str(stock_id).strip()}
         stock_list = [
             stock for stock in stock_list
             if str(stock.get("stock_id", "")).strip() in requested_ids
