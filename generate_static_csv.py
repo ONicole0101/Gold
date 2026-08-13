@@ -736,6 +736,8 @@ def main():
         "STATIC_OUTPUT_FILE", "STATIC_OUTPUT_FILE", "AllStatic.csv"))
     parser.add_argument("--max-rows", type=int, default=None,
                         help="Refresh at most N stocks in this run.")
+    parser.add_argument("--stock-id", action="append", default=None,
+                        help="Refresh only the specified stock ID; repeat this option for multiple stocks.")
     parser.add_argument("--min-remain", type=int, default=0,
                         help="Kept for workflow compatibility; API quota no longer stops the run.")
     parser.add_argument("--retry-errors", action="store_true",
@@ -759,6 +761,21 @@ def main():
     except Exception as e:
         print(f"Failed to read source CSV/config: {e}", flush=True)
         return
+
+    if args.stock_id:
+        requested_ids = {str(stock_id).strip() for stock_id in args.stock_id if str(stock_id).strip()}
+        stock_list = [
+            stock for stock in stock_list
+            if str(stock.get("stock_id", "")).strip() in requested_ids
+        ]
+        missing_ids = requested_ids - {
+            str(stock.get("stock_id", "")).strip() for stock in stock_list
+        }
+        if missing_ids:
+            print(
+                f"Requested stock IDs not found in source CSV: {','.join(sorted(missing_ids))}",
+                flush=True,
+            )
 
     build_incremental(
         stock_list=stock_list,

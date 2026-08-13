@@ -1089,3 +1089,14 @@
 2026-08-12 15:19:27,api_call,market_total_chips,total,TaiwanStockTotalInstitutionalInvestors,False,,,missing_token,FINMIND_TOKEN is not set,203,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header
 2026-08-12 15:19:29,api_call,get_index_ohlc_data,TAIEX,TaiwanStockPrice,False,,,missing_token,FINMIND_TOKEN is not set,204,192,,,,sent,,FinMind request sent with token in query params and/or Authorization header
 2026-08-12 15:19:31,api_call,get_index_ohlc_data,TPEx,TaiwanStockTotalReturnIndex,False,,,missing_token,FINMIND_TOKEN is not set,205,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-13 13:59:25,api_call,profit source,5536,TaiwanStockFinancialStatements,False,,,not_checked,login not checked in this process yet,1,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-13 14:01:40,generate_static_start,generate_static_csv,,,False,,,missing_token,FINMIND_TOKEN is not set,0,0,,,,missing_token,,"incremental=1, output=AllStatic.csv, token=, existing_rows=321"
+2026-08-13 14:01:41,token_check,generate_static_csv,,,False,,,missing_token,FINMIND_TOKEN is not set,0,0,,,,missing_token,,FINMIND_TOKEN is not set
+2026-08-13 14:01:42,api_call,EPS source,5536,TaiwanStockFinancialStatements,False,,,missing_token,FINMIND_TOKEN is not set,1,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-13 14:01:43,api_call,profit source,5536,TaiwanStockFinancialStatements,False,,,missing_token,FINMIND_TOKEN is not set,2,2,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-13 14:01:44,api_call,balance sheet source,5536,TaiwanStockBalanceSheet,False,,,missing_token,FINMIND_TOKEN is not set,3,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-13 14:01:45,api_call,revenue source,5536,TaiwanStockMonthRevenue,False,,,missing_token,FINMIND_TOKEN is not set,4,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-13 14:01:46,api_call,profit source,5536,TaiwanStockFinancialStatements,False,,,missing_token,FINMIND_TOKEN is not set,5,3,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-13 14:01:47,api_call,PER/PBR 90D,5536,TaiwanStockPER,False,,,missing_token,FINMIND_TOKEN is not set,6,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-13 14:01:48,api_call,disposition period,5536,TaiwanStockDispositionSecuritiesPeriod,False,,,missing_token,FINMIND_TOKEN is not set,7,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-13 14:01:49,generate_static_end,generate_static_csv,,,False,,,missing_token,FINMIND_TOKEN is not set,7,0,,,,completed,,"incremental=1, updated=1, reused=0, output=AllStatic.csv"
