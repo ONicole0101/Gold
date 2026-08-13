@@ -1,9 +1,12 @@
-[32m2026-08-13 08:53:51.775[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-08-13 08:53:51.890[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-08-13 13:20:40.692[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-08-13 13:20:40.858[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 1343/6000, remain=4657
+FinMind usage: 1481/6000, remain=4519
 Incremental probe: stock_id=2330, latest_date=2026-08-13, status=ok
-Build chips: total=309, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=308, latest_date=2026-08-13
+Build chips: total=309, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=301, pending=7, latest_date=2026-08-13
+[309/309] 7899 景美 status=ok date=2026-08-13 main=-15 diff=114 state=bearish_distributed
+2330 籌碼分頁結果 date=2026-08-13 ; main_force=4737 ; concentration=20.54 ; broker_diff=-14
+Done: rows=309, status={'ok': 309}, preserved=0, skipped=301, elapsed=40.6s, output=AllStatic_Chips.csv
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-08-13
@@ -166,17 +169,17 @@ chips_status=ok
 ---
 stock_id=1514
 name=亞力
-chip_latest_date=2026-08-12
-main_force_net=-300
-broker_diff=97
+chip_latest_date=2026-08-13
+main_force_net=97
+broker_diff=1
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1519
 name=華城
-chip_latest_date=2026-08-12
-main_force_net=442
-broker_diff=-46
+chip_latest_date=2026-08-13
+main_force_net=134
+broker_diff=-6
 chip_signal_state=bullish_distributed
 chips_status=ok
 ---
