@@ -1073,6 +1073,26 @@
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
         </select><input data-filter-key="bb_pct" type="number" step="0.01" placeholder="數值"></div>
+      <div class="filter-item"><label>壓力點距離%</label><select data-filter-op="resistance_distance_pct">
+          <option value=">">&gt;</option>
+          <option value="<">&lt;</option>
+        </select><input data-filter-key="resistance_distance_pct" type="number" step="0.01" placeholder="%"></div>
+      <div class="filter-item"><label>支撐點距離%</label><select data-filter-op="support_distance_pct">
+          <option value=">">&gt;</option>
+          <option value="<">&lt;</option>
+        </select><input data-filter-key="support_distance_pct" type="number" step="0.01" placeholder="%"></div>
+      <div class="filter-item"><label for="kdDirectionFilter">日KD方向</label><select id="kdDirectionFilter" data-direction-filter>
+          <option value="">全部</option>
+          <option value="up">↑</option>
+          <option value="down">↓</option>
+          <option value="flat">→</option>
+        </select></div>
+      <div class="filter-item"><label for="bbDirectionFilter">日布林方向</label><select id="bbDirectionFilter" data-direction-filter>
+          <option value="">全部</option>
+          <option value="up">↑</option>
+          <option value="down">↓</option>
+          <option value="flat">→</option>
+        </select></div>
       <div class="filter-item"><label>日Bias5</label><select data-filter-op="bias5">
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
@@ -1523,6 +1543,27 @@
       if (c > p) return 0.5;
       if (c < p) return -0.5;
       return 0;
+    }
+
+    function metricDirection(current, previous) {
+      if (isNil(current) || isNil(previous)) return "";
+      const cur = Number(current);
+      const prev = Number(previous);
+      if (!Number.isFinite(cur) || !Number.isFinite(prev)) return "";
+      if (cur > prev) return "up";
+      if (cur < prev) return "down";
+      return "flat";
+    }
+
+    function kdDirection(s) {
+      return metricDirection(kdValue(s, 0), kdValue(s, 1));
+    }
+
+    function bbDirection(s) {
+      return metricDirection(
+        dayMetricValue(s, "bb_pct", 0),
+        dayMetricValue(s, "bb_pct", 1)
+      );
     }
 
     function renderDayPairContent(s, key, suffix = "") {
@@ -2684,6 +2725,16 @@
         if (!selectedCategories.some(category => categories.has(category))) return false;
       }
 
+      const kdDirectionFilter = document.getElementById("kdDirectionFilter");
+      if (kdDirectionFilter?.value && kdDirection(s) !== kdDirectionFilter.value) {
+        return false;
+      }
+
+      const bbDirectionFilter = document.getElementById("bbDirectionFilter");
+      if (bbDirectionFilter?.value && bbDirection(s) !== bbDirectionFilter.value) {
+        return false;
+      }
+
       const inputs = document.querySelectorAll("[data-filter-key]");
       for (const input of inputs) {
         const raw = String(input.value ?? "").trim();
@@ -2713,6 +2764,7 @@
       document.querySelectorAll("[data-filter-op]").forEach(select => select.value = ">");
       const codeInput = document.getElementById("stockCodeFilter");
       if (codeInput) codeInput.value = "";
+      document.querySelectorAll("[data-direction-filter]").forEach(select => select.value = "");
       document.querySelectorAll(".custom-category-checkbox").forEach(checkbox => {
         checkbox.checked = false;
       });
@@ -2730,6 +2782,9 @@
         input.addEventListener("change", applyFilters);
       });
       document.querySelectorAll("[data-filter-op]").forEach(select => {
+        select.addEventListener("change", applyFilters);
+      });
+      document.querySelectorAll("[data-direction-filter]").forEach(select => {
         select.addEventListener("change", applyFilters);
       });
       const codeInput = document.getElementById("stockCodeFilter");
