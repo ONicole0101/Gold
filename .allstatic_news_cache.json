@@ -671,6 +671,12 @@
     "status": "finmind/taiwan_stock_news",
     "updated_at": "2026-08-13 10:20:24"
   },
+  "2464": {
+    "name": "盟立",
+    "news_titles_hash": "fd007f411a81476e3ebd14077fc5cea113e20c567af6c3e30ebe3d79a72c4015",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-13 23:32:59"
+  },
   "2467": {
     "name": "志聖",
     "news_titles_hash": "0cc8e1aef0518bd0e82b3631dbc0405160afa71b0da2e24ad919ff0e7a71aef0",
@@ -1127,6 +1133,12 @@
     "status": "finmind/taiwan_stock_news",
     "updated_at": "2026-08-13 10:24:13"
   },
+  "3293": {
+    "name": "鈊象",
+    "news_titles_hash": "b83253e00f37d7f8f9b22d9601a8e59a648474eaa8d0371d33b6066104d1ec86",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-13 23:33:00"
+  },
   "3324": {
     "name": "雙鴻",
     "news_titles_hash": "d84f505dcf9717c49f9a10bf261460b5e5dcf60025927f66143d1522d02027a4",
@@ -1210,6 +1222,12 @@
     "news_titles_hash": "60ee3cd527bd35b8b7de88649d2a17df4d7bc247e2cbe6202fa56a8ac242d14a",
     "status": "cache/unchanged_titles",
     "updated_at": "2026-08-13 15:50:30"
+  },
+  "3576": {
+    "name": "聯合再生",
+    "news_titles_hash": "50cd653b187379d3ea8f488e89c1a44387c9434f5a8631a324606eb951ef81a5",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-13 23:33:03"
   },
   "3583": {
     "name": "辛耘",
@@ -1469,6 +1487,12 @@
     "status": "finmind/taiwan_stock_news",
     "updated_at": "2026-08-13 15:51:35"
   },
+  "6182": {
+    "name": "合晶",
+    "news_titles_hash": "1f8e2dab8e699e2ae4c0bca51e7ca4ba8d0323b4e81a83575d33275cee6b445e",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-13 23:33:04"
+  },
   "6187": {
     "name": "萬潤",
     "news_titles_hash": "e4191eee9cf22161f8bcae7d9c51475d2b899f80f4f8b9fe89de59f13bf0efa2",
@@ -1631,6 +1655,12 @@
     "status": "cache/unchanged_titles",
     "updated_at": "2026-08-13 15:52:27"
   },
+  "6584": {
+    "name": "南俊國際",
+    "news_titles_hash": "423932e6ea241adbf474f80c5cb0d5cf02ec87e9b7d728a990079901705c144f",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-13 23:33:05"
+  },
   "6640": {
     "name": "均華",
     "news_titles_hash": "9206c7b59b1ef9c508e9b37192ec266225aa025302fcaa7b891090dc810e6d8f",
@@ -1768,6 +1798,12 @@
     "news_titles_hash": "553a1d16dc590316a7d4f950f6cac2511fa7931cf94e4c77b90165d48d5ecd97",
     "status": "finmind/taiwan_stock_news",
     "updated_at": "2026-08-13 10:25:34"
+  },
+  "7751": {
+    "name": "竑騰",
+    "news_titles_hash": "08c1c3cf7bca9ed88981c3eeb4c4dfd21aec0a6d2dbc1f5c212eeaed8abc7242",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-13 23:33:06"
   },
   "7769": {
     "name": "鴻勁",
