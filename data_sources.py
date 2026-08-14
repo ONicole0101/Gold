@@ -1419,33 +1419,20 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                             )
                             margin_cost_df = margin_cost_df.dropna(
                                 subset=[date_col])
-                            for date_value, group_df in margin_cost_df.groupby(date_col):
-                                # FinMind TaiwanStockMarginMaintenance 融資成本線欄位為 margin_cost
-                                candidate_columns = [
-                                    col for col in ("margin_cost", "margin_cost_line", "融資成本")
-                                    if col in group_df.columns
-                                ]
-                                for col in group_df.columns:
-                                    if col in candidate_columns:
+                            if "margin_cost" in margin_cost_df.columns:
+                                for date_value, group_df in margin_cost_df.groupby(date_col):
+                                    value = _first_non_na(
+                                        group_df.get("margin_cost"))
+                                    if value is None:
                                         continue
-                                    key = str(col).lower().replace(
-                                        " ", "").replace("_", "")
-                                    if any(token in key for token in (
-                                        "margincost",
-                                        "costline",
-                                    )):
-                                        candidate_columns.append(col)
-                                if not candidate_columns:
-                                    continue
-                                value = None
-                                for col in candidate_columns:
-                                    value = _first_non_na(group_df.get(col))
-                                    if value is not None:
-                                        break
-                                if value is None:
-                                    continue
-                                margin_cost_map_by_date[date_value.date()] = _round_or_none(
-                                    value, 2)
+                                    margin_cost_map_by_date[date_value.date()] = _round_or_none(
+                                        value, 2)
+                            else:
+                                logger.warning(
+                                    "TaiwanStockMarginMaintenance missing margin_cost column for stock_id={} columns={}",
+                                    stock_id,
+                                    list(margin_cost_df.columns),
+                                )
                 elif margin_cost_res.status_code != 200:
                     logger.warning(
                         "TaiwanStockMarginMaintenance request failed for stock_id={} status={} body={}",
