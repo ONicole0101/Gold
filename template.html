@@ -954,102 +954,105 @@
       </div>
       <div class="filter-row">
         <div class="filter-item"><label>價格</label><select data-filter-op="price">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="price" type="number" step="0.01" placeholder="數值"></div>
-      <div class="filter-item"><label>漲跌%</label><select data-filter-op="chgPct">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="chgPct" type="number" step="0.01" placeholder="數值"></div>
-      <div class="filter-item"><label>EPS</label><select data-filter-op="eps_Y">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="eps_Y" type="number" step="0.01" placeholder="數值"></div>
-      <div class="filter-item"><label>毛利率</label><select data-filter-op="gross_margin">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="gross_margin" type="number" step="0.01" placeholder="數值"></div>
-      <div class="filter-item"><label>日PER</label><select data-filter-op="per_latest">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="per_latest" type="number" step="0.01" placeholder="數值"></div>
-      <div class="filter-item"><label>日KD</label><select data-filter-op="k">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="k" type="number" step="0.01" placeholder="數值"></div>
-      <div class="filter-item"><label for="kdDirectionFilter">日KD方向</label><select id="kdDirectionFilter"
-          data-direction-filter>
-          <option value="">全部</option>
-          <option value="up">↑</option>
-          <option value="down">↓</option>
-          <option value="flat">→</option>
-        </select></div>
-      <div class="filter-item filter-item-inline"><label>日布林%</label><select data-filter-op="bb_pct">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="bb_pct" type="number" step="0.01" placeholder="數值"><label
-          for="bbDirectionFilter">日布林方向</label><select id="bbDirectionFilter" data-direction-filter>
-          <option value="">全部</option>
-          <option value="up">↑</option>
-          <option value="down">↓</option>
-          <option value="flat">→</option>
-        </select></div>
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="price" type="number" step="0.01" placeholder="數值"></div>
+        <div class="filter-item"><label>漲跌%</label><select data-filter-op="chgPct">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="chgPct" type="number" step="0.01" placeholder="數值"></div>
+        <div class="filter-item"><label>EPS</label><select data-filter-op="eps_Y">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="eps_Y" type="number" step="0.01" placeholder="數值"></div>
+        <div class="filter-item"><label>毛利率</label><select data-filter-op="gross_margin">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="gross_margin" type="number" step="0.01" placeholder="數值"></div>
+        <div class="filter-item"><label>日PER</label><select data-filter-op="per_latest">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="per_latest" type="number" step="0.01" placeholder="數值"></div>
+        <div class="filter-item"><label>日KD</label><select data-filter-op="k">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="k" type="number" step="0.01" placeholder="數值"></div>
+        <div class="filter-item"><label for="kdDirectionFilter">日KD方向</label><select id="kdDirectionFilter"
+            data-direction-filter>
+            <option value="">全部</option>
+            <option value="up">↑</option>
+            <option value="down">↓</option>
+            <option value="flat">→</option>
+          </select></div>
+        <div class="filter-item filter-item-inline"><label>日布林%</label><select data-filter-op="bb_pct">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="bb_pct" type="number" step="0.01" placeholder="數值"><label
+            for="bbDirectionFilter">日布林方向</label><select id="bbDirectionFilter" data-direction-filter>
+            <option value="">全部</option>
+            <option value="up">↑</option>
+            <option value="down">↓</option>
+            <option value="flat">→</option>
+          </select></div>
       </div>
       <div class="filter-row">
         <div class="filter-item"><label>壓力點距離%</label><select data-filter-op="resistance_distance_pct">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="resistance_distance_pct" type="number" step="0.01" placeholder="%"></div>
-      <div class="filter-item"><label>支撐點距離%</label><select data-filter-op="support_distance_pct">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="support_distance_pct" type="number" step="0.01" placeholder="%"></div>
-      <div class="filter-item"><label>日Bias5</label><select data-filter-op="bias5">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="bias5" type="number" step="0.01" placeholder="數值"></div>
-      <div class="filter-item"><label>日Bias20</label><select data-filter-op="bias20">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="bias20" type="number" step="0.01" placeholder="數值"></div>
-      <div class="filter-item"><label>日成交量</label><select data-filter-op="volume">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="volume" type="number" step="1" placeholder="張數"></div>
-      <div class="filter-item"><label>日增量%</label><select data-filter-op="volume_ratio">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="volume_ratio" type="number" step="0.01" placeholder="數值"></div>
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="resistance_distance_pct" type="number" step="0.01" placeholder="%"></div>
+        <div class="filter-item"><label>支撐點距離%</label><select data-filter-op="support_distance_pct">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="support_distance_pct" type="number" step="0.01" placeholder="%"></div>
+        <div class="filter-item"><label>日Bias5</label><select data-filter-op="bias5">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="bias5" type="number" step="0.01" placeholder="數值"></div>
+        <div class="filter-item"><label>日Bias20</label><select data-filter-op="bias20">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="bias20" type="number" step="0.01" placeholder="數值"></div>
+        <div class="filter-item"><label>日成交量</label><select data-filter-op="volume">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="volume" type="number" step="1" placeholder="張數"></div>
+        <div class="filter-item"><label>日增量%</label><select data-filter-op="volume_ratio">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="volume_ratio" type="number" step="0.01" placeholder="數值"></div>
       </div>
       <div class="filter-row">
         <div class="filter-item"><label>籌碼集中%</label><select data-filter-op="chip_concentration_pct_filter">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="chip_concentration_pct_filter" type="number" step="0.01" placeholder="%"></div>
-      <div class="filter-item"><label>主力買賣超</label><select data-filter-op="main_force_net_filter">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="main_force_net_filter" type="number" step="1" placeholder="張數"></div>
-      <div class="filter-item"><label>三大法人合計</label><select data-filter-op="institutional_total_net_filter">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="institutional_total_net_filter" type="number" step="1" placeholder="張數"></div>
-      <div class="filter-item"><label>買賣家數差</label><select data-filter-op="broker_diff_filter">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="broker_diff_filter" type="number" step="1" placeholder="家數"></div>
-      <div class="filter-item"><label>CB溢價%</label><select data-filter-op="cb_premium_pct">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="cb_premium_pct" type="number" step="0.01" placeholder="%"></div>
-      <div class="filter-item"><label>CB距損平%</label><select data-filter-op="cb_distance_to_break_even_pct">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="cb_distance_to_break_even_pct" type="number" step="0.01" placeholder="%"></div>
-      <div class="filter-item"><label>CB壓力天數</label><select data-filter-op="cb_pressure_days">
-          <option value=">">&gt;</option>
-          <option value="<">&lt;</option>
-        </select><input data-filter-key="cb_pressure_days" type="number" step="0.01" placeholder="天"></div>
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="chip_concentration_pct_filter" type="number" step="0.01" placeholder="%">
+        </div>
+        <div class="filter-item"><label>主力買賣超</label><select data-filter-op="main_force_net_filter">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="main_force_net_filter" type="number" step="1" placeholder="張數"></div>
+        <div class="filter-item"><label>三大法人合計</label><select data-filter-op="institutional_total_net_filter">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="institutional_total_net_filter" type="number" step="1" placeholder="張數">
+        </div>
+        <div class="filter-item"><label>買賣家數差</label><select data-filter-op="broker_diff_filter">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="broker_diff_filter" type="number" step="1" placeholder="家數"></div>
+        <div class="filter-item"><label>CB溢價%</label><select data-filter-op="cb_premium_pct">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="cb_premium_pct" type="number" step="0.01" placeholder="%"></div>
+        <div class="filter-item"><label>CB距損平%</label><select data-filter-op="cb_distance_to_break_even_pct">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="cb_distance_to_break_even_pct" type="number" step="0.01" placeholder="%">
+        </div>
+        <div class="filter-item"><label>CB壓力天數</label><select data-filter-op="cb_pressure_days">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="cb_pressure_days" type="number" step="0.01" placeholder="天"></div>
         <div class="filter-actions">
           <button type="button" id="applyFilterBtn">套用</button>
           <button type="button" class="secondary" id="clearFilterBtn">清除</button>
