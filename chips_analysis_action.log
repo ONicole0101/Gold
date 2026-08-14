@@ -1,20 +1,9 @@
-[32m2026-08-14 10:58:54.176[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-08-14 10:58:54.347[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-08-14 13:23:38.287[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-08-14 13:23:38.438[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 5982/6000, remain=18
+FinMind usage: 311/6000, remain=5689
 Incremental probe: stock_id=2330, latest_date=2026-08-14, status=ok
-Build chips: total=302, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=121, pending=180, latest_date=2026-08-14
-[128/302] 2884 玉山金 status=no_data date=- main=- diff=- state=no_data
-[32m2026-08-14 10:59:12.885[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1450[0m - [33m[1mTaiwanStockMarginMaintenance request failed for stock_id=2880 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
-❌ chip analysis API error 2885: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
-[134/302] 2890 永豐金 status=no_data date=- main=- diff=- state=no_data
-[139/302] 2912 統一超 status=no_data date=- main=- diff=- state=no_data
-❌ chip analysis API error 3006: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
-[144/302] 3013 晟銘電 status=no_data date=- main=- diff=- state=no_data
-❌ chip analysis API error 3026: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
-[149/302] 3037 欣興 status=no_data date=- main=- diff=- state=no_data
-[153/302] 3105 穩懋 status=no_data date=- main=- diff=- state=no_data
-❌ chip analysis API error 3045: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+Build chips: total=302, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=127, pending=174, latest_date=2026-08-14
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-08-14
