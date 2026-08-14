@@ -484,6 +484,14 @@
       font-size: 12px;
     }
 
+    .filter-row {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      gap: 8px;
+    }
+
     .filter-item label {
       color: #c9d1d9;
       white-space: nowrap;
@@ -944,7 +952,8 @@
           </div>
         </div>
       </div>
-      <div class="filter-item"><label>價格</label><select data-filter-op="price">
+      <div class="filter-row">
+        <div class="filter-item"><label>價格</label><select data-filter-op="price">
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
         </select><input data-filter-key="price" type="number" step="0.01" placeholder="數值"></div>
@@ -985,7 +994,9 @@
           <option value="down">↓</option>
           <option value="flat">→</option>
         </select></div>
-      <div class="filter-item"><label>壓力點距離%</label><select data-filter-op="resistance_distance_pct">
+      </div>
+      <div class="filter-row">
+        <div class="filter-item"><label>壓力點距離%</label><select data-filter-op="resistance_distance_pct">
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
         </select><input data-filter-key="resistance_distance_pct" type="number" step="0.01" placeholder="%"></div>
@@ -1009,7 +1020,9 @@
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
         </select><input data-filter-key="volume_ratio" type="number" step="0.01" placeholder="數值"></div>
-      <div class="filter-item"><label>籌碼集中%</label><select data-filter-op="chip_concentration_pct_filter">
+      </div>
+      <div class="filter-row">
+        <div class="filter-item"><label>籌碼集中%</label><select data-filter-op="chip_concentration_pct_filter">
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
         </select><input data-filter-key="chip_concentration_pct_filter" type="number" step="0.01" placeholder="%"></div>
@@ -1037,10 +1050,11 @@
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
         </select><input data-filter-key="cb_pressure_days" type="number" step="0.01" placeholder="天"></div>
-      <div class="filter-actions">
-        <button type="button" id="applyFilterBtn">套用</button>
-        <button type="button" class="secondary" id="clearFilterBtn">清除</button>
-        <span class="filter-count" id="filterCount"></span>
+        <div class="filter-actions">
+          <button type="button" id="applyFilterBtn">套用</button>
+          <button type="button" class="secondary" id="clearFilterBtn">清除</button>
+          <span class="filter-count" id="filterCount"></span>
+        </div>
       </div>
     </div>
 
