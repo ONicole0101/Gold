@@ -1420,17 +1420,19 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                             margin_cost_df = margin_cost_df.dropna(
                                 subset=[date_col])
                             for date_value, group_df in margin_cost_df.groupby(date_col):
-                                candidate_columns = []
+                                # FinMind TaiwanStockMarginMaintenance 融資成本線欄位為 margin_cost
+                                candidate_columns = [
+                                    col for col in ("margin_cost", "margin_cost_line", "融資成本")
+                                    if col in group_df.columns
+                                ]
                                 for col in group_df.columns:
+                                    if col in candidate_columns:
+                                        continue
                                     key = str(col).lower().replace(
                                         " ", "").replace("_", "")
                                     if any(token in key for token in (
                                         "margincost",
-                                        "融資成本",
                                         "costline",
-                                        "marginmaintenance",
-                                        "maintenance",
-                                        "margincostrate",
                                     )):
                                         candidate_columns.append(col)
                                 if not candidate_columns:

@@ -55,6 +55,11 @@ CHIP_DATA_COLS = [
     "short_margin_ratio_pct_t1",
     "short_margin_ratio_pct_t2",
     "short_margin_ratio_score",
+    "margin_cost_line",
+    "margin_cost_line_t0",
+    "margin_cost_line_t1",
+    "margin_cost_line_t2",
+    "margin_cost_status",
     "chip_concentration_pct",
     "chip_concentration_pct_t0",
     "chip_concentration_pct_t1",
@@ -280,6 +285,11 @@ def has_valid_chip_data(row: dict) -> bool:
     return any(not is_blank_value(row.get(col)) for col in value_cols)
 
 
+def has_margin_cost_attempt(row: dict) -> bool:
+    """舊版輸出沒有 margin_cost_status，視為尚未抓過融資成本，需漸進式回補一次。"""
+    return not is_blank_value(row.get("margin_cost_status"))
+
+
 def should_preserve_existing_row(new_row: dict, existing_row: dict | None) -> bool:
     if not existing_row or not has_valid_chip_data(existing_row):
         return False
@@ -311,6 +321,8 @@ def should_refresh_stock(existing_row: dict | None, latest_available_date: str) 
     if status in {"", "error", "no_data", "incomplete"}:
         return True
     if not has_valid_chip_data(existing_row):
+        return True
+    if not has_margin_cost_attempt(existing_row):
         return True
     existing_date = row_effective_chip_date(existing_row)
     if latest_available_date and existing_date != latest_available_date:
@@ -408,6 +420,7 @@ def add_t0_t1_t2_fields(row: dict, chip: dict) -> None:
     if not rows:
         row["chip_date_t0"] = row.get("chip_latest_date")
         row["short_margin_ratio_pct_t0"] = row.get("short_margin_ratio_pct")
+        row["margin_cost_line_t0"] = row.get("margin_cost_line")
         row["chip_concentration_pct_t0"] = row.get("chip_concentration_pct")
         row["main_force_net_t0"] = row.get("main_force_net")
         row["broker_diff_t0"] = row.get("broker_diff")
@@ -424,6 +437,8 @@ def add_t0_t1_t2_fields(row: dict, chip: dict) -> None:
             rec, "date", "Date", "chip_latest_date", "chip_date"))
         row[f"short_margin_ratio_pct_{suffix}"] = _row_value(
             rec, "short_margin_ratio_pct", "券資比%", "short_margin_ratio")
+        row[f"margin_cost_line_{suffix}"] = _row_value(
+            rec, "margin_cost_line", "融資成本", "margin_cost")
         row[f"chip_concentration_pct_{suffix}"] = _row_value(
             rec, "chip_concentration_pct", "籌碼集中度%", "concentration_pct")
         row[f"main_force_net_{suffix}"] = _row_value(
@@ -462,6 +477,11 @@ def build_chip_row(stock: dict, trend_days: int, concentration_threshold: float,
             if col in chip:
                 row[col] = chip.get(col)
         add_t0_t1_t2_fields(row, chip)
+        row["margin_cost_status"] = "ok" if any(
+            not is_blank_value(row.get(col))
+            for col in ("margin_cost_line", "margin_cost_line_t0",
+                        "margin_cost_line_t1", "margin_cost_line_t2")
+        ) else "empty"
         state = str(row.get("chip_signal_state") or "").strip().lower()
         if state and state not in {"no_data", "error"}:
             row["chips_status"] = "ok"

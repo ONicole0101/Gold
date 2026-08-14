@@ -489,6 +489,10 @@
       white-space: nowrap;
     }
 
+    .filter-item.filter-item-inline {
+      grid-template-columns: auto 44px 82px auto 72px;
+    }
+
     .filter-item select,
     .filter-item input {
       height: 26px;
@@ -971,12 +975,11 @@
           <option value="down">↓</option>
           <option value="flat">→</option>
         </select></div>
-      <div class="filter-item"><label>日布林%</label><select data-filter-op="bb_pct">
+      <div class="filter-item filter-item-inline"><label>日布林%</label><select data-filter-op="bb_pct">
           <option value=">">&gt;</option>
           <option value="<">&lt;</option>
-        </select><input data-filter-key="bb_pct" type="number" step="0.01" placeholder="數值"></div>
-      <div class="filter-item"><label for="bbDirectionFilter">日布林方向</label><select id="bbDirectionFilter"
-          data-direction-filter>
+        </select><input data-filter-key="bb_pct" type="number" step="0.01" placeholder="數值"><label
+          for="bbDirectionFilter">日布林方向</label><select id="bbDirectionFilter" data-direction-filter>
           <option value="">全部</option>
           <option value="up">↑</option>
           <option value="down">↓</option>
