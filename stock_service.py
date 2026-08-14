@@ -329,10 +329,6 @@ def build_recent_technical_fields(*rows):
         fields[f"rsi_{suffix}"] = round_float_or_none(
             row.get("RSI") if "RSI" in row else row.get("rsi"), 2
         )
-        fields[f"margin_cost_line_{suffix}"] = round_float_or_none(
-            row.get("margin_cost_line") if "margin_cost_line" in row else row.get(
-                "margin_cost"), 2
-        )
     return fields
 
 
