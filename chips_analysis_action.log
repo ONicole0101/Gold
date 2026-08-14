@@ -1,13 +1,9 @@
-[32m2026-08-14 08:48:08.463[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-08-14 08:48:08.601[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-08-14 10:18:23.064[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-08-14 10:18:23.191[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 3331/6000, remain=2669
+FinMind usage: 312/6000, remain=5688
 Incremental probe: stock_id=2330, latest_date=2026-08-14, status=ok
 Build chips: total=302, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=301, latest_date=2026-08-14
-[50/302] 2313 華通 status=ok date=2026-08-14 main=2500 diff=-8 state=neutral
-[75/302] 2404 漢唐 status=ok date=2026-08-14 main=50 diff=116 state=neutral
-[32m2026-08-14 08:53:40.378[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1448[0m - [33m[1mTaiwanStockMarginMaintenance request failed for stock_id=6531 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
-[32m2026-08-14 08:53:40.831[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1448[0m - [33m[1mTaiwanStockMarginMaintenance request failed for stock_id=6584 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-08-14
@@ -82,9 +78,9 @@ chips_status=ok
 ---
 stock_id=1229
 name=聯華
-chip_latest_date=2026-08-13
-main_force_net=-140
-broker_diff=112
+chip_latest_date=2026-08-14
+main_force_net=-575
+broker_diff=276
 chip_signal_state=neutral
 chips_status=ok
 ---
@@ -218,10 +214,10 @@ chips_status=ok
 ---
 stock_id=1605
 name=華新
-chip_latest_date=2026-08-13
-main_force_net=12485
-broker_diff=-14
-chip_signal_state=bullish_concentrated
+chip_latest_date=2026-08-14
+main_force_net=1690
+broker_diff=14
+chip_signal_state=bullish_distributed
 chips_status=ok
 ---
 stock_id=1717
@@ -249,5 +245,5 @@ chip_signal_state=neutral
 chips_status=ok
 ---
 rows= 302
-status= {'ok': 301, 'no_data': 1}
+status= {'ok': 302}
 No stock_id selected; skip single-stock print.
