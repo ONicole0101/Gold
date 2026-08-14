@@ -478,10 +478,14 @@
 
     .filter-item {
       display: grid;
-      grid-template-columns: auto 44px 82px;
+      grid-template-columns: auto 40px 66px;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
       font-size: 12px;
+    }
+
+    .filter-item.filter-item-direction {
+      grid-template-columns: auto 66px;
     }
 
     .filter-row {
@@ -489,7 +493,7 @@
       display: flex;
       flex-wrap: wrap;
       align-items: end;
-      gap: 8px;
+      gap: 6px;
     }
 
     .filter-item label {
@@ -497,18 +501,16 @@
       white-space: nowrap;
     }
 
-    .filter-item.filter-item-inline {
-      grid-template-columns: auto 44px 82px auto 72px;
-    }
-
     .filter-item select,
     .filter-item input {
+      width: 100%;
+      box-sizing: border-box;
       height: 26px;
       border: 1px solid #30363d;
       border-radius: 6px;
       background: #0d1117;
       color: #e6edf3;
-      padding: 2px 6px;
+      padding: 2px 4px;
       font-size: 12px;
     }
 
@@ -977,18 +979,19 @@
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
           </select><input data-filter-key="k" type="number" step="0.01" placeholder="數值"></div>
-        <div class="filter-item"><label for="kdDirectionFilter">日KD方向</label><select id="kdDirectionFilter"
-            data-direction-filter>
+        <div class="filter-item filter-item-direction"><label for="kdDirectionFilter">日KD方向</label><select
+            id="kdDirectionFilter" data-direction-filter>
             <option value="">全部</option>
             <option value="up">↑</option>
             <option value="down">↓</option>
             <option value="flat">→</option>
           </select></div>
-        <div class="filter-item filter-item-inline"><label>日布林%</label><select data-filter-op="bb_pct">
+        <div class="filter-item"><label>日布林%</label><select data-filter-op="bb_pct">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
-          </select><input data-filter-key="bb_pct" type="number" step="0.01" placeholder="數值"><label
-            for="bbDirectionFilter">日布林方向</label><select id="bbDirectionFilter" data-direction-filter>
+          </select><input data-filter-key="bb_pct" type="number" step="0.01" placeholder="數值"></div>
+        <div class="filter-item filter-item-direction"><label for="bbDirectionFilter">日布林方向</label><select
+            id="bbDirectionFilter" data-direction-filter>
             <option value="">全部</option>
             <option value="up">↑</option>
             <option value="down">↓</option>
