@@ -1507,9 +1507,9 @@
         if (isNil(value)) return "";
         const previous = idx < 2 ? dayMetricValue(s, key, idx + 1) : null;
         const cls = isNil(previous) ? "" : chipValueClass(value, previous);
-        const label = idx === 0 ? "T" : idx === 1 ? "T-1" : "T-2";
+        const label = dayDateLabel(s, idx);
         const arrow = isNil(previous) ? "" : Number(value) > Number(previous) ? " ↑" : Number(value) < Number(previous) ? " ↓" : " →";
-        return `<div class="table-lv2 ${cls}">${label} ${fmt(value, suffix)}${arrow}</div>`;
+        return `<div class="table-lv2 ${cls}">${label ? `${label}：` : ""}${fmt(value, suffix)}${arrow}</div>`;
       };
       return `
         <div class="table-lv1 ${trendClass(score)}">${fmtTrend(score)}</div>
