@@ -1462,6 +1462,20 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                 )
                 margin_cost_map_by_date = {}
 
+        # FinMind 融資維持率 22:30 才更新，當日無資料時沿用最近可得日期（與其成本線遞延規則一致）。
+        margin_cost_dates_desc = sorted(
+            margin_cost_map_by_date.keys(), reverse=True)
+
+        def _margin_cost_on_or_before(target_date):
+            if target_date is None:
+                return None
+            if target_date in margin_cost_map_by_date:
+                return margin_cost_map_by_date[target_date]
+            for available_date in margin_cost_dates_desc:
+                if available_date <= target_date:
+                    return margin_cost_map_by_date[available_date]
+            return None
+
         def _window_metrics(window_days: int) -> dict:
             window_df = all_report.head(window_days).copy()
             if window_df.empty:
@@ -1580,7 +1594,7 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                 "chip_concentration_pct": _round_or_none(r["chip_concentration_pct"], 2),
                 "main_force_net": _int_or_none(r["main_force_net"]),
                 "broker_diff": _int_or_none(r["broker_diff"]),
-                "margin_cost_line": _round_or_none(margin_cost_map_by_date.get(date_key), 2),
+                "margin_cost_line": _round_or_none(_margin_cost_on_or_before(date_key), 2),
                 "foreign_investor_net": _int_or_none(
                     institutional_day.get("foreign_investor_net")
                 ),

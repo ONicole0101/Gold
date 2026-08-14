@@ -287,7 +287,12 @@ def has_valid_chip_data(row: dict) -> bool:
 
 def has_margin_cost_attempt(row: dict) -> bool:
     """舊版輸出沒有 margin_cost_status，視為尚未抓過融資成本，需漸進式回補一次。"""
-    return not is_blank_value(row.get("margin_cost_status"))
+    if is_blank_value(row.get("margin_cost_status")):
+        return False
+    # 有歷史值卻缺 T 日值，代表是舊的無回溯填值結果，需重抓一次。
+    if str(row.get("margin_cost_status")).strip().lower() == "ok" and is_blank_value(row.get("margin_cost_line_t0")):
+        return False
+    return True
 
 
 def should_preserve_existing_row(new_row: dict, existing_row: dict | None) -> bool:
