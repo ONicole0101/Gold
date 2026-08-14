@@ -1125,7 +1125,7 @@
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>90日LH</small>" },
           { key: "price_lh_trend", label: "價格LH3天趨勢<br><small>T/T-1/T-2</small>", cls: "col-md" },
-          { key: "margin_cost_line", label: "融資成本線<br><small>T/T-1/T-2</small>", tooltip: "融資成本線取自 FinMind dataset TaiwanStockMarginMaintenance；數值越高代表融資成本壓力升高，箭頭與 T/T-1/T-2 展示近三日方向。資料來源：TaiwanStockMarginMaintenance。" },
+          { key: "margin_cost_line", label: "融資成本線<br><small>T/T-1/T-2</small>", tooltip: "融資成本線取自 FinMind dataset TaiwanStockMarginMaintenance 的 margin_cost（融資部位估算加權平均成本，單位：元）；股價跌破該成本線代表融資帳面轉損、壓力升高。資料來源：TaiwanStockMarginMaintenance。" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "short_margin_ratio_score", label: "券資比%<br><small>3天趨勢</small>", tooltip: "券資比%＝融券餘額 ÷ 融資餘額 × 100。數值越高代表放空籌碼占比越高，常見於市場偏保守或避險需求升高時；需搭配價格趨勢與主力買賣超共同判讀。" },
           { key: "chip_concentration_score", label: "籌碼集中%<br><small>3天趨勢</small>", tooltip: "籌碼集中%採 CMoney 近似口徑＝主力買賣超張數 ÷ 成交量張數 × 100，保留正負號。正值代表主力集中買超，負值代表主力集中賣超；數值絕對值越大代表集中度越高。" },
@@ -2170,7 +2170,7 @@
         case "rsi":
           return `<td>${renderRsiTechnicalContent(s)}</td>`;
         case "margin_cost_line":
-          return `<td>${renderThreeDayMetricContent(s, "margin_cost_line", "%")}</td>`;
+          return `<td>${renderThreeDayMetricContent(s, "margin_cost_line")}</td>`;
         case "bias5":
           return `<td>${renderBiasTechnicalContent(s, "bias5")}</td>`;
         case "bias20":
@@ -2261,7 +2261,7 @@
       const chipGrid = `
         <div class="stock-grid">
           <div class="stock-item"><div class="stock-label">價格LH 3天趨勢</div>${renderPriceLHTrendBlock(s)}</div>
-          <div class="stock-item"><div class="stock-label">融資成本線 T/T-1/T-2</div>${renderThreeDayMetricContent(s, "margin_cost_line", "%")}</div>
+          <div class="stock-item"><div class="stock-label">融資成本線 T/T-1/T-2</div>${renderThreeDayMetricContent(s, "margin_cost_line")}</div>
           <div class="stock-item"><div class="stock-label">券資比% 3天趨勢</div>${renderShortMarginRatioBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">籌碼集中% 3天趨勢</div>${renderChipConcentrationBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">主力買賣超 3天趨勢</div>${renderMainForceBlock(s)}</div>
