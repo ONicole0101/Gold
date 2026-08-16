@@ -53,6 +53,7 @@ DATASETS_RANGE = [
     "TaiwanStockDividend",
     "TaiwanStockDispositionSecuritiesPeriod",
     "TaiwanStockTotalReturnIndex",
+    "TaiwanStockMarginMaintenance",
 ]
 
 DATASETS_ONE_DAY = []
@@ -607,7 +608,6 @@ def fetch_rows_backfill_missing_stocks(dataset_name: str, stock_ids: list[str], 
         try:
             item_rows = fetch_rows_for_data_id(
                 dataset_name,
-                token,
                 data_id=sid,
                 start_date=start_date,
                 end_date=end_date,
@@ -1149,7 +1149,6 @@ def fetch_dataset_rows(
         # Incremental mode always fetches the latest rolling window for this
         # one-day endpoint; full mode can still respect start_date.
         return fetch_rows_trading_daily_report(
-            token,
             target_ids,
             start_date,
             end_date,
@@ -1210,7 +1209,7 @@ def fetch_dataset_rows(
     errors: list[str] = []
     try:
         rows = fetch_rows_all_market(
-            dataset_name, token, include_data_id_all=True, start_date=start_date, end_date=end_date)
+            dataset_name, include_data_id_all=True, start_date=start_date, end_date=end_date)
         if rows:
             print(
                 f"{dataset_name}: all-market query with data_id=所有 returned rows", flush=True)
@@ -1223,7 +1222,7 @@ def fetch_dataset_rows(
 
     try:
         rows = fetch_rows_all_market(
-            dataset_name, token, include_data_id_all=False, start_date=start_date, end_date=end_date)
+            dataset_name, include_data_id_all=False, start_date=start_date, end_date=end_date)
         if rows:
             print(
                 f"{dataset_name}: all-market query without data_id returned rows", flush=True)

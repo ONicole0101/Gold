@@ -10,4 +10,3 @@ PyYAML
 tqdm
 google-api-python-client
 google-auth
-pyarrow
