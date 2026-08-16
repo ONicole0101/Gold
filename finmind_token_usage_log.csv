@@ -1416,3 +1416,7 @@
 2026-08-13 16:34:12,api_call,market_total_chips,total,TaiwanStockTotalInstitutionalInvestors,False,,,missing_token,FINMIND_TOKEN is not set,314,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header
 2026-08-13 16:34:14,api_call,get_index_ohlc_data,TAIEX,TaiwanStockPrice,False,,,missing_token,FINMIND_TOKEN is not set,315,303,,,,sent,,FinMind request sent with token in query params and/or Authorization header
 2026-08-13 16:34:15,api_call,get_index_ohlc_data,TPEx,TaiwanStockTotalReturnIndex,False,,,missing_token,FINMIND_TOKEN is not set,316,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-16 15:41:27,api_call,get_stock_data,2327,TaiwanStockPrice,False,,,not_checked,login not checked in this process yet,1,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-16 15:42:13,api_call,get_stock_data,2327,TaiwanStockPrice,False,,,not_checked,login not checked in this process yet,1,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-16 15:42:29,api_call,get_stock_data,2327,TaiwanStockPrice,False,,,not_checked,login not checked in this process yet,1,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-08-16 15:43:01,api_call,get_stock_data,2327,TaiwanStockPrice,False,,,not_checked,login not checked in this process yet,1,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header

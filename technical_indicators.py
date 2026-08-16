@@ -269,7 +269,7 @@ def safe_pos(value, low, high):
 
 def get_support_resistance_levels(
     df,
-    lookback_days=None,
+    lookback_days=90,
     pivot_window=5,
     tolerance_pct=1.2,
     min_distance_pct=0.2,
@@ -278,8 +278,9 @@ def get_support_resistance_levels(
     """
     Use FinMind TaiwanStockPrice OHLCV data to estimate nearby resistance/support.
 
-    Logic:
-    - Use all available OHLCV rows by default instead of a fixed day window.
+        Logic:
+        - Use the latest 90 trading days by default so stale historical levels do not
+            override currently relevant support/resistance zones.
     - Find swing highs as resistance candidates and swing lows as support candidates.
     - Merge nearby prices into clusters by tolerance_pct so repeated tests count as one zone.
     - Report the actual traded high/low from the latest touch in that zone, not a cluster average.
