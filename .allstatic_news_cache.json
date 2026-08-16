@@ -1,9 +1,9 @@
 {
   "0056": {
     "name": "元大高股息",
-    "news_titles_hash": "6f150cfe059f390f261458cbc972ef7ceb8a2b5de980562036d4db78b0f8f0e8",
+    "news_titles_hash": "f47539a70560164fcf98c97d8d1093a54e7b920a51fe86a085f9034311d4a8c9",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:47:49"
+    "updated_at": "2026-08-16 14:56:33"
   },
   "0063": {
     "name": "1L 元大台灣50正2",
@@ -13,9 +13,9 @@
   },
   "00631L": {
     "name": "元大台灣50正2",
-    "news_titles_hash": "d38f0f21a9ecb6faf81c3659b1a8eb7e836bdf2939ea9c0a6f7dff79995065ab",
+    "news_titles_hash": "5d068d63e25e6a6ed2a7a92426d6e3eec4c4908ad2a05119690ac4070358b0be",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:00:59"
+    "updated_at": "2026-08-16 15:10:02"
   },
   "0067": {
     "name": "9B 元大美債20年",
@@ -25,9 +25,9 @@
   },
   "00679B": {
     "name": "元大美債20年",
-    "news_titles_hash": "0600b44e5dbe93ce47e122e2c6c52ec7f430f3e1000e22f465ba09e048dc4135",
+    "news_titles_hash": "8b59159ad424c20fbe2f68f169c8a1fdd1dc44f2b28cf9f28a76bd2e3e0d39f4",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:01:03"
+    "updated_at": "2026-08-16 15:10:05"
   },
   "0068": {
     "name": "5L 群益臺灣加權正2",
@@ -37,15 +37,15 @@
   },
   "00685L": {
     "name": "群益臺灣加權正2",
-    "news_titles_hash": "bed78e12edfd82537cecb13ad1d4724420652a4fcd2d7ba1242abb1fb0b64968",
+    "news_titles_hash": "fcbf41cfccd28c2187849e84acbb01c4e26041cc51851576a954e2dc85b9e69e",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:01:06"
+    "updated_at": "2026-08-16 15:10:07"
   },
   "00687B": {
     "name": "國泰20年美債",
-    "news_titles_hash": "02947f9ea1394678a3a4020db2099fb9b7c46e59990f8e27cf47e4215a4a5521",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 16:01:12"
+    "news_titles_hash": "2006c19c3c3cd0fa70341257fb3b7df235e02966b67dcf5ff212ef1d9fd6926c",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:10:15"
   },
   "0087": {
     "name": "8 國泰永續高股息",
@@ -55,9 +55,9 @@
   },
   "00878": {
     "name": "國泰永續高股息",
-    "news_titles_hash": "6dbb377af24a95c17cbf2c6d488e5a036a67c13eeffedea97c6923f26df990b3",
+    "news_titles_hash": "ffbb263385239360516f75f7e73edfa6d7b1137fc0f4463d100153a56f86f5aa",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:47:51"
+    "updated_at": "2026-08-16 14:56:35"
   },
   "0089": {
     "name": "2 富邦台灣半導體",
@@ -67,9 +67,9 @@
   },
   "00892": {
     "name": "富邦台灣半導體",
-    "news_titles_hash": "236ea2ad15292365fed715d42975e571aa97ff956e7146e9e95387bfc0e65fc7",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:47:55"
+    "news_titles_hash": "49ba164658467b70c37e7f93268161c6f6c47abe5db77f8c73376b2c728593fa",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 14:56:38"
   },
   "0091": {
     "name": "9 群益台灣精選高息",
@@ -79,9 +79,9 @@
   },
   "00919": {
     "name": "群益台灣精選高息",
-    "news_titles_hash": "db1f358a582b406a450bcd9d8e1a87dff0bace280e6dc321815e83ec67e2972d",
+    "news_titles_hash": "4667547136bb5f144ab3966a1dbf939b66204ef8222f50724c993a54c321cd43",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:47:57"
+    "updated_at": "2026-08-16 14:56:40"
   },
   "0093": {
     "name": "7B 群益ESG投等債20+",
@@ -91,9 +91,9 @@
   },
   "00937B": {
     "name": "群益ESG投等債20+",
-    "news_titles_hash": "a730952287c36b9ba6bdfb00d464d07c4df0806fff60e031b2eeae2f5e290b55",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 16:01:27"
+    "news_titles_hash": "78014544f8af3480acf06ad41e9a4d412948eb79eff630bd267633cf2b2259c9",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:10:26"
   },
   "0094": {
     "name": "1 中信上游半導體",
@@ -103,15 +103,15 @@
   },
   "00941": {
     "name": "中信上游半導體",
-    "news_titles_hash": "8ffd12595571420b59a306662401be276b58c42db2208ecdede5a061827e7667",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:48:11"
+    "news_titles_hash": "4813ab78bd7a6830fe16580b7b7cede01a363b11b8d0f147a4921947f69673db",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 14:56:54"
   },
   "00942B": {
     "name": "台新美A公司債20+",
-    "news_titles_hash": "35578784f8dc66fb53702085edfb7e550b492a37d7b5b094cbc0bc337d2c03e5",
+    "news_titles_hash": "bf705fd563db97f131e3031f6b5415238ca88d0298d47ef0be5f3d87624bc891",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:01:41"
+    "updated_at": "2026-08-16 15:10:39"
   },
   "0095": {
     "name": "3B 群益優選非投等債",
@@ -121,9 +121,9 @@
   },
   "00953B": {
     "name": "群益優選非投等債",
-    "news_titles_hash": "dd422ffbc8d8cecbb633b022af0a3fc049cb41944c5b1c38993889a27e1bb64a",
+    "news_titles_hash": "e095cf8bfee8cc733927537f331411773f6bcdead1e1262dbb1494a9c2c5cb49",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:01:48"
+    "updated_at": "2026-08-16 15:10:45"
   },
   "0098": {
     "name": "1A 主動統一台股增長",
@@ -133,39 +133,39 @@
   },
   "009816": {
     "name": "凱基台灣TOP50",
-    "news_titles_hash": "265e7a4ce617e0965d519e415810086af378ee695f28fe9be3f7e7c384a4c34d",
+    "news_titles_hash": "02e9114b63c3e0990f16d4f9c93e06615df598cc5913e9a0cb9812a7b4531be2",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:00:17"
+    "updated_at": "2026-08-16 15:09:20"
   },
   "00981A": {
     "name": "主動統一台股增長",
-    "news_titles_hash": "b417e7c40e3b458a5144f4b9c265b084e48cf2a47ead06fde5c894997a0821dc",
+    "news_titles_hash": "7d0771b7941287b99c890d9853a0d0232423619b2f58df537eed5e7aa5ab3e7d",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:01:49"
+    "updated_at": "2026-08-16 15:10:47"
   },
   "009820": {
     "name": "元大納斯達克精選",
-    "news_titles_hash": "59c0ad3c5066cfbf875cba9fd0fe3c8068b83238ff6ba211870d59e139a347d7",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 16:00:20"
+    "news_titles_hash": "def6d3b8892ebbd91cc4718d4df1618939a63939e5851c129aeea0346edc3c81",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:09:23"
   },
   "009823": {
     "name": "群益S&P500",
     "news_titles_hash": "1ec0c4c20f8a0743be07aa806a68614d6eb7fde4a2f6f49aab387e65b91cd2fa",
     "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 16:00:34"
+    "updated_at": "2026-08-16 15:09:36"
   },
   "009824": {
     "name": "群益美國科技巨頭",
-    "news_titles_hash": "44c0cc9893fee67f621d7f2ca2180209c685585a4544ea0904f37d592fe30b4e",
+    "news_titles_hash": "36abe7fa37109b1558e15d518cef481520af582b33b6e947b415485917ac55e2",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:00:42"
+    "updated_at": "2026-08-16 15:09:44"
   },
   "00987A": {
     "name": "主動台新優勢成長",
-    "news_titles_hash": "1d5a76befb7cf191bdb116d03dc4b2b7ad55716d89945b66d79e2fa15c40d22d",
+    "news_titles_hash": "d32dcf70f897226ca4846a0bce4aff75e48560a3e8fda8b04defe31215461d0c",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:02:04"
+    "updated_at": "2026-08-16 15:10:49"
   },
   "0099": {
     "name": "1A 主動復華未來50",
@@ -175,9 +175,9 @@
   },
   "00991A": {
     "name": "主動復華未來50",
-    "news_titles_hash": "10559655b1f51db2b4d406862dced6d83b4a9f6131124494d641676cad761bc3",
+    "news_titles_hash": "82a2f0fa0a39107b1c322268dd08aaa21db57a015802d96b7fd8607fd9237962",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:02:05"
+    "updated_at": "2026-08-16 15:10:51"
   },
   "1080": {
     "name": "2.2",
@@ -187,117 +187,117 @@
   },
   "1101": {
     "name": "台泥",
-    "news_titles_hash": "fc379e068a76dc5150f59c0d8bee599df507806d8f4098b9887efdf4e3a13acc",
+    "news_titles_hash": "c5b27cc4f57a063a9437891282f5420157e7f58a6bf99782a3eaf09459f4eb20",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:48:13"
+    "updated_at": "2026-08-16 14:56:56"
   },
   "1102": {
     "name": "亞泥",
-    "news_titles_hash": "a4b102955f3402e5b55da062be25cc69c1ef7350a50585106748c3861e1e46a8",
+    "news_titles_hash": "32025993c1bec7ff3c2bb302bca29098df50cb8bd86e09d5f71eab268b34ffd0",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:48:14"
+    "updated_at": "2026-08-16 14:56:58"
   },
   "1210": {
     "name": "大成",
-    "news_titles_hash": "91e2156868946c77e5205aefb160d13271b9b0d06bad8b8e02a797e2d4f35c1b",
+    "news_titles_hash": "854ddc344a14d809f92d7acf36a52b382bd1b215295e2f0ab16278f035735917",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:48:17"
+    "updated_at": "2026-08-16 14:57:00"
   },
   "1216": {
     "name": "統一",
-    "news_titles_hash": "961aabd02cd8c9b4f8cca880e63de392a739634c8d74b3556c19674efeddfb72",
+    "news_titles_hash": "97426592ea9f96ecf30ec896262d2a55d8bc4559a50a6854ff25ffa6078498cb",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:48:19"
+    "updated_at": "2026-08-16 14:57:02"
   },
   "1229": {
     "name": "聯華",
-    "news_titles_hash": "84a86ac95195faf319f21202eca7b7d37df3809f7bf44115110d1f851a39bc69",
+    "news_titles_hash": "429fe07a2a62dce45f2148be982b63b8f762630567eaa8ae19b3f5a62f5ff80b",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:48:22"
+    "updated_at": "2026-08-16 14:57:05"
   },
   "1301": {
     "name": "台塑",
-    "news_titles_hash": "0838c3ce62c9cabf2ed7dd26bd34df986f1d0752c1fb7475d30610ec12d29e6d",
+    "news_titles_hash": "89f4ea52ee6b3de191b4f1f6797a897dca5e07cebd3ffd1dd1e42ab6cbeb9c6c",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:48:23"
+    "updated_at": "2026-08-16 14:57:07"
   },
   "1303": {
     "name": "南亞",
-    "news_titles_hash": "c6c2753beb3ff6ef355ba1375dadde439a8d03d83f8fa5b27c563249853ce7d4",
+    "news_titles_hash": "552a886db142a5bd10148a678944b06ab2c5c81e2e87a0e60b020091ca3aaba7",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:48:25"
+    "updated_at": "2026-08-16 14:57:08"
   },
   "1319": {
     "name": "東陽",
-    "news_titles_hash": "507728c8c483e8d36b0c2ecc64ddfb601b75983d8a7e1d7a23353f4efff7da1a",
+    "news_titles_hash": "08953797f9baca2dbeee4867bf5408f3b42e5f85d689b73d895dc0e5a56eb0ed",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:48:26"
+    "updated_at": "2026-08-16 14:57:10"
   },
   "1326": {
     "name": "台化",
-    "news_titles_hash": "8fcb1a20631d2171930bfd2867f6e4eaa75d5cc021953d3a57a3200bcb71dd6a",
+    "news_titles_hash": "dd51f2c7722c2f0f0e06e6578620d2a655a2a05a40ff21afded8bba3ceb2eefa",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:48:28"
+    "updated_at": "2026-08-16 14:57:13"
   },
   "1402": {
     "name": "遠東新",
-    "news_titles_hash": "b88e75745e1526f15a2184c012fb2cdbab58b73562decfcafa639572a767f731",
+    "news_titles_hash": "3d3c0f464554e211aab34a95d07d5e7c62d967940d51cc18bcb6f303a95858de",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:48:32"
+    "updated_at": "2026-08-16 14:57:17"
   },
   "1476": {
     "name": "儒鴻",
-    "news_titles_hash": "2783897570020ad667aff1cb9079d5419fac2e57ff6f3be33fc8a1a37c885772",
+    "news_titles_hash": "f837f0f178424a0224022754d19ac72a36acf53705991ce8e1a3b7e0a96286d4",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:48:36"
+    "updated_at": "2026-08-16 14:57:21"
   },
   "1477": {
     "name": "聚陽",
-    "news_titles_hash": "4e05f180cabda5515752a51affe258f5682b493e737ced64f059b7fe1b933841",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:48:39"
+    "news_titles_hash": "6afaa580d324222c1d8dac0acf8afbad3740123971834a4025e2327dae097c13",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 14:57:23"
   },
   "1503": {
     "name": "士電",
-    "news_titles_hash": "f44851e1f11050d817c2cc66f8ce7db0aa825a33a487094d34cfd98b024bd26b",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:48:44"
+    "news_titles_hash": "ff0799a57d0bea97c687324863f28624224083df8bc27e409e9d95383b238627",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 14:57:29"
   },
   "1504": {
     "name": "東元",
-    "news_titles_hash": "ac9165b2c1d16827aad93b490d5cfdd2acc1bc3e4f554b2f05057081144fe921",
+    "news_titles_hash": "d3bc5c8486f0afa313044c868e0773c5a6bedf286eb1fce35933366c4e420492",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:48:45"
+    "updated_at": "2026-08-16 14:57:31"
   },
   "1513": {
     "name": "中興電",
-    "news_titles_hash": "af53da441124ca95b5503b7655de2e33ec9139115a9a2e354cdabe1435de8407",
+    "news_titles_hash": "bc29d1e3e2e978a581f3fc8da17bdcab2599b372cbacf04053e77ea1d39d2008",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:48:47"
+    "updated_at": "2026-08-16 14:57:33"
   },
   "1514": {
     "name": "亞力",
     "news_titles_hash": "9a7b4e16fcceebd306ed01eb80384059a33c403f56cdafce3b4e5599fdd968af",
-    "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:48:50"
+    "status": "cache/unchanged_titles",
+    "updated_at": "2026-08-16 14:57:37"
   },
   "1519": {
     "name": "華城",
-    "news_titles_hash": "df874399dbc29cc69cbcb653e92574b8abf326acc59b208acdf6759f299aa2d4",
+    "news_titles_hash": "3b897d82b70d57a25d1b87f950a7c951fcde8353e2ffe12cc8153476a9509d63",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:48:52"
+    "updated_at": "2026-08-16 14:57:39"
   },
   "1532": {
     "name": "勤美",
-    "news_titles_hash": "ae422cf01873647be7a29bf8af4c0f2844f09f8dbad3e37c3ae9a7bbae76bb68",
+    "news_titles_hash": "3c36420d47c5b40b2cfc04a762b45e4fd434bb40baac686732feb847b3644c54",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:06"
+    "updated_at": "2026-08-16 14:57:42"
   },
   "1560": {
     "name": "中砂",
-    "news_titles_hash": "16f8231bd54b0cfa824d87a548c1fdd7c32189c1fa6a8201507454e21c604775",
+    "news_titles_hash": "0f5dff89198a0f5a140695405f81a320d936971fd626569098bcddd7df204a8b",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:08"
+    "updated_at": "2026-08-16 14:57:44"
   },
   "1561": {
     "name": "5",
@@ -307,255 +307,255 @@
   },
   "1590": {
     "name": "亞德客-KY",
-    "news_titles_hash": "e8312bbb32ad5f4570f7968b3098ddc19ab90cc249d179b5c87b63d48749667e",
+    "news_titles_hash": "7ef537d2eef7226676261fbf617a532a639df9f60228795b3bf69f5dbc95b4e2",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:10"
+    "updated_at": "2026-08-16 14:57:46"
   },
   "1597": {
     "name": "直得",
     "news_titles_hash": "90a8cbe7e197453337bfbfb1da5961d0eecf0bc6246e20d9b0bc78cdfc2f46ea",
-    "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:16"
+    "status": "cache/unchanged_titles",
+    "updated_at": "2026-08-16 14:57:52"
   },
   "1605": {
     "name": "華新",
-    "news_titles_hash": "bb202ac637a965e900e0ad931f2dbb64579c31ac021c9ea0cf6e83c43cd22ca2",
+    "news_titles_hash": "c776e1d9696c0671cd91d6ff5ba6cc43b055b6f36285517cc23100387f256a41",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:17"
+    "updated_at": "2026-08-16 14:57:54"
   },
   "1717": {
     "name": "長興",
-    "news_titles_hash": "5a5eef7bd8ae02bb0e26ee155a405ca38f0da26486430208dab6cdeb55ace5a7",
+    "news_titles_hash": "a60fdb5f7430522c8c09271a368a7d4accaf260d8e347dd39e4c09d4ab9b37e6",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:19"
+    "updated_at": "2026-08-16 14:57:56"
   },
   "1722": {
     "name": "台肥",
     "news_titles_hash": "53e1401c24a85418249077240569d4d8d7cd15073b0071996ddd3464d1568639",
     "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:49:22"
+    "updated_at": "2026-08-16 14:58:00"
   },
   "1727": {
     "name": "中華化",
-    "news_titles_hash": "81e44ec98cedc2241d74b77859a983d654ca7e21bb29d698e05beb0e070c68b2",
+    "news_titles_hash": "27c31ba52405cc77493958912fb6b0762e5189c31a5a8dc301ca49b5079ea409",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:25"
+    "updated_at": "2026-08-16 14:58:02"
   },
   "1760": {
     "name": "寶齡富錦",
-    "news_titles_hash": "f723da51b7266fede05befa4617d16b1b26918e27e9ca6548a93889040f2768d",
+    "news_titles_hash": "43e2ac8e243fc8c6aea18856d789671ca234490a808f5680db742831d982b4dc",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:30"
+    "updated_at": "2026-08-16 14:58:04"
   },
   "1773": {
     "name": "勝一",
-    "news_titles_hash": "0bb6165372168637869882be0ef4a72c8a65405bde0e8a5f380eb62e4b37187f",
+    "news_titles_hash": "8788531226e97f5949811677ad13c6e39901034ba128973b1a6fcb6425db4c25",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:35"
+    "updated_at": "2026-08-16 14:58:10"
   },
   "1795": {
     "name": "美時",
-    "news_titles_hash": "2ad2e33be01d56dad4a628d696f247f2e6f60e823af19a5db2a2194890a1651d",
+    "news_titles_hash": "79689aff84dbf9d33e843810ca1cffbfeca5240b170da02398fccba459bd1cb1",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:37"
+    "updated_at": "2026-08-16 14:58:12"
   },
   "1802": {
     "name": "台玻",
-    "news_titles_hash": "d3217adb8a665950901d3c24859706d69ac2d7501105aec5ba330f349d192d3a",
+    "news_titles_hash": "24e942ecb13ef3d3878460681f823fa31184bd36b898cb42b1110c78c08d8294",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:38"
+    "updated_at": "2026-08-16 14:58:14"
   },
   "1907": {
     "name": "永豐餘",
-    "news_titles_hash": "41c4370bfbda2877107a0893ebc0be0e8b44d910a4fc4652db13a61c2c6c7ac1",
+    "news_titles_hash": "0a2d536c4491fb119e2cfaa3fd12785118fd769c76e629c04b351d34d16f6341",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:40"
+    "updated_at": "2026-08-16 14:58:16"
   },
   "2002": {
     "name": "中鋼",
-    "news_titles_hash": "a464309de71e2d53d96567b78a6a4a3c43befaab44e1667c5569a8bb056723bb",
+    "news_titles_hash": "e878996af1c33d8362967e134f03780a0b4636c3d6bbe29d28440a275581df62",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:42"
+    "updated_at": "2026-08-16 14:58:18"
   },
   "2006": {
     "name": "東和鋼鐵",
-    "news_titles_hash": "57c566d7ec91b47ea50c5a27a2939c2b5c74b6a521e5089a7260350ba9d7b1e8",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:49:47"
+    "news_titles_hash": "d0f37de4b2dcdd69808ea3165bc9d14ed11bfc69eb4cd3f1ee35783568a4d4a7",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 14:58:23"
   },
   "2027": {
     "name": "大成鋼",
-    "news_titles_hash": "24751df3b11eec87a259706420f8ee5977889caac39f7ae8f6d5e743729907f0",
+    "news_titles_hash": "56c590c6988d05490df35d253bb26fb75597e5c5c8004121aeba5bdbde7f8d20",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:49"
+    "updated_at": "2026-08-16 14:58:25"
   },
   "2049": {
     "name": "上銀",
-    "news_titles_hash": "91b672b2b553e31918ddd18ae633ca317870e0cadf9a3864a559c2eee7cb0b31",
+    "news_titles_hash": "6fef8226704ff87e343a9eff7f052c4f25ac019d9ea9b4e692f5380ec2b594d5",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:51"
+    "updated_at": "2026-08-16 14:58:27"
   },
   "2059": {
     "name": "川湖",
-    "news_titles_hash": "7cbd17accaa1ff1b4bc6fc3412aa471d50c9d5957dc568e1e20225af794aec48",
+    "news_titles_hash": "b9a255e75d12a391d39fe0f3c2b18d26cc75ab2c0371acf9083a5179bfa0106f",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:52"
+    "updated_at": "2026-08-16 14:58:29"
   },
   "2105": {
     "name": "正新",
-    "news_titles_hash": "19a41797e1e918ebbb76778aa33c50a07b245f06b788a6230ca8dedb454dd8a2",
+    "news_titles_hash": "6e936233fc5a7d5cd213781bcd9a06d95452057828d3c8053b82a789334b92a7",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:54"
+    "updated_at": "2026-08-16 14:58:31"
   },
   "2206": {
     "name": "三陽工業",
-    "news_titles_hash": "de5cd564dd0f60f95ac740ad760ad0ba9e8f68da06a582b24e5a83b0dac2f164",
+    "news_titles_hash": "00f93d278a13739870cf756eaff7b88fe7acc969bdd391d5d86d1c3ff90c26fa",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:49:57"
+    "updated_at": "2026-08-16 14:58:33"
   },
   "2207": {
     "name": "和泰車",
-    "news_titles_hash": "990de5b09e8e800b89b607d628d3c38dd761e000dc5d9441e3f893b5642b00f5",
+    "news_titles_hash": "98694c015ace8258b5b05c9a37e2ee9f6e6bfb18c4aaa231510aacaa6f60c2d1",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:00"
+    "updated_at": "2026-08-16 14:58:36"
   },
   "2233": {
     "name": "宇隆",
-    "news_titles_hash": "2c2201cf7b6328face09a55c4d756212b6e0100712ab66194cb2623005510f8c",
+    "news_titles_hash": "40dc0fab3a1860b21742f47382a8a190a75410cf4f7afa82bc2a67a24f68acda",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:03"
+    "updated_at": "2026-08-16 14:58:38"
   },
   "2258": {
     "name": "鴻華先進-創",
     "news_titles_hash": "cae3d66540b8ac1b6837d595dd0bb01b010706250a2b0da5f480dc7e37be0b15",
     "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:50:06"
+    "updated_at": "2026-08-16 14:58:42"
   },
   "2301": {
     "name": "光寶科",
-    "news_titles_hash": "8642ea29d82eac62f9a48f4349885da94c707955e89b678c4ae73ad530aec51e",
+    "news_titles_hash": "20f0f6ca39956e8b38513d5613d7b0407b035567e90efb9617e085712938f3c7",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:08"
+    "updated_at": "2026-08-16 14:58:44"
   },
   "2303": {
     "name": "聯電",
-    "news_titles_hash": "3b091b962bc0bc52c5d5ef22a857800b85378bc62c11f54b7233f6ae31373f13",
+    "news_titles_hash": "957a220d341633209c79927ff4f3355932f6fd5dafa27a63750839e4fa6c5584",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:10"
+    "updated_at": "2026-08-16 14:58:46"
   },
   "2308": {
     "name": "台達電",
-    "news_titles_hash": "0b92220b4709770593f4e646d949c724d8ae19c259797bf0a7f8ec4d02a26fc1",
+    "news_titles_hash": "30354f02daaa60e88ee16a990b24cc113684f966d2b91978dfabd04cf68ce8f4",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:12"
+    "updated_at": "2026-08-16 14:58:47"
   },
   "2312": {
     "name": "金寶",
-    "news_titles_hash": "046173927be20ae24f6a3b3e5355977ffb2d13653f8e87320640945c6dc0e2e8",
+    "news_titles_hash": "82f3fb3d38ff97274b03590fa63d1696382c8ae9d6c06e5547cc2f659f9553c9",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:14"
+    "updated_at": "2026-08-16 14:58:49"
   },
   "2313": {
     "name": "華通",
-    "news_titles_hash": "05b0331133a57a7283d64167d5214775c9d580cffc97d1b3909317589f89f67f",
+    "news_titles_hash": "63853222b130d9003106af5cff1c0d1f325714c62988da2c19026a393ca14ba6",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:16"
+    "updated_at": "2026-08-16 14:58:51"
   },
   "2317": {
     "name": "鴻海",
-    "news_titles_hash": "c3ac6d865bc203f353a972483699f7d58dd14459f695fb162726d1fc6cc6d7cc",
+    "news_titles_hash": "7af8001f49d6e8c8ef5690b5ea4ad5e4f6170aadc2dd6556bc8b2ab668a56561",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:17"
+    "updated_at": "2026-08-16 14:58:53"
   },
   "2324": {
     "name": "仁寶",
-    "news_titles_hash": "ce6b6498782398d27e06932679fc121df6d09381e1858c7ccb3525275cf82f23",
+    "news_titles_hash": "a69f80668803dc2b5692096fe9066a296994a71cd37dec761afd9c3db465731d",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:18"
+    "updated_at": "2026-08-16 14:58:54"
   },
   "2327": {
     "name": "國巨*",
-    "news_titles_hash": "adb1a10304622e836c80cc982e56585938b24c5b56293ea952456a51f2c1b2d7",
+    "news_titles_hash": "ce65a911056a8a435e45c069ef18de96f6796d71a983eee4ecc02dcf359fed89",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:20"
+    "updated_at": "2026-08-16 14:58:56"
   },
   "2330": {
     "name": "台積電",
-    "news_titles_hash": "0ddeeb9cadb5332a316835085fec007cb08122228bd81d999951f5f8b0b86c06",
+    "news_titles_hash": "ab8e8f11ebaecf6a688859e11ad870344c7a9be7c923acfbd757cfd2eb2e263b",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:21"
+    "updated_at": "2026-08-16 14:58:57"
   },
   "2337": {
     "name": "旺宏",
-    "news_titles_hash": "96f3b1ef806ae57e3677d76ff578d82e878dd2a3cfff199db282d787ebb5db43",
+    "news_titles_hash": "aff6f12e2d2a45dfb311fda674f0b88253fd42e0d43fed45acc15c5f1aea4e6e",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:23"
+    "updated_at": "2026-08-16 14:58:59"
   },
   "2344": {
     "name": "華邦電",
-    "news_titles_hash": "f7e413d7feb228cbd41911d5cbc238d4ca5267afea74f70d54071c0a0800711d",
+    "news_titles_hash": "de5c767450883815ff5c3f24d6bd1804e9893a11d706efe16d5164e7140b8230",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:24"
+    "updated_at": "2026-08-16 14:59:01"
   },
   "2345": {
     "name": "智邦",
     "news_titles_hash": "381743c0471d74476101c0689c5f26c92eae2e4648159f1447d06f931ed08ec9",
-    "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:28"
+    "status": "cache/unchanged_titles",
+    "updated_at": "2026-08-16 14:59:06"
   },
   "2347": {
     "name": "聯強",
-    "news_titles_hash": "fd038636bf4574777b1b4418fb36347fcb1b38029a6ace61ff27bad1466135c7",
+    "news_titles_hash": "7ca0075ab0f101d49bf7d055cb69741a2b89570d92a06949c8d226dc000c04ea",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:30"
+    "updated_at": "2026-08-16 14:59:08"
   },
   "2352": {
     "name": "佳世達",
-    "news_titles_hash": "88d32f2ed53b5cbfced572821f684055e3e8f42cd2cac4d68455c1e33ce98e61",
+    "news_titles_hash": "795868f01f9f7aa7d2bc03dbdf93b3252f3c3494f7455afc8622ff26b96fe099",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:33"
+    "updated_at": "2026-08-16 14:59:10"
   },
   "2353": {
     "name": "宏碁",
-    "news_titles_hash": "9e7b6f6c923560aad70bffe1ea6977befc2d24c0c085604678137884e07c5f64",
+    "news_titles_hash": "4a2e47d75d1d5e74df5100e8e066f990b4c299902241e294b15807f2b1d207e9",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:35"
+    "updated_at": "2026-08-16 14:59:12"
   },
   "2354": {
     "name": "鴻準",
-    "news_titles_hash": "f59c5e68b7157a0742782af3adadefec8d037fd2fafcfe57b2a26199d6e7edd0",
+    "news_titles_hash": "a3413bfdd7053dc2ca74f0c2f278da6ae64238ada834d11e234a3bb4ac412e9d",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:38"
+    "updated_at": "2026-08-16 14:59:14"
   },
   "2356": {
     "name": "英業達",
-    "news_titles_hash": "3ded001240cdf471f98b4b91ae7f30aee066aae0978692889f628fcaba733b99",
+    "news_titles_hash": "34e45b51ac8416759b4edac6059b25728d133a79fc3988b3eb0adf7fc0bd50f8",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:40"
+    "updated_at": "2026-08-16 14:59:17"
   },
   "2357": {
     "name": "華碩",
-    "news_titles_hash": "edde5a33374f1b8148349556186452aac6ddadd9dc479d99d40517fbe94ad487",
+    "news_titles_hash": "99c64b2d2b3d5fdef6db0332732e26745511eee6c1268ec0173410777fc98b07",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:41"
+    "updated_at": "2026-08-16 14:59:18"
   },
   "2360": {
     "name": "致茂",
-    "news_titles_hash": "d6131754d43df2b81e23e2cf710987afe01cea516260b2ac800f542c608bd266",
+    "news_titles_hash": "40a746d5be42ef31a898f6a934ef948d2d23872ceaa59c90711368f68f12bf0a",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:43"
+    "updated_at": "2026-08-16 14:59:21"
   },
   "2368": {
     "name": "金像電",
-    "news_titles_hash": "9bfa7ec0bac5101c4ca2697cb732bd89ac4a183c619b2f5995580f9fb9b53eaa",
+    "news_titles_hash": "fcf9a23bc1f685d991dbed040ba39342e24517573cb3cd9379fffc2e2dae9b0b",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:45"
+    "updated_at": "2026-08-16 14:59:22"
   },
   "2371": {
     "name": "大同",
-    "news_titles_hash": "a5cbac3bbbd122d442a778fec024ec5ed35ea67feefc6d538951bda3d2196532",
+    "news_titles_hash": "8eb3dc805053efdf9abe3db707d034fccdcd8b856da2ce062e33df71bbf59ea5",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:47"
+    "updated_at": "2026-08-16 14:59:24"
   },
   "2375": {
     "name": "凱美",
@@ -565,123 +565,123 @@
   },
   "2376": {
     "name": "技嘉",
-    "news_titles_hash": "6267fb0b738f7718bfac318cdb4a0ee88294a3e87d711fd118cfb5800ad4a9e3",
+    "news_titles_hash": "ad94b0a4a438f54c66ddf18d4ca73a98f24ba453b2579ca4c76e565120741f1e",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:50"
+    "updated_at": "2026-08-16 14:59:25"
   },
   "2377": {
     "name": "微星",
-    "news_titles_hash": "5d8eac30e46249fbc08d1e4bb424da4cb85b39d961f84160a2557acad1f38b6f",
+    "news_titles_hash": "eccd51a79837522a9fa17b9f50161bd8c62e2db5626a5f35ee447708152ddd31",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:51"
+    "updated_at": "2026-08-16 14:59:27"
   },
   "2379": {
     "name": "瑞昱",
-    "news_titles_hash": "9704522d1329957fc763452307c02b8154e737aca29a963155f47aae8b32d717",
+    "news_titles_hash": "d6255ba647e9639fd766d128a9fe0a340de496c6125e41a3f935d951ef34ed95",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:55"
+    "updated_at": "2026-08-16 14:59:29"
   },
   "2382": {
     "name": "廣達",
-    "news_titles_hash": "331bc6941152365997b96cc6d25678f307a12df00db11aed80015acba054c05f",
+    "news_titles_hash": "21793b77a89c5331deae288eb3d2bdf6e4011005749c55fda549b4792f58fd2b",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:56"
+    "updated_at": "2026-08-16 14:59:32"
   },
   "2383": {
     "name": "台光電",
-    "news_titles_hash": "73d4e55cc0d0cdd6b49a10e6aa70ff8fc3f9c2dcdd681163c98fc3a2cdce5d63",
+    "news_titles_hash": "ee6fa10efc563a1adf9fef2bc7b20570a68d7f1a25770100ae28760531d8a892",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:50:57"
+    "updated_at": "2026-08-16 14:59:34"
   },
   "2385": {
     "name": "群光",
-    "news_titles_hash": "13c48b3c4f201438c48a9304412b74b3267f2ca50ed7c8b3515e39f7a282836a",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:51:03"
+    "news_titles_hash": "d29f4a2b25058b91da36da0f18ff378b5c6f7abe7c9f4e1b4285a6d47c2b4d6c",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 14:59:39"
   },
   "2395": {
     "name": "研華",
-    "news_titles_hash": "4e26e32e168facedf988e0cbf4e080cad23cc1cd6cf2b0f195406c9bb0ca4436",
+    "news_titles_hash": "efce2160a3643de831461eeeee355120d9ca8ae1240dc6227b711089f9bc64b7",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:05"
+    "updated_at": "2026-08-16 14:59:41"
   },
   "2402": {
     "name": "毅嘉",
-    "news_titles_hash": "eca0ae10488775a5bd8f0dfdaef2680c5df13ad3933e3e6b88027b5b658f8f61",
+    "news_titles_hash": "81551995537dc7a1357530ff05db352fdd6810858ed815bb60114d1d563ca55d",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:07"
+    "updated_at": "2026-08-16 14:59:44"
   },
   "2404": {
     "name": "漢唐",
-    "news_titles_hash": "a5f1a339f40e2469cba327886ebf93ab10a15ed98b34e68e13fd0a9305c71ffb",
+    "news_titles_hash": "8c28197452d0ad0c562da46ae91fc56198dc525e4ad1b49bee87579f48f2dcb1",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:09"
+    "updated_at": "2026-08-16 14:59:47"
   },
   "2408": {
     "name": "南亞科",
-    "news_titles_hash": "f8a9ab70b65256582aafb7e2b9d31b7844ccc12dbc4110bd1768ef4d3acfa178",
+    "news_titles_hash": "f6faba322e466a6e05958d6e8d21d2ab45341a283fe49a04cd176d9e4d2135e8",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:10"
+    "updated_at": "2026-08-16 14:59:48"
   },
   "2409": {
     "name": "友達",
-    "news_titles_hash": "7bb99610b1f38bfa967157c406ac188b0c084cad8009467239d1c16eb778fbb0",
+    "news_titles_hash": "33da91048bce61be7dc7d1c79489d54a196b1ebb19c16fd5ab7cd421a06bf572",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:13"
+    "updated_at": "2026-08-16 14:59:50"
   },
   "2412": {
     "name": "中華電",
-    "news_titles_hash": "e6055fb69c2e7c4ee45762e13e34ce728cacddb4297e6c016fb128277ed7e706",
+    "news_titles_hash": "025de24228b2d3ea1abd4fff43ba86fe6804cb66cd574e3b4d64953951a5c5cc",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:15"
+    "updated_at": "2026-08-16 14:59:52"
   },
   "2441": {
     "name": "超豐",
     "news_titles_hash": "0089b6d0605ede31ceb61cead60892250e1d66a0f95373bc9932cc82e763c8e2",
     "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:51:18"
+    "updated_at": "2026-08-16 14:59:56"
   },
   "2449": {
     "name": "京元電子",
-    "news_titles_hash": "bffe7ab2b29b31295cf42a97f580c73c98ca138d3dbd640efb454c9a6dfea3f0",
+    "news_titles_hash": "ff8c29303727df6ebcf476b29171d07f98cfbe46c98244b9b6cd718c00e96d23",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:20"
+    "updated_at": "2026-08-16 14:59:58"
   },
   "2451": {
     "name": "創見",
-    "news_titles_hash": "009fb45be93b99a26a819e454db44df02befd3a6cd0cef075b57b189e3349727",
+    "news_titles_hash": "bd9e19aa55f1b9dbd334b04029b2ba1a93028bdd267a954798e43d5fa7a5495f",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:22"
+    "updated_at": "2026-08-16 15:00:01"
   },
   "2454": {
     "name": "聯發科",
-    "news_titles_hash": "0f9a75cb02312f23e6b81e600959dded72c1b32ca4cf06db95e8f52c9c7d6538",
+    "news_titles_hash": "9568d7aebff913510686515fa52d7ea870f8869231b6f832e11bc5448e3ff843",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:24"
+    "updated_at": "2026-08-16 15:00:03"
   },
   "2455": {
     "name": "全新",
-    "news_titles_hash": "8c782f45fdffea9083b4ce08e8561a05fc135a2ba028c472959f432fadbf5344",
+    "news_titles_hash": "651e071ba6a4e892478ef745af982956d42b67dc5e194cde395bce558eaacf58",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:28"
+    "updated_at": "2026-08-16 15:00:08"
   },
   "2458": {
     "name": "義隆",
-    "news_titles_hash": "f5a8687b91d7422b143dca95f60196b3847251130869cbf99b95b0ea36410c0d",
+    "news_titles_hash": "bd52556cb531ffedd435132ffb22c13f46778e8cf2da869c47b209d96557d48e",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:31"
+    "updated_at": "2026-08-16 15:00:11"
   },
   "2464": {
     "name": "盟立",
-    "news_titles_hash": "99f68db97839e6d98d4e7a1f277bf462cd387262832e7eb7fbb2aec83ca2f3c6",
+    "news_titles_hash": "2b77a41a62dfcfcb88b8dfb7cd8456776b545c06890bd1127909543264d2710a",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-15 14:55:43"
+    "updated_at": "2026-08-16 15:00:14"
   },
   "2467": {
     "name": "志聖",
-    "news_titles_hash": "4318249e6c2e427e75abfc4ce4f6bb0d180d7de65158e66d346c28a6fe33a3d7",
+    "news_titles_hash": "fc887decb019ac868fe61e7aaa084724a96d4b01fb9c017b932baf546c44a45a",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:33"
+    "updated_at": "2026-08-16 15:00:16"
   },
   "2472": {
     "name": "立隆電",
@@ -691,9 +691,9 @@
   },
   "2474": {
     "name": "可成",
-    "news_titles_hash": "7196d6f17abc8bf05a5c5c9906508a6de42f2fd75575486f5c3a6cef977492f7",
+    "news_titles_hash": "f8adeae743f7a22524c1ecb2ce2114ea88ed4ff444b37ce9aba714b9e70b661e",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:36"
+    "updated_at": "2026-08-16 15:00:18"
   },
   "2478": {
     "name": "大毅",
@@ -703,9 +703,9 @@
   },
   "2481": {
     "name": "強茂",
-    "news_titles_hash": "8ff83e628a1e033e9aaf5e038812ec8c22a7d9aa6195537e7657bc7a1527d1bd",
+    "news_titles_hash": "c166efc2138620b967cf8548fc1edc59a99ece03fd6f16dd461ef56f2e074c3e",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:38"
+    "updated_at": "2026-08-16 15:00:20"
   },
   "2484": {
     "name": "希華",
@@ -715,339 +715,339 @@
   },
   "2486": {
     "name": "一詮",
-    "news_titles_hash": "e7c0c0da80d86fa2fcf780f136fb605d9a6f1619cabad37a25931a41e363f5a8",
+    "news_titles_hash": "ec7656ca0be7b4e35ce374ee2d0fcbb3fd0c23b04f514e65e67d52b57e7613e6",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:39"
+    "updated_at": "2026-08-16 15:00:22"
   },
   "2492": {
     "name": "華新科",
-    "news_titles_hash": "6318594fcbb53a15bb90715e4425bca206071eacc0a36614e7fb747b0205cb63",
+    "news_titles_hash": "39e0e7c529ba25ab5a040ba175f3e2b72b2157aa95a120969a603252694ac422",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:41"
+    "updated_at": "2026-08-16 15:00:24"
   },
   "2539": {
     "name": "櫻花建",
-    "news_titles_hash": "c8e956b290136e99e22851bf67c97dde9b0243e90ad9c1377af62d000ae551c2",
+    "news_titles_hash": "ec7f7598a7c4be792f97852a6b7bb5a104a50237d739ddda3741257421103240",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:48"
+    "updated_at": "2026-08-16 15:00:26"
   },
   "2540": {
     "name": "愛山林",
-    "news_titles_hash": "d37d966bffca53d993dce659cf6901cf991fb599d1d525cf8702788290e6a499",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:51:52"
+    "news_titles_hash": "9c4180f9746fe571b85dca9376b1838661c9b5203089ad769d1fdc68bda419b8",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:00:30"
   },
   "2542": {
     "name": "興富發",
-    "news_titles_hash": "f85c8772e7c06956f9ddd5e2c2985e636d406bbe2e92eb3d85c98ed656a38465",
+    "news_titles_hash": "b51f4a00aa5e7c7f16e50225182b7b7731b4fd2d62eabc9dfc0df22d1d747d37",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:51:54"
+    "updated_at": "2026-08-16 15:00:33"
   },
   "2597": {
     "name": "潤弘",
-    "news_titles_hash": "f3c84f2ff9bf67e21ad339f25950958cad07a5e2c01379b898499ffc5a35ceec",
+    "news_titles_hash": "866f7f071f5ef983169c7eab9be8db28387f96f84f1ad49d571704556e09ebaf",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:52:04"
+    "updated_at": "2026-08-16 15:00:35"
   },
   "2603": {
     "name": "長榮",
-    "news_titles_hash": "49c5670b224d585f91140766ef11eac828073e82d74e3285a8ac9b008df857a8",
+    "news_titles_hash": "883da2fed258b21c42845d3f3acdae8c8c064734783a2e67a71f9760b8aaaf2d",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:52:05"
+    "updated_at": "2026-08-16 15:00:37"
   },
   "2606": {
     "name": "裕民",
-    "news_titles_hash": "6ed59ff0136d8d4f73066676c26dde2eccb02cfdecbada8735025911b37807b4",
+    "news_titles_hash": "df33dfb356445e440bec0c0a1ba915a26821c2e7ac17f9a014c378a77aa7d960",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:52:07"
+    "updated_at": "2026-08-16 15:00:39"
   },
   "2609": {
     "name": "陽明",
-    "news_titles_hash": "3d9b7b28ecc84fb1a34c60a31354bf78b6848ceadcc22731c07eda93bfee5442",
+    "news_titles_hash": "f5cfb4730fc19a211ac58890b2c7871e86bd64182fb149a2d0ca22d04ca0a9e8",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:52:10"
+    "updated_at": "2026-08-16 15:00:42"
   },
   "2610": {
     "name": "華航",
-    "news_titles_hash": "cdb5798373454c6ddd7877a683e346c9f68732121467e9c566eec05e53afeb0b",
+    "news_titles_hash": "333384a20cfbd37603641f13d5a4f9bfa7fd2b54d2cc4a4c408beb48d37da38d",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:52:12"
+    "updated_at": "2026-08-16 15:00:45"
   },
   "2615": {
     "name": "萬海",
-    "news_titles_hash": "0d2547759c70851b3f0d0eeaf20e91f4c298f6d5898d23df5d4c222ba6bf1f66",
+    "news_titles_hash": "c0291d660b4218508fb696e8a92b451ab5350a05664ee36e345ceccc28648592",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:52:13"
+    "updated_at": "2026-08-16 15:00:47"
   },
   "2618": {
     "name": "長榮航",
-    "news_titles_hash": "340e248775c42cfc6ed3025eac80dd247e0cd3bfc9f6f477e0600aa608d69c72",
+    "news_titles_hash": "3fa905b277419e1a6d1b1a585747c3ec4cef722373fa98e8c3be76d0473cabe1",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:52:15"
+    "updated_at": "2026-08-16 15:00:49"
   },
   "2633": {
     "name": "台灣高鐵",
-    "news_titles_hash": "3fc18a9482972f0cf1535aea5459dbb501fbde60ae281704742679d6dda0903b",
+    "news_titles_hash": "3379375106c6dd888bd4ed7f0507ffaa4ed81b623bb41356010cf29cd2cae764",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:52:17"
+    "updated_at": "2026-08-16 15:00:50"
   },
   "2634": {
     "name": "漢翔",
-    "news_titles_hash": "cbf8cb7844c73848dd3bc82d02e56c6c97df9b162dbbce8c136004145c43fd09",
+    "news_titles_hash": "3cd43c9b3acbc9fff2767e0921ccf15d1dcf221c881628e1a6f558faba39f673",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:52:19"
+    "updated_at": "2026-08-16 15:00:52"
   },
   "2637": {
     "name": "慧洋-KY",
-    "news_titles_hash": "fa8c5e2b431ece3454d232e94ec77ee612c42bc38a411d345d1d6be36af11725",
+    "news_titles_hash": "5f4697da3aeec71a9b9ead08471e7deaa83f84924728a2014551d301df6c1290",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:52:23"
+    "updated_at": "2026-08-16 15:00:55"
   },
   "2645": {
     "name": "長榮航太",
-    "news_titles_hash": "a10da37749a8044681ae5f3e30580d9a3b4f9a5bf3a47aef82d497678943ca3c",
+    "news_titles_hash": "cee3f5f4397329761b070f8154f073ae76c0335e6609e31cf53195cabd0f1543",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:52:24"
+    "updated_at": "2026-08-16 15:00:57"
   },
   "2646": {
     "name": "星宇航空",
-    "news_titles_hash": "62de628a1e44921a4976dba2386a161d54fa0c997088e5ce019a03db73cc76fc",
+    "news_titles_hash": "c5aaeabc4079b854de40a96fb278c31b4092ab7788f48d5415214b29b127f9bb",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:52:26"
+    "updated_at": "2026-08-16 15:00:59"
   },
   "2801": {
     "name": "彰銀",
-    "news_titles_hash": "f5dba63f6c966c249b37a6dc7146e6834f75acb86a9bb88fbb6436b311dba45e",
+    "news_titles_hash": "7c87db644344f05fd38ba064f6ee195c2d2a938639789e0737b00e2bcae439d5",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:52:28"
+    "updated_at": "2026-08-16 15:01:01"
   },
   "2812": {
     "name": "台中銀",
-    "news_titles_hash": "487973790ed029e56ddb3d6f4920ea722ee5692c9482236ed119696d58b31a99",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:52:31"
+    "news_titles_hash": "29561860321d8675d3a6d9dcb27328ae97a6a067a2b55eb1cade315f1306e4b8",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:01:03"
   },
   "2834": {
     "name": "臺企銀",
-    "news_titles_hash": "a9318a147fa7b6c325323ce9228a23a7b8922be058d08e5b4103608e6c522a40",
+    "news_titles_hash": "58b9aca4403c54a70e9ff7b61e552d01ba7054a07a9d3c765d45d38d2d1596c3",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:52:33"
+    "updated_at": "2026-08-16 15:01:04"
   },
   "2838": {
     "name": "聯邦銀",
     "news_titles_hash": "b893719827c706ab274bb5b4400e213f355d0aafeb936121295026b84a7c06aa",
     "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:52:38"
+    "updated_at": "2026-08-16 15:01:10"
   },
   "2845": {
     "name": "遠東銀",
-    "news_titles_hash": "a8d01ecb8c0224390089019e8899a8acbc9499fd5e35fbabc5c29e89a0516cc5",
+    "news_titles_hash": "bc8e8251b5d9277646fbf96a7cd4a7952d27c6e5b07918ac4a0f368580b5b5ab",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:52:43"
+    "updated_at": "2026-08-16 15:01:15"
   },
   "2850": {
     "name": "新產",
     "news_titles_hash": "d4dc9cae7d60cd0131ec5ed25f735eaa127a6accce414b8938d920dd795840f6",
     "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:52:54"
+    "updated_at": "2026-08-16 15:01:27"
   },
   "2855": {
     "name": "統一證",
     "news_titles_hash": "710850847e8b01834de451a2e431926279d74b54504d4a895beb59c6226de5b8",
     "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:53:03"
+    "updated_at": "2026-08-16 15:01:36"
   },
   "2867": {
     "name": "三商壽",
-    "news_titles_hash": "02907bc0213e8298809dbcf848d23aca8f2c3cb339c2c7a54357bd2f42e5f461",
+    "news_titles_hash": "cbfd43eb187829379ae404cf9b5dc8001261998ca6354b5f0f3269119fccaf72",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:05"
+    "updated_at": "2026-08-16 15:01:38"
   },
   "2880": {
     "name": "華南金",
-    "news_titles_hash": "45d729b60e5d6241cd9da231052d80ede8e567eaee51f8a36b86d42c9d363361",
+    "news_titles_hash": "afc89a8e773b50713a8e6d35a88c54e5e135cec0c28b56f75d1b78eb2f10994c",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:06"
+    "updated_at": "2026-08-16 15:01:40"
   },
   "2881": {
     "name": "富邦金",
-    "news_titles_hash": "fa7694ae79d7dde10bc3133f98097a135538e5d6d9ac353737892743c14a200d",
+    "news_titles_hash": "76c8b3aa8ff95f56b6e74a885e9dd10e9ee94df5d539b0893d685a190ede1a35",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:10"
+    "updated_at": "2026-08-16 15:01:42"
   },
   "2882": {
     "name": "國泰金",
-    "news_titles_hash": "e546d81c607e109a7e7921454d9bab565a308a6558af10b98ca74133a0510e50",
+    "news_titles_hash": "696a9a577932707e966dcd665b8d66946f218f1c2aeac1e1b6777307acb62b5d",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:12"
+    "updated_at": "2026-08-16 15:01:44"
   },
   "2883": {
     "name": "凱基金",
-    "news_titles_hash": "f4ce8a05a2cc673ba8e6dc7b6de66f1ed3b298e0d3e664dc9122a87f91966e69",
+    "news_titles_hash": "d07f369d3fd3ef7b2643c7e2ea154cb032c80c2cd20e8e234a9e34bb2789ab26",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:14"
+    "updated_at": "2026-08-16 15:01:46"
   },
   "2884": {
     "name": "玉山金",
-    "news_titles_hash": "d3f36443ede0383f879865ce2ef018b6f09a73e35c0522f2b090df18379d688d",
+    "news_titles_hash": "538fc92935a6cc5feb3523ddb8c353ad4620bc93c2ebaf7a4bae84f122770642",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:15"
+    "updated_at": "2026-08-16 15:01:48"
   },
   "2885": {
     "name": "元大金",
-    "news_titles_hash": "5fd654de971c322fedc531f8dc86fb2ec771ee26f7bc549bde5da892261e088c",
+    "news_titles_hash": "9b45091cfa510e4f997a5cee01710d6eef5bed064d392e77a943031b743d8fc9",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:16"
+    "updated_at": "2026-08-16 15:01:50"
   },
   "2886": {
     "name": "兆豐金",
-    "news_titles_hash": "98660ee57bd23bb013abbac44beca14083df539ea167f60dfafea4c913ff47ac",
+    "news_titles_hash": "56c97e204cd262d3924c376e0082592023fa00e3bb817ad9bab563198af9cb98",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:18"
+    "updated_at": "2026-08-16 15:01:52"
   },
   "2887": {
     "name": "台新新光金",
-    "news_titles_hash": "0bdb64b7bd465bfe640f303db23f4f7a3341a73bff57a9f94477467b0300a013",
+    "news_titles_hash": "f242541ee29f6dca2ccb9ff4d3da097ea622cd2c648d976bbe77fd34e7ea2347",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:19"
+    "updated_at": "2026-08-16 15:01:54"
   },
   "2889": {
     "name": "國票金",
-    "news_titles_hash": "3fbba63fc0552b5d3ad406d126a0d75d7f5533ed09ee8512a4ff862772bb3b1c",
+    "news_titles_hash": "a1a26423a38fa886387ca3c989fc64a4cbb97acf0e1c73b8aceebe8960746a9b",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:20"
+    "updated_at": "2026-08-16 15:01:55"
   },
   "2890": {
     "name": "永豐金",
-    "news_titles_hash": "ed28f583969e612342a6a3411d020f6894b27bbcbc2d52da892504e13f82b5cb",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:53:22"
+    "news_titles_hash": "558e4f54b7dedd62e3aa79b0ef7b02f1bb9b7f7c5e0384e9030915d344e8d484",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:01:57"
   },
   "2891": {
     "name": "中信金",
-    "news_titles_hash": "1c09119d03e85ea91e4121058fa326ad346a3f0b2a906b036094105cb19db17d",
+    "news_titles_hash": "4bf20370da3648df7d71b441793ea7991f34d11b0fcfffb9f8e2d1038ef4618d",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:24"
+    "updated_at": "2026-08-16 15:01:59"
   },
   "2892": {
     "name": "第一金",
-    "news_titles_hash": "c730a9c716aff5a2241d9314fb9c15ec47fdca10371d99b8e637a9001085f00f",
+    "news_titles_hash": "84e9f31ae651b4d577fb0f9e2d1ceccbdca838c408cad106a9764772e53feda6",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:27"
+    "updated_at": "2026-08-16 15:02:01"
   },
   "2912": {
     "name": "統一超",
-    "news_titles_hash": "3eeeb48fec5b8066f40433b1ea9e8d317f8e2f540f6df17a2cb4611a00f24a93",
+    "news_titles_hash": "1dc4ddccda52d6eff0ab0c7de8c4c5d5af808a670361d84e5524d996d4ef594d",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:29"
+    "updated_at": "2026-08-16 15:02:04"
   },
   "2915": {
     "name": "潤泰全",
-    "news_titles_hash": "048b80a334de0427b1b69b40ed506aa1fe744e144338cdeb371280b8d52d39d5",
+    "news_titles_hash": "3f47276bdd65605dccca4bc5dd555f01eee82115973bc58501c96f1d35d14f0d",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:31"
+    "updated_at": "2026-08-16 15:02:06"
   },
   "2923": {
     "name": "鼎固-KY",
-    "news_titles_hash": "efa6316d5b82f196b33dac89dc8a4a7ce9b5efb30342236e4ceb1afa807f1bbc",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:53:37"
+    "news_titles_hash": "e01a2f277ab29aef2674d2eb2b4c53c64c55d304c4b7a886ecd2120882df8420",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:02:14"
   },
   "3005": {
     "name": "神基",
-    "news_titles_hash": "db4fd36242999782354a070b9a46c5561cae686c311967d5b53998a5dd604c17",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:53:43"
+    "news_titles_hash": "318d2a117e68ee390915f2c7c6fa27493a83dcca19f81201573f06f22b926510",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:02:16"
   },
   "3006": {
     "name": "晶豪科",
-    "news_titles_hash": "2971c5fb13352fd5be3f42dbc82ec8af31e95f9f838bfb1489e84f04cf0e2e5d",
+    "news_titles_hash": "a871242b24f693e4b8df106ae185bb2975f40d9ec455fa81a29350a144206079",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:45"
+    "updated_at": "2026-08-16 15:02:18"
   },
   "3008": {
     "name": "大立光",
-    "news_titles_hash": "38f106f9a32c0013897361181afc22748a5dccd98cd9c1ca3bc7f7d1ba50a0db",
+    "news_titles_hash": "b68b2abda55f9c8958d0e547fe39080c30269a76dad35f094cbbc7c0b26daf0d",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:47"
+    "updated_at": "2026-08-16 15:02:20"
   },
   "3013": {
     "name": "晟銘電",
-    "news_titles_hash": "37373f302d751888af6b12abe562472b47550638c5b7577adbfc6a240cca9b01",
+    "news_titles_hash": "dd4e91e92ed507be76efa4e5adb1712925d89d4fb7c601024c5bd745b49e3061",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:51"
+    "updated_at": "2026-08-16 15:02:24"
   },
   "3017": {
     "name": "奇鋐",
-    "news_titles_hash": "84154f568862fe443d79b37e322589fda29ca93bc822cda21c522bbfd60ac9c8",
+    "news_titles_hash": "f45008e3ded1197e6a33b818f14376726cf9825fd7cbe6f27ebcdfbe55a91563",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:52"
+    "updated_at": "2026-08-16 15:02:26"
   },
   "3023": {
     "name": "信邦",
     "news_titles_hash": "0622a94dd12257f19838874545bc12c22365a16377131606d1db7e43a19c20a0",
-    "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:55"
+    "status": "cache/unchanged_titles",
+    "updated_at": "2026-08-16 15:02:29"
   },
   "3026": {
     "name": "禾伸堂",
-    "news_titles_hash": "004c279fda661a7e5d2817ce3ea7dd07379e0bcdc289cae63bcbf339be650457",
+    "news_titles_hash": "a5804ec22e25ffc34cc43596ec82fbce4cc41caccff05d0e558a488ee5792490",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:57"
+    "updated_at": "2026-08-16 15:02:31"
   },
   "3030": {
     "name": "德律",
-    "news_titles_hash": "1bdbdfa96dec4e71331a738bc8ade014dae589e1eb0a412d649d9b0d602a5b4e",
+    "news_titles_hash": "49750c67645f9fbcb57d5ad6a109c59ccae9132d3bdb43c80949ff02afd30ef7",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:53:59"
+    "updated_at": "2026-08-16 15:02:34"
   },
   "3034": {
     "name": "聯詠",
-    "news_titles_hash": "959c8427b6aad3b164fc5f6c74634fd80950226dff5b52cb33215b83a45d5745",
+    "news_titles_hash": "117f5bc9449e999a0ebcb0c1985799b5900fb81d25c710a31053c58e227c50ae",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:03"
+    "updated_at": "2026-08-16 15:02:35"
   },
   "3035": {
     "name": "智原",
-    "news_titles_hash": "8faa99f5b499239532a39d681b7acd76c09aef9d612d9d6cbcaea520978c3eaf",
+    "news_titles_hash": "cac6e6f204bb42828c27ff48f49b493ab1e395c4e316fd339d99be4996913410",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:08"
+    "updated_at": "2026-08-16 15:02:37"
   },
   "3036": {
     "name": "文曄",
-    "news_titles_hash": "ffc0ef4c6049af5b174f342abf1a02cae45dab5af6a43a80864d003aeb2301f6",
+    "news_titles_hash": "a05beecd0263680bd058f52335711d89e93d285ba818cea521e447ae1cdc8d98",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:10"
+    "updated_at": "2026-08-16 15:02:39"
   },
   "3037": {
     "name": "欣興",
-    "news_titles_hash": "7867e3a2897a36552c63e7211bbcb68b0f374fbee15b5845e2829ce7387fa6f6",
+    "news_titles_hash": "1ca24266189e94e827478e3f49fb65db030d774fe52e09efbd7a1ff9d73fcb29",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:12"
+    "updated_at": "2026-08-16 15:02:42"
   },
   "3042": {
     "name": "晶技",
-    "news_titles_hash": "7e0d733801fc0c8a902996a61fc5a4c7af280bff4aa82194cc15440e554e4737",
+    "news_titles_hash": "d287904a24f9ab167d7a457e03d7a48b87ca14c142d870c540a1893b5a437b26",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:14"
+    "updated_at": "2026-08-16 15:02:44"
   },
   "3044": {
     "name": "健鼎",
-    "news_titles_hash": "c86b4311e921a3526c34707210b6bf52c83250a56b6a88f3024cab9b052b0db3",
+    "news_titles_hash": "127f89847cdda4947763b9a8db0a16a28cded9f27a84cbc1f63fcdae16cd9c96",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:16"
+    "updated_at": "2026-08-16 15:02:46"
   },
   "3045": {
     "name": "台灣大",
-    "news_titles_hash": "d67ad66ffbeb47736dc51031adb1083b47f02d4e4852977fcc7bead1159653a8",
+    "news_titles_hash": "a4888837364434052b168fe3afb3575a1e437e3f9aab030bc37a78c54978231c",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:17"
+    "updated_at": "2026-08-16 15:02:47"
   },
   "3081": {
     "name": "聯亞",
-    "news_titles_hash": "10035cac3612c0a70f56aa4c8ee50ca5790e1acc19b6cfb54da586db9b80f19e",
+    "news_titles_hash": "a751609be1011e8ebb1deaa911c39d02bb5cfdf7a273269199398e093b9ed221",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:19"
+    "updated_at": "2026-08-16 15:02:49"
   },
   "3090": {
     "name": "日電貿",
@@ -1057,39 +1057,39 @@
   },
   "3105": {
     "name": "穩懋",
-    "news_titles_hash": "6bf1ce90a964de560c0229e3db4ea203144ce137504ec301f65c604fcb6e6426",
+    "news_titles_hash": "d61f09800a343d0685976b7e0e8e9984562196e132fad746878321a66c6ffd94",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:21"
+    "updated_at": "2026-08-16 15:02:51"
   },
   "3131": {
     "name": "弘塑",
-    "news_titles_hash": "858081a50872b79e99d48ca9316c83208c4bc064b7a2d57ce681478509ea34f5",
+    "news_titles_hash": "acceb750cbe62bf620668640eb8d5cf597d6060453ffe51f15cd74df65157447",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:23"
+    "updated_at": "2026-08-16 15:02:54"
   },
   "3163": {
     "name": "波若威",
-    "news_titles_hash": "86e7ecf9c1db362d3bfefdade6c0fa29f5c11f0e0f7d6115383b660f3111c3b2",
+    "news_titles_hash": "baf15b9b11da17fbafbb9ac31bb9bc89921acdd35a9f978a8ccc8181102a49b4",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:25"
+    "updated_at": "2026-08-16 15:02:56"
   },
   "3167": {
     "name": "大量",
-    "news_titles_hash": "5c14b1390920bc22b3bcf447ce4950f06eee645f6dabf27133f24b67e60fb3b2",
+    "news_titles_hash": "93812abb758be57f5cf35b77a4be6d598119ea6c193d5420c50004a00918cf68",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:27"
+    "updated_at": "2026-08-16 15:02:59"
   },
   "3189": {
     "name": "景碩",
     "news_titles_hash": "cee3cbbeff2c30900cb79bebe6769ce1fdeadb120c34f140744e0e088e9d74a9",
-    "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:29"
+    "status": "cache/unchanged_titles",
+    "updated_at": "2026-08-16 15:03:01"
   },
   "3211": {
     "name": "順達",
-    "news_titles_hash": "3fe258460cff452895a957e54cdf9cc40a2c35e643b304c2f54cf86cb9b8d8dc",
+    "news_titles_hash": "956e22c4ff0b61cb9f700a9207fff0a6c837af5daa7c01f7e3eb3e98464aea40",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:30"
+    "updated_at": "2026-08-16 15:03:03"
   },
   "3221": {
     "name": "台嘉碩",
@@ -1099,15 +1099,15 @@
   },
   "3231": {
     "name": "緯創",
-    "news_titles_hash": "fd5da33d31d8c17ff021b61010de82be6d9b0894b9d622caa124cb17da5a00d9",
+    "news_titles_hash": "284d9c26e6c1abeeb19b2a2a3636d9c8f1aba91036385ace4ed1b62a186dcf89",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:32"
+    "updated_at": "2026-08-16 15:03:05"
   },
   "3234": {
     "name": "光環",
     "news_titles_hash": "ebf027b8b1551fba63a309addbb719a908f3ca2d3dd28b5b8a1b4361a282b9aa",
-    "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:34"
+    "status": "cache/unchanged_titles",
+    "updated_at": "2026-08-16 15:03:08"
   },
   "3236": {
     "name": "千如",
@@ -1117,33 +1117,33 @@
   },
   "3264": {
     "name": "欣銓",
-    "news_titles_hash": "073a9d6f52143883ca273eb544c25d1492a6a5bd5aec44ba9006f3ebcaaf17e7",
+    "news_titles_hash": "d3e4a2bdea2c99f8c90191a5a01ca558506635a2c7b571aaf7b884347534d8fa",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:36"
+    "updated_at": "2026-08-16 15:03:11"
   },
   "3265": {
     "name": "台星科",
-    "news_titles_hash": "0b504dab317294a675ba3ee2957be725371981d6e223edae236de378c31694cf",
+    "news_titles_hash": "ff193afc013de1b4f080fe4f43f633c3a5790e47a8b88465e09dfbf642f5c4f3",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:38"
+    "updated_at": "2026-08-16 15:03:14"
   },
   "3289": {
     "name": "宜特",
-    "news_titles_hash": "7b3b4ba2ec3e20d55f85a8d15605f0a62edc1a52d56dac2419d5c4c390c29af0",
+    "news_titles_hash": "c41d2d9ff3cd3756079d3be67c0e38ddd849f69977002b7708ab08b0023ce075",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:39"
+    "updated_at": "2026-08-16 15:03:15"
   },
   "3293": {
     "name": "鈊象",
-    "news_titles_hash": "0719ff22607cc9f23e819b4c2b198961f3950aa3d53bb4c14edd7476bf5af8fe",
+    "news_titles_hash": "7c7709af253ac3b02df0c3bdcae725c453cb2bec4f519d53e47a96a7522382f0",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-15 14:55:45"
+    "updated_at": "2026-08-16 15:03:18"
   },
   "3324": {
     "name": "雙鴻",
-    "news_titles_hash": "d1b315711889438802d6ff64747cfbe49ea8858037280a86a1c59dc4f2332651",
+    "news_titles_hash": "8895e758b8c11076e8eb4657e7460b9161650aa6f35bc606449c4cb8e6ff6d66",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:41"
+    "updated_at": "2026-08-16 15:03:20"
   },
   "3357": {
     "name": "臺慶科",
@@ -1153,159 +1153,159 @@
   },
   "3363": {
     "name": "上詮",
-    "news_titles_hash": "154108f95e97dd7a45324aae54716ce931db952fd40f3077f3aba37c4fae90b2",
+    "news_titles_hash": "8d2a1d14b33eec5b89731433652ee422cd3eecc06212f65fc30f3ace37af1eec",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:42"
+    "updated_at": "2026-08-16 15:03:23"
   },
   "3374": {
     "name": "精材",
-    "news_titles_hash": "68bd15ddfe307cde1c1be51aba0185382ee614f1c0bbf1cef547a01d7ff4bd74",
+    "news_titles_hash": "6ab7e982182335546908c35241b63c0bfd8e18c485598e75309236ee8fea3d51",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:45"
+    "updated_at": "2026-08-16 15:03:25"
   },
   "3376": {
     "name": "新日興",
-    "news_titles_hash": "cd5373f8db21fc5abfd2c4b789ddbec79c39eb1ecc5c83182674c99730ed5a28",
+    "news_titles_hash": "6fbb466b9cfc857742de4e33a80697182a5c7181d4e9c722efae9e0b951a614e",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:47"
+    "updated_at": "2026-08-16 15:03:28"
   },
   "3406": {
     "name": "玉晶光",
-    "news_titles_hash": "3c4f9962abbbd1101b0adfbfa5dd3d2780a07ce53d433e766243791c1400e486",
+    "news_titles_hash": "9767d70b8a96524c6a11914976d3390001c8d6fdaa65160cd6946e6d088df107",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:49"
+    "updated_at": "2026-08-16 15:03:30"
   },
   "3443": {
     "name": "創意",
-    "news_titles_hash": "69e14eaaa95f0608cdf999d83e2acbef738a30c83d50f2c138bd365f336c014a",
+    "news_titles_hash": "fc65c04de45896583756c533eb9440254b54b5f4b4ca62f326261baba84bc3c9",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:50"
+    "updated_at": "2026-08-16 15:03:32"
   },
   "3450": {
     "name": "聯鈞",
-    "news_titles_hash": "70274445a820ebbf0bce341f3955457b8698b4e397efec59e2b2698fd0a6ca84",
+    "news_titles_hash": "43d8ddcbdc9d13fe0f4134b9eefe31bae2d71dbb54edb0ca355280016cb3d6e0",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:52"
+    "updated_at": "2026-08-16 15:03:34"
   },
   "3481": {
     "name": "群創",
-    "news_titles_hash": "acf10a92d7f71eada1ba096e18ee4f5714db51fd8f0007160cfb9ac134cc7fcf",
+    "news_titles_hash": "4de109cf8d9c072736d906860addb11f8adc897bb775757e38a3dc1f6782ee5c",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:53"
+    "updated_at": "2026-08-16 15:03:36"
   },
   "3491": {
     "name": "昇達科",
-    "news_titles_hash": "042550c10ec2764862b04c6a33c75103e7130a4f38a389cf5d929450a4409e4a",
+    "news_titles_hash": "210b87013e50740e5a8d26807192e175b2aad0c746472f22ee4e90812903ce90",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:55"
+    "updated_at": "2026-08-16 15:03:38"
   },
   "3529": {
     "name": "力旺",
-    "news_titles_hash": "20edf4785f45842b7da66fcbea242ae2c877c83454d41eee93493b3f6e6a253b",
+    "news_titles_hash": "a3eb0883a9fd234d7e72280b4bea552aefc54e930bf5f36a89a82be0f924ed6a",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:56"
+    "updated_at": "2026-08-16 15:03:40"
   },
   "3532": {
     "name": "台勝科",
-    "news_titles_hash": "a847f3cbbfc28fb43976aa2a2d374ed52b0541513ef7cd278946804fcd18be41",
+    "news_titles_hash": "b9c80200caa822eefd9adb9b7d13e77696eb9f5960834dc1d45ea5c8039b6492",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:54:58"
+    "updated_at": "2026-08-16 15:03:42"
   },
   "3533": {
     "name": "嘉澤",
-    "news_titles_hash": "d0cb15245bacc35c0abb23b5c0dd9dbb02dd386fa00398de0d90c13b9084cef1",
+    "news_titles_hash": "205851e461315fdd03f0d8ca4fd5237e7ea264a26561f6ec18fca25dd4244bcf",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:00"
+    "updated_at": "2026-08-16 15:03:44"
   },
   "3563": {
     "name": "牧德",
-    "news_titles_hash": "007c3554853ff3ba8b50c311fa0b375ffe08c76ecee511387830933b0794c5d7",
+    "news_titles_hash": "ccf7d3452f8ac62511e354a9079ada90dd2614b3030477b3cbf5bea14723a240",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:05"
+    "updated_at": "2026-08-16 15:03:46"
   },
   "3576": {
     "name": "聯合再生",
     "news_titles_hash": "f9d3387eff262a92b86109f0fe70094912727a39f4ece1e61b514342e6a7c7ff",
-    "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-15 14:55:49"
+    "status": "cache/unchanged_titles",
+    "updated_at": "2026-08-16 15:03:50"
   },
   "3583": {
     "name": "辛耘",
-    "news_titles_hash": "623727afc1ed9cea9464b78c30d72682aabd281eeef59ab20bf05fe95b35af4e",
+    "news_titles_hash": "ce5b9fd6d314adbe0fd873e7c694777a748d49de64f1a733087c463b535a49e0",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:07"
+    "updated_at": "2026-08-16 15:03:52"
   },
   "3587": {
     "name": "閎康",
-    "news_titles_hash": "44be8078d7a2d61f188993af2dc342b5330c2d99175121e2b3bab1ea892e0b53",
+    "news_titles_hash": "6d570f11f770c5b215bd33d3227024daf00ef786ff97dca05f07daf08e824660",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:09"
+    "updated_at": "2026-08-16 15:03:55"
   },
   "3605": {
     "name": "宏致",
-    "news_titles_hash": "124aae4fedd591b27f8c63815a1b696b6454dbb9d05a1789bcf9104c6958cabb",
+    "news_titles_hash": "1e1360019d092556c4cf7a0dd28c18fb074ef46df89ceb137be43e40f1ccff3c",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:11"
+    "updated_at": "2026-08-16 15:03:57"
   },
   "3645": {
     "name": "達邁",
-    "news_titles_hash": "96b32a548a73e251901e00e5aea372d69e430921473214c3dafb7a663eae3f94",
+    "news_titles_hash": "350597f5b7d3c7681df5b46c4fdec74b97c2c231b048c23ab9512940706b6285",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:12"
+    "updated_at": "2026-08-16 15:04:00"
   },
   "3653": {
     "name": "健策",
-    "news_titles_hash": "4f6e96b4d7cc830726ee99783b5bdbbf2b6b017388d9f7806155bc35b3cb4f4a",
+    "news_titles_hash": "a77692cfb5628805c111123ab656073297c55fea9f1ab3490fd99fcd03341827",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:14"
+    "updated_at": "2026-08-16 15:04:02"
   },
   "3661": {
     "name": "世芯-KY",
-    "news_titles_hash": "cb981378c767360f193054fb9f03891f5d981a70d78cae6ae2b65d6eca139fa0",
+    "news_titles_hash": "1489818e39165d72b5cd744aad4af5e6f63afa2a6666aa8977fe7a3f0d3d485e",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:15"
+    "updated_at": "2026-08-16 15:04:04"
   },
   "3665": {
     "name": "貿聯-KY",
-    "news_titles_hash": "593d2139e7bb1da582b3e21e10f5d0eb026e1be41b6d75f481e34c22d7b85548",
+    "news_titles_hash": "859c857034958972cefab39051689e1ed0849dc020451c7b0b0a12e2e64105d0",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:17"
+    "updated_at": "2026-08-16 15:04:07"
   },
   "3680": {
     "name": "家登",
-    "news_titles_hash": "32a51248e7eb94f7d24060c9ce6c715a695ef46e85969371037002e690fdb26b",
+    "news_titles_hash": "3ffaa8cc00fb294a764cd302303c4e2b7ac49b426ab842b10fb6fe2f416765fb",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:19"
+    "updated_at": "2026-08-16 15:04:09"
   },
   "3701": {
     "name": "大眾控",
-    "news_titles_hash": "078a4fcd5f591e6579b71dc650fdf3053140e7e4324bafb970c08ced75953029",
+    "news_titles_hash": "f4ce774f8e99cd26c9a4cec5c5dffb0aa3c710d498a8b5c0fbb758f9bb1fa152",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:22"
+    "updated_at": "2026-08-16 15:04:12"
   },
   "3702": {
     "name": "大聯大",
-    "news_titles_hash": "4c045d0b50aaec660f190454484a990a71aefff10bdac94d2027fd7a4a5e24a1",
+    "news_titles_hash": "c6ba79839cd30c0b07df6fe28592671561041cbae1cb0de79db9d98b5dd7efd5",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:23"
+    "updated_at": "2026-08-16 15:04:14"
   },
   "3706": {
     "name": "神達",
-    "news_titles_hash": "96f2bf9da2d9d56d27e080b895d6a879a3da2265a1f873355b2d3c684992a922",
+    "news_titles_hash": "46639bd34a2808ba835f26f8d0f6f034f66f84b883ac86d1dbfa7a88a616a3f7",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:25"
+    "updated_at": "2026-08-16 15:04:16"
   },
   "3711": {
     "name": "日月光投控",
-    "news_titles_hash": "b93b248d9e1a0e7047f31787240185e9c67159140570c45e7233bdfc2c70771b",
+    "news_titles_hash": "c74c092a71a86b7f1c43b88176f50f30e4782f6868ddc2e81232c36af94b46e9",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:27"
+    "updated_at": "2026-08-16 15:04:18"
   },
   "3715": {
     "name": "定穎投控",
-    "news_titles_hash": "2511d05827eb5af3ba22d4c0ce1699530096aba8e37c99ee2a8a01201ed57a2c",
+    "news_titles_hash": "e8b1e4a09e277bdc02667f638be244d8e77c71fb9eed43622d18e2f8f1f5274d",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:29"
+    "updated_at": "2026-08-16 15:04:20"
   },
   "4722": {
     "name": "國精化",
@@ -1321,93 +1321,93 @@
   },
   "4749": {
     "name": "新應材",
-    "news_titles_hash": "c129766a764acd0cfbd94448c1b46da2a1d70aa01030c1c87e475c801acf7b98",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:55:32"
+    "news_titles_hash": "c9716f69d6d176a3b1c01c5ce84c0cfea479d8ab1ff78a6eab258324770cd292",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:04:24"
   },
   "4763": {
     "name": "材料*-KY",
-    "news_titles_hash": "f386d48378d042d2bc59cfe758ff21f2fd7bf2b94462c535a5f1cb0d9c60e1d5",
+    "news_titles_hash": "1de32017b766000313b1295cb782435b5be588bc4284136446f83a3e9f6eda64",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:34"
+    "updated_at": "2026-08-16 15:04:27"
   },
   "4772": {
     "name": "台特化",
-    "news_titles_hash": "3253ba96e61c312d26d1b778080231ce686c0fd13fb1979f61f559ce3eda1faa",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:55:37"
+    "news_titles_hash": "376ffddd1659e56e6f0bdf26519562cc03424026a1b5372d3d01f5149b237c26",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:04:28"
   },
   "4904": {
     "name": "遠傳",
-    "news_titles_hash": "60726776c26104dde470cdf8d5b31b211f7234f01e69b8f3c5fc882cd1c6637e",
+    "news_titles_hash": "da7210419910af72af823445339e5b5d5dd7839153325f0d95e4365a28ccfafa",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:39"
+    "updated_at": "2026-08-16 15:04:30"
   },
   "4919": {
     "name": "新唐",
-    "news_titles_hash": "179f11fd7303297de9ac5ea6ec03f4e1c61be003ee2b62a6846d2fb74f7efb5c",
+    "news_titles_hash": "82b2a2b8b5e3cc49c95c3788cc40ace59c73bac931a219fddd2c8306889bc4a9",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:43"
+    "updated_at": "2026-08-16 15:04:35"
   },
   "4931": {
     "name": "新盛力",
-    "news_titles_hash": "2e04542707ba3337062547699d6ba2dfc5ab0f1938c235709826965d61934af2",
+    "news_titles_hash": "0b5d26d378b4ee7e63a7b035ffaeafbadb850f5644467d6e15f9e51608536a3d",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:45"
+    "updated_at": "2026-08-16 15:04:37"
   },
   "4938": {
     "name": "和碩",
-    "news_titles_hash": "4c3e8b9f432f5297e348ba86249900b584afc19323ffead8d182f19a01743851",
+    "news_titles_hash": "39bacdc37891e75be5f8aa044ba8c263afe00e35e0f60624f02a40651a3dc3e6",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:46"
+    "updated_at": "2026-08-16 15:04:39"
   },
   "4958": {
     "name": "臻鼎-KY",
-    "news_titles_hash": "c7c1ab505566c8303828f3e7480b2f6d884043c62c02822e07602a860c5ddc8b",
+    "news_titles_hash": "57da202878b19d6cf7798f83eceae55a2220274a3cfdb5db29ca432cc13b5a8f",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:49"
+    "updated_at": "2026-08-16 15:04:41"
   },
   "4971": {
     "name": "IET-KY",
-    "news_titles_hash": "634a0d8286ba4f8f89288ebb087dd763a208051d7eabccf108bd67f919365b16",
+    "news_titles_hash": "a182524b892d2f5cfdbcfec29648b1a7757622ed7f30c0c781e3a7d2a93cb197",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:51"
+    "updated_at": "2026-08-16 15:04:43"
   },
   "4977": {
     "name": "眾達-KY",
-    "news_titles_hash": "7f63a7f33ee30d5d6a338f82eb2e980a001b6ed5cc8c84344017d137c4ee851c",
+    "news_titles_hash": "ee99e4060a8dfa7bb06507a77cc47233c8fe0179873d4501a11c52e6be2f2501",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:53"
+    "updated_at": "2026-08-16 15:04:46"
   },
   "4979": {
     "name": "華星光",
-    "news_titles_hash": "f7327cec3a2b50cbe306cd4b4a635ccad5333ea9ab58b0747a6505104524e768",
+    "news_titles_hash": "eba98b7046ae3c5b4530c6381d24ad57dd5661590b993190b4a4d99f647a7f2a",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:54"
+    "updated_at": "2026-08-16 15:04:48"
   },
   "4991": {
     "name": "環宇-KY",
-    "news_titles_hash": "55e0d08a92647591915f7e68cd404f760ecf10df11fe55d0d1ac6ce00cc4324c",
+    "news_titles_hash": "16b4d687eb5466d05970aff40b77036e87d6b818c67df741261d4f0fb4703d43",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:55:56"
+    "updated_at": "2026-08-16 15:04:50"
   },
   "5246": {
     "name": "勵威",
     "news_titles_hash": "fa8a13047f278bc64b00cd2bcd0caa4fe6abf6b3d04b67e2f0b646bde5daf15f",
     "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:55:58"
+    "updated_at": "2026-08-16 15:04:54"
   },
   "5269": {
     "name": "祥碩",
-    "news_titles_hash": "a122670b4531b2334453cfcb0b4bbba44edc95258af0286029686939059ef401",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:56:02"
+    "news_titles_hash": "36fd1e2ab1cfce5b724e1c9cc453900bde2f2b3b96ef7f7b30423aee5aabd34b",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:04:57"
   },
   "5274": {
     "name": "信驊",
-    "news_titles_hash": "5d9da7c37a68b01a959b35dbbfaad07fe18ca965f59dfc04cc4481111597167e",
+    "news_titles_hash": "be293272c7aee01fae198e8c4cecc38ad247cead9ad989e198263cc557add008",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:56:04"
+    "updated_at": "2026-08-16 15:05:00"
   },
   "5285": {
     "name": "界霖",
@@ -1417,69 +1417,69 @@
   },
   "5289": {
     "name": "宜鼎",
-    "news_titles_hash": "bf964aadf50516a1b42078e2b6f47867912ed069c91f2dfdd6c53718e9f39c86",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:56:08"
+    "news_titles_hash": "bcec11f27a2013b8f27eba9151a5d8db0900634e06c3eb1a444bb3abc16158cd",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:05:01"
   },
   "5347": {
     "name": "世界",
-    "news_titles_hash": "0eae0b7d23c79667952f8ec69c722f76583f639f1e30eebcc978b516d1ee60be",
+    "news_titles_hash": "ed1f398cbdefb2953c792dd0f7eda05c1900ecd348b4e99d59746544e2bdc225",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:56:10"
+    "updated_at": "2026-08-16 15:05:05"
   },
   "5434": {
     "name": "崇越",
-    "news_titles_hash": "c290cd623a583624f51d7a2e23671c29f32cfa8df09c809902ad8488eb26f573",
+    "news_titles_hash": "0d48be8054d62fc48e6117e8e583d6cba9f2b457bedf1b47e89eaead36347352",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:56:13"
+    "updated_at": "2026-08-16 15:05:07"
   },
   "5443": {
     "name": "均豪",
-    "news_titles_hash": "45f90ed5763f02aee719a7dfb9df40ce1ffc4fe38512e8bd239660481c436757",
+    "news_titles_hash": "1706e6594559f4b55da49aad882615f8622ee2cb1856d81f829c34d02b500833",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:56:15"
+    "updated_at": "2026-08-16 15:05:10"
   },
   "5522": {
     "name": "遠雄",
-    "news_titles_hash": "5fa0af4141ea3340326bf1f50b162743484d6a56c7dd365120e6e5a26c52182a",
+    "news_titles_hash": "75ed6ef68a39bad9a4bb7ae753f0f67d4df5be4924fc4dd1b9db1c1ec0b24701",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:56:18"
+    "updated_at": "2026-08-16 15:05:12"
   },
   "5536": {
     "name": "聖暉*",
-    "news_titles_hash": "e03040fa11f0f829011727a4d4e5f69ddb60501bb23d8c83d95eb48cae91b240",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:56:26"
+    "news_titles_hash": "4e25211604f3675b540f55decb8a9aa4df9c1028902978c05d1a2f778aea3fd3",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:05:15"
   },
   "5871": {
     "name": "中租-KY",
-    "news_titles_hash": "1d794b7b73d84cc2076f9b38cac73ee12cf34d39b0ed215faad99bf3d3780c20",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:56:29"
+    "news_titles_hash": "1a4a613730a8f34755d8b4d9f7ccff221c4c3665048f8b72427e7172ad7c72b6",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:05:17"
   },
   "5876": {
     "name": "上海商銀",
-    "news_titles_hash": "b60829385850514fe06001878d126378506589d89f851b8fe3a73105535a5663",
+    "news_titles_hash": "f8ab061cd421289c7cfdc62af5ec1575a0971d671f03f73c9161a2178026a6b6",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:56:33"
+    "updated_at": "2026-08-16 15:05:22"
   },
   "5880": {
     "name": "合庫金",
-    "news_titles_hash": "6cb56ac0ec17c989cce92c3e147f2306edcbb70e45d4ac05f55108f36e193d0f",
+    "news_titles_hash": "5a75a59acc108956f4d7056b762c07cacecd7147dbde1d9505b972188ce807e1",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:56:35"
+    "updated_at": "2026-08-16 15:05:24"
   },
   "6005": {
     "name": "群益證",
-    "news_titles_hash": "06056ebdf64f543b395af69ea21beffcfc6baeebf19754dde9f12440615e0a80",
+    "news_titles_hash": "9a1f11df84590d422fe8371f440453d97dab7928c6023bf7a8fb09dcf4c45a07",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:56:38"
+    "updated_at": "2026-08-16 15:05:26"
   },
   "6139": {
     "name": "亞翔",
-    "news_titles_hash": "e3ee88aede9513b9a0cc20ad8580eadd4f41b6408e4d943b889b0177706068db",
+    "news_titles_hash": "19406f0581a6ed2becc70379ea791fb19b194c686e44d50ab517ec7d7419c9dd",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:56:40"
+    "updated_at": "2026-08-16 15:05:28"
   },
   "6174": {
     "name": "安碁",
@@ -1489,249 +1489,249 @@
   },
   "6182": {
     "name": "合晶",
-    "news_titles_hash": "614d25bb4a4caaaff705d05aabfa78ee2a511b2d7b765b8bb52f3fa20f013e8d",
+    "news_titles_hash": "80255a3cd7eacdd2714a491c2b925752f621fed01f95e3c52309876b37f48979",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-15 14:55:51"
+    "updated_at": "2026-08-16 15:05:30"
   },
   "6187": {
     "name": "萬潤",
-    "news_titles_hash": "e7df2b63ebc2f97aaa3c190040bf2d955bf97c37a578f7ab349bc795e40b1443",
+    "news_titles_hash": "36e8efff75365cedb183b9139c59ee0a48b5172dd6ed12f651253b9080512a77",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:56:42"
+    "updated_at": "2026-08-16 15:05:32"
   },
   "6196": {
     "name": "帆宣",
     "news_titles_hash": "061fc6101a0d4ed0c11dbfb7996cde16ba94f16a7ce6280975294e1a196f49ce",
-    "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:56:46"
+    "status": "cache/unchanged_titles",
+    "updated_at": "2026-08-16 15:05:37"
   },
   "6197": {
     "name": "佳必琪",
-    "news_titles_hash": "74816b17f5533e25389bf91f1b968fe0d4d38b6d808ea70caad2db1d30c9bbcf",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:56:50"
+    "news_titles_hash": "d4cd803616f9c7e526e09b3a98b59d3f0a42f03a828c8c62a27c43f72c5f500c",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:05:42"
   },
   "6213": {
     "name": "聯茂",
-    "news_titles_hash": "72f788eef7c8d44af5a13a384cc7882a0f3ef042e5364405fae91459752278f8",
+    "news_titles_hash": "9dbeaa63b6e62ad4e9b8226d63b990a7eb54033c5076a2bd6489055a5444abb4",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:56:52"
+    "updated_at": "2026-08-16 15:05:44"
   },
   "6217": {
     "name": "中探針",
-    "news_titles_hash": "b86aaaa852f4fac75dea2631a98951f97558361459eea24ea3bd25560ae31b2a",
+    "news_titles_hash": "4a90c4128369d06cba2f0688e04466f920d658441793548ab6ad07a3bba6ed28",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:56:53"
+    "updated_at": "2026-08-16 15:05:46"
   },
   "6223": {
     "name": "旺矽",
-    "news_titles_hash": "9f788c37183460b393007aa2c045e446e04c09ebd629dbb16b06056379b8742a",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:56:55"
+    "news_titles_hash": "492c9cc9f9c3cf0cdfcc4155c635c39037b75cce6f9c00d4f04679bfdd13be2c",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:05:48"
   },
   "6239": {
     "name": "力成",
-    "news_titles_hash": "09da84a1121f4ae42b3be760b050edf77baf85402173d6d61198c60cc041b727",
+    "news_titles_hash": "fc548aa697a0d9b747bf1ae9c7776b5036554cde45844d2447be2ae5ab7d6e31",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:56:57"
+    "updated_at": "2026-08-16 15:05:50"
   },
   "6243": {
     "name": "迅杰",
-    "news_titles_hash": "c446bb490f9d12ec2738950753961c03cc1f3ecf57c1e1cac247cf60a25e1d02",
+    "news_titles_hash": "533a88dbcfaf88872c38ea4377baea55c83b174094101612391dc5672246c523",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:01"
+    "updated_at": "2026-08-16 15:05:52"
   },
   "6257": {
     "name": "矽格",
     "news_titles_hash": "c82b8c02a414b4f3a713af7c47deca06f7353870b92202b37564613232c1e5ca",
     "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:57:06"
+    "updated_at": "2026-08-16 15:05:57"
   },
   "6274": {
     "name": "台燿",
-    "news_titles_hash": "4df5da33bda87a9a740bfbc37ed019ed10754d2b46a4d0ba8e9c92d53e98b118",
+    "news_titles_hash": "f9dc2ec66cdd8743259fa22e96a6686051f7294ddad9dcaedb004db8909ad7d7",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:07"
+    "updated_at": "2026-08-16 15:05:59"
   },
   "6278": {
     "name": "台表科",
-    "news_titles_hash": "17003e7bce698f70dc2248f4e3ce2daccb7a806b89933b9580d7b6ed9cb3fb2d",
+    "news_titles_hash": "57a4532671fdfe365ba3be9be8f23f32b74027ac0e51c8ef1ba82b6d6512dc84",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:09"
+    "updated_at": "2026-08-16 15:06:01"
   },
   "6282": {
     "name": "康舒",
-    "news_titles_hash": "b05b6c6d15fb19d7fd6f15da72777c362ad4e5f44a58c7fc37dacfe2e07c7c82",
+    "news_titles_hash": "9e6469b982ae156ac7bf2edf409879f28380869fd9b3077d017b94c5bfb59569",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:11"
+    "updated_at": "2026-08-16 15:06:04"
   },
   "6285": {
     "name": "啟碁",
-    "news_titles_hash": "6898271771cba6aaa8ff286b44bec9cba233897cf875f42f8c3cc3c22f13492d",
+    "news_titles_hash": "bac5f896c6be968569765e790a381bb6163a14274d329a61f6d7f2a748f754b5",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:14"
+    "updated_at": "2026-08-16 15:06:06"
   },
   "6291": {
     "name": "沛亨",
     "news_titles_hash": "013fa6b1d8fb98e563db314f7a5d66283ea345c1f2a5b9841966ff5203924f72",
-    "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:16"
+    "status": "cache/unchanged_titles",
+    "updated_at": "2026-08-16 15:06:09"
   },
   "6409": {
     "name": "旭隼",
-    "news_titles_hash": "5e05fe5431c2c56798fd2c16b6d1eab10b92f30da046c070f5cb3f588db4c1ae",
+    "news_titles_hash": "ce1ed855b77ff7a2a3369e6a4b3c24ec580e08370d22b8839fc117e807ab6cdd",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:19"
+    "updated_at": "2026-08-16 15:06:11"
   },
   "6412": {
     "name": "群電",
-    "news_titles_hash": "6c837b38ed9a780b8af9578017d3a109303edd4887fc3c2c17f8eb351f63c5bc",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:57:24"
+    "news_titles_hash": "f2e4c53fb72890ea1dd2224d989160bb3b11549f5f57e80a28c3064852e9bfba",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:06:15"
   },
   "6414": {
     "name": "樺漢",
-    "news_titles_hash": "5929a86ba93d1468fb1731f108454aa2b057b6ea5843480029ab2804f8d189dd",
+    "news_titles_hash": "cdfbef278d110729bd666a785f646d44718eff0872e6e9dd5e7297cbc8b00ef1",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:25"
+    "updated_at": "2026-08-16 15:06:17"
   },
   "6415": {
     "name": "矽力*-KY",
-    "news_titles_hash": "7bb7985ec134b8aae790f3b915e54689d745dc62d0c5759c840ccce294fed7bc",
+    "news_titles_hash": "dcaecefcb2b8e66963352cb0ecabd47f3038d3d0c44956ce33c788b162cd9a35",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:28"
+    "updated_at": "2026-08-16 15:06:19"
   },
   "6442": {
     "name": "光聖",
-    "news_titles_hash": "6e810faeca467199bd32b58c76c0ba547d4cc2a528b21a154174473c08895610",
+    "news_titles_hash": "18373cc70931d8329768a363fec2e6d931f9e91acd09e1fff7d492e40e9b2eb3",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:29"
+    "updated_at": "2026-08-16 15:06:21"
   },
   "6446": {
     "name": "藥華藥",
-    "news_titles_hash": "093763019c10071625adfcc2db6001014510736000fc0bda3746484c4e218e7a",
+    "news_titles_hash": "433db23967b1b51f893238f06724c187045ae61a3d83076ebce00b1cb7f3605f",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:31"
+    "updated_at": "2026-08-16 15:06:23"
   },
   "6451": {
     "name": "訊芯-KY",
     "news_titles_hash": "ff89c2d8bfbadda0c6c43ba7c2638ed24e0165553aabb82ac6de7902de88bbc0",
-    "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:34"
+    "status": "cache/unchanged_titles",
+    "updated_at": "2026-08-16 15:06:27"
   },
   "6472": {
     "name": "保瑞",
-    "news_titles_hash": "7f076e1a76d1d269e7261d2c870be06b9a7bedab26dfdb62317ad808a29b9d75",
+    "news_titles_hash": "a3e44c342fe79de944623150c13ed516f3d1ab5c013a6eb89235c677a0197e83",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:36"
+    "updated_at": "2026-08-16 15:06:29"
   },
   "6505": {
     "name": "台塑化",
-    "news_titles_hash": "f5314d9773dad15480111e7df2489f89b52354322050658b956802c38f850733",
+    "news_titles_hash": "cc2b628bc86ecad3eff5bb4cbbcdfc58a01cb019e4dd4ebbafd0d3877955ff31",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:38"
+    "updated_at": "2026-08-16 15:06:31"
   },
   "6510": {
     "name": "精測",
-    "news_titles_hash": "2f44dca3b731fa07dffab3cd4e77bc7d5b0ac37ef396a06c4ef44e769795a0c8",
+    "news_titles_hash": "41d8e8cfff55e950d1a042c009d17a52462e53b6bac7ea4668d9182dd3b2ef31",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:40"
+    "updated_at": "2026-08-16 15:06:34"
   },
   "6515": {
     "name": "穎崴",
-    "news_titles_hash": "fa359a4961b8ece0bee54cfa29c885b7f0383d83d86126e917e319e07a0e27f4",
+    "news_titles_hash": "800e310ac28f7491a95c082147df4777e81a8a3f8861ef4493805398bca3b84e",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:42"
+    "updated_at": "2026-08-16 15:06:37"
   },
   "6526": {
     "name": "達發",
-    "news_titles_hash": "dfd3fb3dfaeb8318a4fd4c62a0a2d2d446b4299eae234860ca2c0751589bdb60",
+    "news_titles_hash": "8712e928b35f3f447eb887c50d2df34e1f48466ef5a6c3a3c447d69992fb3d35",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:45"
+    "updated_at": "2026-08-16 15:06:39"
   },
   "6531": {
     "name": "愛普*",
-    "news_titles_hash": "bf9930b12cde077ac0c0a1f316cca2c7525da9ee993fbd5222b9463927a22fd8",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:57:49"
+    "news_titles_hash": "44f365d95a417850154da580cc384188e99dcadc443c1f9675c55b87b56ceb77",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:06:43"
   },
   "6584": {
     "name": "南俊國際",
-    "news_titles_hash": "09ee1462bb172017c849cdb83a7d7737eef14032c23c77212c859f4eb6558564",
+    "news_titles_hash": "893001002e76454928cd9b79760d48885f90ea953aa2ac460f6b4e60bf03f4a5",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-15 14:55:53"
+    "updated_at": "2026-08-16 15:06:45"
   },
   "6640": {
     "name": "均華",
-    "news_titles_hash": "2cdd3b73a36487d389c5358be587c6cfe9bbbcfc20d395e272cb0275a9bc270e",
+    "news_titles_hash": "04498d7f0c217e08f2b69197f1ff8c215488001bcd1cb1f57a52001186d08e2c",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:51"
+    "updated_at": "2026-08-16 15:06:48"
   },
   "6643": {
     "name": "M31",
-    "news_titles_hash": "0425d3e4575ccdf5ba425762fb005058ddbb2792dc3a53ffdfaaa2944dd42ae8",
+    "news_titles_hash": "4b1a3428a039da510feab949df2aebb428af31b37a9ba50dba6679c027194c32",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:53"
+    "updated_at": "2026-08-16 15:06:50"
   },
   "6664": {
     "name": "群翊",
-    "news_titles_hash": "9a49a1d0d52b3d53713025c351bc43343e317b62bad77ce97fc3670adf32a3a4",
+    "news_titles_hash": "47ced4961cb2345146e43623775f6ec9caaefeb52192719b3ceb329c4f051ff8",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:54"
+    "updated_at": "2026-08-16 15:06:52"
   },
   "6669": {
     "name": "緯穎",
-    "news_titles_hash": "0dd642b899e6ebb643782df721d883064fdc70cbbb90de8c5f1e81be335aa2fe",
+    "news_titles_hash": "c7085ad4ac47519eff24fe720dbe59947d621917b565746f73d4601f2c19c480",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:57:55"
+    "updated_at": "2026-08-16 15:06:54"
   },
   "6672": {
     "name": "騰輝電子-KY",
-    "news_titles_hash": "fe77c39d82f9614d269bbf99223bb7b269ba2d9a35e5f5fd063779e45caf377c",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:57:58"
+    "news_titles_hash": "242c82c438ba2aac7133362ddec21613a3e66a6af0abd01b7ace277fd1707aa6",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:06:58"
   },
   "6683": {
     "name": "雍智科技",
-    "news_titles_hash": "1daaafa52bf8395b965ff640838592cd6fad4035ce045d79df11e83e81b7b204",
+    "news_titles_hash": "b8e7b8de2105df6d71afd2016decc27a9cc7b29e0408495d3fb5620db416d02f",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:58:00"
+    "updated_at": "2026-08-16 15:07:00"
   },
   "6691": {
     "name": "洋基工程",
-    "news_titles_hash": "65fda9d6d7ebce4084c70f235ced7ffb95e327b00c8bce5988bd48e3619e6a73",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:58:03"
+    "news_titles_hash": "03c5a777fbb0adbf9f35e2f8f36b7d230ec1ad098139a64480fb33dfa433b711",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:07:04"
   },
   "6693": {
     "name": "廣閎科",
     "news_titles_hash": "9f1e58d6696db5a2470bdaaf65499f40763ac6f382878cca04839204a338c33f",
     "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:58:09"
+    "updated_at": "2026-08-16 15:07:10"
   },
   "6770": {
     "name": "力積電",
-    "news_titles_hash": "2bd34f261fc879f8b44159485372ef3ae6f6ab316e5625d58c768710301b23b8",
+    "news_titles_hash": "b8c65d078464fcf1e619d0cede40b843a4f1c2232ae48c1f50dbc45afe45968f",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:58:10"
+    "updated_at": "2026-08-16 15:07:11"
   },
   "6781": {
     "name": "AES-KY",
-    "news_titles_hash": "fb4b73c7199d9a0f664ff53a650c367e46db256a23362b708e7864d940098dd0",
+    "news_titles_hash": "1594bbe9fb4ff2c27507b964a512f313828d788dd4aedaa9aa5c79811e73ee58",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:58:12"
+    "updated_at": "2026-08-16 15:07:13"
   },
   "6789": {
     "name": "采鈺",
-    "news_titles_hash": "b7edae997ef75789e5075ec9efbe8d970d719a8cdb51ac45cc2bb38b5096e1b9",
+    "news_titles_hash": "993af27bf514c64592eea1ac1ee054f74c1508511ed01aa822621b17d17186bb",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:58:17"
+    "updated_at": "2026-08-16 15:07:18"
   },
   "6805": {
     "name": "富世達",
-    "news_titles_hash": "ca73c244a7892f3dc8a9d7b7009df298c541a704a65686c4690e9ea006113fe9",
+    "news_titles_hash": "b1c67ab9f025dbc4c547eceab0c1a3ced0bdf75622ec79b96e1f5a2227be66f5",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:58:19"
+    "updated_at": "2026-08-16 15:07:21"
   },
   "6862": {
     "name": "三集瑞-KY",
@@ -1741,129 +1741,129 @@
   },
   "6919": {
     "name": "康霈*",
-    "news_titles_hash": "f41a988a2ace1110684f1567508abfabc5794bdd531b5a7ca77bacc64b6eeecd",
+    "news_titles_hash": "4a56c61d00c9acf56175d687a89c9b82853eb89edb30a952ada7fa5302b1f8fb",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:58:26"
+    "updated_at": "2026-08-16 15:07:24"
   },
   "6940": {
     "name": "格斯科技*",
-    "news_titles_hash": "6173b606f359b5fcd0141eb4d4e2b7c356b0738609dc7636a883ccf48bab5f6a",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:58:40"
+    "news_titles_hash": "be7b771922b3ae4dddcf8af63c388086b4bbbb7ffc598aab4f2a7df6a428cbe3",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:07:37"
   },
   "6944": {
     "name": "兆聯實業",
-    "news_titles_hash": "d67ff1a11441148300fa76b4db3bf6258ce365bf3ab1bc65babbe26f8f2f8c67",
+    "news_titles_hash": "67cf419ef4520c008d6bd6f4a73559586fc41937da30aa3b287a632aa69fa3f2",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:58:44"
+    "updated_at": "2026-08-16 15:07:42"
   },
   "6949": {
     "name": "沛爾生醫-創",
     "news_titles_hash": "857711a54faf542b0c6669773e081c9b3411969cc4757fac1f4e1286062848c6",
     "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:58:47"
+    "updated_at": "2026-08-16 15:07:45"
   },
   "7610": {
     "name": "聯友金屬-創",
-    "news_titles_hash": "1bc7318838d9eaf3e816102fde84b006f18bead45964b1b4069432ca0a0d4911",
+    "news_titles_hash": "18ab7479fb7ba5b302bf04222a5590c766c8f607870eb20727a5d15bf17e9ec3",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:58:49"
+    "updated_at": "2026-08-16 15:07:48"
   },
   "7711": {
     "name": "永擎",
     "news_titles_hash": "70620816a7a5e7e7045b4d6b8eac465175f524e1036f2886b0682b048480a20e",
-    "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:58:50"
+    "status": "cache/unchanged_titles",
+    "updated_at": "2026-08-16 15:07:50"
   },
   "7717": {
     "name": "萊德光電-KY",
-    "news_titles_hash": "9b7470ffa71539d23aa45c494a51b2ebfc92060d2298bfb11d414ae393dca462",
-    "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:58:56"
+    "news_titles_hash": "78729b0cd7b882cb652aa5cc7192253822bdd10ac92ce8e4593ad33521f5c0a6",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-16 15:07:54"
   },
   "7728": {
     "name": "光焱科技",
-    "news_titles_hash": "8ac71b4c859ffdbbd2ff75ea5d908502711e50fde74f2a99a631bed0689ef6f5",
+    "news_titles_hash": "69ab3ff9f9aa246e3d473741fbb93edbb43810ce5b82b90455c3674d23ac3f99",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:59:04"
+    "updated_at": "2026-08-16 15:07:56"
   },
   "7734": {
     "name": "印能科技",
-    "news_titles_hash": "23b913582bf4c2d41160c48d9305bb925e18898a2bfdb7cd80e105eb29aa85aa",
+    "news_titles_hash": "9d1bc19943e33121a8eb6f07014ba1445f8888b17768a45a49902839262a8233",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:59:07"
+    "updated_at": "2026-08-16 15:07:58"
   },
   "7750": {
     "name": "新代",
-    "news_titles_hash": "5838f3e2ae34f8582f9b8e7735c58f82d7de54f4dbed2ff9a01e2f2e903994e6",
+    "news_titles_hash": "801e9310e1eb4c4bbab4992e4aa869e9bb32484cb8ee6e633e9783624aea07a3",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:59:09"
+    "updated_at": "2026-08-16 15:08:01"
   },
   "7751": {
     "name": "竑騰",
     "news_titles_hash": "6d115e60d4f66c41c126f06f02d08cb5d7ae0e467b0d34bfb853f5e7dd73f11f",
-    "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-15 14:55:56"
+    "status": "cache/unchanged_titles",
+    "updated_at": "2026-08-16 15:08:05"
   },
   "7769": {
     "name": "鴻勁",
     "news_titles_hash": "e68b93dee8df6f41ba48dc874d62d70159608270699b028b4962813904bb807f",
-    "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:59:11"
+    "status": "cache/unchanged_titles",
+    "updated_at": "2026-08-16 15:08:08"
   },
   "7792": {
     "name": "安葆",
-    "news_titles_hash": "a2a1bff6193d67f4fe2bcfa55d39ebebbdc6022b54352a943bd8eeb6c2effc95",
+    "news_titles_hash": "62bd736cfd44d7e86bb537670fd9cf28c19aeb4708abdcc725ece28f868ac0be",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:59:13"
+    "updated_at": "2026-08-16 15:08:11"
   },
   "7799": {
     "name": "禾榮科",
     "news_titles_hash": "57609c0136e06fff63f5c24ddd44e1b9ba6a6037ac55a921bfa1d590c191b2e0",
-    "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:59:22"
+    "status": "cache/unchanged_titles",
+    "updated_at": "2026-08-16 15:08:20"
   },
   "7828": {
     "name": "創新服務",
-    "news_titles_hash": "1897d2e8bab9c85884404cac3bdb432c3acc9d76dbec4082866b59d6b9bce11a",
+    "news_titles_hash": "5d29c51a29df910b79658e91a4ffa70511e669bb657ca07f2ba50e1e4b937a4e",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:59:24"
+    "updated_at": "2026-08-16 15:08:22"
   },
   "7856": {
     "name": "漢測",
-    "news_titles_hash": "54967d74269b0a0fea1b5258d898a36a95daf10e6263a915d8499640ff43a701",
+    "news_titles_hash": "b1d3c387e65c88f04f920fdce6578c265f44184babd99e412f048d6677ea6f00",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:59:26"
+    "updated_at": "2026-08-16 15:08:25"
   },
   "7899": {
     "name": "景美",
     "news_titles_hash": "bb8b9e6b396b94f8606c62ad222b918ae19a74d32366ffaf63c811ae832187bc",
     "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:59:40"
+    "updated_at": "2026-08-16 15:08:38"
   },
   "8021": {
     "name": "尖點",
-    "news_titles_hash": "166614a27d8dbfd220a9c543fb855cfaa52b3c20d9d18a57bfd5afd1d2ed8904",
+    "news_titles_hash": "ba11da94d150773730cc151fee13b72656a502d2393741b7d62d0d9218e987bb",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:59:42"
+    "updated_at": "2026-08-16 15:08:41"
   },
   "8027": {
     "name": "鈦昇",
     "news_titles_hash": "e7937cc788a8bedf3212f13f3933df4e7d5775821de48856d67b5433938ad06b",
-    "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:59:45"
+    "status": "cache/unchanged_titles",
+    "updated_at": "2026-08-16 15:08:44"
   },
   "8028": {
     "name": "昇陽半導體",
-    "news_titles_hash": "a746ad79f22b31533d5bae0cb6a793fdcd084b5fbb2e93edf31a34f34f83adf2",
+    "news_titles_hash": "9a893bd9e4ef250badf21e9c8d2a5b8454212b074f87b77b1a68a4680cbcd7a4",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:59:47"
+    "updated_at": "2026-08-16 15:08:46"
   },
   "8039": {
     "name": "台虹",
-    "news_titles_hash": "2c28c5be528e1884d2acb2635207d133d76b657abbd8447ab2d5bea7a07779ce",
+    "news_titles_hash": "71bb6bff0a67bb93d1508d4c88b480f27e2ed12a0e8fa21c2f23f813dd32d520",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:59:48"
+    "updated_at": "2026-08-16 15:08:48"
   },
   "8043": {
     "name": "蜜望實",
@@ -1873,39 +1873,39 @@
   },
   "8046": {
     "name": "南電",
-    "news_titles_hash": "72cb6e0bee07ccdbb26e0b83ca33a6eecaaf0a49066ffd22fd00859b12a5d989",
+    "news_titles_hash": "73d01f60e7b9c2f5fbcf8611245e8fa5a4d329e920cf0c840b8f5d673cf6b612",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:59:49"
+    "updated_at": "2026-08-16 15:08:49"
   },
   "8070": {
     "name": "長華*",
     "news_titles_hash": "db60945ffc79676ac2a97a4921ae12827f9dc8569d9e82f111e430d8cefeee98",
     "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 15:59:54"
+    "updated_at": "2026-08-16 15:08:55"
   },
   "8112": {
     "name": "至上",
-    "news_titles_hash": "000b64648e0281e27bc6649d95fe5fa1a900d1287799b1b857e8dfe06e0f8e39",
+    "news_titles_hash": "53612ac30486e5ed8c05524c4904dcc32cd35e5d623384eadeb80a8a44c17743",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:59:56"
+    "updated_at": "2026-08-16 15:08:58"
   },
   "8150": {
     "name": "南茂",
-    "news_titles_hash": "b357ef5bbc35368356088a8bae42586416279908e771235f4b3e6cedd5f89eb2",
+    "news_titles_hash": "f46e4cd1caba10361c70f0e691478a11680b033cb59b10f5744b154657f7cc36",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 15:59:58"
+    "updated_at": "2026-08-16 15:09:00"
   },
   "8155": {
     "name": "博智",
-    "news_titles_hash": "a0fa616f16a0b4c65fe84a59dccf482acb93298e489b9670c645392f5087c567",
+    "news_titles_hash": "ab3863ac460706842edc4bfe37e9f637cfd546c4dba5a12ecd592c7bcbb48a40",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:00:01"
+    "updated_at": "2026-08-16 15:09:02"
   },
   "8210": {
     "name": "勤誠",
-    "news_titles_hash": "338bee516405207050b88f48701ea10322baf4f911457040b3693d5bd510e958",
+    "news_titles_hash": "f5e2e0b65742663ae41f1b08236aa14e4a3b90bfb6e0922dd45b92fcabf9341e",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:00:04"
+    "updated_at": "2026-08-16 15:09:04"
   },
   "8289": {
     "name": "泰藝",
@@ -1915,68 +1915,68 @@
   },
   "8299": {
     "name": "群聯",
-    "news_titles_hash": "d5cb6a8bec646662bcb19328399dc33ae289a9454472b4f2b0c32da5c21d1f75",
+    "news_titles_hash": "c654dc26bec6e0f3194bcd2607635d6f13cf9e6737b8d3e65c148d3c0503c0b0",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:00:05"
+    "updated_at": "2026-08-16 15:09:06"
   },
   "8358": {
     "name": "金居",
-    "news_titles_hash": "ced1b95f6ee675d8bc8eab57525a52d230f72bfa19449b4947a2493d588a6139",
+    "news_titles_hash": "3e0dbdee0e734965a9505a0598febe9798b86f582368389c33633a23089f464b",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:00:06"
+    "updated_at": "2026-08-16 15:09:08"
   },
   "8454": {
     "name": "富邦媒",
-    "news_titles_hash": "18268b54cbbe3cdac845024126f4cdcff801df8913d80e1244f4e059402a9eb6",
+    "news_titles_hash": "a527f1c5d5c443cfa7731ba74ca24feb4793a629d2858a4c1e1196b2b94c8643",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:00:09"
+    "updated_at": "2026-08-16 15:09:11"
   },
   "8464": {
     "name": "億豐",
-    "news_titles_hash": "c7b3eff66cf48f398fdefd14185f5c7106886d69c4732da617e3771ff1e2e9f0",
+    "news_titles_hash": "e97de22e5ef28e4c1932352116c5e50e5d81f11fe71894d2ef0bad63fb97ba63",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:00:11"
+    "updated_at": "2026-08-16 15:09:14"
   },
   "8926": {
     "name": "台汽電",
-    "news_titles_hash": "3982670c6b4e53aed3cfa60f0535bfcdfc1bcf632e3f965832cdc4f8db414d18",
+    "news_titles_hash": "bc63dbc3a7d0f2f1917891715add6c265d5774423c0588c76595d4ac5ef99584",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:00:14"
+    "updated_at": "2026-08-16 15:09:16"
   },
   "8996": {
     "name": "高力",
-    "news_titles_hash": "f93b37961ad27d73161bd57bd5f9fd55dad5bd07024c3a310170c66c042f5e09",
+    "news_titles_hash": "57f5f2083380c6c6b576adbc74f1cd901ca169604e72f848462063157547c76b",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:00:15"
+    "updated_at": "2026-08-16 15:09:18"
   },
   "9904": {
     "name": "寶成",
-    "news_titles_hash": "1a0e3a2918ee34977fcb0a49521f1400f97082512704ef1848a9059946bf70d6",
+    "news_titles_hash": "69e5b5e2eeeb7fb101229c6cb6211affc1992b76969f24b70db00e443fa3d837",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:00:44"
+    "updated_at": "2026-08-16 15:09:46"
   },
   "9910": {
     "name": "豐泰",
-    "news_titles_hash": "06529205ac66a968d299c78f682f6989b03db0cb89c6457e9a303c2748827047",
+    "news_titles_hash": "d78be86db839de6e16edd1a4cf7e650cdcfaa199d382880d70a11a3b82f48aa9",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:00:46"
+    "updated_at": "2026-08-16 15:09:49"
   },
   "9917": {
     "name": "中保科",
-    "news_titles_hash": "aa58de9fb223eefa25e4c58e95b8661db60dc0dea7a7d2df199aa0533423da3c",
+    "news_titles_hash": "366a1444135338ddb7a1fc44cba25fced1d3ed3d50eea97d858a440c116baebe",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:00:50"
+    "updated_at": "2026-08-16 15:09:53"
   },
   "9941": {
     "name": "裕融",
     "news_titles_hash": "5daa665136ced113ba3ca80282cd79a3cb45ae701ba9e0bed4acb263cfe41e53",
     "status": "cache/unchanged_titles",
-    "updated_at": "2026-08-14 16:00:54"
+    "updated_at": "2026-08-16 15:09:58"
   },
   "9945": {
     "name": "潤泰新",
-    "news_titles_hash": "83725fcc5a2aba6e3cc38abe0d0a1710eda769f5d9ec1ba4adc347b2720b12e0",
+    "news_titles_hash": "ed2eeb1fd6245d56527cc9844fd4ad025ca407ba38ffedef21b847ff98a4d2f8",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-14 16:00:56"
+    "updated_at": "2026-08-16 15:10:00"
   }
 }
