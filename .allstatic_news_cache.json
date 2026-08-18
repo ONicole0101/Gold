@@ -17,6 +17,12 @@
     "status": "finmind/taiwan_stock_news",
     "updated_at": "2026-08-17 15:25:55"
   },
+  "00662": {
+    "name": "富邦NASDAQ",
+    "news_titles_hash": "c130f73b61311fff313f822b369a203fb5351fa867da392da8d5353450c59e07",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-08-18 15:01:30"
+  },
   "0067": {
     "name": "9B 元大美債20年",
     "news_titles_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
