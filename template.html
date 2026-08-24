@@ -1145,7 +1145,7 @@
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>90日LH </small>" },
-          { key: "eps_Y", label: "EPS(季數)<br><small>TTM</small>" },
+          { key: "eps_Y", label: "EPS<small>(季數)</small><br><small>TTM</small>" },
           { key: "roe", label: "ROE%<br><small>TTM</small>" },
           { key: "rev", label: "營收(bn)<br><small>M / Q / Y</small>" },
           { key: "gross_margin", label: "毛利率%<br><small>QoQ / YoY</small>" },
@@ -2283,7 +2283,7 @@
 
       const fundamentalGrid = `
         <div class="stock-grid">
-          <div class="stock-item"><div class="stock-label">EPS(季數)<br>TTM</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y ?? 0)}</div><div class="table-lv2">(${Number.isInteger(Number(s.eps_Y_quarters)) ? Number(s.eps_Y_quarters) : 0})</div><div class="table-lv2">${fmt(s.eps_ttm)}</div></div></div>
+          <div class="stock-item"><div class="stock-label">EPS<small>(季數)</small><br>TTM</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y ?? 0)}</div><div class="table-lv2">(${Number.isInteger(Number(s.eps_Y_quarters)) ? Number(s.eps_Y_quarters) : 0})</div><div class="table-lv2">${fmt(s.eps_ttm)}</div></div></div>
           <div class="stock-item"><div class="stock-label">ROE% / TTM</div>${renderRoeBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">營收</div><div class="stock-value">${renderMetric3(s.rev, s.rev_mom, s.rev_qoq, s.rev_yoy)}</div></div>
           <div class="stock-item"><div class="stock-label">毛利率</div><div class="stock-value">${renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff)}</div></div>
