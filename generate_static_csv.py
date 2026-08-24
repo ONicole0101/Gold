@@ -24,7 +24,7 @@ from financial_analysis import (
 )
 
 DATA_COLS = [
-    "eps_Y", "eps_ttm",
+    "eps_Y", "eps_Y_quarters", "eps_ttm",
     "roe_last_year", "roe_ttm",
     "rev", "rev_mom", "rev_qoq", "rev_yoy",
     "gross_margin", "gross_margin_qoq", "gross_margin_yoy_diff",
@@ -274,6 +274,27 @@ def empty_static_row(s: dict) -> dict:
     return row
 
 
+def apply_eps_fields(row: dict, stock_id: str) -> dict:
+    eps_res = get_eps_analysis(stock_id, None)
+    print("EPS =", stock_id, eps_res, flush=True)
+    eps_res = tuple(eps_res) if isinstance(eps_res, tuple) else (None,) * 7
+    eps_res = eps_res + (None,) * (7 - len(eps_res))
+    eps_last, eps_ttm, per_last, per_ttm, eps_y_is_prev, eps_ttm_is_prev, eps_y_quarters = eps_res[
+        :7]
+    row["eps_Y"] = eps_last
+    row["eps_Y_quarters"] = eps_y_quarters
+    row["eps_ttm"] = eps_ttm
+    row["eps_Y_is_prev"] = "True" if eps_y_is_prev else "False"
+    row["eps_ttm_is_prev"] = "True" if eps_ttm_is_prev else "False"
+    if all_blank(row, GROUPS["eps"]):
+        set_group_status(row, "eps", "no_data", "empty")
+    elif any_blank(row, GROUPS["eps"]):
+        set_group_status(row, "eps", "incomplete", "partial")
+    else:
+        set_group_status(row, "eps", "ok", "")
+    return row
+
+
 def get_revenue_trend(stock_id):
     data = get_revenue_raw(stock_id)
     if not data:
@@ -366,24 +387,7 @@ def build_static_row(s: dict) -> dict:
 
     # EPS and annual/TTM PER.
     try:
-        eps_res = get_eps_analysis(stock_id, None)
-        print("EPS =", stock_id, eps_res, flush=True)
-        eps_res = tuple(eps_res) if isinstance(eps_res, tuple) else (None,) * 6
-        eps_res = eps_res + (None,) * (6 - len(eps_res))
-        eps_last, eps_ttm, per_last, per_ttm, eps_y_is_prev, eps_ttm_is_prev = eps_res[:6]
-        row["eps_Y"] = eps_last
-        row["eps_ttm"] = eps_ttm
-        # per_Y/per_ttm removed from AllStatic.csv. Daily PER is sourced from TaiwanStockPER.
-        row["eps_Y_is_prev"] = "True" if eps_y_is_prev else "False"
-        row["eps_ttm_is_prev"] = "True" if eps_ttm_is_prev else "False"
-        if all_blank(row, GROUPS["eps"]):
-            set_group_status(row, "eps", "no_data",
-                             "empty")
-        elif any_blank(row, GROUPS["eps"]):
-            set_group_status(row, "eps", "incomplete",
-                             "partial")
-        else:
-            set_group_status(row, "eps", "ok", "")
+        apply_eps_fields(row, stock_id)
     except Exception as e:
         if is_finmind_limit_error(e):
             set_group_status(row, "eps", "api_limited", str(e))
@@ -655,6 +659,12 @@ def build_incremental(stock_list, output_file, max_rows=None, min_remain=None, r
         sid = str(s.get("stock_id", "")).strip()
         existing_row = existing_by_id.get(sid)
         if not should_update(existing_row, retry_errors, retry_no_data, force, refresh_hours):
+            if existing_row is not None:
+                try:
+                    rows_by_id[sid] = apply_eps_fields(
+                        existing_row.copy(), sid)
+                except Exception as e:
+                    print(f"EPS refresh failed for {sid}: {e}", flush=True)
             print(
                 f"Reuse {i}/{len(source_list)}: {sid} {s.get('name')}", flush=True)
             continue

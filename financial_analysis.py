@@ -336,7 +336,8 @@ def _latest_complete_statement_year(net_income: pd.Series, latest_statement_date
         return None
 
     counts = net_income.groupby(net_income.index.year).count()
-    complete_years = sorted(int(year) for year, count in counts.items() if int(count) >= 4)
+    complete_years = sorted(int(year)
+                            for year, count in counts.items() if int(count) >= 4)
     if not complete_years:
         return None
 
@@ -415,7 +416,8 @@ def get_roe_analysis(stock_id):
         net_income = net_income.dropna().sort_index()
         equity = equity.dropna().sort_index()
 
-        target_year = _latest_complete_statement_year(net_income, latest_statement_date)
+        target_year = _latest_complete_statement_year(
+            net_income, latest_statement_date)
         roe_last_year = None
         if target_year is not None:
             yearly_income = net_income.loc[net_income.index.year == target_year]
@@ -477,8 +479,8 @@ def get_eps_analysis(stock_id, current_price=None):
     EPS from FinMind TaiwanStockFinancialStatements.
 
     Project rule:
-    - eps_Y column is kept for compatibility, but its displayed value is the
-      latest quarter EPS.
+        - eps_Y is the cumulative EPS announced in the current calendar year.
+        - eps_Y_quarters records how many quarters have been announced this year.
     - eps_ttm is the latest four quarters total.
     - PER is calculated only when current_price is provided.
     """
@@ -527,16 +529,19 @@ def get_eps_analysis(stock_id, current_price=None):
             return (None, None, None, None, False, False)
 
         latest_eps_date = eps_df["date"].max()
-        latest_eps_row = eps_df.iloc[-1]
-
-        eps_latest_quarter = round(float(latest_eps_row["value"]), 2)
+        current_year = datetime.now().year
+        current_year_eps = eps_df[eps_df["year"] == current_year]
+        eps_y_quarters = int(len(current_year_eps))
+        eps_year = round(
+            float(current_year_eps["value"].sum()), 2) if eps_y_quarters else 0
 
         latest4 = eps_df.tail(4)
         if len(latest4) >= 4:
             eps_ttm = round(float(latest4["value"].sum()), 2)
             eps_ttm_is_prev = bool(latest4["date"].max() < latest_eps_date)
         else:
-            eps_ttm = eps_latest_quarter
+            eps_ttm = round(float(latest4["value"].sum()), 2) if len(
+                latest4) else 0
             eps_ttm_is_prev = False
 
         def calc_per(price, eps):
@@ -547,10 +552,10 @@ def get_eps_analysis(stock_id, current_price=None):
                 return None
             return round(price / eps, 2) if price > 0 and eps > 0 else None
 
-        per_y = calc_per(current_price, eps_latest_quarter)
+        per_y = calc_per(current_price, eps_year)
         per_ttm = calc_per(current_price, eps_ttm)
 
-        return eps_latest_quarter, eps_ttm, per_y, per_ttm, False, eps_ttm_is_prev
+        return eps_year, eps_ttm, per_y, per_ttm, False, eps_ttm_is_prev, eps_y_quarters
 
     except Exception as e:
         print(f"❌ EPS error {stock_id}: {e}")
