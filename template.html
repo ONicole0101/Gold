@@ -1152,7 +1152,8 @@
           { key: "operating_margin", label: "營益率%<br><small>QoQ / YoY</small>" },
           { key: "net_margin", label: "淨利率%<br><small>QoQ / Y</small>" },
           { key: "yield_value", label: "殖利率<br><small>估65%</small>", cls: "col-md" },
-          { key: "per_latest", label: "日PER<br><small>90日LH</small>" },
+          { key: "per_latest", label: "FinMind PER<br><small>90日LH</small>" },
+          { key: "per_ttm", label: "TTM PER<br><small>計算</small>" },
           { key: "pbr_latest", label: "日PBR<br><small>90日LH</small>" },
           { key: "news_summary", label: "新聞", cls: "news-summary-col" }
         ]
@@ -2161,6 +2162,8 @@
           return `<td>${fmt(Number(s.yield_value ?? 0) * 0.65, "%")}</td>`;
         case "per_latest":
           return `<td>${renderRangeMetric(s.per_latest, s.per_60d_low, s.per_60d_high)}</td>`;
+        case "per_ttm":
+          return `<td>${fmt(s.per_ttm)}</td>`;
         case "pbr_latest":
           return `<td>${renderRangeMetric(s.pbr_latest, s.pbr_60d_low, s.pbr_60d_high)}</td>`;
         case "k": {
@@ -2290,7 +2293,8 @@
           <div class="stock-item"><div class="stock-label">營益率</div><div class="stock-value">${renderMetric3(s.operating_margin, null, s.operating_margin_qoq, s.operating_margin_yoy_diff)}</div></div>
           <div class="stock-item"><div class="stock-label">淨利率</div><div class="stock-value">${renderMetric3(s.net_margin, null, s.net_margin_qoq, s.net_margin_yoy_diff)}</div></div>
           <div class="stock-item"><div class="stock-label">殖利率 估65%</div><div class="stock-value">${fmt(Number(s.yield_value ?? 0) * 0.65, "%")}</div></div>
-          <div class="stock-item"><div class="stock-label">日PER 90日LH</div><div class="stock-value">${renderRangeMetric(s.per_latest, s.per_60d_low, s.per_60d_high)}</div></div>
+          <div class="stock-item"><div class="stock-label">FinMind PER 90日LH</div><div class="stock-value">${renderRangeMetric(s.per_latest, s.per_60d_low, s.per_60d_high)}</div></div>
+          <div class="stock-item"><div class="stock-label">TTM PER</div><div class="stock-value">${fmt(s.per_ttm)}</div></div>
           <div class="stock-item"><div class="stock-label">日PBR 90日LH</div><div class="stock-value">${renderRangeMetric(s.pbr_latest, s.pbr_60d_low, s.pbr_60d_high)}</div></div>
           <div class="stock-item summary-mobile-item"><div class="stock-label">新聞</div><div class="stock-value">${escapeHtml(s.news_summary || "-")}</div></div>
         </div>`;
