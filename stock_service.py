@@ -8,6 +8,7 @@ from financial_analysis import (
     calc_eps_score,
     calc_margin_score,
     calc_trend_score,
+    get_eps_analysis,
 )
 from signals import get_tech_signal
 from technical_indicators import add_indicators, clean_ohlc_data, get_kd_trend, get_bb_trend, get_MABias, get_support_resistance_levels
@@ -562,6 +563,28 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             "bias60_60d_high") or safe_ma_stats.get("bias60_max")
 
         static_fields = _build_static_fields(static_row)
+        if close is not None and (static_fields.get("per_latest") is None or static_fields.get("per_ttm") is None or static_fields.get("per_Y") is None):
+            eps_res = get_eps_analysis(stock_id, close) or (
+                None, None, None, None, False, False, None)
+            eps_res = tuple(eps_res) if isinstance(
+                eps_res, tuple) else (None,) * 7
+            eps_res = eps_res + (None,) * (7 - len(eps_res))
+            eps_year, eps_ttm, per_y, per_ttm, _, _, _ = eps_res[:7]
+            if static_fields.get("eps_Y") is None:
+                static_fields["eps_Y"] = eps_year
+            if static_fields.get("eps_ttm") is None:
+                static_fields["eps_ttm"] = eps_ttm
+            if static_fields.get("per_Y") is None and per_y is not None:
+                static_fields["per_Y"] = per_y
+            if static_fields.get("per_ttm") is None and per_ttm is not None:
+                static_fields["per_ttm"] = per_ttm
+            if static_fields.get("per_latest") is None and per_ttm is not None:
+                static_fields["per_latest"] = per_ttm
+            if static_fields.get("per_60d_high") is None and static_fields.get("per_latest") is not None:
+                static_fields["per_60d_high"] = static_fields["per_latest"]
+            if static_fields.get("per_60d_low") is None and static_fields.get("per_latest") is not None:
+                static_fields["per_60d_low"] = static_fields["per_latest"]
+
         chip_fields = _build_chip_fields(chip_row)
         news_fields = _build_news_fields(news_row)
         merged_static_fields = {**static_fields, **chip_fields, **news_fields}

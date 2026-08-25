@@ -30,7 +30,7 @@ DATA_COLS = [
     "gross_margin", "gross_margin_qoq", "gross_margin_yoy_diff",
     "operating_margin", "operating_margin_qoq", "operating_margin_yoy_diff",
     "net_margin", "net_margin_qoq", "net_margin_yoy_diff",
-    "per_Y", "per_ttm",
+    "per_ttm",
     "per_latest", "per_60d_high", "per_60d_low",
     "pbr_latest", "pbr_60d_high", "pbr_60d_low",
 ]
@@ -285,7 +285,6 @@ def apply_eps_fields(row: dict, stock_id: str) -> dict:
     row["eps_Y"] = eps_last
     row["eps_Y_quarters"] = eps_y_quarters
     row["eps_ttm"] = eps_ttm
-    row["per_Y"] = per_last
     row["per_ttm"] = per_ttm
     row["eps_Y_is_prev"] = "True" if eps_y_is_prev else "False"
     row["eps_ttm_is_prev"] = "True" if eps_ttm_is_prev else "False"
