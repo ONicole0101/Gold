@@ -1092,7 +1092,7 @@
         note: "總覽：價格、漲跌、量、KD、布林、訊號",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "price", label: "價格<br><small>90日LH</small>" },
+          { key: "price", label: "價格<br><small>90日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值(綠)，高點距離為正值(紅)。" },
           { key: "chg", label: "漲跌<br><small>LH</small>" },
           { key: "chgPct", label: "價格漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
@@ -1105,7 +1105,7 @@
         note: "技術面：價格趨勢、壓力/支撐、KD、布林、MACD、RSI、Bias 90日區間",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "price", label: "價格<br><small>90日LH</small>" },
+          { key: "price", label: "價格<br><small>90日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值(綠)，高點距離為正值(紅)。" },
           { key: "price_lh_trend", label: "價格LH3天趨勢<br><small>T/T-1/T-2</small>", cls: "col-md" },
           { key: "chgPct", label: "價格漲跌%<br><small>漲跌/震幅</small>" },
           { key: "resistance_price", label: "壓力點<br><small>距離%</small>", tooltip: "壓力點距離%＝(壓力點價格 - 目前收盤價) ÷ 目前收盤價 × 100。數值越小代表越接近上方壓力，突破後可能轉為支撐。" },
@@ -1124,11 +1124,13 @@
         note: "籌碼面：價格趨勢、融資成本線、籌碼集中、主力買賣超、買賣家數差與三日趨勢",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "price", label: "價格<br><small>90日LH</small>" },
+          { key: "price", label: "價格<br><small>90日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值(綠)，高點距離為正值(紅)。" },
           { key: "margin_cost_line", label: "融資成本線<br><small>T/T-1/T-2</small>", tooltip: "融資成本線取自 FinMind dataset TaiwanStockMarginMaintenance 的 margin_cost（融資部位估算加權平均成本，單位：元）；股價跌破該成本線代表融資帳面轉損、壓力升高。資料來源：TaiwanStockMarginMaintenance。" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "short_margin_ratio_score", label: "券資比%<br><small>3天趨勢</small>", tooltip: "券資比%＝融券餘額 ÷ 融資餘額 × 100。數值越高代表放空籌碼占比越高，常見於市場偏保守或避險需求升高時；需搭配價格趨勢與主力買賣超共同判讀。" },
           { key: "chip_concentration_score", label: "籌碼集中%<br><small>3天趨勢</small>", tooltip: "籌碼集中%採 CMoney 近似口徑＝主力買賣超張數 ÷ 成交量張數 × 100，保留正負號。正值代表主力集中買超，負值代表主力集中賣超；數值絕對值越大代表集中度越高。" },
+          { key: "margin_purchase_change_score", label: "融資增減<br><small>3天趨勢</small>", tooltip: "融資增減＝當日融資今日餘額 - 融資昨日餘額，取自 FinMind TaiwanStockMarginPurchaseShortSale，單位為張。正值代表融資餘額增加，負值代表減少。" },
+          { key: "short_sale_change_score", label: "融券增減<br><small>3天趨勢</small>", tooltip: "融券增減＝當日融券今日餘額 - 融券昨日餘額，取自 FinMind TaiwanStockMarginPurchaseShortSale，單位為張。正值代表融券餘額增加，負值代表減少。" },
           { key: "main_force_score", label: "主力買賣超<br><small>3天趨勢</small>", tooltip: "主力買賣超採 CMoney 近似口徑：依券商分點彙總後，取買超前15大分點與賣超前15大分點互抵，並以張為單位。正值偏主力買進，負值偏主力賣出。" },
           { key: "broker_diff", label: "買賣家數差<br><small>趨勢</small>", tooltip: "買賣家數差＝有買進的券商分點家數 - 有賣出的券商分點家數。正值代表參與買方家數較多，負值代表買方較集中或賣方家數較多。" },
           { key: "foreign_investor_net", label: "外資買賣超<br><small>T/T-1/T-2</small>", tooltip: "外資買賣超取自 FinMind TaiwanStockInstitutionalInvestorsBuySell，顯示最近三個交易日數值與方向。" },
@@ -1144,7 +1146,7 @@
         note: "基本面：EPS、ROE、營收、毛利率、營益率、淨利率、殖利率、PER/PBR、新聞",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "price", label: "價格<br><small>90日LH </small>" },
+          { key: "price", label: "價格<br><small>90日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值(綠)，高點距離為正值(紅)。" },
           { key: "eps_Y", label: "EPS<small>(季數)</small><br><small>TTM</small>" },
           { key: "roe", label: "ROE%<br><small>TTM</small>" },
           { key: "rev", label: "營收(bn)<br><small>M / Q / Y</small>" },
@@ -1237,6 +1239,23 @@
         <div class="table-lv2">${fmt(low, suffix)}</div>
         <div class="table-lv2">${fmt(high, suffix)}</div>
         ${footer ? `<div class="table-lv2">${footer}</div>` : ""}
+      </div>`;
+    }
+
+    function renderPriceRangeMetric(current, low, high) {
+      const cur = Number(current);
+      const lowNum = Number(low);
+      const highNum = Number(high);
+      const hasCur = !isNil(current) && Number.isFinite(cur) && cur !== 0;
+      const highDist = hasCur && !isNil(high) && Number.isFinite(highNum) ? ((highNum - cur) / cur) * 100 : null;
+      const lowDist = hasCur && !isNil(low) && Number.isFinite(lowNum) ? ((cur - lowNum) / cur) * 100 : null;
+      const lowDistText = isNil(lowDist) ? "" : ` <span class="table-lv2 text-green">${signedFmt(lowDist, "%")}</span>`;
+      const highDistText = isNil(highDist) ? "" : ` <span class="table-lv2 text-red">${signedFmt(highDist, "%")}</span>`;
+      return `
+      <div class="metric metric-2line">
+        <div class="table-lv1">${fmt(current)}</div>
+        <div class="table-lv2">${fmt(low)}${lowDistText}</div>
+        <div class="table-lv2">${fmt(high)}${highDistText}</div>
       </div>`;
     }
 
@@ -1653,6 +1672,30 @@
         </td>`;
     }
 
+    function renderMarginPurchaseChangeCell(s) {
+      return `
+        <td>
+          <div class="chip-detail">
+            <div class="table-lv1 ${trendClass(s.margin_purchase_change_score)}">${isNil(s.margin_purchase_change_score) ? "-" : fmtTrend(s.margin_purchase_change_score)}</div>
+            ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.margin_purchase_change_t0, s.margin_purchase_change), s.margin_purchase_change_t1, "", "張", false, "今日")}
+            ${chipLine(s.chip_date_t1, s.margin_purchase_change_t1, s.margin_purchase_change_t2, "", "張", true, "T-1")}
+            ${chipLine(s.chip_date_t2, s.margin_purchase_change_t2, undefined, "", "張", true, "T-2")}
+          </div>
+        </td>`;
+    }
+
+    function renderShortSaleChangeCell(s) {
+      return `
+        <td>
+          <div class="chip-detail">
+            <div class="table-lv1 ${trendClass(s.short_sale_change_score)}">${isNil(s.short_sale_change_score) ? "-" : fmtTrend(s.short_sale_change_score)}</div>
+            ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.short_sale_change_t0, s.short_sale_change), s.short_sale_change_t1, "", "張", false, "今日")}
+            ${chipLine(s.chip_date_t1, s.short_sale_change_t1, s.short_sale_change_t2, "", "張", true, "T-1")}
+            ${chipLine(s.chip_date_t2, s.short_sale_change_t2, undefined, "", "張", true, "T-2")}
+          </div>
+        </td>`;
+    }
+
     function renderShortMarginRatioCell(s) {
       return `
         <td>
@@ -1757,6 +1800,24 @@
         ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.chip_concentration_pct_t0, s.chip_concentration_pct), s.chip_concentration_pct_t1, "%", "", false, "今日")}
         ${chipLine(s.chip_date_t1, s.chip_concentration_pct_t1, s.chip_concentration_pct_t2, "%", "", true, "T-1")}
         ${chipLine(s.chip_date_t2, s.chip_concentration_pct_t2, undefined, "%", "", true, "T-2")}
+      </div>`;
+    }
+
+    function renderMarginPurchaseChangeBlock(s) {
+      return `<div class="stock-value">
+        <div class="table-lv1 ${trendClass(s.margin_purchase_change_score)}">${isNil(s.margin_purchase_change_score) ? "-" : fmtTrend(s.margin_purchase_change_score)}</div>
+        ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.margin_purchase_change_t0, s.margin_purchase_change), s.margin_purchase_change_t1, "", "張", false, "今日")}
+        ${chipLine(s.chip_date_t1, s.margin_purchase_change_t1, s.margin_purchase_change_t2, "", "張", true, "T-1")}
+        ${chipLine(s.chip_date_t2, s.margin_purchase_change_t2, undefined, "", "張", true, "T-2")}
+      </div>`;
+    }
+
+    function renderShortSaleChangeBlock(s) {
+      return `<div class="stock-value">
+        <div class="table-lv1 ${trendClass(s.short_sale_change_score)}">${isNil(s.short_sale_change_score) ? "-" : fmtTrend(s.short_sale_change_score)}</div>
+        ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.short_sale_change_t0, s.short_sale_change), s.short_sale_change_t1, "", "張", false, "今日")}
+        ${chipLine(s.chip_date_t1, s.short_sale_change_t1, s.short_sale_change_t2, "", "張", true, "T-1")}
+        ${chipLine(s.chip_date_t2, s.short_sale_change_t2, undefined, "", "張", true, "T-2")}
       </div>`;
     }
 
@@ -2054,7 +2115,7 @@
         case "code":
           return renderCodeCell(s);
         case "price":
-          return `<td>${renderRangeMetric(s.price, s.price_60d_low, s.price_60d_high)}</td>`;
+          return `<td>${renderPriceRangeMetric(s.price, s.price_60d_low, s.price_60d_high)}</td>`;
         case "price_lh_trend":
           return renderPriceLHTrendCell(s);
         case "resistance_price":
@@ -2128,6 +2189,10 @@
           return renderShortMarginRatioCell(s);
         case "chip_concentration_score":
           return renderChipConcentrationCell(s);
+        case "margin_purchase_change_score":
+          return renderMarginPurchaseChangeCell(s);
+        case "short_sale_change_score":
+          return renderShortSaleChangeCell(s);
         case "main_force_score":
           return renderMainForceCell(s);
         case "broker_diff":
@@ -2248,7 +2313,7 @@
             ${dispositionHtml ? `<div class="table-lv3 text-red disposition-period">${dispositionHtml}</div>` : ""}
             <div class="table-lv2 ${chgClass(s)}">${chgSign(s)}${fmt(s.chg)} / ${chgSign(s)}${fmt(s.chgPct, "%")}</div>
           </div>
-          <div class="stock-value">${renderRangeMetric(s.price, s.price_60d_low, s.price_60d_high)}</div>
+          <div class="stock-value">${renderPriceRangeMetric(s.price, s.price_60d_low, s.price_60d_high)}</div>
         </div>`
         : `
         <div class="stock-head">
@@ -2257,7 +2322,7 @@
             ${dispositionHtml ? `<div class="table-lv3 text-red disposition-period">${dispositionHtml}</div>` : ""}
             <div class="table-lv2 ${chgClass(s)}">${chgSign(s)}${fmt(s.chg)} / ${chgSign(s)}${fmt(s.chgPct, "%")}</div>
           </div>
-          <div class="stock-value">${renderRangeMetric(s.price, s.price_60d_low, s.price_60d_high)}</div>
+          <div class="stock-value">${renderPriceRangeMetric(s.price, s.price_60d_low, s.price_60d_high)}</div>
         </div>`;
 
       const technicalGrid = `
@@ -2281,6 +2346,8 @@
           <div class="stock-item"><div class="stock-label">融資成本線 T/T-1/T-2</div>${renderThreeDayMetricContent(s, "margin_cost_line")}</div>
           <div class="stock-item"><div class="stock-label">券資比% 3天趨勢</div>${renderShortMarginRatioBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">籌碼集中% 3天趨勢</div>${renderChipConcentrationBlock(s)}</div>
+          <div class="stock-item"><div class="stock-label">融資增減 3天趨勢</div>${renderMarginPurchaseChangeBlock(s)}</div>
+          <div class="stock-item"><div class="stock-label">融券增減 3天趨勢</div>${renderShortSaleChangeBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">主力買賣超 3天趨勢</div>${renderMainForceBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">買賣家數差 趨勢</div>${renderBrokerDiffBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">外資買賣超 T/T-1/T-2</div>${renderInstitutionalBlock(s, "foreign_investor_net", "foreign_investor_net_score")}</div>

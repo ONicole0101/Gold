@@ -1137,6 +1137,19 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             return None
         return _int_or_none(total)
 
+    def _diff_or_none(today_value, yesterday_value):
+        """今日餘額-昨日餘額，任一值缺漏則回傳 None。"""
+        try:
+            if today_value is None or yesterday_value is None:
+                return None
+            today_num = float(today_value)
+            yesterday_num = float(yesterday_value)
+            if pd.isna(today_num) or pd.isna(yesterday_num):
+                return None
+            return _int_or_none(today_num - yesterday_num)
+        except Exception:
+            return None
+
     def _institutional_trend_score(t0, t1, t2):
         comparisons = []
         pairs = [(t0, t1), (t1, t2)]
@@ -1463,6 +1476,73 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                     return margin_cost_map_by_date[available_date]
             return None
 
+        # 融資增減=今日餘額-昨日餘額、融券增減=今日餘額-昨日餘額，取自 TaiwanStockMarginPurchaseShortSale。
+        margin_balance_map_by_date = {}
+        if not _warn_missing_finmind_token("TaiwanStockMarginPurchaseShortSale", stock_id):
+            try:
+                margin_balance_params = {
+                    "dataset": "TaiwanStockMarginPurchaseShortSale",
+                    "data_id": str(stock_id),
+                    "start_date": all_report["date"].min().strftime("%Y-%m-%d"),
+                    "end_date": all_report["date"].max().strftime("%Y-%m-%d"),
+                    "token": FINMIND_token,
+                }
+                _record_finmind_request(
+                    "chip analysis", stock_id, "TaiwanStockMarginPurchaseShortSale"
+                )
+                margin_balance_res = requests.get(
+                    API_URL,
+                    params=margin_balance_params,
+                    headers=headers,
+                    timeout=300,
+                )
+                if margin_balance_res.status_code == 200:
+                    margin_balance_rows = _safe_response_json(
+                        margin_balance_res).get("data", [])
+                    if margin_balance_rows:
+                        margin_balance_df = pd.DataFrame(margin_balance_rows)
+                        if "stock_id" in margin_balance_df.columns:
+                            margin_balance_df = margin_balance_df[
+                                margin_balance_df["stock_id"].astype(
+                                    str) == str(stock_id)
+                            ]
+                        if "date" in margin_balance_df.columns:
+                            margin_balance_df["date"] = pd.to_datetime(
+                                margin_balance_df["date"], errors="coerce"
+                            )
+                            margin_balance_df = margin_balance_df.dropna(
+                                subset=["date"])
+                            for date_value, group_df in margin_balance_df.groupby(
+                                margin_balance_df["date"].dt.date
+                            ):
+                                margin_today = _first_non_na(
+                                    group_df.get("MarginPurchaseTodayBalance"))
+                                margin_yesterday = _first_non_na(
+                                    group_df.get("MarginPurchaseYesterdayBalance"))
+                                short_today = _first_non_na(
+                                    group_df.get("ShortSaleTodayBalance"))
+                                short_yesterday = _first_non_na(
+                                    group_df.get("ShortSaleYesterdayBalance"))
+                                margin_balance_map_by_date[date_value] = {
+                                    "margin_purchase_change": _diff_or_none(margin_today, margin_yesterday),
+                                    "short_sale_change": _diff_or_none(short_today, short_yesterday),
+                                }
+                elif margin_balance_res.status_code != 200:
+                    logger.warning(
+                        "TaiwanStockMarginPurchaseShortSale request failed for stock_id={} status={} body={}",
+                        stock_id,
+                        margin_balance_res.status_code,
+                        (margin_balance_res.text[:200] if hasattr(
+                            margin_balance_res, 'text') else ''),
+                    )
+            except Exception as exc:
+                logger.warning(
+                    "TaiwanStockMarginPurchaseShortSale failed for stock_id={} error={}",
+                    stock_id,
+                    exc,
+                )
+                margin_balance_map_by_date = {}
+
         def _window_metrics(window_days: int) -> dict:
             window_df = all_report.head(window_days).copy()
             if window_df.empty:
@@ -1572,6 +1652,7 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                 "%Y-%m-%d") if hasattr(date_value, "strftime") else str(date_value)[:10]
             date_key = date_value.date() if hasattr(date_value, "date") else date_value
             institutional_day = institutional_map_by_date.get(date_key, {})
+            margin_balance_day = margin_balance_map_by_date.get(date_key, {})
             broker_top_buy_15, broker_top_sell_15 = _broker_trading_top_rows(
                 broker_frames_by_date.get(date_key)
             )
@@ -1582,6 +1663,12 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                 "main_force_net": _int_or_none(r["main_force_net"]),
                 "broker_diff": _int_or_none(r["broker_diff"]),
                 "margin_cost_line": _round_or_none(_margin_cost_on_or_before(date_key), 2),
+                "margin_purchase_change": _int_or_none(
+                    margin_balance_day.get("margin_purchase_change")
+                ),
+                "short_sale_change": _int_or_none(
+                    margin_balance_day.get("short_sale_change")
+                ),
                 "foreign_investor_net": _int_or_none(
                     institutional_day.get("foreign_investor_net")
                 ),
@@ -1652,6 +1739,18 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             "margin_cost_line") if len(recent_rows) > 1 else None, 2)
         margin_cost_t2 = _round_or_none(recent_rows[2].get(
             "margin_cost_line") if len(recent_rows) > 2 else None, 2)
+        margin_purchase_change_t0 = _int_or_none(recent_rows[0].get(
+            "margin_purchase_change") if len(recent_rows) > 0 else None)
+        margin_purchase_change_t1 = _int_or_none(recent_rows[1].get(
+            "margin_purchase_change") if len(recent_rows) > 1 else None)
+        margin_purchase_change_t2 = _int_or_none(recent_rows[2].get(
+            "margin_purchase_change") if len(recent_rows) > 2 else None)
+        short_sale_change_t0 = _int_or_none(recent_rows[0].get(
+            "short_sale_change") if len(recent_rows) > 0 else None)
+        short_sale_change_t1 = _int_or_none(recent_rows[1].get(
+            "short_sale_change") if len(recent_rows) > 1 else None)
+        short_sale_change_t2 = _int_or_none(recent_rows[2].get(
+            "short_sale_change") if len(recent_rows) > 2 else None)
 
         result = {
             "chip_trend_days": days,
@@ -1670,6 +1769,20 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             "margin_cost_line_t0": margin_cost_t0,
             "margin_cost_line_t1": margin_cost_t1,
             "margin_cost_line_t2": margin_cost_t2,
+            "margin_purchase_change": margin_purchase_change_t0,
+            "margin_purchase_change_t0": margin_purchase_change_t0,
+            "margin_purchase_change_t1": margin_purchase_change_t1,
+            "margin_purchase_change_t2": margin_purchase_change_t2,
+            "margin_purchase_change_score": _institutional_trend_score(
+                margin_purchase_change_t0, margin_purchase_change_t1, margin_purchase_change_t2
+            ),
+            "short_sale_change": short_sale_change_t0,
+            "short_sale_change_t0": short_sale_change_t0,
+            "short_sale_change_t1": short_sale_change_t1,
+            "short_sale_change_t2": short_sale_change_t2,
+            "short_sale_change_score": _institutional_trend_score(
+                short_sale_change_t0, short_sale_change_t1, short_sale_change_t2
+            ),
             "foreign_investor_net": foreign_t0,
             "foreign_investor_net_t0": foreign_t0,
             "foreign_investor_net_t1": foreign_t1,
@@ -1705,6 +1818,8 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             result[f"main_force_net_{suffix}"] = rec["main_force_net"]
             result[f"broker_diff_{suffix}"] = rec["broker_diff"]
             result[f"margin_cost_line_{suffix}"] = rec["margin_cost_line"]
+            result[f"margin_purchase_change_{suffix}"] = rec["margin_purchase_change"]
+            result[f"short_sale_change_{suffix}"] = rec["short_sale_change"]
 
         for suffix in ("t0", "t1", "t2"):
             result.setdefault(f"chip_date_{suffix}", None)
@@ -1713,6 +1828,8 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             result.setdefault(f"main_force_net_{suffix}", None)
             result.setdefault(f"broker_diff_{suffix}", None)
             result.setdefault(f"margin_cost_line_{suffix}", None)
+            result.setdefault(f"margin_purchase_change_{suffix}", None)
+            result.setdefault(f"short_sale_change_{suffix}", None)
 
         return result
 
