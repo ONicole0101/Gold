@@ -1092,7 +1092,7 @@
         note: "總覽：價格、漲跌、量、KD、布林、訊號",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "price", label: "價格<br><small>90日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值(綠)，高點距離為正值(紅)。" },
+          { key: "price", label: "價格<br><small>90日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值，高點距離為正值。" },
           { key: "chg", label: "漲跌<br><small>LH</small>" },
           { key: "chgPct", label: "價格漲跌%<br><small>漲跌/震幅</small>" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
@@ -1105,7 +1105,7 @@
         note: "技術面：價格趨勢、壓力/支撐、KD、布林、MACD、RSI、Bias 90日區間",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "price", label: "價格<br><small>90日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值(綠)，高點距離為正值(紅)。" },
+          { key: "price", label: "價格<br><small>90日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值，高點距離為正值。" },
           { key: "price_lh_trend", label: "價格LH3天趨勢<br><small>T/T-1/T-2</small>", cls: "col-md" },
           { key: "chgPct", label: "價格漲跌%<br><small>漲跌/震幅</small>" },
           { key: "resistance_price", label: "壓力點<br><small>距離%</small>", tooltip: "壓力點距離%＝(壓力點價格 - 目前收盤價) ÷ 目前收盤價 × 100。數值越小代表越接近上方壓力，突破後可能轉為支撐。" },
@@ -1124,7 +1124,7 @@
         note: "籌碼面：價格趨勢、融資成本線、籌碼集中、主力買賣超、買賣家數差與三日趨勢",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "price", label: "價格<br><small>90日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值(綠)，高點距離為正值(紅)。" },
+          { key: "price", label: "價格<br><small>90日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值，高點距離為正值。" },
           { key: "margin_cost_line", label: "融資成本線<br><small>T/T-1/T-2</small>", tooltip: "融資成本線取自 FinMind dataset TaiwanStockMarginMaintenance 的 margin_cost（融資部位估算加權平均成本，單位：元）；股價跌破該成本線代表融資帳面轉損、壓力升高。資料來源：TaiwanStockMarginMaintenance。" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "short_margin_ratio_score", label: "券資比%<br><small>3天趨勢</small>", tooltip: "券資比%＝融券餘額 ÷ 融資餘額 × 100。數值越高代表放空籌碼占比越高，常見於市場偏保守或避險需求升高時；需搭配價格趨勢與主力買賣超共同判讀。" },
@@ -1146,7 +1146,7 @@
         note: "基本面：EPS、ROE、營收、毛利率、營益率、淨利率、殖利率、PER/PBR、新聞",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "price", label: "價格<br><small>90日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值(綠)，高點距離為正值(紅)。" },
+          { key: "price", label: "價格<br><small>90日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值，高點距離為正值。" },
           { key: "eps_Y", label: "EPS<small>(季數)</small><br><small>TTM</small>" },
           { key: "roe", label: "ROE%<br><small>TTM</small>" },
           { key: "rev", label: "營收(bn)<br><small>M / Q / Y</small>" },
@@ -1248,9 +1248,9 @@
       const highNum = Number(high);
       const hasCur = !isNil(current) && Number.isFinite(cur) && cur !== 0;
       const highDist = hasCur && !isNil(high) && Number.isFinite(highNum) ? ((highNum - cur) / cur) * 100 : null;
-      const lowDist = hasCur && !isNil(low) && Number.isFinite(lowNum) ? ((cur - lowNum) / cur) * 100 : null;
-      const lowDistText = isNil(lowDist) ? "" : ` <span class="table-lv2 text-green">${signedFmt(lowDist, "%")}</span>`;
-      const highDistText = isNil(highDist) ? "" : ` <span class="table-lv2 text-red">${signedFmt(highDist, "%")}</span>`;
+      const lowDist = hasCur && !isNil(low) && Number.isFinite(lowNum) ? ((lowNum - cur) / cur) * 100 : null;
+      const lowDistText = isNil(lowDist) ? "" : ` <span class="table-lv2">${fmt(lowDist, "%")}</span>`;
+      const highDistText = isNil(highDist) ? "" : ` <span class="table-lv2">${signedFmt(highDist, "%")}</span>`;
       return `
       <div class="metric metric-2line">
         <div class="table-lv1">${fmt(current)}</div>
