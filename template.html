@@ -198,6 +198,44 @@
       color: #3fb950;
     }
 
+    .closing-price {
+      display: inline-block;
+      min-width: 54px;
+      padding: 2px 5px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+    }
+
+    .closing-price.up {
+      color: #f85149;
+    }
+
+    .closing-price.dn {
+      color: #3fb950;
+    }
+
+    .closing-price.price-move-up {
+      border-color: #f85149;
+    }
+
+    .closing-price.price-move-down {
+      border-color: #3fb950;
+    }
+
+    .closing-price.price-limit-up {
+      border-color: #f85149;
+      background: #f8514938;
+      color: #ff7b72;
+      font-weight: 700;
+    }
+
+    .closing-price.price-limit-down {
+      border-color: #3fb950;
+      background: #3fb95038;
+      color: #56d364;
+      font-weight: 700;
+    }
+
     .price-lh-line {
       display: grid;
       grid-template-columns: 40px max-content max-content;
@@ -1242,7 +1280,17 @@
       </div>`;
     }
 
-    function renderPriceRangeMetric(current, low, high) {
+    function closingPriceClass(chgPct) {
+      const change = Number(chgPct);
+      if (!Number.isFinite(change) || change === 0) return "";
+      const direction = change > 0 ? "up" : "dn";
+      const magnitude = Math.abs(change);
+      if (magnitude > 9) return `${direction} price-limit-${change > 0 ? "up" : "down"}`;
+      if (magnitude > 5) return `${direction} price-move-${change > 0 ? "up" : "down"}`;
+      return direction;
+    }
+
+    function renderPriceRangeMetric(current, low, high, chgPct) {
       const cur = Number(current);
       const lowNum = Number(low);
       const highNum = Number(high);
@@ -1253,19 +1301,27 @@
       const highDistText = isNil(highDist) ? "" : ` <span class="table-lv2">${signedFmt(highDist, "%")}</span>`;
       return `
       <div class="metric metric-2line">
-        <div class="table-lv1">${fmt(current)}</div>
+        <div class="table-lv1"><span class="closing-price ${closingPriceClass(chgPct)}">${fmt(current)}</span></div>
         <div class="table-lv2">${fmt(low)}${lowDistText}</div>
         <div class="table-lv2">${fmt(high)}${highDistText}</div>
       </div>`;
     }
 
     function renderPerRangeMetric(current, low, high, ttm) {
+      const cur = Number(current);
+      const lowNum = Number(low);
+      const highNum = Number(high);
+      const hasCur = !isNil(current) && Number.isFinite(cur) && cur !== 0;
+      const lowDist = hasCur && !isNil(low) && Number.isFinite(lowNum) ? ((lowNum - cur) / cur) * 100 : null;
+      const highDist = hasCur && !isNil(high) && Number.isFinite(highNum) ? ((highNum - cur) / cur) * 100 : null;
+      const lowDistText = isNil(lowDist) ? "" : ` <span class="table-lv2">${signedFmt(lowDist, "%")}</span>`;
+      const highDistText = isNil(highDist) ? "" : ` <span class="table-lv2">${signedFmt(highDist, "%")}</span>`;
       return `
       <div class="metric metric-2line">
         <div class="table-lv2">TTM ${fmt(ttm)}</div>
         <div class="table-lv1">${fmt(current)}</div>
-        <div class="table-lv2">${fmt(low)}</div>
-        <div class="table-lv2">${fmt(high)}</div>
+        <div class="table-lv2">${fmt(low)}${lowDistText}</div>
+        <div class="table-lv2">${fmt(high)}${highDistText}</div>
       </div>`;
     }
 
@@ -2111,7 +2167,7 @@
         case "code":
           return renderCodeCell(s);
         case "price":
-          return `<td>${renderPriceRangeMetric(s.price, s.price_60d_low, s.price_60d_high)}</td>`;
+          return `<td>${renderPriceRangeMetric(s.price, s.price_60d_low, s.price_60d_high, s.chgPct)}</td>`;
         case "price_lh_trend":
           return renderPriceLHTrendCell(s);
         case "resistance_price":
@@ -2309,7 +2365,7 @@
             ${dispositionHtml ? `<div class="table-lv3 text-red disposition-period">${dispositionHtml}</div>` : ""}
             <div class="table-lv2 ${chgClass(s)}">${chgSign(s)}${fmt(s.chg)} / ${chgSign(s)}${fmt(s.chgPct, "%")}</div>
           </div>
-          <div class="stock-value">${renderPriceRangeMetric(s.price, s.price_60d_low, s.price_60d_high)}</div>
+          <div class="stock-value">${renderPriceRangeMetric(s.price, s.price_60d_low, s.price_60d_high, s.chgPct)}</div>
         </div>`
         : `
         <div class="stock-head">
@@ -2318,7 +2374,7 @@
             ${dispositionHtml ? `<div class="table-lv3 text-red disposition-period">${dispositionHtml}</div>` : ""}
             <div class="table-lv2 ${chgClass(s)}">${chgSign(s)}${fmt(s.chg)} / ${chgSign(s)}${fmt(s.chgPct, "%")}</div>
           </div>
-          <div class="stock-value">${renderPriceRangeMetric(s.price, s.price_60d_low, s.price_60d_high)}</div>
+          <div class="stock-value">${renderPriceRangeMetric(s.price, s.price_60d_low, s.price_60d_high, s.chgPct)}</div>
         </div>`;
 
       const technicalGrid = `
