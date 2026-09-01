@@ -298,7 +298,8 @@ def get_stock_reference_price(stock_id, trade_date):
             return None
 
         rows["date"] = pd.to_datetime(rows["date"], errors="coerce")
-        exact_rows = rows.loc[rows["date"].dt.strftime("%Y-%m-%d") == date_text]
+        exact_rows = rows.loc[rows["date"].dt.strftime(
+            "%Y-%m-%d") == date_text]
         if exact_rows.empty:
             return None
 
