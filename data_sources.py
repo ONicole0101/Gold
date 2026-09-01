@@ -200,13 +200,13 @@ def _print_api_status_error(source, stock_id, res, data=None):
 
 def get_stock_data(stock_id):
     try:
+        _record_finmind_request("get_stock_data", stock_id, "TaiwanStockPrice")
         params = {
             'dataset': 'TaiwanStockPrice',
             'data_id': str(stock_id),
             'start_date': '2023-01-01',
             'token': FINMIND_token,
         }
-        _record_finmind_request("get_stock_data", stock_id, "TaiwanStockPrice")
         res = requests.get(API_URL, params=params,
                            headers=headers, timeout=300)
         data = _safe_response_json(res)
@@ -262,6 +262,56 @@ def get_stock_data(stock_id):
     except Exception as e:
         print(f'❌ get_stock_data error {stock_id}: {e}')
         return pd.DataFrame()
+
+
+def get_stock_reference_price(stock_id, trade_date):
+    """Return FinMind's opening reference price for one stock trading day."""
+    dataset = "TaiwanStockPriceLimit"
+    date_text = pd.Timestamp(trade_date).strftime("%Y-%m-%d")
+
+    try:
+        _record_finmind_request(
+            "get_stock_reference_price", stock_id, dataset)
+        params = {
+            "dataset": dataset,
+            "data_id": str(stock_id),
+            "start_date": date_text,
+            "token": FINMIND_token,
+        }
+        res = requests.get(
+            API_URL, params=params, headers=headers, timeout=300)
+        data = _safe_response_json(res)
+
+        if res.status_code == 402:
+            _print_api_status_error(
+                "get_stock_reference_price", stock_id, res, data)
+            raise RuntimeError(
+                f"FinMind quota exceeded for {stock_id}: {data.get('msg')}")
+
+        if res.status_code != 200:
+            _print_api_status_error(
+                "get_stock_reference_price", stock_id, res, data)
+            return None
+
+        rows = pd.DataFrame(data.get("data") or [])
+        if rows.empty or not {"date", "reference_price"}.issubset(rows.columns):
+            return None
+
+        rows["date"] = pd.to_datetime(rows["date"], errors="coerce")
+        exact_rows = rows.loc[rows["date"].dt.strftime("%Y-%m-%d") == date_text]
+        if exact_rows.empty:
+            return None
+
+        reference_price = pd.to_numeric(
+            exact_rows.iloc[-1]["reference_price"], errors="coerce")
+        if pd.isna(reference_price) or reference_price <= 0:
+            return None
+        return float(reference_price)
+    except RuntimeError:
+        raise
+    except Exception as e:
+        print(f"❌ get_stock_reference_price error {stock_id}: {e}")
+        return None
 
 
 def get_latest_convertible_bond_overview(

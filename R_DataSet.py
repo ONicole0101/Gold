@@ -53,7 +53,8 @@ DATASETS_RANGE = [
     "TaiwanStockDividend",
     "TaiwanStockDispositionSecuritiesPeriod",
     "TaiwanStockTotalReturnIndex",
-    "TaiwanStockMarginMaintenance",    
+    "TaiwanStockMarginMaintenance",
+    "TaiwanStockPriceLimit"
 ]
 
 DATASETS_ONE_DAY = []

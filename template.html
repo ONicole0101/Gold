@@ -1288,11 +1288,7 @@
 
     function renderChangePctBlock(s) {
       const priceChange = isNil(s.chg) ? null : Number(s.chg);
-      const lowPrice = isNil(s.price_min) ? null : Number(s.price_min);
-      const highPrice = isNil(s.price_max) ? null : Number(s.price_max);
-      const priceAmplitude = lowPrice !== null && highPrice !== null && Number.isFinite(lowPrice) && Number.isFinite(highPrice)
-        ? highPrice - lowPrice
-        : null;
+      const priceAmplitude = isNil(s.chgamp) ? null : Number(s.chgamp);
       return `
         <div class="table-lv1 ${chgClass(s)}">${chgSign(s)}${fmt(s.chgPct, "%")}</div>
         <div class="table-lv2 ${distClass(priceChange)}">${isNil(priceChange) ? "-" : `${priceChange > 0 ? "+" : ""}${fmt(priceChange)}`}</div>

@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 from custom_categories import CUSTOM_CATEGORY_COLUMN, category_text, split_category_text
-from data_sources import get_stock_data
+from data_sources import get_stock_data, get_stock_reference_price
 from financial_analysis import (
     calc_eps_score,
     calc_margin_score,
@@ -34,6 +34,24 @@ _CHIPS_STATIC_MAP_CACHE = None
 _CHIPS_STATIC_MAP_MTIME = None
 _NEWS_STATIC_MAP_CACHE = None
 _NEWS_STATIC_MAP_MTIME = None
+
+
+def calculate_price_change_metrics(close, high, low, reference_price):
+    values = pd.to_numeric(
+        pd.Series([close, high, low, reference_price]), errors="coerce"
+    )
+    if values.isna().any() or values.iloc[3] <= 0:
+        raise ValueError("當日開盤參考價或價格資料無效")
+
+    close_value, high_value, low_value, reference_value = values.tolist()
+    price_change = close_value - reference_value
+    price_amplitude = high_value - low_value
+    return {
+        "chg": round(price_change, 2),
+        "chgPct": round(price_change / reference_value * 100, 2),
+        "chgamp": round(price_amplitude, 2),
+        "amp": round(price_amplitude / reference_value * 100, 2),
+    }
 
 
 def get_price_60d_high_low(df):
@@ -345,8 +363,10 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
         "name": name,
         "code": stock_id,
         "price": None,
+        "reference_price": None,
         "chg": None,
         "chgPct": None,
+        "chgamp": None,
         "amp": None,
         "sig": 0,
         "signal": "資料異常",
@@ -435,11 +455,14 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
         support_resistance = get_support_resistance_levels(df)
         max_price = latest["max"]
         min_price = latest["min"]
-        chg = latest["close"] - prev["close"]
-
-        chgPct = round((chg / prev["close"]) * 100, 2)
-        chgamp = latest["max"] - latest["min"]
-        amp = round((chgamp / prev["close"]) * 100, 2)
+        reference_price = get_stock_reference_price(stock_id, latest["date"])
+        price_change_metrics = calculate_price_change_metrics(
+            latest["close"], max_price, min_price, reference_price
+        )
+        chg = price_change_metrics["chg"]
+        chgPct = price_change_metrics["chgPct"]
+        chgamp = price_change_metrics["chgamp"]
+        amp = price_change_metrics["amp"]
 
         try:
             ma_stats = get_MABias(df) or {}
@@ -705,6 +728,7 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             "name": name,
             "code": stock_id,
             "price": float(round(close, 2)),
+            "reference_price": float(round(reference_price, 2)),
             "price_max": float(round(max_price, 2)),
             "price_min": float(round(min_price, 2)),
             "margin_cost_line": None,
@@ -731,6 +755,7 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             "support_touch_count2": support_resistance.get("support_touch_count2"),
             "chg": float(round(chg, 2)),
             "chgPct": float(chgPct),
+            "chgamp": float(chgamp),
             "amp": float(amp),
 
             **static_fields,
