@@ -1,9 +1,11 @@
-[32m2026-09-02 11:43:12.693[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-09-02 11:43:12.805[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-09-02 12:24:59.897[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-09-02 12:25:00.049[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 1236/6000, remain=4764
+FinMind usage: 4841/6000, remain=1159
 Incremental probe: stock_id=2330, latest_date=2026-09-02, status=ok
-Build chips: total=217, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=216, latest_date=2026-09-02
+Build chips: total=217, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=216, pending=0, latest_date=2026-09-02
+2330 籌碼分頁結果 date=2026-09-02 ; main_force=-10401 ; concentration=-44.35 ; broker_diff=63
+Done: rows=217, status={'ok': 217}, preserved=0, skipped=216, elapsed=11.9s, output=AllStatic_Chips.csv
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-09-02
