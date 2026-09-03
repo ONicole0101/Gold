@@ -1,11 +1,12 @@
-[32m2026-09-03 09:14:19.584[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-09-03 09:14:19.699[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-09-03 12:23:01.171[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-09-03 12:23:01.275[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 1121/6000, remain=4879
+FinMind usage: 1116/6000, remain=4884
 Incremental probe: stock_id=2330, latest_date=2026-09-03, status=ok
-Build chips: total=218, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=217, latest_date=2026-09-03
-[100/218] 3231 緯創 status=ok date=2026-09-03 main=19916 diff=-1 state=bullish_concentrated
-[125/218] 3702 大聯大 status=ok date=2026-09-03 main=164 diff=-1 state=neutral
+Build chips: total=218, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=210, pending=7, latest_date=2026-09-03
+[218/218] 6940 格斯科技* status=ok date=2026-09-03 main=-75 diff=68 state=bearish_distributed
+2330 籌碼分頁結果 date=2026-09-03 ; main_force=-574 ; concentration=-4.26 ; broker_diff=28
+Done: rows=218, status={'ok': 218}, preserved=0, skipped=210, elapsed=25.2s, output=AllStatic_Chips.csv
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-09-03
