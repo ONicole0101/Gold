@@ -371,6 +371,12 @@
     "status": "finmind/taiwan_stock_news",
     "updated_at": "2026-09-02 19:14:11"
   },
+  "1815": {
+    "name": "富喬",
+    "news_titles_hash": "f3d0b2bea819fb69badadfba4318cbc39fc5bad25fb9a416027902aff9b27e06",
+    "status": "finmind/taiwan_stock_news",
+    "updated_at": "2026-09-03 16:53:38"
+  },
   "1907": {
     "name": "永豐餘",
     "news_titles_hash": "9284c98ee23a56be5e2c80d79ca73c5aa64681f944f8419a08dd6e1dc0f18897",
@@ -1495,9 +1501,9 @@
   },
   "6182": {
     "name": "合晶",
-    "news_titles_hash": "7806fbc19824d7731278ec5589348880484bdff6ed3de285e3830bf0d8bf1dbc",
+    "news_titles_hash": "19ed56eaf7b5239225b1cf9de2737a329f54580e209287dec11ef7b751b2d2f5",
     "status": "finmind/taiwan_stock_news",
-    "updated_at": "2026-08-31 21:09:50"
+    "updated_at": "2026-09-03 16:53:40"
   },
   "6187": {
     "name": "萬潤",
