@@ -307,12 +307,15 @@ def build_index_row(index_id, name, df):
     d_t1 = round(_f(prev, "D"), 2) if _f(prev, "D") is not None else None
 
     # Volume indicators
-    vr_t0 = round(_f(latest, "VR"), 2) if _f(latest, "VR") is not None else None
+    vr_t0 = round(_f(latest, "VR"), 2) if _f(
+        latest, "VR") is not None else None
     vr_t1 = round(_f(prev, "VR"), 2) if _f(prev, "VR") is not None else None
     vr_t2 = round(_f(prev2, "VR"), 2) if _f(prev2, "VR") is not None else None
-    obv_t0 = round(_f(latest, "OBV"), 0) if _f(latest, "OBV") is not None else None
+    obv_t0 = round(_f(latest, "OBV"), 0) if _f(
+        latest, "OBV") is not None else None
     obv_t1 = round(_f(prev, "OBV"), 0) if _f(prev, "OBV") is not None else None
-    obv_t2 = round(_f(prev2, "OBV"), 0) if _f(prev2, "OBV") is not None else None
+    obv_t2 = round(_f(prev2, "OBV"), 0) if _f(
+        prev2, "OBV") is not None else None
 
     # BB%
     def _bb_pct(row):
