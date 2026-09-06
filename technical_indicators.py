@@ -106,6 +106,23 @@ def add_indicators(df):
         df['BIAS20'] = (df['close'] - df['MA20']) / df['MA20'] * 100
         df['BIAS60'] = (df['close'] - df['MA60']) / df['MA60'] * 100
 
+        # VR uses the conventional 26-trading-day volume ratio. Up-day volume
+        # is accumulated in the numerator, down-day volume in the denominator,
+        # and unchanged-day volume is split equally between both sides.
+        close_change = df['close'].diff()
+        volume = pd.to_numeric(df.get('volume'), errors='coerce')
+        up_volume = volume.where(close_change > 0, 0.0)
+        down_volume = volume.where(close_change < 0, 0.0)
+        flat_volume = volume.where(close_change == 0, 0.0)
+        vr_numerator = (up_volume + flat_volume * 0.5).rolling(26).sum()
+        vr_denominator = (down_volume + flat_volume * 0.5).rolling(26).sum()
+        df['VR'] = vr_numerator / vr_denominator.replace(0, pd.NA) * 100
+
+        # OBV starts at zero and follows the close direction of each trading day.
+        obv_delta = volume.where(close_change > 0, 0.0)
+        obv_delta = obv_delta - volume.where(close_change < 0, 0.0)
+        df['OBV'] = obv_delta.fillna(0).cumsum()
+
         # Keep legacy column names for compatibility, but compute over 90 trading days.
         df['BIAS5_60D_HIGH'] = df['BIAS5'].rolling(90, min_periods=45).max()
         df['BIAS5_60D_LOW'] = df['BIAS5'].rolling(90, min_periods=45).min()

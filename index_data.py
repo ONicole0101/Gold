@@ -93,6 +93,12 @@ def _empty_index_row(index_id, name, reason="資料無法取得"):
         "d_t1": None,
         "kd_trend": None,
         "kd_3d_up": None,
+        "vr_t0": None,
+        "vr_t1": None,
+        "vr_t2": None,
+        "obv_t0": None,
+        "obv_t1": None,
+        "obv_t2": None,
         "bb_pct": None,
         "bb_pct_t1": None,
         "bb_pct_60d_low": None,
@@ -300,6 +306,14 @@ def build_index_row(index_id, name, df):
     k_t1 = round(_f(prev, "K"), 2) if _f(prev, "K") is not None else None
     d_t1 = round(_f(prev, "D"), 2) if _f(prev, "D") is not None else None
 
+    # Volume indicators
+    vr_t0 = round(_f(latest, "VR"), 2) if _f(latest, "VR") is not None else None
+    vr_t1 = round(_f(prev, "VR"), 2) if _f(prev, "VR") is not None else None
+    vr_t2 = round(_f(prev2, "VR"), 2) if _f(prev2, "VR") is not None else None
+    obv_t0 = round(_f(latest, "OBV"), 0) if _f(latest, "OBV") is not None else None
+    obv_t1 = round(_f(prev, "OBV"), 0) if _f(prev, "OBV") is not None else None
+    obv_t2 = round(_f(prev2, "OBV"), 0) if _f(prev2, "OBV") is not None else None
+
     # BB%
     def _bb_pct(row):
         u = _f(row, "BB_upper")
@@ -376,6 +390,8 @@ def build_index_row(index_id, name, df):
         "k": k, "d": d, "k_t1": k_t1, "d_t1": d_t1,
         "kd_trend": kd.get("kd_trend"),
         "kd_3d_up": kd.get("kd_3d_up"),
+        "vr_t0": vr_t0, "vr_t1": vr_t1, "vr_t2": vr_t2,
+        "obv_t0": obv_t0, "obv_t1": obv_t1, "obv_t2": obv_t2,
         # BB%
         "bb_pct": bb_pct,
         "bb_pct_t1": bb_pct_t1,

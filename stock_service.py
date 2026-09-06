@@ -348,6 +348,12 @@ def build_recent_technical_fields(*rows):
         fields[f"rsi_{suffix}"] = round_float_or_none(
             row.get("RSI") if "RSI" in row else row.get("rsi"), 2
         )
+        fields[f"vr_{suffix}"] = round_float_or_none(
+            row.get("VR") if "VR" in row else row.get("vr"), 2
+        )
+        fields[f"obv_{suffix}"] = round_float_or_none(
+            row.get("OBV") if "OBV" in row else row.get("obv"), 0
+        )
     return fields
 
 
