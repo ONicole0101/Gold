@@ -1024,12 +1024,41 @@
             <option value="down">↓</option>
             <option value="flat">→</option>
           </select></div>
+        <div class="filter-item"><label>日VR值</label><select data-filter-op="vr">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="vr" type="number" step="0.01" placeholder="數值"></div>
+        <div class="filter-item filter-item-direction"><label for="vrDirectionFilter">日VR方向</label><select
+            id="vrDirectionFilter" data-direction-filter>
+            <option value="">全部</option>
+            <option value="up">↑</option>
+            <option value="down">↓</option>
+            <option value="flat">→</option>
+          </select></div>
+        <div class="filter-item filter-item-direction"><label for="obvDirectionFilter">日OBV方向</label><select
+            id="obvDirectionFilter" data-direction-filter>
+            <option value="">全部</option>
+            <option value="up">↑</option>
+            <option value="down">↓</option>
+            <option value="flat">→</option>
+          </select></div>
         <div class="filter-item"><label>日布林%</label><select data-filter-op="bb_pct">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
           </select><input data-filter-key="bb_pct" type="number" step="0.01" placeholder="數值"></div>
         <div class="filter-item filter-item-direction"><label for="bbDirectionFilter">日布林方向</label><select
             id="bbDirectionFilter" data-direction-filter>
+            <option value="">全部</option>
+            <option value="up">↑</option>
+            <option value="down">↓</option>
+            <option value="flat">→</option>
+          </select></div>
+        <div class="filter-item"><label>MACD值</label><select data-filter-op="macd_hist">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="macd_hist" type="number" step="0.0001" placeholder="數值"></div>
+        <div class="filter-item filter-item-direction"><label for="macdDirectionFilter">MACD方向</label><select
+            id="macdDirectionFilter" data-direction-filter>
             <option value="">全部</option>
             <option value="up">↑</option>
             <option value="down">↓</option>
@@ -1049,10 +1078,6 @@
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
           </select><input data-filter-key="bias5" type="number" step="0.01" placeholder="數值"></div>
-        <div class="filter-item"><label>日Bias20</label><select data-filter-op="bias20">
-            <option value=">">&gt;</option>
-            <option value="<">&lt;</option>
-          </select><input data-filter-key="bias20" type="number" step="0.01" placeholder="數值"></div>
         <div class="filter-item"><label>日成交量</label><select data-filter-op="volume">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
@@ -1572,6 +1597,18 @@
         dayMetricValue(s, "bb_pct", 0),
         dayMetricValue(s, "bb_pct", 1)
       );
+    }
+
+    function vrDirection(s) {
+      return metricDirection(dayMetricValue(s, "vr", 0), dayMetricValue(s, "vr", 1));
+    }
+
+    function obvDirection(s) {
+      return metricDirection(dayMetricValue(s, "obv", 0), dayMetricValue(s, "obv", 1));
+    }
+
+    function macdDirection(s) {
+      return metricDirection(dayMetricValue(s, "macd_hist", 0), dayMetricValue(s, "macd_hist", 1));
     }
 
     function renderDayPairContent(s, key, suffix = "") {
@@ -2621,6 +2658,18 @@
     }
 
     function getNumericValue(s, key) {
+      if (key === "vr") {
+        const value = pickFirst(s?.vr_t0, s?.vr);
+        if (isNil(value) || value === "") return null;
+        const num = Number(value);
+        return Number.isNaN(num) ? null : num;
+      }
+      if (key === "macd_hist") {
+        const value = pickFirst(s?.macd_hist_t0, s?.macd_hist);
+        if (isNil(value) || value === "") return null;
+        const num = Number(value);
+        return Number.isNaN(num) ? null : num;
+      }
       if (key === "chip_concentration_pct_filter") {
         const value = pickFirst(s?.chip_concentration_pct_t0, s?.chip_concentration_pct);
         if (isNil(value) || value === "") return null;
@@ -2806,6 +2855,21 @@
 
       const bbDirectionFilter = document.getElementById("bbDirectionFilter");
       if (bbDirectionFilter?.value && bbDirection(s) !== bbDirectionFilter.value) {
+        return false;
+      }
+
+      const vrDirectionFilter = document.getElementById("vrDirectionFilter");
+      if (vrDirectionFilter?.value && vrDirection(s) !== vrDirectionFilter.value) {
+        return false;
+      }
+
+      const obvDirectionFilter = document.getElementById("obvDirectionFilter");
+      if (obvDirectionFilter?.value && obvDirection(s) !== obvDirectionFilter.value) {
+        return false;
+      }
+
+      const macdDirectionFilter = document.getElementById("macdDirectionFilter");
+      if (macdDirectionFilter?.value && macdDirection(s) !== macdDirectionFilter.value) {
         return false;
       }
 
