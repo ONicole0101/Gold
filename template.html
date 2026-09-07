@@ -476,6 +476,44 @@
       margin-bottom: 2px;
     }
 
+    .filter-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 26px;
+      padding: 2px 4px;
+      border: 0;
+      background: transparent;
+      color: #e6edf3;
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+    }
+
+    .filter-toggle-btn::before {
+      content: "";
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 7px solid #8b949e;
+      transition: transform 160ms ease;
+    }
+
+    .filter-panel:not(.is-collapsed) .filter-toggle-btn::before {
+      transform: rotate(90deg);
+    }
+
+    .filter-toggle-btn:hover,
+    .filter-toggle-btn:focus-visible {
+      color: #58a6ff;
+    }
+
+    .filter-panel.is-collapsed .top-right-filters,
+    .filter-panel.is-collapsed .filter-row {
+      display: none;
+    }
+
     .filter-title {
       flex: 1 1 auto;
       color: #8b949e;
@@ -963,7 +1001,10 @@
 
     <div class="filter-panel" id="filterPanel">
       <div class="filter-title-row">
-        <div class="filter-title">篩選條件：可多條件累積篩選；輸入即時更新，也可按「套用」。</div>
+        <button type="button" class="filter-toggle-btn" id="filterToggleBtn"
+          aria-controls="filterPanel" aria-expanded="true">
+          <span class="filter-title">篩選條件：可多條件累積篩選；輸入即時更新，也可按「套用」。</span>
+        </button>
         <div class="top-right-filters">
           <div class="code-filter-item">
             <label for="stockCodeFilter">股票代號</label>
@@ -2915,6 +2956,15 @@
     }
 
     function bindFilters() {
+      const filterPanel = document.getElementById("filterPanel");
+      const filterToggleBtn = document.getElementById("filterToggleBtn");
+      if (filterPanel && filterToggleBtn) {
+        filterToggleBtn.addEventListener("click", () => {
+          const collapsed = filterPanel.classList.toggle("is-collapsed");
+          filterToggleBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+        });
+      }
+
       document.querySelectorAll("[data-filter-key]").forEach(input => {
         input.addEventListener("input", applyFilters);
         input.addEventListener("change", applyFilters);
