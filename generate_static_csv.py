@@ -24,7 +24,7 @@ from financial_analysis import (
 )
 
 DATA_COLS = [
-    "eps_Y", "eps_Y_quarters", "eps_ttm",
+    "eps_Y", "eps_Y_quarters", "eps_ttm", "eps_yoy",
     "roe_last_year", "roe_ttm",
     "rev", "rev_mom", "rev_qoq", "rev_yoy",
     "gross_margin", "gross_margin_qoq", "gross_margin_yoy_diff",
@@ -278,13 +278,14 @@ def empty_static_row(s: dict) -> dict:
 def apply_eps_fields(row: dict, stock_id: str) -> dict:
     eps_res = get_eps_analysis(stock_id, None)
     print("EPS =", stock_id, eps_res, flush=True)
-    eps_res = tuple(eps_res) if isinstance(eps_res, tuple) else (None,) * 7
-    eps_res = eps_res + (None,) * (7 - len(eps_res))
-    eps_last, eps_ttm, per_last, per_ttm, eps_y_is_prev, eps_ttm_is_prev, eps_y_quarters = eps_res[
-        :7]
+    eps_res = tuple(eps_res) if isinstance(eps_res, tuple) else (None,) * 8
+    eps_res = eps_res + (None,) * (8 - len(eps_res))
+    eps_last, eps_ttm, per_last, per_ttm, eps_y_is_prev, eps_ttm_is_prev, eps_y_quarters, eps_yoy = eps_res[
+        :8]
     row["eps_Y"] = eps_last
     row["eps_Y_quarters"] = eps_y_quarters
     row["eps_ttm"] = eps_ttm
+    row["eps_yoy"] = eps_yoy
     row["per_ttm"] = per_ttm
     row["eps_Y_is_prev"] = "True" if eps_y_is_prev else "False"
     row["eps_ttm_is_prev"] = "True" if eps_ttm_is_prev else "False"

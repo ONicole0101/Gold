@@ -544,6 +544,14 @@ def get_eps_analysis(stock_id, current_price=None):
                 latest4) else 0
             eps_ttm_is_prev = False
 
+        # EPS YoY: current TTM vs. the TTM ending one year (4 quarters) earlier.
+        latest8 = eps_df.tail(8)
+        eps_yoy = None
+        if len(latest8) >= 8:
+            ttm_prev = float(latest8.iloc[:4]["value"].sum())
+            if ttm_prev != 0:
+                eps_yoy = round((eps_ttm - ttm_prev) / abs(ttm_prev) * 100, 2)
+
         def calc_per(price, eps):
             try:
                 price = float(price)
@@ -555,11 +563,11 @@ def get_eps_analysis(stock_id, current_price=None):
         per_y = calc_per(current_price, eps_year)
         per_ttm = calc_per(current_price, eps_ttm)
 
-        return eps_year, eps_ttm, per_y, per_ttm, False, eps_ttm_is_prev, eps_y_quarters
+        return eps_year, eps_ttm, per_y, per_ttm, False, eps_ttm_is_prev, eps_y_quarters, eps_yoy
 
     except Exception as e:
         print(f"❌ EPS error {stock_id}: {e}")
-        return (None, None, None, None, False, False)
+        return (None, None, None, None, False, False, None, None)
 
 
 def get_dividend_yield(stock_id, current_price=None):
