@@ -2350,10 +2350,9 @@
               : 0;
             return `
             <td>
-              <div class="table-lv1">${fmt(s.eps_Y ?? 0)}</div>
-              <div class="table-lv2">(${epsYearQuarters})</div>
+              <div class="table-lv1">${fmt(s.eps_Y ?? 0)} (${epsYearQuarters})</div>
               <div class="table-lv2">${fmt(s.eps_ttm)}</div>
-              <div class="table-lv2 ${trendClass(s.eps_yoy)}">${isNil(s.eps_yoy) ? "-" : `${fmtTrend(s.eps_yoy)} ${fmt(s.eps_yoy, "%")}`}</div>
+              <div class="table-lv2 ${trendClass(s.eps_yoy)}">${isNil(s.eps_yoy) ? "-" : `Y ${fmtTrend(s.eps_yoy)} ${fmt(s.eps_yoy, "%")}`}</div>
             </td>`;
           }
         case "roe":
@@ -2500,7 +2499,7 @@
 
       const fundamentalGrid = `
         <div class="stock-grid">
-          <div class="stock-item"><div class="stock-label">EPS<small>(季數)</small><br>TTM / 年增率</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y ?? 0)}</div><div class="table-lv2">(${Number.isInteger(Number(s.eps_Y_quarters)) ? Number(s.eps_Y_quarters) : 0})</div><div class="table-lv2">${fmt(s.eps_ttm)}</div><div class="table-lv2 ${trendClass(s.eps_yoy)}">${isNil(s.eps_yoy) ? "-" : `${fmtTrend(s.eps_yoy)} ${fmt(s.eps_yoy, "%")}`}</div></div></div>
+          <div class="stock-item"><div class="stock-label">EPS<small>(季數)</small><br>TTM / 年增率</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y ?? 0)} (${Number.isInteger(Number(s.eps_Y_quarters)) ? Number(s.eps_Y_quarters) : 0})</div><div class="table-lv2">${fmt(s.eps_ttm)}</div><div class="table-lv2 ${trendClass(s.eps_yoy)}">${isNil(s.eps_yoy) ? "-" : `Y ${fmtTrend(s.eps_yoy)} ${fmt(s.eps_yoy, "%")}`}</div></div></div>
           <div class="stock-item"><div class="stock-label">ROE% / TTM</div>${renderRoeBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">營收</div><div class="stock-value">${renderMetric3(s.rev, s.rev_mom, s.rev_qoq, s.rev_yoy)}</div></div>
           <div class="stock-item"><div class="stock-label">毛利率</div><div class="stock-value">${renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff)}</div></div>
