@@ -1,20 +1,13 @@
-[32m2026-09-10 12:50:30.867[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-09-10 12:50:30.971[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-09-10 14:05:03.373[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-09-10 14:05:03.500[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 5828/6000, remain=172
+FinMind usage: 4126/6000, remain=1874
 Incremental probe: stock_id=2330, latest_date=2026-09-10, status=ok
-Build chips: total=216, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=215, latest_date=2026-09-10
-[32m2026-09-10 12:51:05.071[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1582[0m - [33m[1mTaiwanStockMarginPurchaseShortSale request failed for stock_id=1532 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
-[23/216] 1605 華新 status=no_data date=- main=- diff=- state=no_data
-❌ chip analysis API error 1815: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
-[26/216] 2059 川湖 status=no_data date=- main=- diff=- state=no_data
-[29/216] 2303 聯電 status=no_data date=- main=- diff=- state=no_data
-❌ chip analysis API error 2301: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
-[32/216] 2313 華通 status=no_data date=- main=- diff=- state=no_data
-[35/216] 2337 旺宏 status=no_data date=- main=- diff=- state=no_data
-❌ chip analysis API error 1802: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
-[39/216] 2345 智邦 status=no_data date=- main=- diff=- state=no_data
-❌ chip analysis API error 2356: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+Build chips: total=216, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=19, pending=196, latest_date=2026-09-10
+[32m2026-09-10 14:11:18.749[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1501[0m - [33m[1mTaiwanStockMarginMaintenance request failed for stock_id=6182 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
+[32m2026-09-10 14:11:21.152[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1582[0m - [33m[1mTaiwanStockMarginPurchaseShortSale request failed for stock_id=6182 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
+[32m2026-09-10 14:11:23.017[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1501[0m - [33m[1mTaiwanStockMarginMaintenance request failed for stock_id=6196 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
+[32m2026-09-10 14:11:24.208[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1582[0m - [33m[1mTaiwanStockMarginPurchaseShortSale request failed for stock_id=6196 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-09-10
@@ -169,9 +162,9 @@ chips_status=ok
 ---
 stock_id=1560
 name=中砂
-chip_latest_date=2026-09-09
-main_force_net=157
-broker_diff=-122
+chip_latest_date=2026-09-10
+main_force_net=51
+broker_diff=-49
 chip_signal_state=neutral
 chips_status=ok
 ---
@@ -185,9 +178,9 @@ chips_status=ok
 ---
 stock_id=1605
 name=華新
-chip_latest_date=2026-09-09
-main_force_net=1637
-broker_diff=-55
+chip_latest_date=2026-09-10
+main_force_net=-2941
+broker_diff=208
 chip_signal_state=neutral
 chips_status=ok
 ---
@@ -201,60 +194,60 @@ chips_status=ok
 ---
 stock_id=1802
 name=台玻
-chip_latest_date=2026-09-09
-main_force_net=1756
-broker_diff=-41
+chip_latest_date=2026-09-10
+main_force_net=59
+broker_diff=65
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1815
 name=富喬
-chip_latest_date=2026-09-09
-main_force_net=-16788
-broker_diff=14
+chip_latest_date=2026-09-10
+main_force_net=-1048
+broker_diff=10
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=2002
 name=中鋼
-chip_latest_date=2026-09-09
-main_force_net=10454
-broker_diff=-132
+chip_latest_date=2026-09-10
+main_force_net=-1605
+broker_diff=84
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=2059
 name=川湖
-chip_latest_date=2026-09-09
-main_force_net=-34
-broker_diff=289
+chip_latest_date=2026-09-10
+main_force_net=-5
+broker_diff=167
 chip_signal_state=bearish_distributed
 chips_status=ok
 ---
 stock_id=2207
 name=和泰車
-chip_latest_date=2026-09-09
-main_force_net=-10
-broker_diff=49
+chip_latest_date=2026-09-10
+main_force_net=-2
+broker_diff=44
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=2233
 name=宇隆
-chip_latest_date=2026-09-09
-main_force_net=73
-broker_diff=-16
+chip_latest_date=2026-09-10
+main_force_net=-35
+broker_diff=91
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=2301
 name=光寶科
-chip_latest_date=2026-09-09
-main_force_net=-468
-broker_diff=39
+chip_latest_date=2026-09-10
+main_force_net=-1780
+broker_diff=50
 chip_signal_state=bearish_distributed
 chips_status=ok
 ---
 rows= 216
-status= {'ok': 214, 'no_data': 2}
+status= {'ok': 215, 'no_data': 1}
 No stock_id selected; skip single-stock print.
