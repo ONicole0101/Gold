@@ -1216,8 +1216,8 @@
           { key: "support_price", label: "支撐點<br><small>距離%</small>", tooltip: "支撐點距離%＝(目前收盤價 - 支撐點價格) ÷ 目前收盤價 × 100。數值越小代表越接近下方支撐，跌破後可能轉為壓力。" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "k", label: "日KD<br><small>3天趨勢</small>" },
-          { key: "vr", label: "日 VR<br><small>T/T-1/T-2</small>", tooltip: "VR（Volume Ratio）＝24日內上漲日成交量加上平盤日成交量的一半，除以同期間下跌日成交量加上平盤日成交量的一半，再乘以100。VR＜40%（低檔區）：代表市場人氣極度低迷、成交量萎縮，常為「底部訊號」，可考慮逢低買進；VR 80%～150%（安全／盤整區）：市場多空力道均衡，行情處於正常震盪；VR 160%～350%（獲利／活絡區）：股市交易熱絡，多頭氣勢強；VR＞450%（高檔警戒區）：代表市場過熱、追高意願濃厚，可能形成「頭部訊號」。" },
-          { key: "obv", label: "日 OBV<br><small>T/T-1/T-2</small>", tooltip: "OBV（On-Balance Volume），注意價量背離情況，以收盤價上漲加當日成交量、下跌減當日成交量、平盤不變，累計成交量方向；數值上升表示量能偏向買方，下降表示偏向賣方。" },
+          { key: "vr", label: "日 VR<br><small>T/T-1/T-2</small>", tooltip: "VR(Volume Ratio)＝24日內(上漲日成交量+0.5平盤量)/(下跌日成交量+0.5平盤量)*100%。VR＜40%（低檔區）：常為「底部訊號」；VR 80%～150%（安全／盤整區）：正常震盪；VR 160%～350%（獲利／活絡區）：股市交易熱絡，多頭氣勢強；VR＞450%（高檔警戒區）：代表市場過熱、追高意願濃厚，可能形成「頭部訊號」。" }        
+          { key: "obv", label: "日 OBV<br><small>T/T-1/T-2</small>", tooltip: "OBV(On-Balance Volume），注意價量背離情況，以收盤價上漲加當日成交量、下跌減當日成交量、平盤不變，累計成交量方向；數值上升表示量能偏向買方，下降表示偏向賣方。" },
           { key: "bb_pct", label: "日布林%<br><small>T/T-1/T-2</small>", tooltip: "布林% ＝ (收盤價 - BB下軌) ÷ (BB上軌 - BB下軌) × 100。當值越高代表股價偏向上軌、越低代表偏向下軌，並以箭頭與 T/T-1/T-2 顯示趨勢變化。" },
           { key: "macd_hist", label: "MACD值<br><small>T/T-1/T-2</small>", tooltip: "MACD值 = DIF - DEA；柱狀體轉正代表動能轉強，轉負代表動能轉弱，箭頭與 T/T-1/T-2 展示最近三天變化。" },
           { key: "rsi", label: "RSI值<br><small>T/T-1/T-2</small>", tooltip: "RSI = 100 - 100 ÷ (1 + RS)。通常 70 以上偏熱、30 以下偏冷，箭頭與 T/T-1/T-2 顯示相對強弱變化。" },
