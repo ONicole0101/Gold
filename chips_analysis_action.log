@@ -1,158 +1,169 @@
-[32m2026-09-09 13:02:57.472[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-09-09 13:02:57.623[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-09-10 12:50:30.867[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-09-10 12:50:30.971[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 4771/6000, remain=1229
-Incremental probe: stock_id=2330, latest_date=2026-09-09, status=ok
-Build chips: total=218, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=217, latest_date=2026-09-09
+FinMind usage: 5828/6000, remain=172
+Incremental probe: stock_id=2330, latest_date=2026-09-10, status=ok
+Build chips: total=216, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=215, latest_date=2026-09-10
+[32m2026-09-10 12:51:05.071[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1582[0m - [33m[1mTaiwanStockMarginPurchaseShortSale request failed for stock_id=1532 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
+[23/216] 1605 華新 status=no_data date=- main=- diff=- state=no_data
+❌ chip analysis API error 1815: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+[26/216] 2059 川湖 status=no_data date=- main=- diff=- state=no_data
+[29/216] 2303 聯電 status=no_data date=- main=- diff=- state=no_data
+❌ chip analysis API error 2301: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+[32/216] 2313 華通 status=no_data date=- main=- diff=- state=no_data
+[35/216] 2337 旺宏 status=no_data date=- main=- diff=- state=no_data
+❌ chip analysis API error 1802: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+[39/216] 2345 智邦 status=no_data date=- main=- diff=- state=no_data
+❌ chip analysis API error 2356: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
 stock_id=0056
 name=元大高股息
-chip_latest_date=2026-09-09
-main_force_net=2082
-broker_diff=55
+chip_latest_date=2026-09-10
+main_force_net=-164
+broker_diff=118
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=00662
 name=富邦NASDAQ
-chip_latest_date=2026-09-09
-main_force_net=-976
-broker_diff=331
+chip_latest_date=2026-09-10
+main_force_net=-288
+broker_diff=341
 chip_signal_state=bearish_distributed
 chips_status=ok
 ---
 stock_id=00878
 name=國泰永續高股息
-chip_latest_date=2026-09-09
-main_force_net=5757
-broker_diff=22
+chip_latest_date=2026-09-10
+main_force_net=3351
+broker_diff=116
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=00892
 name=富邦台灣半導體
-chip_latest_date=2026-09-09
-main_force_net=349
-broker_diff=4
-chip_signal_state=bullish_distributed
+chip_latest_date=2026-09-10
+main_force_net=-123
+broker_diff=116
+chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=00919
 name=群益台灣精選高息
-chip_latest_date=2026-09-09
-main_force_net=-73275
-broker_diff=110
+chip_latest_date=2026-09-10
+main_force_net=-49907
+broker_diff=150
 chip_signal_state=bearish_distributed
 chips_status=ok
 ---
 stock_id=00941
 name=中信上游半導體
-chip_latest_date=2026-09-09
-main_force_net=78
-broker_diff=17
+chip_latest_date=2026-09-10
+main_force_net=35
+broker_diff=82
 chip_signal_state=bullish_distributed
 chips_status=ok
 ---
 stock_id=1101
 name=台泥
-chip_latest_date=2026-09-09
-main_force_net=9535
-broker_diff=-112
+chip_latest_date=2026-09-10
+main_force_net=4031
+broker_diff=-70
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1216
 name=統一
-chip_latest_date=2026-09-09
-main_force_net=-830
-broker_diff=272
+chip_latest_date=2026-09-10
+main_force_net=-557
+broker_diff=224
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1301
 name=台塑
-chip_latest_date=2026-09-09
-main_force_net=7509
-broker_diff=-68
+chip_latest_date=2026-09-10
+main_force_net=-7640
+broker_diff=159
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1303
 name=南亞
-chip_latest_date=2026-09-09
-main_force_net=-3721
-broker_diff=6
+chip_latest_date=2026-09-10
+main_force_net=8834
+broker_diff=-2
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1319
 name=東陽
-chip_latest_date=2026-09-09
-main_force_net=15
-broker_diff=78
+chip_latest_date=2026-09-10
+main_force_net=-225
+broker_diff=173
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1326
 name=台化
-chip_latest_date=2026-09-09
-main_force_net=6828
-broker_diff=-30
+chip_latest_date=2026-09-10
+main_force_net=-2581
+broker_diff=76
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1402
 name=遠東新
-chip_latest_date=2026-09-09
-main_force_net=-645
-broker_diff=112
+chip_latest_date=2026-09-10
+main_force_net=-171
+broker_diff=103
 chip_signal_state=bearish_distributed
 chips_status=ok
 ---
 stock_id=1503
 name=士電
-chip_latest_date=2026-09-09
-main_force_net=359
-broker_diff=-144
+chip_latest_date=2026-09-10
+main_force_net=-267
+broker_diff=167
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1504
 name=東元
-chip_latest_date=2026-09-09
-main_force_net=645
-broker_diff=-27
+chip_latest_date=2026-09-10
+main_force_net=124
+broker_diff=112
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1513
 name=中興電
-chip_latest_date=2026-09-09
-main_force_net=823
-broker_diff=-184
+chip_latest_date=2026-09-10
+main_force_net=125
+broker_diff=68
 chip_signal_state=bullish_distributed
 chips_status=ok
 ---
 stock_id=1514
 name=亞力
-chip_latest_date=2026-09-09
-main_force_net=449
-broker_diff=-175
+chip_latest_date=2026-09-10
+main_force_net=-35
+broker_diff=85
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1519
 name=華城
-chip_latest_date=2026-09-09
-main_force_net=253
-broker_diff=-99
+chip_latest_date=2026-09-10
+main_force_net=-243
+broker_diff=280
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1532
 name=勤美
-chip_latest_date=2026-09-09
-main_force_net=5
-broker_diff=-9
+chip_latest_date=2026-09-10
+main_force_net=11
+broker_diff=-8
 chip_signal_state=neutral
 chips_status=ok
 ---
@@ -244,6 +255,6 @@ broker_diff=39
 chip_signal_state=bearish_distributed
 chips_status=ok
 ---
-rows= 218
-status= {'ok': 218}
+rows= 216
+status= {'ok': 214, 'no_data': 2}
 No stock_id selected; skip single-stock print.
