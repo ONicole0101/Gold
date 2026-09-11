@@ -1704,7 +1704,7 @@
       const score = dayMetricScore(s, key);
       return `
         <div class="table-lv1 ${trendClass(score)}">${fmtTrend(score)}</div>
-        <div class="table-lv2">當日MA${maPeriod}：${fmt(ma)}</div>
+        <div class="table-lv2">MA${maPeriod}：${fmt(ma)}</div>
         ${dayMetricLine(s, key, 0, "%")}
         ${dayMetricLine(s, key, 1, "%")}
         <div class="table-lv3">${fmt(low, "%")} / ${fmt(high, "%")}</div>`;
