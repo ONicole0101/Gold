@@ -554,40 +554,63 @@
 
     .filter-item {
       display: grid;
-      grid-template-columns: auto 40px 66px;
+      grid-template-columns: auto 38px 64px;
       align-items: center;
       gap: 3px;
       font-size: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: border-color 150ms ease, background-color 150ms ease;
+    }
+
+    .filter-item:hover {
+      border-color: #30363d;
+      background: rgba(255, 255, 255, 0.04);
     }
 
     .filter-item.filter-item-direction {
-      grid-template-columns: auto 66px;
+      grid-template-columns: auto 64px;
     }
 
     .filter-row {
       width: 100%;
       display: flex;
       flex-wrap: wrap;
-      align-items: end;
-      gap: 6px;
+      align-items: center;
+      gap: 6px 10px;
+      padding-bottom: 8px;
+    }
+
+    .filter-row:not(:last-child) {
+      border-bottom: 1px solid rgba(48, 54, 61, 0.6);
+      margin-bottom: 2px;
     }
 
     .filter-item label {
       color: #c9d1d9;
       white-space: nowrap;
+      font-weight: 500;
     }
 
     .filter-item select,
     .filter-item input {
       width: 100%;
       box-sizing: border-box;
-      height: 26px;
+      height: 25px;
       border: 1px solid #30363d;
-      border-radius: 6px;
+      border-radius: 5px;
       background: #0d1117;
       color: #e6edf3;
       padding: 2px 4px;
       font-size: 12px;
+    }
+
+    .filter-item select:focus,
+    .filter-item input:focus {
+      outline: none;
+      border-color: #58a6ff;
     }
 
     .category-dropdown {
@@ -1042,6 +1065,14 @@
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
           </select><input data-filter-key="chgPct" type="number" step="0.01" placeholder="數值"></div>
+        <div class="filter-item"><label>日成交量</label><select data-filter-op="volume">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="volume" type="number" step="1" placeholder="張數"></div>
+        <div class="filter-item"><label>日增量%</label><select data-filter-op="volume_ratio">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="volume_ratio" type="number" step="0.01" placeholder="數值"></div>
         <div class="filter-item"><label>EPS</label><select data-filter-op="eps_Y">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
@@ -1054,6 +1085,8 @@
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
           </select><input data-filter-key="per_latest" type="number" step="0.01" placeholder="數值"></div>
+      </div>
+      <div class="filter-row">
         <div class="filter-item"><label>日KD</label><select data-filter-op="k">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
@@ -1105,8 +1138,18 @@
             <option value="down">↓</option>
             <option value="flat">→</option>
           </select></div>
-      </div>
-      <div class="filter-row">
+        <div class="filter-item"><label>日Bias5</label><select data-filter-op="bias5">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="bias5" type="number" step="0.01" placeholder="數值"></div>
+        <div class="filter-item"><label>日Bias20</label><select data-filter-op="bias20">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="bias20" type="number" step="0.01" placeholder="數值"></div>
+        <div class="filter-item"><label>日Bias60</label><select data-filter-op="bias60">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="bias60" type="number" step="0.01" placeholder="數值"></div>
         <div class="filter-item"><label>壓力點距離%</label><select data-filter-op="resistance_distance_pct">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
@@ -1115,18 +1158,6 @@
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
           </select><input data-filter-key="support_distance_pct" type="number" step="0.01" placeholder="%"></div>
-        <div class="filter-item"><label>日Bias5</label><select data-filter-op="bias5">
-            <option value=">">&gt;</option>
-            <option value="<">&lt;</option>
-          </select><input data-filter-key="bias5" type="number" step="0.01" placeholder="數值"></div>
-        <div class="filter-item"><label>日成交量</label><select data-filter-op="volume">
-            <option value=">">&gt;</option>
-            <option value="<">&lt;</option>
-          </select><input data-filter-key="volume" type="number" step="1" placeholder="張數"></div>
-        <div class="filter-item"><label>日增量%</label><select data-filter-op="volume_ratio">
-            <option value=">">&gt;</option>
-            <option value="<">&lt;</option>
-          </select><input data-filter-key="volume_ratio" type="number" step="0.01" placeholder="數值"></div>
       </div>
       <div class="filter-row">
         <div class="filter-item"><label>籌碼集中%</label><select data-filter-op="chip_concentration_pct_filter">
@@ -1214,7 +1245,6 @@
           { key: "chgPct", label: "價格漲跌%<br><small>漲跌/震幅</small>" },
           { key: "resistance_price", label: "壓力點<br><small>距離%</small>", tooltip: "壓力點距離%＝(壓力點價格 - 目前收盤價) ÷ 目前收盤價 × 100。數值越小代表越接近上方壓力，突破後可能轉為支撐。" },
           { key: "support_price", label: "支撐點<br><small>距離%</small>", tooltip: "支撐點距離%＝(目前收盤價 - 支撐點價格) ÷ 目前收盤價 × 100。數值越小代表越接近下方支撐，跌破後可能轉為壓力。" },
-          { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
           { key: "k", label: "日KD<br><small>3天趨勢</small>" },
           { key: "vr", label: "日 VR<br><small>T/T-1/T-2</small>", tooltip: "VR(Volume Ratio)＝24日內(上漲日成交量+0.5平盤量)/(下跌日成交量+0.5平盤量)*100%。VR＜40%（低檔區）：常為「底部訊號」；VR 80%～150%（安全／盤整區）：正常震盪；VR 160%～350%（獲利／活絡區）：股市交易熱絡，多頭氣勢強；VR＞450%（高檔警戒區）：代表市場過熱、追高意願濃厚，可能形成「頭部訊號」。" },
           { key: "obv", label: "日 OBV<br><small>T/T-1/T-2</small>", tooltip: "OBV(On-Balance Volume），注意價量背離情況，以收盤價上漲加當日成交量、下跌減當日成交量、平盤不變，累計成交量方向；數值上升表示量能偏向買方，下降表示偏向賣方。" },
@@ -2705,6 +2735,12 @@
     }
 
     function getNumericValue(s, key) {
+      if (key === "bias5" || key === "bias20" || key === "bias60") {
+        const value = pickFirst(s?.[`${key}_t0`], s?.[key]);
+        if (isNil(value) || value === "") return null;
+        const num = Number(value);
+        return Number.isNaN(num) ? null : num;
+      }
       if (key === "vr") {
         const value = pickFirst(s?.vr_t0, s?.vr);
         if (isNil(value) || value === "") return null;
