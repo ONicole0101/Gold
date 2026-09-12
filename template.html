@@ -459,20 +459,20 @@
       display: flex;
       flex-wrap: wrap;
       align-items: end;
-      gap: 8px;
-      margin: 10px 0 14px;
-      padding: 10px;
+      gap: 4px;
+      margin: 6px 0 10px;
+      padding: 6px 8px;
       background: #161b22;
       border: 1px solid #30363d;
-      border-radius: 10px;
+      border-radius: 8px;
     }
 
     .filter-title-row {
       width: 100%;
       display: flex;
       flex-wrap: wrap;
-      align-items: flex-start;
-      gap: 8px 12px;
+      align-items: center;
+      gap: 4px 8px;
       margin-bottom: 2px;
     }
 
@@ -554,13 +554,13 @@
 
     .filter-item {
       display: grid;
-      grid-template-columns: auto 38px 64px;
+      grid-template-columns: auto 36px 60px;
       align-items: center;
-      gap: 3px;
+      gap: 2px;
       font-size: 12px;
       background: rgba(255, 255, 255, 0.02);
-      padding: 2px 6px;
-      border-radius: 6px;
+      padding: 1px 4px;
+      border-radius: 5px;
       border: 1px solid rgba(255, 255, 255, 0.05);
       transition: border-color 150ms ease, background-color 150ms ease;
     }
@@ -571,7 +571,7 @@
     }
 
     .filter-item.filter-item-direction {
-      grid-template-columns: auto 64px;
+      grid-template-columns: auto 60px;
     }
 
     .filter-row {
@@ -579,13 +579,13 @@
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 6px 10px;
-      padding-bottom: 8px;
+      gap: 4px 6px;
+      padding-bottom: 3px;
     }
 
     .filter-row:not(:last-child) {
-      border-bottom: 1px solid rgba(48, 54, 61, 0.6);
-      margin-bottom: 2px;
+      border-bottom: 1px solid rgba(48, 54, 61, 0.4);
+      margin-bottom: 1px;
     }
 
     .filter-item label {
@@ -598,12 +598,12 @@
     .filter-item input {
       width: 100%;
       box-sizing: border-box;
-      height: 25px;
+      height: 22px;
       border: 1px solid #30363d;
-      border-radius: 5px;
+      border-radius: 4px;
       background: #0d1117;
       color: #e6edf3;
-      padding: 2px 4px;
+      padding: 1px 3px;
       font-size: 12px;
     }
 
@@ -2069,6 +2069,9 @@
       if (!["資料不足", "無資料", "資料異常"].includes(signal)) return "";
       const reason = String(s?.reason ?? "").trim();
       const brief = reason.length > 28 ? `${reason.slice(0, 28)}...` : reason;
+      if (signal === "資料不足" && brief) {
+        return `<div class="table-lv3 text-red" title="${escapeHtml(`資料不足：${reason}`)}">${escapeHtml(brief)}</div>`;
+      }
       return `<div class="table-lv3 text-red" title="${escapeHtml(reason || signal)}">${escapeHtml(signal)}${brief ? `：${escapeHtml(brief)}` : ""}</div>`;
     }
 
