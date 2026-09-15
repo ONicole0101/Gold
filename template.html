@@ -1030,8 +1030,8 @@
         </button>
         <div class="top-right-filters">
           <div class="code-filter-item">
-            <label for="stockCodeFilter">股票代號</label>
-            <input id="stockCodeFilter" type="text" inputmode="numeric" placeholder="例如 2330">
+            <label for="stockCodeFilter">股票代號／名稱</label>
+            <input id="stockCodeFilter" type="text" placeholder="例如 2330、台積電或 台*電">
           </div>
           <div class="category-dropdown" id="customCategoryDropdown">
             <label for="customCategoryToggle">自選分類</label>
@@ -2925,7 +2925,12 @@
       const codeKeyword = String(codeInput?.value ?? "").trim();
       if (codeKeyword) {
         const stockCode = String(s?.code ?? s?.stock_id ?? "").trim();
-        if (!stockCode.includes(codeKeyword)) return false;
+        const stockName = String(s?.name ?? s?.stock_name ?? "").trim();
+        const pattern = codeKeyword
+          .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+          .replace(/\\\*/g, ".*");
+        const keywordPattern = new RegExp(pattern, "i");
+        if (!keywordPattern.test(stockCode) && !keywordPattern.test(stockName)) return false;
       }
 
       const selectedCategories = selectedCustomCategories();
