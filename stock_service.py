@@ -553,7 +553,7 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
         bb_pct_window = df.tail(120).apply(_bb_pct_from_row, axis=1)
         bb_pct_window = pd.to_numeric(bb_pct_window, errors="coerce")
         bb_pct_120d_low = float(round(bb_pct_window.min(), 1)
-                               ) if bb_pct_window.notna().any() else None
+                                ) if bb_pct_window.notna().any() else None
         bb_pct_120d_high = float(
             round(bb_pct_window.max(), 1)) if bb_pct_window.notna().any() else None
 
