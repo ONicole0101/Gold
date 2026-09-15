@@ -54,27 +54,26 @@ def calculate_price_change_metrics(close, high, low, reference_price):
     }
 
 
-def get_price_60d_high_low(df):
+def get_price_120d_high_low(df):
     df = clean_ohlc_data(df)
     if df is None or df.empty:
         return {
-            "price_60d_high": None,
-            "price_60d_low": None,
+            "price_120d_high": None,
+            "price_120d_low": None,
         }
-    # Keep legacy key names for compatibility, but compute over 90 trading days.
-    df_90 = df.tail(90)
-    max_price90 = pd.to_numeric(df_90["max"], errors="coerce").max()
-    min_price90 = pd.to_numeric(df_90["min"], errors="coerce").min()
+    df_120 = df.tail(120)
+    max_price120 = pd.to_numeric(df_120["max"], errors="coerce").max()
+    min_price120 = pd.to_numeric(df_120["min"], errors="coerce").min()
 
-    if pd.isna(max_price90) or pd.isna(min_price90):
+    if pd.isna(max_price120) or pd.isna(min_price120):
         return {
-            "price_60d_high": None,
-            "price_60d_low": None,
+            "price_120d_high": None,
+            "price_120d_low": None,
         }
 
     return {
-        "price_60d_high": float(max_price90),
-        "price_60d_low": float(min_price90),
+        "price_120d_high": float(max_price120),
+        "price_120d_low": float(min_price120),
     }
 
 
@@ -457,7 +456,7 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
         latest, prev, prev2, prev3 = df.iloc[-1], df.iloc[-2], df.iloc[-3], df.iloc[-4]
         recent_technical_fields = build_recent_technical_fields(
             latest, prev, prev2, prev3)
-        price_stats = get_price_60d_high_low(df)
+        price_stats = get_price_120d_high_low(df)
         support_resistance = get_support_resistance_levels(df)
         max_price = latest["max"]
         min_price = latest["min"]
@@ -551,11 +550,11 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             bb_pct = float(bb_pct)
         bb_pct_t1 = _bb_pct_from_row(prev)
         bb_pct_t2 = _bb_pct_from_row(prev2)
-        bb_pct_window = df.tail(90).apply(_bb_pct_from_row, axis=1)
+        bb_pct_window = df.tail(120).apply(_bb_pct_from_row, axis=1)
         bb_pct_window = pd.to_numeric(bb_pct_window, errors="coerce")
-        bb_pct_90d_low = float(round(bb_pct_window.min(), 1)
+        bb_pct_120d_low = float(round(bb_pct_window.min(), 1)
                                ) if bb_pct_window.notna().any() else None
-        bb_pct_90d_high = float(
+        bb_pct_120d_high = float(
             round(bb_pct_window.max(), 1)) if bb_pct_window.notna().any() else None
 
         def _bias_from_row(row, period):
@@ -743,8 +742,8 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             "margin_cost_line_t0": None,
             "margin_cost_line_t1": None,
             "margin_cost_line_t2": None,
-            "price_60d_high": price_stats.get("price_60d_high"),
-            "price_60d_low": price_stats.get("price_60d_low"),
+            "price_120d_high": price_stats.get("price_120d_high"),
+            "price_120d_low": price_stats.get("price_120d_low"),
             "resistance_price": support_resistance.get("resistance_price"),
             "support_price": support_resistance.get("support_price"),
             "resistance_date": support_resistance.get("resistance_date"),
@@ -792,8 +791,8 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             "bb_pct_t0": float(bb_pct) if bb_pct is not None else None,
             "bb_pct_t1": float(bb_pct_t1) if bb_pct_t1 is not None else None,
             "bb_pct_t2": float(bb_pct_t2) if bb_pct_t2 is not None else None,
-            "bb_pct_90d_low": bb_pct_90d_low,
-            "bb_pct_90d_high": bb_pct_90d_high,
+            "bb_pct_120d_low": bb_pct_120d_low,
+            "bb_pct_120d_high": bb_pct_120d_high,
             "bb_upper": float(round(bb_upper, 2)) if bb_upper is not None and pd.notna(bb_upper) else None,
             "bb_lower": float(round(bb_lower, 2)) if bb_lower is not None and pd.notna(bb_lower) else None,
             "bb_3d_up": bb_trend.get("bb_3d_up"),

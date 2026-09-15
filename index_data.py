@@ -71,7 +71,7 @@ INDEX_CONFIGS = [
     },
 ]
 
-_LOOKBACK_DAYS = 500  # 約2年，確保有足夠資料計算 MA60 / Bias60 / 90日LH
+_LOOKBACK_DAYS = 500  # 約2年，確保有足夠資料計算 MA60 / Bias60 / 120日LH
 
 
 def _empty_index_row(index_id, name, reason="資料無法取得"):
@@ -115,8 +115,8 @@ def _empty_index_row(index_id, name, reason="資料無法取得"):
         "bias20_60d_high": None,
         "bias60_60d_low": None,
         "bias60_60d_high": None,
-        "price_60d_low": None,
-        "price_60d_high": None,
+        "price_120d_low": None,
+        "price_120d_high": None,
         "ma5": None,
         "ma20": None,
         "ma60": None,
@@ -294,10 +294,10 @@ def build_index_row(index_id, name, df):
     amp = round((high - low) / prev_close * 100,
                 2) if high and low and prev_close else None
 
-    # 90-day price LH
-    df_90 = df.tail(90)
-    price_60d_high = float(df_90["max"].max()) if not df_90.empty else None
-    price_60d_low = float(df_90["min"].min()) if not df_90.empty else None
+    # 120-day price LH
+    df_120 = df.tail(120)
+    price_120d_high = float(df_120["max"].max()) if not df_120.empty else None
+    price_120d_low = float(df_120["min"].min()) if not df_120.empty else None
 
     # KD
     kd = get_kd_trend(df)
@@ -329,13 +329,13 @@ def build_index_row(index_id, name, df):
     bb_pct = _bb_pct(latest)
     bb_pct_t1 = _bb_pct(prev)
 
-    # BB% 90-day LH
+    # BB% 120-day LH
     bbu = pd.to_numeric(df["BB_upper"], errors="coerce")
     bbl = pd.to_numeric(df["BB_lower"], errors="coerce")
     cls = pd.to_numeric(df["close"], errors="coerce")
     denom = bbu - bbl
     bb_pct_series = (
-        (cls - bbl) / denom.where(denom.abs() > 0.001) * 100).tail(90)
+        (cls - bbl) / denom.where(denom.abs() > 0.001) * 100).tail(120)
     bb_pct_60d_high = round(float(bb_pct_series.max()),
                             2) if not bb_pct_series.dropna().empty else None
     bb_pct_60d_low = round(float(bb_pct_series.min()),
@@ -408,13 +408,13 @@ def build_index_row(index_id, name, df):
         "bias20_60d_high": bias20_hi, "bias20_60d_low": bias20_lo,
         "bias60_60d_high": bias60_hi, "bias60_60d_low": bias60_lo,
         # Price LH
-        "price_60d_high": price_60d_high,
-        "price_60d_low": price_60d_low,
+        "price_120d_high": price_120d_high,
+        "price_120d_low": price_120d_low,
         "price_t0": price_lh_trend_t0,
         "price_t1": price_lh_trend_t1,
         "price_t2": price_lh_trend_t2,
-        "price_60d_high_t1": None,
-        "price_60d_low_t1": None,
+        "price_120d_high_t1": None,
+        "price_120d_low_t1": None,
         # MA
         "ma5": ma5, "ma20": ma20, "ma60": ma60,
         "signal_text": "-",

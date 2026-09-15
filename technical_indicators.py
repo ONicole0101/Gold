@@ -123,13 +123,13 @@ def add_indicators(df):
         obv_delta = obv_delta - volume.where(close_change < 0, 0.0)
         df['OBV'] = obv_delta.fillna(0).cumsum()
 
-        # Keep legacy column names for compatibility, but compute over 90 trading days.
-        df['BIAS5_60D_HIGH'] = df['BIAS5'].rolling(90, min_periods=45).max()
-        df['BIAS5_60D_LOW'] = df['BIAS5'].rolling(90, min_periods=45).min()
-        df['BIAS20_60D_HIGH'] = df['BIAS20'].rolling(90, min_periods=45).max()
-        df['BIAS20_60D_LOW'] = df['BIAS20'].rolling(90, min_periods=45).min()
-        df['BIAS60_60D_HIGH'] = df['BIAS60'].rolling(90, min_periods=45).max()
-        df['BIAS60_60D_LOW'] = df['BIAS60'].rolling(90, min_periods=45).min()
+        # Keep legacy column names for compatibility, but compute over 120 trading days.
+        df['BIAS5_60D_HIGH'] = df['BIAS5'].rolling(120, min_periods=60).max()
+        df['BIAS5_60D_LOW'] = df['BIAS5'].rolling(120, min_periods=60).min()
+        df['BIAS20_60D_HIGH'] = df['BIAS20'].rolling(120, min_periods=60).max()
+        df['BIAS20_60D_LOW'] = df['BIAS20'].rolling(120, min_periods=60).min()
+        df['BIAS60_60D_HIGH'] = df['BIAS60'].rolling(120, min_periods=60).max()
+        df['BIAS60_60D_LOW'] = df['BIAS60'].rolling(120, min_periods=60).min()
 
         return df
     except Exception as e:
@@ -226,8 +226,8 @@ def get_MABias(df):
 
         bias_series = (df['close'] - ma_series) / ma_series * 100
         latest_bias = bias_series.iloc[-1]
-        # Keep legacy key names, but read 90-trading-day range.
-        bias_60 = bias_series.iloc[-90:]
+        # Keep legacy key names, but read the 120-trading-day range.
+        bias_60 = bias_series.iloc[-120:]
 
         stats[f'bias{p}'] = round(
             latest_bias, 2) if pd.notna(latest_bias) else None
@@ -286,7 +286,7 @@ def safe_pos(value, low, high):
 
 def get_support_resistance_levels(
     df,
-    lookback_days=90,
+    lookback_days=120,
     pivot_window=5,
     tolerance_pct=1.2,
     min_distance_pct=0.2,
@@ -296,7 +296,7 @@ def get_support_resistance_levels(
     Use FinMind TaiwanStockPrice OHLCV data to estimate nearby resistance/support.
 
         Logic:
-        - Use the latest 90 trading days by default so stale historical levels do not
+        - Use the latest 120 trading days by default so stale historical levels do not
             override currently relevant support/resistance zones.
     - Find swing highs as resistance candidates and swing lows as support candidates.
     - Merge nearby prices into clusters by tolerance_pct so repeated tests count as one zone.
