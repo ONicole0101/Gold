@@ -1,9 +1,12 @@
-[32m2026-09-16 12:30:54.140[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
-[32m2026-09-16 12:30:54.277[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-09-16 12:57:43.959[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
+[32m2026-09-16 12:57:44.111[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m85[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 0/6000, remain=6000
+FinMind usage: 5191/6000, remain=809
 Incremental probe: stock_id=2330, latest_date=2026-09-16, status=ok
-Build chips: total=217, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=216, latest_date=2026-09-16
+Build chips: total=217, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=215, pending=1, latest_date=2026-09-16
+[217/217] 00981A 主動統一台股增長 status=ok date=2026-09-16 main=-58243 diff=95 state=bearish_distributed
+2330 籌碼分頁結果 date=2026-09-16 ; main_force=-7382 ; concentration=-35.36 ; broker_diff=61
+Done: rows=217, status={'ok': 217}, preserved=0, skipped=215, elapsed=23.5s, output=AllStatic_Chips.csv
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-09-16
