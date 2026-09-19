@@ -574,6 +574,10 @@
       grid-template-columns: auto 60px;
     }
 
+    .filter-item.filter-item-comparison {
+      grid-template-columns: auto 58px 100px 36px 60px;
+    }
+
     .filter-row {
       width: 100%;
       display: flex;
@@ -1069,10 +1073,28 @@
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
           </select><input data-filter-key="volume" type="number" step="1" placeholder="張數"></div>
-        <div class="filter-item"><label>日增量%</label><select data-filter-op="volume_ratio">
+        <div class="filter-item filter-item-comparison"><label>T日往前比較</label><select id="comparisonBasePeriod">
+            <option value="t1">T-1</option>
+            <option value="t2">T-2</option>
+          </select><select id="comparisonMetric">
+            <option value="volume_ratio">成交量%</option>
+            <option value="k">日KD</option>
+            <option value="vr">日VR</option>
+            <option value="obv">日OBV</option>
+            <option value="bb_pct">日布林</option>
+            <option value="macd_hist">MACD值</option>
+            <option value="bias5">日Bias5</option>
+            <option value="short_margin_ratio_pct">券資比%</option>
+            <option value="chip_concentration_pct">籌碼集中度%</option>
+            <option value="margin_purchase_change">融資增減</option>
+            <option value="short_sale_change">融券增減</option>
+            <option value="foreign_investor_net">外資買賣超</option>
+            <option value="investment_trust_net">投信買賣超</option>
+            <option value="institutional_total_net">三大法人合計</option>
+          </select><select id="comparisonOperator">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
-          </select><input data-filter-key="volume_ratio" type="number" step="0.01" placeholder="數值"></div>
+          </select><input id="comparisonValue" type="number" step="any" placeholder="數值"></div>
         <div class="filter-item"><label>EPS</label><select data-filter-op="eps_Y">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
@@ -2786,6 +2808,32 @@
       return Number.isNaN(num) ? null : num;
     }
 
+    function getComparisonMetricValue(s, metric, period) {
+      const suffix = period === "t2" ? "t2" : "t1";
+      const metricKeys = {
+        volume_ratio: period === "t0" ? "volume_ratio" : `volume_ratio_${suffix}`,
+        k: period === "t0" ? "k" : suffix === "t1" ? "prev_k" : "prev2_k",
+        vr: `vr_${period}`,
+        obv: `obv_${period}`,
+        bb_pct: `bb_pct_${period}`,
+        macd_hist: `macd_hist_${period}`,
+        bias5: `bias5_${period}`,
+        short_margin_ratio_pct: `short_margin_ratio_pct_${period}`,
+        chip_concentration_pct: `chip_concentration_pct_${period}`,
+        margin_purchase_change: `margin_purchase_change_${period}`,
+        short_sale_change: `short_sale_change_${period}`,
+        foreign_investor_net: `foreign_investor_net_${period}`,
+        investment_trust_net: `investment_trust_net_${period}`,
+        institutional_total_net: `institutional_total_net_${period}`,
+      };
+      const key = metricKeys[metric];
+      if (!key) return null;
+      const value = s?.[key];
+      if (isNil(value) || value === "") return null;
+      const number = Number(value);
+      return Number.isNaN(number) ? null : number;
+    }
+
     function selectedCustomCategories() {
       return Array.from(document.querySelectorAll(".custom-category-checkbox:checked"))
         .map(option => normalizeCategoryLabel(option.value))
@@ -2964,6 +3012,22 @@
         return false;
       }
 
+      const comparisonValue = document.getElementById("comparisonValue");
+      const comparisonRaw = String(comparisonValue?.value ?? "").trim();
+      if (comparisonRaw !== "") {
+        const metric = document.getElementById("comparisonMetric")?.value;
+        const basePeriod = document.getElementById("comparisonBasePeriod")?.value;
+        const operator = document.getElementById("comparisonOperator")?.value;
+        const target = Number(comparisonRaw);
+        const current = getComparisonMetricValue(s, metric, "t0");
+        const base = getComparisonMetricValue(s, metric, basePeriod);
+        const difference = current === null || base === null ? null : current - base;
+
+        if (Number.isNaN(target) || difference === null) return false;
+        if (operator === ">" && !(difference > target)) return false;
+        if (operator === "<" && !(difference < target)) return false;
+      }
+
       const inputs = document.querySelectorAll("[data-filter-key]");
       for (const input of inputs) {
         const raw = String(input.value ?? "").trim();
@@ -2993,6 +3057,14 @@
       document.querySelectorAll("[data-filter-op]").forEach(select => select.value = ">");
       const codeInput = document.getElementById("stockCodeFilter");
       if (codeInput) codeInput.value = "";
+      const comparisonValue = document.getElementById("comparisonValue");
+      if (comparisonValue) comparisonValue.value = "";
+      const comparisonBasePeriod = document.getElementById("comparisonBasePeriod");
+      if (comparisonBasePeriod) comparisonBasePeriod.value = "t1";
+      const comparisonMetric = document.getElementById("comparisonMetric");
+      if (comparisonMetric) comparisonMetric.value = "volume_ratio";
+      const comparisonOperator = document.getElementById("comparisonOperator");
+      if (comparisonOperator) comparisonOperator.value = ">";
       document.querySelectorAll("[data-direction-filter]").forEach(select => select.value = "");
       document.querySelectorAll(".custom-category-checkbox").forEach(checkbox => {
         checkbox.checked = false;
@@ -3024,6 +3096,12 @@
       });
       document.querySelectorAll("[data-direction-filter]").forEach(select => {
         select.addEventListener("change", applyFilters);
+      });
+      ["comparisonBasePeriod", "comparisonMetric", "comparisonOperator", "comparisonValue"].forEach((id) => {
+        const control = document.getElementById(id);
+        if (!control) return;
+        control.addEventListener("input", applyFilters);
+        control.addEventListener("change", applyFilters);
       });
       const codeInput = document.getElementById("stockCodeFilter");
       if (codeInput) {

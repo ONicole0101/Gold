@@ -526,12 +526,20 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
         volume = latest.get("volume", None)
         prev_volume = prev.get("volume", None)
         prev2_volume = prev2.get("volume", None)
+        prev3 = df.iloc[-4] if len(df) >= 4 else None
+        prev3_volume = prev3.get("volume", None) if prev3 is not None else None
         volume_ratio = None
+        volume_ratio_t1 = None
+        volume_ratio_t2 = None
         volume_add = None
 
         if pd.notna(volume) and pd.notna(prev_volume) and prev_volume > 0:
             volume_ratio = round((volume / prev_volume - 1) * 100, 2)
             volume_add = int(volume - prev_volume)
+        if pd.notna(prev_volume) and pd.notna(prev2_volume) and prev2_volume > 0:
+            volume_ratio_t1 = round((prev_volume / prev2_volume - 1) * 100, 2)
+        if pd.notna(prev2_volume) and pd.notna(prev3_volume) and prev3_volume > 0:
+            volume_ratio_t2 = round((prev2_volume / prev3_volume - 1) * 100, 2)
 
         bb_upper = latest["BB_upper"] if "BB_upper" in latest else None
         bb_lower = latest["BB_lower"] if "BB_lower" in latest else None
@@ -802,6 +810,8 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             "prev_volume": int(round(prev_volume, 0)) if pd.notna(prev_volume) else None,
             "prev2_volume": int(round(prev2_volume, 0)) if pd.notna(prev2_volume) else None,
             "volume_ratio": float(volume_ratio) if volume_ratio is not None else None,
+            "volume_ratio_t1": float(volume_ratio_t1) if volume_ratio_t1 is not None else None,
+            "volume_ratio_t2": float(volume_ratio_t2) if volume_ratio_t2 is not None else None,
             "volume_add": volume_add if volume_add is not None else None,
 
             "ma5": float(round(ma5, 2)) if ma5 is not None else safe_ma_stats.get("ma5"),
