@@ -1,10 +1,9 @@
-[32m2026-09-21 09:50:24.048[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-09-21 09:50:24.208[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-09-21 14:42:37.421[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-09-21 14:42:37.532[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 1109/6000, remain=4891
+FinMind usage: 2869/6000, remain=3131
 Incremental probe: stock_id=2330, latest_date=2026-09-21, status=ok
-Build chips: total=221, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=220, latest_date=2026-09-21
-[75/221] 2881 富邦金 status=ok date=2026-09-18 main=-2667 diff=198 state=neutral
+Build chips: total=221, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=212, pending=8, latest_date=2026-09-21
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-09-21
@@ -31,10 +30,10 @@ chips_status=ok
 ---
 stock_id=00892
 name=富邦台灣半導體
-chip_latest_date=2026-09-18
-main_force_net=670
-broker_diff=-174
-chip_signal_state=neutral
+chip_latest_date=2026-09-21
+main_force_net=207
+broker_diff=-32
+chip_signal_state=bullish_concentrated
 chips_status=ok
 ---
 stock_id=00919
@@ -143,9 +142,9 @@ chips_status=ok
 ---
 stock_id=1519
 name=華城
-chip_latest_date=2026-09-18
-main_force_net=225
-broker_diff=-85
+chip_latest_date=2026-09-21
+main_force_net=-30
+broker_diff=116
 chip_signal_state=neutral
 chips_status=ok
 ---
