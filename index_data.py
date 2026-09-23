@@ -126,7 +126,6 @@ def _empty_index_row(index_id, name, reason="資料無法取得"):
         "score": 0,
         "strategy": "",
         "entry_note": "",
-        "news_summary": "-",
         # Chip stubs (not available for indices)
         "chip_date_t0": None,
         "chip_date_t1": None,

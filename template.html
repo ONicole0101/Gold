@@ -296,12 +296,6 @@
       max-width: clamp(280px, 23vw, 500px);
     }
 
-    .news-summary-cell {
-      width: clamp(260px, 24vw, 560px);
-      min-width: clamp(260px, 24vw, 560px);
-      max-width: clamp(320px, 30vw, 680px);
-    }
-
     .summary-text {
       display: -webkit-box;
       -webkit-box-orient: vertical;
@@ -936,11 +930,6 @@
         max-width: clamp(240px, 42vw, 460px);
       }
 
-      .news-summary-cell {
-        width: clamp(240px, 42vw, 520px);
-        min-width: clamp(240px, 42vw, 520px);
-        max-width: clamp(280px, 52vw, 600px);
-      }
     }
 
     @media (max-width: 640px) {
@@ -1302,7 +1291,7 @@
         ]
       },
       fundamental: {
-        note: "基本面：EPS、ROE、營收、毛利率、營益率、淨利率、殖利率、PER/PBR、新聞",
+        note: "基本面：EPS、ROE、營收、毛利率、營益率、淨利率、殖利率、PER/PBR",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>120日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值，高點距離為正值。" },
@@ -1315,7 +1304,6 @@
           { key: "yield_value", label: "殖利率<br><small>估65%</small>", cls: "col-md" },
           { key: "per_latest", label: "日PER<br><small>120日LH</small>" },
           { key: "pbr_latest", label: "日PBR<br><small>120日LH</small>" },
-          { key: "news_summary", label: "新聞", cls: "news-summary-col" }
         ]
       },
       cb: {
@@ -2460,8 +2448,6 @@
         case "bias60":
           return `<td>${renderBiasTechnicalContent(s, "bias60")}</td>`;
 
-        case "news_summary":
-          return `<td class="text-summary-cell news-summary-cell"><div class="summary-text">${escapeHtml(s.news_summary || "-")}</div></td>`;
         case "sig":
           return renderSignalCell(s);
         default:
@@ -2572,7 +2558,6 @@
           <div class="stock-item"><div class="stock-label">殖利率 估65%</div><div class="stock-value">${fmt(Number(s.yield_value ?? 0) * 0.65, "%")}</div></div>
           <div class="stock-item"><div class="stock-label">日PER 120日LH</div><div class="stock-value">${renderPerRangeMetric(s.per_latest, s.per_60d_low, s.per_60d_high, s.per_ttm)}</div></div>
           <div class="stock-item"><div class="stock-label">日PBR 120日LH</div><div class="stock-value">${renderRangeMetric(s.pbr_latest, s.pbr_60d_low, s.pbr_60d_high)}</div></div>
-          <div class="stock-item summary-mobile-item"><div class="stock-label">新聞</div><div class="stock-value">${escapeHtml(s.news_summary || "-")}</div></div>
         </div>`;
 
       const cbGrid = `

@@ -1,5 +1,4 @@
 import os
-import time
 
 import requests
 
@@ -14,33 +13,13 @@ def get_finmind_env_token() -> str:
 
 
 def get_finmind_env_token_with_retry() -> str:
-    """Read FINMIND_TOKEN with short retries for CI timing windows."""
-    retries_text = os.getenv("FINMIND_TOKEN_READ_RETRIES", "3")
-    wait_ms_text = os.getenv("FINMIND_TOKEN_READ_WAIT_MS", "300")
-
-    try:
-        retries = max(int(str(retries_text).strip() or "3"), 1)
-    except Exception:
-        retries = 3
-
-    try:
-        wait_ms = max(int(str(wait_ms_text).strip() or "300"), 0)
-    except Exception:
-        wait_ms = 300
-
-    for attempt in range(retries):
-        token = get_finmind_env_token()
-        if token:
-            return token
-        if attempt + 1 < retries and wait_ms > 0:
-            time.sleep(wait_ms / 1000.0)
-
-    return ""
+    """Backward-compatible alias for the environment-variable reader."""
+    return get_finmind_env_token()
 
 
 def resolve_finmind_token() -> str:
-    """Backward-compatible token resolver used by existing modules."""
-    return get_finmind_env_token_with_retry()
+    """Return the FinMind token from FINMIND_TOKEN only."""
+    return get_finmind_env_token()
 
 
 def mask_token(token: str) -> str:

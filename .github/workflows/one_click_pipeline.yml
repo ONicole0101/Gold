@@ -1,4 +1,4 @@
-name: 一鍵產出 CSV + Chips + News + Report
+name: 一鍵產出 CSV + Chips + Report
 
 on:
   workflow_dispatch:
@@ -23,19 +23,6 @@ on:
         description: Parallel workers for chip analysis
         required: false
         default: "6"
-      news_days:
-        description: News lookback days
-        required: false
-        default: "10"
-      news_max_items:
-        description: Max news items per stock
-        required: false
-        default: "8"
-      news_sleep_sec:
-        description: Sleep seconds between news requests
-        required: false
-        default: "0.6"
-
 permissions:
   contents: write
 
@@ -52,22 +39,11 @@ env:
   STATIC_OUTPUT_FILE: ${{ vars.STATIC_OUTPUT_FILE || 'AllStatic.csv' }}
   STATIC_VALUATION_OUTPUT_FILE: ${{ vars.STATIC_VALUATION_OUTPUT_FILE || 'AllStatic_Valuation.csv' }}
   STATIC_CHIP_OUTPUT_FILE: ${{ vars.STATIC_CHIP_OUTPUT_FILE || 'AllStatic_Chips.csv' }}
-  ALLSTATIC_NEWS_OUTPUT_FILE: ${{ vars.ALLSTATIC_NEWS_OUTPUT_FILE || 'AllStatic_news.csv' }}
   CHIP_TREND_DAYS: ${{ vars.CHIP_TREND_DAYS || '3' }}
   CHIP_CONCENTRATION_THRESHOLD: ${{ vars.CHIP_CONCENTRATION_THRESHOLD || '15' }}
   CHIP_LOOKBACK_DAYS: ${{ vars.CHIP_LOOKBACK_DAYS || '21' }}
   CHIP_WORKERS: ${{ github.event.inputs.workers || vars.CHIP_WORKERS || '6' }}
   CHIP_SLEEP_SEC: ${{ vars.CHIP_SLEEP_SEC || '0.05' }}
-  NEWS_DAYS: ${{ github.event.inputs.news_days || vars.NEWS_DAYS || '10' }}
-  NEWS_MAX_ITEMS: ${{ github.event.inputs.news_max_items || vars.NEWS_MAX_ITEMS || '8' }}
-  NEWS_SLEEP_SEC: ${{ github.event.inputs.news_sleep_sec || vars.NEWS_SLEEP_SEC || '0.6' }}
-  NEWS_SKIP_IF_SAME_TITLES: ${{ vars.NEWS_SKIP_IF_SAME_TITLES || '1' }}
-  INDUSTRY_SUMMARY_CHARS: ${{ vars.INDUSTRY_SUMMARY_CHARS || '150' }}
-  NEWS_SUMMARY_CHARS: ${{ vars.NEWS_SUMMARY_CHARS || '150' }}
-  REFRESH_INDUSTRY: ${{ vars.REFRESH_INDUSTRY || '0' }}
-  REFRESH_INDUSTRY_WEEKDAY: ${{ vars.REFRESH_INDUSTRY_WEEKDAY || '0' }}
-  USE_OPENAI_SUMMARY: ${{ vars.USE_OPENAI_SUMMARY || '1' }}
-  OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4o-mini' }}
   FINMIND_USAGE_LOG_FILE: /tmp/finmind_token_usage_log.csv
 
 jobs:
@@ -123,17 +99,6 @@ jobs:
             --sleep-sec "${CHIP_SLEEP_SEC}" \
             --workers "${CHIP_WORKERS}"
 
-      - name: Generate AllStatic_news.csv
-        env:
-          FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
-          STOCKS_CSV: ${{ env.CSV_FILE }}
-          ALLSTATIC_NEWS_OUTPUT_FILE: ${{ env.ALLSTATIC_NEWS_OUTPUT_FILE }}
-          NEWS_CACHE_FILE: .allstatic_news_cache.json
-          FINMIND_TOKEN_READ_RETRIES: '5'
-          FINMIND_TOKEN_READ_WAIT_MS: '500'
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: python generate_static_news_service.py
-
       - name: Generate HTML report
         env:
           FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
@@ -149,7 +114,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add stocks.csv "${STATIC_OUTPUT_FILE}" "${STATIC_CHIP_OUTPUT_FILE}" "${ALLSTATIC_NEWS_OUTPUT_FILE}" .allstatic_news_cache.json index.html *.html
+          git add stocks.csv "${STATIC_OUTPUT_FILE}" "${STATIC_CHIP_OUTPUT_FILE}" index.html *.html
 
           if git diff --cached --quiet; then
             echo "No changes to commit."

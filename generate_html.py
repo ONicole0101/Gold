@@ -12,7 +12,7 @@ from data_sources import (
 )
 from index_data import get_market_index_rows
 from main import get_full_stock_analysis
-from stock_service import load_chips_static_map, load_news_static_map, load_static_map
+from stock_service import load_chips_static_map, load_static_map
 
 
 TECH_COLUMNS = [
@@ -532,24 +532,19 @@ def main():
                 config, "STATIC_OUTPUT_FILE", "AllStatic.csv")
             static_chip_csv_path = getattr(
                 config, "STATIC_CHIP_OUTPUT_FILE", "AllStatic_Chips.csv")
-            static_news_csv_path = getattr(
-                config, "ALLSTATIC_NEWS_OUTPUT_FILE", "AllStatic_news.csv")
 
             print(
                 "📄 HTML render uses preloaded maps: "
-                f"static={static_csv_path}, chips={static_chip_csv_path}, news={static_news_csv_path}"
+                f"static={static_csv_path}, chips={static_chip_csv_path}"
             )
             static_map = load_static_map(static_csv_path=static_csv_path)
             chips_map = load_chips_static_map(
                 static_chips_csv_path=static_chip_csv_path)
-            news_map = load_news_static_map(
-                static_news_csv_path=static_news_csv_path)
 
             results = get_full_stock_analysis(
                 stock_list,
                 static_map=static_map,
                 chips_map=chips_map,
-                news_map=news_map,
             )
         except RuntimeError as e:
             print(f"❌ {e}")
