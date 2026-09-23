@@ -1274,7 +1274,7 @@
           { key: "price", label: "價格<br><small>120日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值，高點距離為正值。" },
           { key: "margin_cost_line", label: "融資成本線<br><small>T/T-1/T-2</small>", tooltip: "融資成本線取自 FinMind dataset TaiwanStockMarginMaintenance 的 margin_cost（融資部位估算加權平均成本，單位：元）；股價跌破該成本線代表融資帳面轉損、壓力升高。資料來源：TaiwanStockMarginMaintenance。" },
           { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
-          { key: "turnover_pct", label: "周轉率%<br><small>T/T-1/T-2</small>", tooltip: "周轉率%＝成交量（張）× 1,000 ÷（已發行普通股股數 − 庫藏股股數）× 100%；分別顯示 T、T-1、T-2，股數取自 FinMind TaiwanStockFinancialStatements 最新申報資料。" },
+          { key: "turnover_pct", label: "周轉率%<br><small>T/T-1/T-2</small>", tooltip: "周轉率%＝成交股數 ÷（已發行普通股股數 − 庫藏股股數）× 100%；" },
           { key: "short_margin_ratio_score", label: "券資比%<br><small>3天趨勢</small>", tooltip: "券資比%＝融券餘額 ÷ 融資餘額 × 100。數值越高代表放空籌碼占比越高，常見於市場偏保守或避險需求升高時；需搭配價格趨勢與主力買賣超共同判讀。" },
           { key: "chip_concentration_score", label: "籌碼集中%<br><small>3天趨勢</small>", tooltip: "籌碼集中%採 CMoney 近似口徑＝主力買賣超張數 ÷ 成交量張數 × 100，保留正負號。正值代表主力集中買超，負值代表主力集中賣超；數值絕對值越大代表集中度越高。" },
           { key: "margin_purchase_change_score", label: "融資增減<br><small>3天趨勢</small>", tooltip: "融資增減＝當日融資今日餘額 - 融資昨日餘額，取自 FinMind TaiwanStockMarginPurchaseShortSale，單位為張。正值代表融資餘額增加，負值代表減少。" },
