@@ -507,7 +507,8 @@ def get_profit_ratio(stock_id):
 def get_stock_info_raw(stock_id):
     """Fetch stock metadata, including NumberOfSharesIssued."""
     try:
-        _record_finmind_request("stock info source", stock_id, "TaiwanStockInfo")
+        _record_finmind_request("stock info source",
+                                stock_id, "TaiwanStockInfo")
         params = {
             'dataset': 'TaiwanStockInfo',
             'data_id': stock_id,
