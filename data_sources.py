@@ -504,6 +504,28 @@ def get_profit_ratio(stock_id):
         return pd.DataFrame()
 
 
+def get_stock_info_raw(stock_id):
+    """Fetch stock metadata, including NumberOfSharesIssued."""
+    try:
+        _record_finmind_request("stock info source", stock_id, "TaiwanStockInfo")
+        params = {
+            'dataset': 'TaiwanStockInfo',
+            'data_id': stock_id,
+            'start_date': '2000-01-01',
+            'token': FINMIND_token,
+        }
+        res = requests.get(API_URL, params=params,
+                           headers=headers, timeout=300)
+        data = _safe_response_json(res)
+        if res.status_code != 200:
+            _print_api_status_error('stock info source', stock_id, res, data)
+            return pd.DataFrame()
+        return pd.DataFrame(data.get('data', []))
+    except Exception as e:
+        print(f'❌ stock info source error {stock_id}: {e}')
+        return pd.DataFrame()
+
+
 def get_balance_sheet_raw(stock_id):
     try:
         params = {

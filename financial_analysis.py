@@ -9,6 +9,7 @@ from data_sources import (
     get_per_raw,
     get_profit_ratio as get_profit_ratio_raw,
     get_revenue_raw,
+    get_stock_info_raw,
 )
 
 
@@ -126,11 +127,11 @@ def _series_by_metric(df: pd.DataFrame, aliases: list[str]) -> pd.Series:
 
 
 def get_share_turnover(stock_id, trading_volumes):
-    """Calculate turnover for T/T-1/T-2 from latest share counts."""
+    """Calculate turnover from TaiwanStockInfo.NumberOfSharesIssued."""
     try:
-        df = _standardize_financial_df(get_profit_ratio_raw(stock_id))
         volumes = list(trading_volumes) if isinstance(trading_volumes, (list, tuple)) else [trading_volumes]
-        if df.empty:
+        df = get_stock_info_raw(stock_id)
+        if df is None or df.empty:
             return {
                 "turnover_pct_t0": None,
                 "turnover_pct_t1": None,
@@ -140,19 +141,22 @@ def get_share_turnover(stock_id, trading_volumes):
                 "circulating_shares": None,
             }
 
-        outstanding = _series_by_metric(df, [
-            "CommonStockSharesOutstanding",
-            "Common Stock Shares Outstanding",
-            "流通在外股數",
-            "流通在外普通股股數",
-        ])
-        treasury = _series_by_metric(df, [
-            "TreasuryStock",
-            "Treasury Stock",
-            "庫藏股股數",
-            "庫藏股",
-        ])
-        if outstanding.empty:
+        if "NumberOfSharesIssued" in df.columns:
+            issued = df[[
+                c for c in ("date", "NumberOfSharesIssued") if c in df.columns
+            ]].copy()
+            issued = issued.rename(columns={"NumberOfSharesIssued": "value"})
+        elif "type" in df.columns and "value" in df.columns:
+            issued = df.loc[
+                df["type"].astype(str).str.strip().eq("NumberOfSharesIssued")
+            ].copy()
+        else:
+            issued = pd.DataFrame()
+        if issued.empty:
+            print(
+                f"⚠️ TaiwanStockInfo {stock_id} lacks NumberOfSharesIssued; "
+                f"columns={list(df.columns)}"
+            )
             return {
                 "turnover_pct_t0": None,
                 "turnover_pct_t1": None,
@@ -161,13 +165,18 @@ def get_share_turnover(stock_id, trading_volumes):
                 "treasury_shares": None,
                 "circulating_shares": None,
             }
-
-        shares_outstanding = float(outstanding.iloc[-1])
-        treasury_shares = abs(float(treasury.iloc[-1])) if not treasury.empty else 0.0
-        circulating_shares = shares_outstanding - treasury_shares
+        if "date" in issued.columns:
+            issued["date"] = pd.to_datetime(issued["date"], errors="coerce")
+            issued = issued.sort_values("date")
+        shares_outstanding = pd.to_numeric(
+            issued.iloc[-1]["value"], errors="coerce")
+        if pd.isna(shares_outstanding) or shares_outstanding <= 0:
+            shares_outstanding = None
+        circulating_shares = float(shares_outstanding) if shares_outstanding is not None else None
+        treasury_shares = 0.0
         turnover_pct = []
         for volume in volumes[:3]:
-            if volume is None or pd.isna(volume) or circulating_shares <= 0:
+            if volume is None or pd.isna(volume) or circulating_shares in (None, 0):
                 turnover_pct.append(None)
             else:
                 turnover_pct.append(round(float(volume) * 1000 / circulating_shares * 100, 2))
