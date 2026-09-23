@@ -9,6 +9,7 @@ from financial_analysis import (
     calc_margin_score,
     calc_trend_score,
     get_eps_analysis,
+    get_share_turnover,
 )
 from signals import get_tech_signal
 from technical_indicators import add_indicators, clean_ohlc_data, get_kd_trend, get_bb_trend, get_MABias, get_support_resistance_levels
@@ -532,6 +533,8 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
         volume_ratio_t1 = None
         volume_ratio_t2 = None
         volume_add = None
+        share_turnover = get_share_turnover(
+            stock_id, [volume, prev_volume, prev2_volume])
 
         if pd.notna(volume) and pd.notna(prev_volume) and prev_volume > 0:
             volume_ratio = round((volume / prev_volume - 1) * 100, 2)
@@ -813,6 +816,13 @@ def process_stock(s, static_map=None, chips_map=None, news_map=None):
             "volume_ratio_t1": float(volume_ratio_t1) if volume_ratio_t1 is not None else None,
             "volume_ratio_t2": float(volume_ratio_t2) if volume_ratio_t2 is not None else None,
             "volume_add": volume_add if volume_add is not None else None,
+            "turnover_pct": share_turnover.get("turnover_pct_t0"),
+            "turnover_pct_t0": share_turnover.get("turnover_pct_t0"),
+            "turnover_pct_t1": share_turnover.get("turnover_pct_t1"),
+            "turnover_pct_t2": share_turnover.get("turnover_pct_t2"),
+            "shares_outstanding": share_turnover.get("shares_outstanding"),
+            "treasury_shares": share_turnover.get("treasury_shares"),
+            "circulating_shares": share_turnover.get("circulating_shares"),
 
             "ma5": float(round(ma5, 2)) if ma5 is not None else safe_ma_stats.get("ma5"),
             "prev_ma5": float(round(prev_ma5, 2)) if prev_ma5 is not None else None,

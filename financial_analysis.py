@@ -125,6 +125,74 @@ def _series_by_metric(df: pd.DataFrame, aliases: list[str]) -> pd.Series:
     )
 
 
+def get_share_turnover(stock_id, trading_volumes):
+    """Calculate turnover for T/T-1/T-2 from latest share counts."""
+    try:
+        df = _standardize_financial_df(get_profit_ratio_raw(stock_id))
+        volumes = list(trading_volumes) if isinstance(trading_volumes, (list, tuple)) else [trading_volumes]
+        if df.empty:
+            return {
+                "turnover_pct_t0": None,
+                "turnover_pct_t1": None,
+                "turnover_pct_t2": None,
+                "shares_outstanding": None,
+                "treasury_shares": None,
+                "circulating_shares": None,
+            }
+
+        outstanding = _series_by_metric(df, [
+            "CommonStockSharesOutstanding",
+            "Common Stock Shares Outstanding",
+            "流通在外股數",
+            "流通在外普通股股數",
+        ])
+        treasury = _series_by_metric(df, [
+            "TreasuryStock",
+            "Treasury Stock",
+            "庫藏股股數",
+            "庫藏股",
+        ])
+        if outstanding.empty:
+            return {
+                "turnover_pct_t0": None,
+                "turnover_pct_t1": None,
+                "turnover_pct_t2": None,
+                "shares_outstanding": None,
+                "treasury_shares": None,
+                "circulating_shares": None,
+            }
+
+        shares_outstanding = float(outstanding.iloc[-1])
+        treasury_shares = abs(float(treasury.iloc[-1])) if not treasury.empty else 0.0
+        circulating_shares = shares_outstanding - treasury_shares
+        turnover_pct = []
+        for volume in volumes[:3]:
+            if volume is None or pd.isna(volume) or circulating_shares <= 0:
+                turnover_pct.append(None)
+            else:
+                turnover_pct.append(round(float(volume) * 1000 / circulating_shares * 100, 2))
+        turnover_pct += [None] * (3 - len(turnover_pct))
+
+        return {
+            "turnover_pct_t0": turnover_pct[0],
+            "turnover_pct_t1": turnover_pct[1],
+            "turnover_pct_t2": turnover_pct[2],
+            "shares_outstanding": shares_outstanding,
+            "treasury_shares": treasury_shares,
+            "circulating_shares": circulating_shares,
+        }
+    except Exception as e:
+        print(f"❌ share turnover error {stock_id}: {e}")
+        return {
+            "turnover_pct_t0": None,
+            "turnover_pct_t1": None,
+            "turnover_pct_t2": None,
+            "shares_outstanding": None,
+            "treasury_shares": None,
+            "circulating_shares": None,
+        }
+
+
 def _normalize_percent_series(s: pd.Series, max_abs: float = 200.0) -> pd.Series:
     """Normalize percentage values and remove impossible polluted rows."""
     if s is None or s.empty:
