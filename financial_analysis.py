@@ -129,7 +129,8 @@ def _series_by_metric(df: pd.DataFrame, aliases: list[str]) -> pd.Series:
 def get_share_turnover(stock_id, trading_volumes):
     """Calculate turnover from TaiwanStockShareholding.NumberOfSharesIssued."""
     try:
-        volumes = list(trading_volumes) if isinstance(trading_volumes, (list, tuple)) else [trading_volumes]
+        volumes = list(trading_volumes) if isinstance(
+            trading_volumes, (list, tuple)) else [trading_volumes]
         df = get_shareholding_raw(stock_id)
         if df is None or df.empty:
             return {
@@ -172,14 +173,16 @@ def get_share_turnover(stock_id, trading_volumes):
             issued.iloc[-1]["value"], errors="coerce")
         if pd.isna(shares_outstanding) or shares_outstanding <= 0:
             shares_outstanding = None
-        circulating_shares = float(shares_outstanding) if shares_outstanding is not None else None
+        circulating_shares = float(
+            shares_outstanding) if shares_outstanding is not None else None
         treasury_shares = 0.0
         turnover_pct = []
         for volume in volumes[:3]:
             if volume is None or pd.isna(volume) or circulating_shares in (None, 0):
                 turnover_pct.append(None)
             else:
-                turnover_pct.append(round(float(volume) * 1000 / circulating_shares * 100, 2))
+                turnover_pct.append(
+                    round(float(volume) * 1000 / circulating_shares * 100, 2))
         turnover_pct += [None] * (3 - len(turnover_pct))
 
         return {
