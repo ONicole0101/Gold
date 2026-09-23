@@ -1,9 +1,12 @@
-[32m2026-09-23 08:22:54.995[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-09-23 08:22:55.133[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-09-23 13:08:48.971[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-09-23 13:08:49.082[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 1109/6000, remain=4891
+FinMind usage: 0/6000, remain=6000
 Incremental probe: stock_id=2330, latest_date=2026-09-23, status=ok
-Build chips: total=221, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=220, latest_date=2026-09-23
+Build chips: total=221, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=184, pending=36, latest_date=2026-09-23
+[221/221] 8039 台虹 status=ok date=2026-09-23 main=-84 diff=73 state=bearish_distributed
+2330 籌碼分頁結果 date=2026-09-23 ; main_force=7226 ; concentration=32.89 ; broker_diff=-13
+Done: rows=221, status={'ok': 221}, preserved=0, skipped=184, elapsed=113.6s, output=AllStatic_Chips.csv
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-09-23
@@ -182,17 +185,17 @@ chips_status=ok
 ---
 stock_id=1727
 name=中華化
-chip_latest_date=2026-09-22
-main_force_net=563
-broker_diff=-19
+chip_latest_date=2026-09-23
+main_force_net=4302
+broker_diff=-87
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1802
 name=台玻
-chip_latest_date=2026-09-22
-main_force_net=-2062
-broker_diff=34
+chip_latest_date=2026-09-23
+main_force_net=-4442
+broker_diff=111
 chip_signal_state=neutral
 chips_status=ok
 ---
@@ -206,17 +209,17 @@ chips_status=ok
 ---
 stock_id=2002
 name=中鋼
-chip_latest_date=2026-09-22
-main_force_net=-9258
-broker_diff=179
-chip_signal_state=neutral
+chip_latest_date=2026-09-23
+main_force_net=-4237
+broker_diff=125
+chip_signal_state=bearish_distributed
 chips_status=ok
 ---
 stock_id=2059
 name=川湖
-chip_latest_date=2026-09-22
-main_force_net=10
-broker_diff=5
+chip_latest_date=2026-09-23
+main_force_net=-23
+broker_diff=308
 chip_signal_state=neutral
 chips_status=ok
 ---
