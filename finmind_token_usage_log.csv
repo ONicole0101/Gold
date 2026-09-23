@@ -1879,3 +1879,4 @@
 2026-09-23 07:47:41,api_call,get_index_ohlc_data,TPEx,TaiwanStockTotalReturnIndex,False,,,missing_token,FINMIND_TOKEN is not set,454,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header
 2026-09-23 07:47:48,api_call,stock info source,2330,TaiwanStockInfo,True,,runt...oken,not_checked,login not checked in this process yet,1,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header
 2026-09-23 08:03:32,api_call,stock info source,2330,TaiwanStockInfo,True,,runt...oken,not_checked,login not checked in this process yet,1,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header
+2026-09-23 13:07:24,api_call,stock info source,2330,TaiwanStockInfo,False,,,not_checked,login not checked in this process yet,1,1,,,,sent,,FinMind request sent with token in query params and/or Authorization header

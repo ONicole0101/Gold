@@ -9,7 +9,7 @@ from data_sources import (
     get_per_raw,
     get_profit_ratio as get_profit_ratio_raw,
     get_revenue_raw,
-    get_stock_info_raw,
+    get_shareholding_raw,
 )
 
 
@@ -127,10 +127,10 @@ def _series_by_metric(df: pd.DataFrame, aliases: list[str]) -> pd.Series:
 
 
 def get_share_turnover(stock_id, trading_volumes):
-    """Calculate turnover from TaiwanStockInfo.NumberOfSharesIssued."""
+    """Calculate turnover from TaiwanStockShareholding.NumberOfSharesIssued."""
     try:
         volumes = list(trading_volumes) if isinstance(trading_volumes, (list, tuple)) else [trading_volumes]
-        df = get_stock_info_raw(stock_id)
+        df = get_shareholding_raw(stock_id)
         if df is None or df.empty:
             return {
                 "turnover_pct_t0": None,
@@ -154,7 +154,7 @@ def get_share_turnover(stock_id, trading_volumes):
             issued = pd.DataFrame()
         if issued.empty:
             print(
-                f"⚠️ TaiwanStockInfo {stock_id} lacks NumberOfSharesIssued; "
+                f"⚠️ TaiwanStockShareholding {stock_id} lacks NumberOfSharesIssued; "
                 f"columns={list(df.columns)}"
             )
             return {
