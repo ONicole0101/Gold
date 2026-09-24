@@ -79,6 +79,61 @@
       align-self: center;
     }
 
+    .buy-signal-settings {
+      display: none;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 8px 0 12px;
+      padding: 8px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      color: #8b949e;
+      font-size: 12px;
+    }
+
+    .buy-signal-settings.is-visible {
+      display: flex;
+    }
+
+    .buy-signal-settings label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .buy-signal-settings input {
+      width: 64px;
+      padding: 4px 6px;
+      border: 1px solid #30363d;
+      border-radius: 4px;
+      background: #0d1117;
+      color: #e6edf3;
+    }
+
+    .buy-score {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .buy-score-detail {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 4px 12px;
+      min-width: 260px;
+      white-space: normal;
+    }
+
+    .buy-score-detail span {
+      color: #8b949e;
+    }
+
+    .buy-category-list {
+      white-space: normal;
+      max-width: 220px;
+    }
+
     .table-scroll {
       overflow: auto;
       max-height: min(70vh, 700px);
@@ -299,6 +354,7 @@
     .summary-text {
       display: -webkit-box;
       -webkit-box-orient: vertical;
+      line-clamp: 6;
       -webkit-line-clamp: 6;
       overflow: hidden;
       word-break: break-word;
@@ -306,6 +362,7 @@
     }
 
     .text-summary-cell:hover .summary-text {
+      line-clamp: unset;
       -webkit-line-clamp: unset;
       overflow: visible;
     }
@@ -1010,9 +1067,19 @@
       <button type="button" class="tab-btn" data-tab="technical">技術面</button>
       <button type="button" class="tab-btn" data-tab="chip">籌碼面</button>
       <button type="button" class="tab-btn" data-tab="fundamental">基本面</button>
+      <button type="button" class="tab-btn" data-tab="buy">買(+)</button>
       <button type="button" class="tab-btn" data-tab="cb">CB</button>
       <button type="button" class="index-toggle-btn active" id="indexToggleBtn" title="切換顯示加權/櫃買指數固定列">📊 顯示指數</button>
       <span class="tab-note" id="tabNote">總覽：價格、漲跌、量、KD、布林</span>
+    </div>
+
+    <div class="buy-signal-settings" id="buySignalSettings">
+      <strong>買(+)參數</strong>
+      <label>低檔價格距離% <input id="buyLowPricePct" type="number" min="0" step="0.5" value="10"></label>
+      <label>高周轉率% <input id="buyHighTurnoverPct" type="number" min="0" step="0.1" value="3"></label>
+      <label>壓力距離% <input id="buyResistancePct" type="number" min="0" step="0.5" value="10"></label>
+      <label>KD低檔值 <input id="buyKdOversold" type="number" min="0" max="100" step="1" value="30"></label>
+      <button type="button" class="secondary" id="buySignalResetBtn">恢復預設</button>
     </div>
 
     <div class="filter-panel" id="filterPanel">
@@ -1304,6 +1371,26 @@
           { key: "yield_value", label: "殖利率<br><small>估65%</small>", cls: "col-md" },
           { key: "per_latest", label: "日PER<br><small>120日LH</small>" },
           { key: "pbr_latest", label: "日PBR<br><small>120日LH</small>" },
+        ]
+      },
+      buy: {
+        note: "買(+)：切換分頁時計算；紅色為加分，乘數規則套用於加總分數",
+        columns: [
+          { key: "code", label: "代碼<br><small>名稱</small>" },
+          { key: "buy_score", label: "買(+)分數<br><small>加分 × 乘數</small>" },
+          { key: "buy_categories", label: "符合自選分類<br><small>顯示清單</small>" },
+          { key: "buy_price_lh", label: "價格LH3天<br><small>低低 +1</small>" },
+          { key: "buy_kd_oversold", label: "KD值&lt;參數<br><small>低低 +1</small>" },
+          { key: "buy_kd_divergence", label: "KD低檔背離<br><small>符合 +1</small>" },
+          { key: "buy_rsi_divergence", label: "RSI底背離<br><small>符合 +1</small>" },
+          { key: "buy_resistance", label: "離壓力距離<br><small>&lt;參數 +1</small>" },
+          { key: "buy_institutional", label: "三大法人買進<br><small>符合 +1</small>" },
+          { key: "buy_low_turnover", label: "低檔高周轉率<br><small>符合 +1</small>" },
+          { key: "buy_gross_margin", label: "毛利率<br><small>加分 × 乘數</small>" },
+          { key: "buy_per", label: "日PER<br><small>L值 × 乘數</small>" },
+          { key: "buy_vr", label: "日VR<br><small>低低 ×1.1</small>" },
+          { key: "buy_obv", label: "日OBV<br><small>高高 ×1.1</small>" },
+          { key: "buy_turnover", label: "周轉率<br><small>高高 ×1.1</small>" }
         ]
       },
       cb: {
@@ -1827,6 +1914,242 @@
           ${renderPriceLHLine(s, 1, 2)}
           ${renderPriceLHLine(s, 2, 3)}
         </td>`;
+    }
+    const buySignalCache = new Map();
+
+    function buySignalNumber(id, fallback) {
+      const value = Number(document.getElementById(id)?.value);
+      return Number.isFinite(value) ? value : fallback;
+    }
+
+    function buySignalParams() {
+      return {
+        lowPricePct: buySignalNumber("buyLowPricePct", 10),
+        highTurnoverPct: buySignalNumber("buyHighTurnoverPct", 3),
+        resistancePct: buySignalNumber("buyResistancePct", 10),
+        kdOversold: buySignalNumber("buyKdOversold", 30),
+      };
+    }
+
+    function buySignalBool(s, keys) {
+      for (const key of keys) {
+        const value = s?.[key];
+        if (value === true || Number(value) > 0 || ["true", "yes", "y", "符合", "是"].includes(String(value).trim().toLowerCase())) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function buySignalTrend(s, key, direction) {
+      const current = dayMetricValue(s, key, 0);
+      const previous = dayMetricValue(s, key, 1);
+      if (isNil(current) || isNil(previous)) return false;
+      return direction === "up" ? Number(current) > Number(previous) : Number(current) < Number(previous);
+    }
+
+    function buySignalGrossMultiplier(s) {
+      const grossMargin = Number(s?.gross_margin);
+      if (!Number.isFinite(grossMargin)) return { value: null, multiplier: 1 };
+      return {
+        value: grossMargin,
+        multiplier: grossMargin > 30 ? 1.3 : grossMargin > 25 ? 1.25 : 1.0,
+      };
+    }
+
+    function buySignalPerMultiplier(s) {
+      const current = Number(s?.per_latest);
+      const low = Number(s?.per_60d_low);
+      if (!Number.isFinite(current) || !Number.isFinite(low) || current === 0) {
+        return { current: null, low: null, high: null, lowPct: null, multiplier: 1 };
+      }
+      const high = Number(s?.per_60d_high);
+      const lowPct = ((low - current) / current) * 100;
+      const lowRatio = lowPct / 100;
+      return {
+        current,
+        low,
+        high: Number.isFinite(high) ? high : null,
+        lowPct,
+        multiplier: lowRatio < 0 ? 1.0 + (1 + lowRatio) : 1,
+      };
+    }
+
+    function calculateBuySignal(s) {
+      const params = buySignalParams();
+      const low0 = priceLHValue(s, 0, "low");
+      const low1 = priceLHValue(s, 1, "low");
+      const price = Number(s?.price);
+      const lowPrice = Number(low0);
+      const k0 = kdValue(s, 0);
+      const k1 = kdValue(s, 1);
+      const resistanceDistance = Number(s?.resistance_distance_pct);
+      const institutional = Number(pickFirst(s?.institutional_total_net_t0, s?.institutional_total_net));
+      const turnover = Number(dayMetricValue(s, "turnover_pct", 0));
+      const gross = buySignalGrossMultiplier(s);
+      const per = buySignalPerMultiplier(s);
+      const checks = {
+        priceLH: Number.isFinite(Number(low0)) && Number.isFinite(Number(low1)) && Number(low0) < Number(low1) && Number(low1) < Number(priceLHValue(s, 2, "low")),
+        kdOversold: Number.isFinite(Number(k0)) && Number.isFinite(Number(k1)) && Number(k0) < params.kdOversold && Number(k0) < Number(k1),
+        kdDivergence: buySignalBool(s, ["kd_bullish_divergence", "kd_low_divergence", "kd_divergence"]),
+        rsiDivergence: buySignalBool(s, ["rsi_bullish_divergence", "rsi_bottom_divergence", "rsi_divergence"]),
+        resistance: Number.isFinite(resistanceDistance) && resistanceDistance < params.resistancePct,
+        institutional: Number.isFinite(institutional) && institutional > 0,
+        lowTurnover: Number.isFinite(price) && Number.isFinite(lowPrice) && price <= lowPrice * (1 + params.lowPricePct / 100) && Number.isFinite(turnover) && turnover >= params.highTurnoverPct,
+      };
+      const baseScore = Object.values(checks).filter(Boolean).length;
+      const multipliers = {
+        gross: gross.multiplier,
+        per: per.multiplier,
+        vr: buySignalTrend(s, "vr", "down") ? 1.1 : 1.0,
+        obv: buySignalTrend(s, "obv", "up") ? 1.1 : 1.0,
+        turnover: buySignalTrend(s, "turnover_pct", "up") ? 1.1 : 1.0,
+      };
+      const totalMultiplier = Object.values(multipliers).reduce((total, value) => total * value, 1);
+      return {
+        score: Number((baseScore * totalMultiplier).toFixed(2)),
+        baseScore,
+        checks,
+        multipliers,
+        grossMargin: gross.value,
+        per,
+        categories: stockCustomCategories(s),
+      };
+    }
+
+    function buySignalResult(s) {
+      const key = String(s?.code ?? s?.stock_id ?? "");
+      const params = JSON.stringify(buySignalParams());
+      const cached = buySignalCache.get(key);
+      if (!cached || cached.params !== params) {
+        const result = calculateBuySignal(s);
+        buySignalCache.set(key, { params, result });
+        return result;
+      }
+      return cached.result;
+    }
+
+    function buyCheckText(value) {
+      return value ? `<span class="up">符合 +1</span>` : `<span>未符合</span>`;
+    }
+
+    function buyMultiplierText(value, label) {
+      return `<span class="${value > 1 ? "up" : ""}">${label} ×${value.toFixed(2)}</span>`;
+    }
+
+    function buyValueText(label, value, suffix = "") {
+      const displayValue = typeof value === "string" && value.includes("/")
+        ? escapeHtml(value)
+        : fmt(value, suffix);
+      return `<div class="table-lv2">${label}：${displayValue}</div>`;
+    }
+
+    function buyActualDate(s, idx) {
+      const value = pickFirst(
+        s?.[`price_date_t${idx}`],
+        s?.[`kd_date_t${idx}`],
+        s?.[`rsi_date_t${idx}`],
+        s?.[`date_t${idx}`],
+        s?.[`chip_date_t${idx}`],
+        s?.[`date${idx}`]
+      );
+      return isNil(value) || value === "" ? dayLabel(idx) : chipDateMMDD(value, dayLabel(idx));
+    }
+
+    function buyDateValueText(s, idx, value, suffix = "") {
+      return buyValueText(buyActualDate(s, idx), value, suffix);
+    }
+
+    function buyRuleCell(qualified, valueHtml, multiplier = null) {
+      const scoreHtml = multiplier === null
+        ? `<span class="${qualified ? "up" : ""}">${qualified ? "+1" : "0"}</span>`
+        : buyMultiplierText(multiplier, qualified ? "符合" : "盤整");
+      return `<td><div class="table-lv1">${scoreHtml}</div>${valueHtml}</td>`;
+    }
+
+    function buyTrendValues(s, key, suffix = "") {
+      return `${buyDateValueText(s, 0, dayMetricValue(s, key, 0), suffix)}${buyDateValueText(s, 1, dayMetricValue(s, key, 1), suffix)}${buyDateValueText(s, 2, dayMetricValue(s, key, 2), suffix)}`;
+    }
+
+    function renderBuyScoreDetail(s) {
+      const result = buySignalResult(s);
+      const checks = result.checks;
+      const multipliers = result.multipliers;
+      return `<div class="buy-score-detail">
+        <div>價格LH：${buyCheckText(checks.priceLH)}</div>
+        <div>KD低檔：${buyCheckText(checks.kdOversold)}</div>
+        <div>KD背離：${buyCheckText(checks.kdDivergence)}</div>
+        <div>RSI背離：${buyCheckText(checks.rsiDivergence)}</div>
+        <div>壓力距離：${buyCheckText(checks.resistance)}</div>
+        <div>法人買進：${buyCheckText(checks.institutional)}</div>
+        <div>低檔周轉：${buyCheckText(checks.lowTurnover)}</div>
+        <div>毛利率：${buyMultiplierText(multipliers.gross, isNil(result.grossMargin) ? "-" : `${fmt(result.grossMargin, "%")} `)}</div>
+        <div>日PER：${buyMultiplierText(multipliers.per, isNil(result.per.lowPct) ? "-" : `L ${fmt(result.per.lowPct, "%")} `)}</div>
+        <div>日VR：${buyMultiplierText(multipliers.vr, "低低")}</div>
+        <div>日OBV：${buyMultiplierText(multipliers.obv, "高高")}</div>
+        <div>周轉率：${buyMultiplierText(multipliers.turnover, "高高")}</div>
+      </div>`;
+    }
+
+    function renderBuySignalCell(s, key) {
+      const result = buySignalResult(s);
+      const checks = result.checks;
+      if (key === "buy_score") {
+        return `<td><div class="buy-score ${result.score > 0 ? "up" : ""}">${fmt(result.score)} 分</div><div class="table-lv3">基礎 ${result.baseScore} × ${fmt(result.score / Math.max(result.baseScore, 1), "")}</div></td>`;
+      }
+      if (key === "buy_categories") {
+        return `<td class="buy-category-list">${result.categories.length ? result.categories.map(escapeHtml).join("、") : "-"}</td>`;
+      }
+      const low0 = priceLHValue(s, 0, "low");
+      const low1 = priceLHValue(s, 1, "low");
+      const low2 = priceLHValue(s, 2, "low");
+      const high0 = priceLHValue(s, 0, "high");
+      const high1 = priceLHValue(s, 1, "high");
+      const high2 = priceLHValue(s, 2, "high");
+      const k0 = kdValue(s, 0);
+      const k1 = kdValue(s, 1);
+      const k2 = kdValue(s, 2);
+      const rsi0 = dayMetricValue(s, "rsi", 0);
+      const rsi1 = dayMetricValue(s, "rsi", 1);
+      const resistanceDistance = s?.resistance_distance_pct;
+      const institutional = pickFirst(s?.institutional_total_net_t0, s?.institutional_total_net);
+      const turnover0 = dayMetricValue(s, "turnover_pct", 0);
+      if (key === "buy_gross_margin") {
+        return buyRuleCell(result.multipliers.gross > 1, buyValueText("毛利率", result.grossMargin, "%"), result.multipliers.gross);
+      }
+      if (key === "buy_per") {
+        const per = result.per;
+        const raw = `${buyValueText("TTM", s?.per_ttm)}${buyValueText("目前", per.current)}${buyValueText("L", per.low, "")}${buyValueText("H", per.high, "")}${buyValueText("L距離", per.lowPct, "%")}`;
+        return buyRuleCell(per.multiplier > 1, raw, per.multiplier);
+      }
+      if (["buy_vr", "buy_obv", "buy_turnover"].includes(key)) {
+        const metricKey = key.replace("buy_", "");
+        const multiplier = result.multipliers[metricKey];
+        const suffix = key === "buy_vr" ? "%" : key === "buy_turnover" ? "%" : "";
+        return buyRuleCell(multiplier > 1, buyTrendValues(s, metricKey === "turnover" ? "turnover_pct" : metricKey, suffix), multiplier);
+      }
+      if (key === "buy_price_lh") {
+        return buyRuleCell(checks.priceLH, `${buyDateValueText(s, 0, `${fmt(low0)} / ${fmt(high0)}`)}${buyDateValueText(s, 1, `${fmt(low1)} / ${fmt(high1)}`)}${buyDateValueText(s, 2, `${fmt(low2)} / ${fmt(high2)}`)}`);
+      }
+      if (key === "buy_kd_oversold") {
+        return buyRuleCell(checks.kdOversold, `${buyDateValueText(s, 0, k0)}${buyDateValueText(s, 1, k1)}${buyDateValueText(s, 2, k2)}`);
+      }
+      if (key === "buy_kd_divergence") {
+        return buyRuleCell(checks.kdDivergence, `${buyDateValueText(s, 0, k0, "")}${buyDateValueText(s, 1, k1, "")}`);
+      }
+      if (key === "buy_rsi_divergence") {
+        return buyRuleCell(checks.rsiDivergence, `${buyDateValueText(s, 0, rsi0, "%")}${buyDateValueText(s, 1, rsi1, "%")}`);
+      }
+      if (key === "buy_resistance") {
+        return buyRuleCell(checks.resistance, buyValueText("距壓力", resistanceDistance, "%"));
+      }
+      if (key === "buy_institutional") {
+        return buyRuleCell(checks.institutional, buyValueText("三大法人", institutional, "張"));
+      }
+      if (key === "buy_low_turnover") {
+        return buyRuleCell(checks.lowTurnover, `${buyValueText("價格", s?.price)}${buyValueText("低點", low0)}${buyValueText("周轉率", turnover0, "%")}`);
+      }
+      return `<td>0</td>`;
     }
 
     function renderPriceLHTrendBlock(s) {
@@ -2395,6 +2718,20 @@
           return renderChipConcentrationWindowCell(s, 5);
         case "broker_diff_5d":
           return renderBrokerDiffWindowCell(s, 5);
+        case "buy_score":
+        case "buy_categories":
+        case "buy_price_lh":
+        case "buy_kd_oversold":
+        case "buy_kd_divergence":
+        case "buy_rsi_divergence":
+        case "buy_resistance":
+        case "buy_institutional":
+        case "buy_low_turnover":
+        case "buy_gross_margin":
+        case "buy_vr":
+        case "buy_obv":
+        case "buy_turnover":
+          return renderBuySignalCell(s, key);
         case "eps_Y":
           {
             const epsYearQuarters = Number.isInteger(Number(s.eps_Y_quarters))
@@ -2560,6 +2897,14 @@
           <div class="stock-item"><div class="stock-label">日PBR 120日LH</div><div class="stock-value">${renderRangeMetric(s.pbr_latest, s.pbr_60d_low, s.pbr_60d_high)}</div></div>
         </div>`;
 
+      const buyResult = buySignalResult(s);
+      const buyGrid = `
+        <div class="stock-grid">
+          <div class="stock-item"><div class="stock-label">買(+)分數</div><div class="stock-value buy-score ${buyResult.score > 0 ? "up" : ""}">${fmt(buyResult.score)} 分</div></div>
+          <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list">${buyResult.categories.length ? buyResult.categories.map(escapeHtml).join("、") : "-"}</div></div>
+          <div class="stock-item"><div class="stock-label">買(+)計分表</div>${renderBuyScoreDetail(s)}</div>
+        </div>`;
+
       const cbGrid = `
         <div class="stock-grid">
           ${renderCbMobileGrid(s)}
@@ -2578,9 +2923,10 @@
       if (tab === "technical") bodyGrid = technicalGrid;
       if (tab === "chip") bodyGrid = chipGrid;
       if (tab === "fundamental") bodyGrid = fundamentalGrid;
+      if (tab === "buy") bodyGrid = buyGrid;
       if (tab === "cb") bodyGrid = cbGrid;
 
-      const signalFooter = (tab === "fundamental" || tab === "cb") ? "" : renderMobileSignalFooter(s);
+      const signalFooter = (tab === "fundamental" || tab === "buy" || tab === "cb") ? "" : renderMobileSignalFooter(s);
 
       return `
         <div class="stock-card">
@@ -2614,6 +2960,10 @@
           const score = priceLHTrendScore(s);
           return isNil(score) ? -999999 : Number(score);
         }
+        case "buy_score":
+          return buySignalResult(s).score;
+        case "buy_categories":
+          return buySignalResult(s).categories.join("、");
         case "yield_value":
           return Number(((s.yield_value ?? 0) * 0.65).toFixed(4));
         case "roe":
@@ -2730,6 +3080,8 @@
           const nextTab = btn.dataset.tab;
           if (!TAB_CONFIG[nextTab]) return;
           currentTab = nextTab;
+          const buySettings = document.getElementById("buySignalSettings");
+          if (buySettings) buySettings.classList.toggle("is-visible", currentTab === "buy");
           document.querySelectorAll(".tab-btn[data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === currentTab));
           const note = document.getElementById("tabNote");
           if (note) {
@@ -2741,6 +3093,9 @@
             } else {
               note.innerText = TAB_CONFIG[currentTab].note;
             }
+          }
+          if (currentTab === "buy") {
+            sortedStocks.forEach(stock => buySignalResult(stock));
           }
           renderAll();
         });
@@ -3103,6 +3458,29 @@
       if (clearBtn) clearBtn.addEventListener("click", clearFilters);
     }
 
+    function bindBuySignalSettings() {
+      const settings = document.getElementById("buySignalSettings");
+      if (!settings) return;
+      settings.querySelectorAll("input").forEach(input => {
+        input.addEventListener("input", () => {
+          buySignalCache.clear();
+          if (currentTab === "buy") renderAll();
+        });
+      });
+      const resetBtn = document.getElementById("buySignalResetBtn");
+      if (resetBtn) {
+        resetBtn.addEventListener("click", () => {
+          const defaults = { buyLowPricePct: 10, buyHighTurnoverPct: 3, buyResistancePct: 10, buyKdOversold: 30 };
+          Object.entries(defaults).forEach(([id, value]) => {
+            const input = document.getElementById(id);
+            if (input) input.value = value;
+          });
+          buySignalCache.clear();
+          if (currentTab === "buy") renderAll();
+        });
+      }
+    }
+
     (function bindIndexToggle() {
       const btn = document.getElementById("indexToggleBtn");
       if (!btn) return;
@@ -3116,6 +3494,7 @@
 
     bindTabs();
     bindFilters();
+    bindBuySignalSettings();
     renderAll();
   </script>
 
