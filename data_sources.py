@@ -676,6 +676,7 @@ def get_per_120d_stats(stock_id, days=120):
 
         per_col = next(
             (c for c in ["price_earning_ratio", "PER", "per"] if c in df_win.columns), None)
+
         def latest_valid(col):
             if not col:
                 return None, None, False
