@@ -3059,8 +3059,6 @@
           return buySignalResult(s).score;
         case "buy_categories":
           return buySignalResult(s).categories.join("、");
-        case "yield_value":
-          return Number(((s.yield_value ?? 0) * 0.65).toFixed(4));
         case "roe":
           return Number(s.roe_ttm ?? s.roe_last_year ?? -999999);
         case "chip_concentration_5d":
@@ -3093,6 +3091,8 @@
           return Number(s.cb_pressure_days ?? -999999);
         case "cb_period":
           return Number(s.cb_days_to_due ?? -999999);
+        case "yield_value":
+          return Number(((s.yield_value ?? 0) * 0.65).toFixed(4));
         case "per_latest":
         case "pbr_latest":
           return Number(s[key] ?? -999999);

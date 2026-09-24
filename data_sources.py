@@ -622,12 +622,13 @@ def get_per_raw(stock_id):
         return []
 
 
-def get_per_pbr_60d_stats(stock_id, days=120):
+def get_per_120d_stats(stock_id, days=120):
     """
-    Latest valid PER/PBR plus rolling high/low.
-    If the newest FinMind row has blank PER/PBR, walk backward to the newest valid value.
+    Latest valid PER plus rolling 120-trading-day high/low.
+    If the newest FinMind row has blank PER, walk backward to the newest valid value.
     """
     def safe_round(x):
+        """Round a number to two decimal places or return None if NaN."""
         try:
             if pd.isna(x):
                 return None
@@ -635,10 +636,8 @@ def get_per_pbr_60d_stats(stock_id, days=120):
         except Exception:
             return None
 
-    empty = {
-        "per": None, "per_60d_high": None, "per_60d_low": None, "per_is_prev": False,
-        "pbr": None, "pbr_60d_high": None, "pbr_60d_low": None, "pbr_is_prev": False,
-    }
+    empty = {"per": None, "per_120d_high": None,
+             "per_120d_low": None, "per_is_prev": False}
 
     try:
         params = {
@@ -647,13 +646,13 @@ def get_per_pbr_60d_stats(stock_id, days=120):
             "start_date": (datetime.today() - timedelta(days=max(days * 3, 240))).strftime("%Y-%m-%d"),
             "token": FINMIND_token,
         }
-        _record_finmind_request("PER/PBR 120D", stock_id, "TaiwanStockPER")
+        _record_finmind_request("PER 120D", stock_id, "TaiwanStockPER")
         res = requests.get(API_URL, params=params,
                            headers=headers, timeout=300)
         res_data = _safe_response_json(res)
 
         if res.status_code != 200:
-            _print_api_status_error('PER/PBR 120D', stock_id, res, res_data)
+            _print_api_status_error('PER 120D', stock_id, res, res_data)
             return empty
 
         data = res_data.get("data", [])
@@ -677,9 +676,6 @@ def get_per_pbr_60d_stats(stock_id, days=120):
 
         per_col = next(
             (c for c in ["price_earning_ratio", "PER", "per"] if c in df_win.columns), None)
-        pbr_col = next(
-            (c for c in ["price_book_ratio", "PBR", "pbr"] if c in df_win.columns), None)
-
         def latest_valid(col):
             if not col:
                 return None, None, False
@@ -693,8 +689,6 @@ def get_per_pbr_60d_stats(stock_id, days=120):
             return safe_round(latest_value), latest_valid_date, bool(latest_valid_date < latest_row_date)
 
         per, per_date, per_is_prev = latest_valid(per_col)
-        pbr, pbr_date, pbr_is_prev = latest_valid(pbr_col)
-
         if per_col:
             per_s = pd.to_numeric(df_win[per_col], errors="coerce").dropna()
             per_high = safe_round(per_s.max()) if not per_s.empty else per
@@ -702,25 +696,14 @@ def get_per_pbr_60d_stats(stock_id, days=120):
         else:
             per_high = per_low = None
 
-        if pbr_col:
-            pbr_s = pd.to_numeric(df_win[pbr_col], errors="coerce").dropna()
-            pbr_high = safe_round(pbr_s.max()) if not pbr_s.empty else pbr
-            pbr_low = safe_round(pbr_s.min()) if not pbr_s.empty else pbr
-        else:
-            pbr_high = pbr_low = None
-
         return {
             "per": per,
-            "per_60d_high": per_high if per_high is not None else per,
-            "per_60d_low": per_low if per_low is not None else per,
+            "per_120d_high": per_high if per_high is not None else per,
+            "per_120d_low": per_low if per_low is not None else per,
             "per_is_prev": per_is_prev,
-            "pbr": pbr,
-            "pbr_60d_high": pbr_high if pbr_high is not None else pbr,
-            "pbr_60d_low": pbr_low if pbr_low is not None else pbr,
-            "pbr_is_prev": pbr_is_prev,
         }
     except Exception as e:
-        print(f"❌ PER/PBR 120D error {stock_id}: {e}")
+        print(f"❌ PER 120D error {stock_id}: {e}")
         return empty
 
 

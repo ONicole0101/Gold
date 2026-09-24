@@ -103,14 +103,9 @@ def load_static_map(static_csv_path=STATIC_CSV_PATH, force_reload=False):
         if valuation_map:
             valuation_keys = [
                 "per_latest",
-                "per_60d_high",
-                "per_60d_low",
-                "pbr_latest",
-                "pbr_60d_high",
-                "pbr_60d_low",
-                "yield_value",
+                "per_120d_high",
+                "per_120d_low",
                 "per_latest_is_prev",
-                "pbr_latest_is_prev",
                 "valuation_updated_at",
                 "valuation_status",
                 "valuation_reason",
@@ -571,10 +566,10 @@ def process_stock(s, static_map=None, chips_map=None):
                 static_fields["per_ttm"] = per_ttm
             if static_fields.get("per_latest") is None and per_ttm is not None:
                 static_fields["per_latest"] = per_ttm
-            if static_fields.get("per_60d_high") is None and static_fields.get("per_latest") is not None:
-                static_fields["per_60d_high"] = static_fields["per_latest"]
-            if static_fields.get("per_60d_low") is None and static_fields.get("per_latest") is not None:
-                static_fields["per_60d_low"] = static_fields["per_latest"]
+            if static_fields.get("per_120d_high") is None and static_fields.get("per_latest") is not None:
+                static_fields["per_120d_high"] = static_fields["per_latest"]
+            if static_fields.get("per_120d_low") is None and static_fields.get("per_latest") is not None:
+                static_fields["per_120d_low"] = static_fields["per_latest"]
 
         chip_fields = _build_chip_fields(chip_row)
         merged_static_fields = {**static_fields, **chip_fields}
@@ -890,12 +885,8 @@ def _build_static_fields(static_row):
         "net_margin_yoy_diff": to_float_or_none(static_row.get("net_margin_yoy_diff")),
 
         "per_latest": to_float_or_none(static_row.get("per_latest")),
-        "per_60d_high": to_float_or_none(static_row.get("per_60d_high")),
-        "per_60d_low": to_float_or_none(static_row.get("per_60d_low")),
-        "pbr_latest": to_float_or_none(static_row.get("pbr_latest")),
-        "pbr_60d_high": to_float_or_none(static_row.get("pbr_60d_high")),
-        "pbr_60d_low": to_float_or_none(static_row.get("pbr_60d_low")),
-        "yield_value": to_float_or_none(static_row.get("yield_value")),
+        "per_120d_high": to_float_or_none(static_row.get("per_120d_high")),
+        "per_120d_low": to_float_or_none(static_row.get("per_120d_low")),
 
         "period_start": to_str_or_none(period_start),
         "period_end": to_str_or_none(period_end),

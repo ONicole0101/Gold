@@ -1358,7 +1358,7 @@
         ]
       },
       fundamental: {
-        note: "基本面：EPS、ROE、營收、毛利率、營益率、淨利率、殖利率、PER/PBR",
+        note: "基本面：EPS、ROE、營收、毛利率、營益率、淨利率、PER",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>120日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值，高點距離為正值。" },
@@ -1368,9 +1368,7 @@
           { key: "gross_margin", label: "毛利率%<br><small>QoQ / YoY</small>" },
           { key: "operating_margin", label: "營益率%<br><small>QoQ / YoY</small>" },
           { key: "net_margin", label: "淨利率%<br><small>QoQ / Y</small>" },
-          { key: "yield_value", label: "殖利率<br><small>估65%</small>", cls: "col-md" },
           { key: "per_latest", label: "日PER<br><small>120日LH</small>" },
-          { key: "pbr_latest", label: "日PBR<br><small>120日LH</small>" },
         ]
       },
       buy: {
@@ -1959,11 +1957,11 @@
 
     function buySignalPerMultiplier(s) {
       const current = Number(s?.per_latest);
-      const low = Number(s?.per_60d_low);
+      const low = Number(s?.per_120d_low);
       if (!Number.isFinite(current) || !Number.isFinite(low) || current === 0) {
         return { current: null, low: null, high: null, lowPct: null, multiplier: 1 };
       }
-      const high = Number(s?.per_60d_high);
+      const high = Number(s?.per_120d_high);
       const lowPct = ((low - current) / current) * 100;
       const lowRatio = lowPct / 100;
       return {
@@ -2754,12 +2752,8 @@
           return `<td>${renderMetric3(s.operating_margin, null, s.operating_margin_qoq, s.operating_margin_yoy_diff)}</td>`;
         case "net_margin":
           return `<td>${renderMetric3(s.net_margin, null, s.net_margin_qoq, s.net_margin_yoy_diff)}</td>`;
-        case "yield_value":
-          return `<td>${fmt(Number(s.yield_value ?? 0) * 0.65, "%")}</td>`;
         case "per_latest":
-          return `<td>${renderPerRangeMetric(s.per_latest, s.per_60d_low, s.per_60d_high, s.per_ttm)}</td>`;
-        case "pbr_latest":
-          return `<td>${renderRangeMetric(s.pbr_latest, s.pbr_60d_low, s.pbr_60d_high)}</td>`;
+          return `<td>${renderPerRangeMetric(s.per_latest, s.per_120d_low, s.per_120d_high, s.per_ttm)}</td>`;
         case "k": {
           return renderKDCell(s);
         }
@@ -2892,9 +2886,7 @@
           <div class="stock-item"><div class="stock-label">毛利率</div><div class="stock-value">${renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff)}</div></div>
           <div class="stock-item"><div class="stock-label">營益率</div><div class="stock-value">${renderMetric3(s.operating_margin, null, s.operating_margin_qoq, s.operating_margin_yoy_diff)}</div></div>
           <div class="stock-item"><div class="stock-label">淨利率</div><div class="stock-value">${renderMetric3(s.net_margin, null, s.net_margin_qoq, s.net_margin_yoy_diff)}</div></div>
-          <div class="stock-item"><div class="stock-label">殖利率 估65%</div><div class="stock-value">${fmt(Number(s.yield_value ?? 0) * 0.65, "%")}</div></div>
-          <div class="stock-item"><div class="stock-label">日PER 120日LH</div><div class="stock-value">${renderPerRangeMetric(s.per_latest, s.per_60d_low, s.per_60d_high, s.per_ttm)}</div></div>
-          <div class="stock-item"><div class="stock-label">日PBR 120日LH</div><div class="stock-value">${renderRangeMetric(s.pbr_latest, s.pbr_60d_low, s.pbr_60d_high)}</div></div>
+          <div class="stock-item"><div class="stock-label">日PER 120日LH</div><div class="stock-value">${renderPerRangeMetric(s.per_latest, s.per_120d_low, s.per_120d_high, s.per_ttm)}</div></div>
         </div>`;
 
       const buyResult = buySignalResult(s);
@@ -2964,8 +2956,6 @@
           return buySignalResult(s).score;
         case "buy_categories":
           return buySignalResult(s).categories.join("、");
-        case "yield_value":
-          return Number(((s.yield_value ?? 0) * 0.65).toFixed(4));
         case "roe":
           return Number(s.roe_ttm ?? s.roe_last_year ?? -999999);
         case "chip_concentration_5d":
@@ -2999,7 +2989,6 @@
         case "cb_period":
           return Number(s.cb_days_to_due ?? -999999);
         case "per_latest":
-        case "pbr_latest":
           return Number(s[key] ?? -999999);
         default: {
           const value = s[key];
