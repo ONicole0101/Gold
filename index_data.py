@@ -161,8 +161,6 @@ def _empty_index_row(index_id, name, reason="資料無法取得"):
         "eps_Y": None,
         "roe": None,
         "per_latest": None,
-        "pbr_latest": None,
-        "yield_value": None,
         "gross_margin": None,
         "operating_margin": None,
         "net_margin": None,

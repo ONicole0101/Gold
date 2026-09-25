@@ -4,9 +4,7 @@ import pandas as pd
 
 from data_sources import (
     get_balance_sheet_raw,
-    get_dividend_raw,
     get_eps_raw,
-    get_per_raw,
     get_profit_ratio as get_profit_ratio_raw,
     get_revenue_raw,
     get_shareholding_raw,
@@ -648,54 +646,6 @@ def get_eps_analysis(stock_id, current_price=None):
     except Exception as e:
         print(f"❌ EPS error {stock_id}: {e}")
         return (None, None, None, None, False, False, None, None)
-
-
-def get_dividend_yield(stock_id, current_price=None):
-    try:
-        data = get_dividend_raw(stock_id)
-        if not data:
-            return {'dividend': None, 'yield': None}
-
-        df = pd.DataFrame(data)
-        cash_cols = ['CashEarningsDistribution', 'CashStatutorySurplus']
-        exist_cols = [c for c in cash_cols if c in df.columns]
-        if not exist_cols:
-            return {'dividend': None, 'yield': None}
-
-        df[exist_cols] = df[exist_cols].apply(pd.to_numeric, errors='coerce')
-        df['year'] = pd.to_numeric(df['year'], errors='coerce')
-
-        df_group = (
-            df.groupby('year')[exist_cols]
-            .sum()
-            .sum(axis=1)
-            .reset_index(name='cash_dividend')
-            .sort_values('year', ascending=False)
-        )
-
-        dividend = None
-        for val in df_group['cash_dividend']:
-            if val and val > 0:
-                dividend = round(val, 2)
-                break
-
-        yield_pct = None
-        per_data = get_per_raw(stock_id)
-        if per_data:
-            df2 = pd.DataFrame(per_data)
-            df2['date'] = pd.to_datetime(df2['date'])
-            latest = df2.sort_values('date').iloc[-1]
-            yield_pct = latest.get('dividend_yield')
-            if yield_pct is not None:
-                yield_pct = round(float(yield_pct), 2)
-
-        if yield_pct is None and dividend and current_price and current_price > 0:
-            yield_pct = round(dividend / current_price * 100, 2)
-
-        return {'dividend': dividend, 'yield': yield_pct}
-    except Exception as e:
-        print(f'❌ 股利/殖利率錯誤 {stock_id}: {e}')
-        return {'dividend': None, 'yield': None}
 
 
 def calc_margin_score(gross, op, net):

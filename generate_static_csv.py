@@ -9,7 +9,7 @@ import config
 
 from data_sources import (
     get_revenue_raw,
-    get_per_pbr_60d_stats,
+    get_per_120d_stats,
     get_disposition_securities_period,
     get_finmind_user_info,
     get_finmind_token_status,
@@ -31,8 +31,7 @@ DATA_COLS = [
     "operating_margin", "operating_margin_qoq", "operating_margin_yoy_diff",
     "net_margin", "net_margin_qoq", "net_margin_yoy_diff",
     "per_ttm",
-    "per_latest", "per_60d_high", "per_60d_low",
-    "pbr_latest", "pbr_60d_high", "pbr_60d_low",
+    "per_latest", "per_120d_high", "per_120d_low",
 ]
 
 DISPOSITION_COLS = [
@@ -46,13 +45,13 @@ GROUPS = {
     "roe": ["roe_last_year", "roe_ttm"],
     "revenue": ["rev"],
     "profit": ["gross_margin", "operating_margin", "net_margin"],
-    "valuation": ["per_latest", "pbr_latest"],
+    "valuation": ["per_latest"],
 }
 
 PREV_FLAG_COLS = [
     "eps_Y_is_prev", "eps_ttm_is_prev",
     "gross_margin_is_prev", "operating_margin_is_prev", "net_margin_is_prev",
-    "per_latest_is_prev", "pbr_latest_is_prev",
+    "per_latest_is_prev",
 ]
 
 BASE_COLS = ["stock_id", "name"] + DATA_COLS + DISPOSITION_COLS + PREV_FLAG_COLS + [
@@ -473,19 +472,14 @@ def build_static_row(s: dict) -> dict:
             return finalize_static_status(row)
         set_group_status(row, "profit", "error", str(e))
 
-    # 60-day PER/PBR.
+    # 120-trading-day PER.
     try:
-        per_pbr = get_per_pbr_60d_stats(stock_id) or {}
-        row["per_latest"] = per_pbr.get("per")
-        row["per_60d_high"] = per_pbr.get("per_60d_high")
-        row["per_60d_low"] = per_pbr.get("per_60d_low")
-        row["pbr_latest"] = per_pbr.get("pbr")
-        row["pbr_60d_high"] = per_pbr.get("pbr_60d_high")
-        row["pbr_60d_low"] = per_pbr.get("pbr_60d_low")
-        row["per_latest_is_prev"] = "True" if per_pbr.get(
+        per = get_per_120d_stats(stock_id) or {}
+        row["per_latest"] = per.get("per")
+        row["per_120d_high"] = per.get("per_120d_high")
+        row["per_120d_low"] = per.get("per_120d_low")
+        row["per_latest_is_prev"] = "True" if per.get(
             "per_is_prev") else "False"
-        row["pbr_latest_is_prev"] = "True" if per_pbr.get(
-            "pbr_is_prev") else "False"
         if all_blank(row, GROUPS["valuation"]):
             set_group_status(row, "valuation", "no_data",
                              "empty")

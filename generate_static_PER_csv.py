@@ -8,17 +8,14 @@ import config
 from data_sources import (
     get_finmind_token_status,
     get_finmind_user_info,
-    get_per_pbr_60d_stats,
+    get_per_120d_stats,
     log_finmind_static_event,
 )
-from financial_analysis import get_dividend_yield
 
 
 VALUATION_COLS = [
-    "per_latest", "per_60d_high", "per_60d_low",
-    "pbr_latest", "pbr_60d_high", "pbr_60d_low",
-    "yield_value",
-    "per_latest_is_prev", "pbr_latest_is_prev",
+    "per_latest", "per_120d_high", "per_120d_low",
+    "per_latest_is_prev",
     "valuation_updated_at", "valuation_status", "valuation_reason",
     "finmind_token_status", "finmind_token_source", "finmind_token_masked",
     "finmind_user_count", "finmind_api_request_limit", "finmind_remain",
@@ -85,24 +82,14 @@ def build_row(stock: dict, usage_info: dict | None = None):
     row["valuation_updated_at"] = now_utc_str()
 
     try:
-        valuation = get_per_pbr_60d_stats(stock_id) or {}
+        valuation = get_per_120d_stats(stock_id) or {}
         row["per_latest"] = valuation.get("per")
-        row["per_60d_high"] = valuation.get("per_60d_high")
-        row["per_60d_low"] = valuation.get("per_60d_low")
-        row["pbr_latest"] = valuation.get("pbr")
-        row["pbr_60d_high"] = valuation.get("pbr_60d_high")
-        row["pbr_60d_low"] = valuation.get("pbr_60d_low")
+        row["per_120d_high"] = valuation.get("per_120d_high")
+        row["per_120d_low"] = valuation.get("per_120d_low")
         row["per_latest_is_prev"] = "True" if valuation.get(
             "per_is_prev") else "False"
-        row["pbr_latest_is_prev"] = "True" if valuation.get(
-            "pbr_is_prev") else "False"
-        yield_raw = get_dividend_yield(stock_id)
-        if isinstance(yield_raw, dict):
-            row["yield_value"] = yield_raw.get("yield")
-        elif isinstance(yield_raw, (int, float)):
-            row["yield_value"] = float(yield_raw)
 
-        if row["per_latest"] is None and row["pbr_latest"] is None and row["yield_value"] is None:
+        if row["per_latest"] is None:
             row["valuation_status"] = "no_data"
             row["valuation_reason"] = "empty"
         else:
@@ -126,7 +113,7 @@ def build_row(stock: dict, usage_info: dict | None = None):
 
 def build_daily_valuation(stock_list, output_file):
     info = get_finmind_user_info(
-        write_log=True, source="generate_static_valuation_csv")
+        write_log=True, source="generate_static_PER_csv")
     used = int(info.get("user_count") or 0)
     limit = int(info.get("api_request_limit") or 0)
     remain = info.get("remain")
@@ -140,7 +127,7 @@ def build_daily_valuation(stock_list, output_file):
 
     log_finmind_static_event(
         "generate_static_valuation_start",
-        source="generate_static_valuation_csv",
+        source="generate_static_PER_csv",
         status=info.get("login_status"),
         message=f"output={output_file}, stocks={len(stock_list)}",
     )
@@ -149,7 +136,7 @@ def build_daily_valuation(stock_list, output_file):
     for idx, stock in enumerate(stock_list, 1):
         stock_id = str(stock.get("stock_id") or "").strip()
         print(
-            f"Processing valuation {idx}/{len(stock_list)}: {stock_id} {stock.get('name') or ''}", flush=True)
+            f"PER {idx}/{len(stock_list)}: {stock_id} {stock.get('name') or ''}", flush=True)
         rows.append(build_row(stock, usage_info=info))
 
     final_df = normalize_df(pd.DataFrame(rows))
@@ -159,7 +146,7 @@ def build_daily_valuation(stock_list, output_file):
         str).str.lower().value_counts().to_dict() if not final_df.empty else {}
     log_finmind_static_event(
         "generate_static_valuation_end",
-        source="generate_static_valuation_csv",
+        source="generate_static_PER_csv",
         status="completed",
         message=f"rows={len(final_df)}, output={output_file}",
     )
@@ -169,7 +156,7 @@ def build_daily_valuation(stock_list, output_file):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Daily full refresh for AllStatic valuation fields (PER/PBR).")
+        description="Daily full refresh for AllStatic valuation fields (PER 120-day LH).")
     parser.add_argument("--output", default=resolve_config_value(
         "STATIC_VALUATION_OUTPUT_FILE", "STATIC_VALUATION_OUTPUT_FILE", "AllStatic_Valuation.csv"))
     args = parser.parse_args()

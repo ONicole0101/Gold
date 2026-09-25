@@ -135,7 +135,7 @@ jobs:
       - name: Generate AllStatic_Valuation.csv
         run: |
           set -o pipefail
-          python generate_static_valuation_csv.py \
+          python generate_static_PER_csv.py \
             --output "${STATIC_VALUATION_OUTPUT_FILE}"
 
       - name: Show changed files
