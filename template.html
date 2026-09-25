@@ -1958,18 +1958,27 @@
     function buySignalPerMultiplier(s) {
       const current = Number(s?.per_latest);
       const low = Number(s?.per_120d_low);
-      if (!Number.isFinite(current) || !Number.isFinite(low) || current === 0) {
+      const high = Number(s?.per_120d_high);
+      if (!Number.isFinite(current) || current === 0) {
         return { current: null, low: null, high: null, lowPct: null, multiplier: 1 };
       }
-      const high = Number(s?.per_120d_high);
-      const lowPct = ((low - current) / current) * 100;
-      const lowRatio = lowPct / 100;
+      if (!Number.isFinite(low) || !Number.isFinite(high) || high <= low) {
+        return {
+          current,
+          low: Number.isFinite(low) ? low : null,
+          high: Number.isFinite(high) ? high : null,
+          lowPct: null,
+          multiplier: 1,
+        };
+      }
+      const position = Math.min(1, Math.max(0, (current - low) / (high - low)));
+      const lowPct = position * 100;
       return {
         current,
         low,
-        high: Number.isFinite(high) ? high : null,
+        high,
         lowPct,
-        multiplier: lowRatio < 0 ? 1.0 + (1 + lowRatio) : 1,
+        multiplier: 1.30 - 0.60 * position,
       };
     }
 
@@ -2082,7 +2091,7 @@
         <div>法人買進：${buyCheckText(checks.institutional)}</div>
         <div>低檔周轉：${buyCheckText(checks.lowTurnover)}</div>
         <div>毛利率：${buyMultiplierText(multipliers.gross, isNil(result.grossMargin) ? "-" : `${fmt(result.grossMargin, "%")} `)}</div>
-        <div>日PER：${buyMultiplierText(multipliers.per, isNil(result.per.lowPct) ? "-" : `L ${fmt(result.per.lowPct, "%")} `)}</div>
+        <div>日PER：${buyMultiplierText(multipliers.per, isNil(result.per.lowPct) ? "-" : `位置 ${fmt(result.per.lowPct, "%")} `)}</div>
         <div>日VR：${buyMultiplierText(multipliers.vr, "低低")}</div>
         <div>日OBV：${buyMultiplierText(multipliers.obv, "高高")}</div>
         <div>周轉率：${buyMultiplierText(multipliers.turnover, "高高")}</div>
@@ -2117,7 +2126,7 @@
       }
       if (key === "buy_per") {
         const per = result.per;
-        const raw = `${buyValueText("TTM", s?.per_ttm)}${buyValueText("目前", per.current)}${buyValueText("L", per.low, "")}${buyValueText("H", per.high, "")}${buyValueText("L距離", per.lowPct, "%")}`;
+        const raw = `${buyValueText("TTM", s?.per_ttm)}${buyValueText("目前", per.current)}${buyValueText("L", per.low, "")}${buyValueText("H", per.high, "")}${buyValueText("PER位置", per.lowPct, "%")}`;
         return buyRuleCell(per.multiplier > 1, raw, per.multiplier);
       }
       if (["buy_vr", "buy_obv", "buy_turnover"].includes(key)) {
