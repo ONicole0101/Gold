@@ -571,6 +571,12 @@ def process_stock(s, static_map=None, chips_map=None):
             if static_fields.get("per_120d_low") is None and static_fields.get("per_latest") is not None:
                 static_fields["per_120d_low"] = static_fields["per_latest"]
 
+        if static_fields.get("per_latest") is not None:
+            if static_fields.get("per_120d_high") is None:
+                static_fields["per_120d_high"] = static_fields["per_latest"]
+            if static_fields.get("per_120d_low") is None:
+                static_fields["per_120d_low"] = static_fields["per_latest"]
+
         chip_fields = _build_chip_fields(chip_row)
         merged_static_fields = {**static_fields, **chip_fields}
 

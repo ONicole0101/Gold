@@ -113,7 +113,7 @@ def build_row(stock: dict, usage_info: dict | None = None):
 
 def build_daily_valuation(stock_list, output_file):
     info = get_finmind_user_info(
-        write_log=True, source="generate_static_valuation_csv")
+        write_log=True, source="generate_static_PER_csv")
     used = int(info.get("user_count") or 0)
     limit = int(info.get("api_request_limit") or 0)
     remain = info.get("remain")
@@ -127,7 +127,7 @@ def build_daily_valuation(stock_list, output_file):
 
     log_finmind_static_event(
         "generate_static_valuation_start",
-        source="generate_static_valuation_csv",
+        source="generate_static_PER_csv",
         status=info.get("login_status"),
         message=f"output={output_file}, stocks={len(stock_list)}",
     )
@@ -146,7 +146,7 @@ def build_daily_valuation(stock_list, output_file):
         str).str.lower().value_counts().to_dict() if not final_df.empty else {}
     log_finmind_static_event(
         "generate_static_valuation_end",
-        source="generate_static_valuation_csv",
+        source="generate_static_PER_csv",
         status="completed",
         message=f"rows={len(final_df)}, output={output_file}",
     )
