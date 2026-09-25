@@ -1382,7 +1382,7 @@
           { key: "buy_kd_divergence", label: "KD低檔背離<br><small>符合 +1</small>" },
           { key: "buy_rsi_divergence", label: "RSI底背離<br><small>符合 +1</small>" },
           { key: "buy_resistance", label: "離壓力距離<br><small>&lt;參數 +1</small>" },
-          { key: "buy_institutional", label: "三大法人買進<br><small>符合 +1</small>" },
+          { key: "buy_institutional", label: "三大法人<br><small>符合 +1</small>" },
           { key: "buy_low_turnover", label: "低檔高周轉率<br><small>符合 +1</small>" },
           { key: "buy_gross_margin", label: "毛利率<br><small>加分 × 乘數</small>" },
           { key: "buy_per", label: "日PER<br><small>L值 × 乘數</small>" },
@@ -2122,7 +2122,7 @@
       const institutional = pickFirst(s?.institutional_total_net_t0, s?.institutional_total_net);
       const turnover0 = dayMetricValue(s, "turnover_pct", 0);
       if (key === "buy_gross_margin") {
-        return buyRuleCell(result.multipliers.gross > 1, buyValueText("毛利率", result.grossMargin, "%"), result.multipliers.gross);
+        return buyRuleCell(result.multipliers.gross > 1, buyValueText(result.grossMargin, "%"), result.multipliers.gross);
       }
       if (key === "buy_per") {
         const per = result.per;
@@ -2148,10 +2148,10 @@
         return buyRuleCell(checks.rsiDivergence, `${buyDateValueText(s, 0, rsi0, "%")}${buyDateValueText(s, 1, rsi1, "%")}`);
       }
       if (key === "buy_resistance") {
-        return buyRuleCell(checks.resistance, buyValueText("距壓力", resistanceDistance, "%"));
+        return buyRuleCell(checks.resistance, buyValueText(resistanceDistance, "%"));
       }
       if (key === "buy_institutional") {
-        return buyRuleCell(checks.institutional, buyValueText("三大法人", institutional, "張"));
+        return buyRuleCell(checks.institutional, buyValueText(institutional, "張"));
       }
       if (key === "buy_low_turnover") {
         return buyRuleCell(checks.lowTurnover, `${buyValueText("價格", s?.price)}${buyValueText("低點", low0)}${buyValueText("周轉率", turnover0, "%")}`);
