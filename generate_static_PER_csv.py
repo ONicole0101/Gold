@@ -136,7 +136,7 @@ def build_daily_valuation(stock_list, output_file):
     for idx, stock in enumerate(stock_list, 1):
         stock_id = str(stock.get("stock_id") or "").strip()
         print(
-            f"Processing valuation {idx}/{len(stock_list)}: {stock_id} {stock.get('name') or ''}", flush=True)
+            f"PER {idx}/{len(stock_list)}: {stock_id} {stock.get('name') or ''}", flush=True)
         rows.append(build_row(stock, usage_info=info))
 
     final_df = normalize_df(pd.DataFrame(rows))
