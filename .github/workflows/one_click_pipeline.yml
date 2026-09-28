@@ -38,12 +38,14 @@ env:
   REPORT_SUBTITLE: ${{ vars.REPORT_SUBTITLE || '' }}
   STATIC_OUTPUT_FILE: ${{ vars.STATIC_OUTPUT_FILE || 'AllStatic.csv' }}
   STATIC_VALUATION_OUTPUT_FILE: ${{ vars.STATIC_VALUATION_OUTPUT_FILE || 'AllStatic_Valuation.csv' }}
-  STATIC_CHIP_OUTPUT_FILE: ${{ vars.STATIC_CHIP_OUTPUT_FILE || 'AllStatic_Chips.csv' }}
+  STATIC_CHIPS_OUTPUT_FILE: ${{ vars.STATIC_CHIPS_OUTPUT_FILE || 'AllStatic_Chips.csv' }}
+  STATIC_SLEEP_SEC: ${{ github.event.inputs.sleep_sec || vars.STATIC_SLEEP_SEC || '0.2' }}
   CHIP_TREND_DAYS: ${{ vars.CHIP_TREND_DAYS || '3' }}
   CHIP_CONCENTRATION_THRESHOLD: ${{ vars.CHIP_CONCENTRATION_THRESHOLD || '15' }}
   CHIP_LOOKBACK_DAYS: ${{ vars.CHIP_LOOKBACK_DAYS || '21' }}
   CHIP_WORKERS: ${{ github.event.inputs.workers || vars.CHIP_WORKERS || '6' }}
   CHIP_SLEEP_SEC: ${{ vars.CHIP_SLEEP_SEC || '0.05' }}
+  FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
   FINMIND_USAGE_LOG_FILE: /tmp/finmind_token_usage_log.csv
 
 jobs:
@@ -80,7 +82,7 @@ jobs:
         run: |
           python generate_static_csv.py \
             --output "${STATIC_OUTPUT_FILE}" \
-            --sleep-sec "${{ github.event.inputs.sleep_sec || vars.STATIC_SLEEP_SEC || '0.2' }}"
+            --sleep-sec "${STATIC_SLEEP_SEC}"
 
       - name: Generate AllStatic_Valuation.csv
         run: |
@@ -92,7 +94,7 @@ jobs:
           python generate_static_chips_v3.py \
             --no-prompt \
             --csv-file "${CSV_FILE}" \
-            --output "${STATIC_CHIP_OUTPUT_FILE}" \
+            --output "${STATIC_CHIPS_OUTPUT_FILE}" \
             --trend-days "${CHIP_TREND_DAYS}" \
             --concentration-threshold "${CHIP_CONCENTRATION_THRESHOLD}" \
             --lookback-days "${CHIP_LOOKBACK_DAYS}" \
@@ -101,9 +103,8 @@ jobs:
 
       - name: Generate HTML report
         env:
-          FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
           STATIC_CSV_FILE: ${{ env.STATIC_OUTPUT_FILE }}
-          STATIC_CHIPS_FILE: ${{ env.STATIC_CHIP_OUTPUT_FILE }}
+          STATIC_CHIPS_FILE: ${{ env.STATIC_CHIPS_OUTPUT_FILE }}
         run: python generate_html.py
 
       - name: Show changes
@@ -114,7 +115,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add stocks.csv "${STATIC_OUTPUT_FILE}" "${STATIC_CHIP_OUTPUT_FILE}" index.html *.html
+          git add stocks.csv "${STATIC_OUTPUT_FILE}" "${STATIC_VALUATION_OUTPUT_FILE}" "${STATIC_CHIPS_OUTPUT_FILE}" index.html *.html
 
           if git diff --cached --quiet; then
             echo "No changes to commit."
