@@ -2,7 +2,11 @@
 <html lang="zh-TW">
 
 <head>
-  <meta charset="UTF-8">
+        return buyRuleCell(
+          result.bonuses.gross,
+          renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff),
+          true
+        );
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{report_title}}</title>
 
@@ -1385,9 +1389,9 @@
           { key: "buy_institutional", label: "三大法人<br><small>符合 +1</small>" },
           { key: "buy_low_turnover", label: "低檔高周轉率<br><small>符合 +1</small>" },
           { key: "buy_gross_margin", label: "毛利率<br><small>符合 +1.1</small>" },
-          { key: "buy_per", label: "日PER<br><small>符合 +1.1</small>" },
-          { key: "buy_vr", label: "日VR<br><small>符合 +1.1</small>" },
-          { key: "buy_obv", label: "日OBV<br><small>符合 +1.1</small>" },
+          { key: "buy_per", label: "日PER<br><small>符合前50%低位 +1.1</small>" },
+          { key: "buy_vr", label: "日VR<br><small>符合低低 +1.1</small>" },
+          { key: "buy_obv", label: "日OBV<br><small>符合高高 +1.1</small>" },
           { key: "buy_turnover", label: "周轉率<br><small>符合 +1.1</small>" }
         ]
       },
@@ -2101,7 +2105,7 @@
       const result = buySignalResult(s);
       const checks = result.checks;
       if (key === "buy_score") {
-        return `<td><div class="buy-score ${result.score > 0 ? "up" : ""}">${fmt(result.score)} 分</div><div class="table-lv3">一般 ${result.baseScore} + 加權 ${fmt(result.bonusScore)}</div></td>`;
+        return `<td><div class="buy-score ${result.score > 0 ? "up" : ""}">${fmt(result.score)} 分</div><div class="table-lv3">一般 ${result.baseScore}</div><div class="table-lv3">加權 ${fmt(result.bonusScore)}</div></td>`;
       }
       if (key === "buy_categories") {
         return `<td class="buy-category-list">${result.categories.length ? result.categories.map(escapeHtml).join("、") : "-"}</td>`;
@@ -2125,7 +2129,10 @@
       }
       if (key === "buy_per") {
         const per = result.per;
-        const raw = `${buyValueText("TTM", s?.per_ttm)}${buyValueText("目前", per.current)}${buyValueText("L", per.low, "")}${buyValueText("H", per.high, "")}${buyValueText("PER位置", per.lowPct, "%")}`;
+        const currentText = fmt(per.current);
+        const positionText = isNil(per.lowPct) ? "-" : fmt(per.lowPct, "%");
+        const rangeText = `${fmt(per.low)} / ${fmt(per.high)}`;
+        const raw = `${buyValueText("TTM", s?.per_ttm)}<div class="table-lv2">${currentText}，${positionText}</div><div class="table-lv2">${rangeText}</div>`;
         return buyRuleCell(per.qualified, raw, true);
       }
       if (["buy_vr", "buy_obv", "buy_turnover"].includes(key)) {
@@ -2147,10 +2154,14 @@
         return buyRuleCell(checks.rsiDivergence, `${buyDateValueText(s, 0, rsi0, "%")}${buyDateValueText(s, 1, rsi1, "%")}`);
       }
       if (key === "buy_resistance") {
-        return buyRuleCell(checks.resistance, buyValueText(resistanceDistance, "%"));
+        const resistancePrice = s?.resistance_price;
+        const resistanceText = `${fmt(resistancePrice)}，${fmt(resistanceDistance, "%")}`;
+        return buyRuleCell(checks.resistance, buyValueText(resistanceText));
       }
       if (key === "buy_institutional") {
-        return buyRuleCell(checks.institutional, buyValueText(institutional, "張"));
+        const institutionalDate = chipDateMMDD(s?.chip_date_t0 ?? s?.chip_latest_date, "T");
+        const institutionalText = `${institutionalDate}、${fmt(institutional, "張")}`;
+        return buyRuleCell(checks.institutional, buyValueText(institutionalText));
       }
       if (key === "buy_low_turnover") {
         return buyRuleCell(checks.lowTurnover, `${buyValueText("價格", s?.price)}${buyValueText("低點", low0)}${buyValueText("周轉率", turnover0, "%")}`);
