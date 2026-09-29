@@ -1081,7 +1081,7 @@
       <strong>買(+)參數</strong>
       <label>低檔價格距離% <input id="buyLowPricePct" type="number" min="0" step="0.5" value="10"></label>
       <label>高周轉率% <input id="buyHighTurnoverPct" type="number" min="0" step="0.1" value="3"></label>
-      <label>壓力距離% <input id="buyResistancePct" type="number" min="0" step="0.5" value="10"></label>
+      <label>支撐距離% <input id="buySupportPct" type="number" min="0" step="0.5" value="10"></label>
       <label>KD低檔值 <input id="buyKdOversold" type="number" min="0" max="100" step="1" value="30"></label>
       <button type="button" class="secondary" id="buySignalResetBtn">恢復預設</button>
     </div>
@@ -1385,7 +1385,7 @@
           { key: "buy_kd_oversold", label: "KD值&lt;參數<br><small>低低 +1</small>" },
           { key: "buy_kd_divergence", label: "KD低檔背離<br><small>符合 +1</small>" },
           { key: "buy_rsi_divergence", label: "RSI底背離<br><small>符合 +1</small>" },
-          { key: "buy_resistance", label: "離壓力距離<br><small>&lt;參數 +1</small>" },
+          { key: "buy_support", label: "支撐點距離<br><small>&lt;參數 +1</small>" },
           { key: "buy_institutional", label: "三大法人<br><small>符合 +1</small>" },
           { key: "buy_low_turnover", label: "低檔高周轉率<br><small>符合 +1</small>" },
           { key: "buy_gross_margin", label: "毛利率<br><small>符合 +1.1</small>" },
@@ -1928,7 +1928,7 @@
       return {
         lowPricePct: buySignalNumber("buyLowPricePct", 10),
         highTurnoverPct: buySignalNumber("buyHighTurnoverPct", 3),
-        resistancePct: buySignalNumber("buyResistancePct", 10),
+        supportPct: buySignalNumber("buySupportPct", 10),
         kdOversold: buySignalNumber("buyKdOversold", 30),
       };
     }
@@ -1994,7 +1994,7 @@
       const lowPrice = Number(low0);
       const k0 = kdValue(s, 0);
       const k1 = kdValue(s, 1);
-      const resistanceDistance = Number(s?.resistance_distance_pct);
+      const supportDistance = Number(s?.support_distance_pct);
       const institutional = Number(pickFirst(s?.institutional_total_net_t0, s?.institutional_total_net));
       const turnover = Number(dayMetricValue(s, "turnover_pct", 0));
       const gross = buySignalGrossBonus(s);
@@ -2004,7 +2004,7 @@
         kdOversold: Number.isFinite(Number(k0)) && Number.isFinite(Number(k1)) && Number(k0) < params.kdOversold && Number(k0) < Number(k1),
         kdDivergence: buySignalBool(s, ["kd_bullish_divergence", "kd_low_divergence", "kd_divergence"]),
         rsiDivergence: buySignalBool(s, ["rsi_bullish_divergence", "rsi_bottom_divergence", "rsi_divergence"]),
-        resistance: Number.isFinite(resistanceDistance) && resistanceDistance < params.resistancePct,
+        support: Number.isFinite(supportDistance) && supportDistance < params.supportPct,
         institutional: Number.isFinite(institutional) && institutional > 0,
         lowTurnover: Number.isFinite(price) && Number.isFinite(lowPrice) && price <= lowPrice * (1 + params.lowPricePct / 100) && Number.isFinite(turnover) && turnover >= params.highTurnoverPct,
       };
@@ -2090,7 +2090,7 @@
         <div>KD低檔：${buyCheckText(checks.kdOversold)}</div>
         <div>KD背離：${buyCheckText(checks.kdDivergence)}</div>
         <div>RSI背離：${buyCheckText(checks.rsiDivergence)}</div>
-        <div>壓力距離：${buyCheckText(checks.resistance)}</div>
+        <div>支撐距離：${buyCheckText(checks.support)}</div>
         <div>法人買進：${buyCheckText(checks.institutional)}</div>
         <div>低檔周轉：${buyCheckText(checks.lowTurnover)}</div>
         <div>毛利率：${buyBonusText(bonuses.gross, isNil(result.grossMargin) ? "-" : `${fmt(result.grossMargin, "%")} `)}</div>
@@ -2121,11 +2121,15 @@
       const k2 = kdValue(s, 2);
       const rsi0 = dayMetricValue(s, "rsi", 0);
       const rsi1 = dayMetricValue(s, "rsi", 1);
-      const resistanceDistance = s?.resistance_distance_pct;
+      const supportDistance = s?.support_distance_pct;
       const institutional = pickFirst(s?.institutional_total_net_t0, s?.institutional_total_net);
       const turnover0 = dayMetricValue(s, "turnover_pct", 0);
       if (key === "buy_gross_margin") {
-        return buyRuleCell(result.bonuses.gross, buyValueText(result.grossMargin, "%"), true);
+        return buyRuleCell(
+          result.bonuses.gross,
+          renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff),
+          true
+        );
       }
       if (key === "buy_per") {
         const per = result.per;
@@ -2153,15 +2157,15 @@
       if (key === "buy_rsi_divergence") {
         return buyRuleCell(checks.rsiDivergence, `${buyDateValueText(s, 0, rsi0, "%")}${buyDateValueText(s, 1, rsi1, "%")}`);
       }
-      if (key === "buy_resistance") {
-        const resistancePrice = s?.resistance_price;
-        const resistanceText = `${fmt(resistancePrice)}，${fmt(resistanceDistance, "%")}`;
-        return buyRuleCell(checks.resistance, buyValueText(resistanceText));
+      if (key === "buy_support") {
+        const supportPrice = s?.support_price;
+        const supportText = `${fmt(supportPrice)}，${fmt(supportDistance, "%")}`;
+        return buyRuleCell(checks.support, `<div class="table-lv2">${supportText}</div>`);
       }
       if (key === "buy_institutional") {
         const institutionalDate = chipDateMMDD(s?.chip_date_t0 ?? s?.chip_latest_date, "T");
         const institutionalText = `${institutionalDate}、${fmt(institutional, "張")}`;
-        return buyRuleCell(checks.institutional, buyValueText(institutionalText));
+        return buyRuleCell(checks.institutional, `<div class="table-lv2">${institutionalText}</div>`);
       }
       if (key === "buy_low_turnover") {
         return buyRuleCell(checks.lowTurnover, `${buyValueText("價格", s?.price)}${buyValueText("低點", low0)}${buyValueText("周轉率", turnover0, "%")}`);
@@ -2741,7 +2745,7 @@
         case "buy_kd_oversold":
         case "buy_kd_divergence":
         case "buy_rsi_divergence":
-        case "buy_resistance":
+        case "buy_support":
         case "buy_institutional":
         case "buy_low_turnover":
         case "buy_gross_margin":
@@ -3479,7 +3483,7 @@
       const resetBtn = document.getElementById("buySignalResetBtn");
       if (resetBtn) {
         resetBtn.addEventListener("click", () => {
-          const defaults = { buyLowPricePct: 10, buyHighTurnoverPct: 3, buyResistancePct: 10, buyKdOversold: 30 };
+          const defaults = { buyLowPricePct: 10, buyHighTurnoverPct: 3, buySupportPct: 10, buyKdOversold: 30 };
           Object.entries(defaults).forEach(([id, value]) => {
             const input = document.getElementById(id);
             if (input) input.value = value;
