@@ -130,8 +130,19 @@
 
     .buy-category-list {
       white-space: normal;
-      max-width: 220px;
+      width: 112px;
+      min-width: 112px;
+      max-width: 112px;
       font-size: 11px;
+    }
+
+    .category-list-text {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
+      overflow: hidden;
+      overflow-wrap: anywhere;
     }
 
     .buy-tab-active #stockBody td,
@@ -1037,6 +1048,12 @@
 
       .stock-grid {
         grid-template-columns: 1fr;
+      }
+
+      .buy-grid .buy-category-list {
+        width: auto;
+        min-width: 0;
+        max-width: none;
       }
 
       .stock-item.summary-mobile-item {
@@ -2247,7 +2264,7 @@
         return `<td><div class="buy-score ${result.score < 0 ? "dn" : result.score > 0 ? "up" : ""}">${fmt(result.score)} 分</div><div class="table-lv3">一般 ${result.baseScore}</div><div class="table-lv3">加權 ${fmt(result.bonusScore)}</div></td>`;
       }
       if (key === "sell_categories") {
-        return `<td class="buy-category-list">${result.categories.length ? result.categories.map(escapeHtml).join("、") : "-"}</td>`;
+        return `<td class="buy-category-list"><div class="category-list-text">${result.categories.length ? result.categories.map(escapeHtml).join("、") : "-"}</div></td>`;
       }
       const low0 = priceLHValue(s, 0, "low");
       const low1 = priceLHValue(s, 1, "low");
@@ -2307,7 +2324,7 @@
         return `<td><div class="buy-score ${result.score > 0 ? "up" : ""}">${fmt(result.score)} 分</div><div class="table-lv3">一般 ${result.baseScore}</div><div class="table-lv3">加權 ${fmt(result.bonusScore)}</div></td>`;
       }
       if (key === "buy_categories") {
-        return `<td class="buy-category-list">${result.categories.length ? result.categories.map(escapeHtml).join("、") : "-"}</td>`;
+        return `<td class="buy-category-list"><div class="category-list-text">${result.categories.length ? result.categories.map(escapeHtml).join("、") : "-"}</div></td>`;
       }
       const low0 = priceLHValue(s, 0, "low");
       const low1 = priceLHValue(s, 1, "low");
@@ -3131,7 +3148,7 @@
       const buyGrid = `
         <div class="stock-grid buy-grid">
           <div class="stock-item"><div class="stock-label">買(+)分數</div><div class="stock-value buy-score ${buyResult.score > 0 ? "up" : ""}">${fmt(buyResult.score)} 分</div></div>
-          <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list">${buyResult.categories.length ? buyResult.categories.map(escapeHtml).join("、") : "-"}</div></div>
+          <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list"><div class="category-list-text">${buyResult.categories.length ? buyResult.categories.map(escapeHtml).join("、") : "-"}</div></div></div>
           <div class="stock-item"><div class="stock-label">買(+)計分表</div>${renderBuyScoreDetail(s)}</div>
         </div>`;
 
@@ -3139,7 +3156,7 @@
       const sellGrid = `
         <div class="stock-grid sell-grid">
           <div class="stock-item"><div class="stock-label">賣(-)分數</div><div class="stock-value buy-score ${sellResult.score < 0 ? "dn" : sellResult.score > 0 ? "up" : ""}">${fmt(sellResult.score)} 分</div></div>
-          <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list">${sellResult.categories.length ? sellResult.categories.map(escapeHtml).join("、") : "-"}</div></div>
+          <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list"><div class="category-list-text">${sellResult.categories.length ? sellResult.categories.map(escapeHtml).join("、") : "-"}</div></div></div>
           <div class="stock-item"><div class="stock-label">賣(-)計分表</div>${renderSellScoreDetail(s)}</div>
         </div>`;
 
