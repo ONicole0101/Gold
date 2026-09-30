@@ -2295,7 +2295,7 @@
       }
       if (key === "sell_institutional") {
         const date = chipDateMMDD(s?.chip_date_t0 ?? s?.chip_latest_date, "T");
-        return sellRuleCell(checks.institutional, `<div class="table-lv2">${date}、${fmt(institutional, "張")}</div>`);
+        return sellRuleCell(checks.institutional, `<div class="table-lv2">${date}：${fmt(institutional, "張")}</div>`);
       }
       if (key === "sell_high_turnover") {
         return sellRuleCell(checks.highTurnover, `${buyValueText("價格", s?.price)}${buyValueText("高點", high0)}${buyValueText("周轉率", turnover0, "%")}`);
@@ -2380,7 +2380,7 @@
       }
       if (key === "buy_institutional") {
         const institutionalDate = chipDateMMDD(s?.chip_date_t0 ?? s?.chip_latest_date, "T");
-        const institutionalText = `${institutionalDate}、${fmt(institutional, "張")}`;
+        const institutionalText = `${institutionalDate}：${fmt(institutional, "張")}`;
         return buyRuleCell(checks.institutional, `<div class="table-lv2">${institutionalText}</div>`);
       }
       if (key === "buy_low_turnover") {
