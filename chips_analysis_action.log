@@ -1,11 +1,9 @@
-[32m2026-09-30 12:21:29.536[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-09-30 12:21:29.650[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-09-30 14:26:32.952[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-09-30 14:26:33.112[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 0/6000, remain=6000
+FinMind usage: 1188/6000, remain=4812
 Incremental probe: stock_id=2330, latest_date=2026-09-30, status=ok
-Build chips: total=226, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=225, pending=0, latest_date=2026-09-30
-2330 籌碼分頁結果 date=2026-09-30 ; main_force=1108 ; concentration=3.41 ; broker_diff=-3
-Done: rows=226, status={'ok': 226}, preserved=0, skipped=225, elapsed=9.7s, output=AllStatic_Chips.csv
+Build chips: total=285, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=218, pending=66, latest_date=2026-09-30
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-09-30
@@ -182,11 +180,35 @@ broker_diff=-90
 chip_signal_state=neutral
 chips_status=ok
 ---
+stock_id=1711
+name=永光
+chip_latest_date=2026-09-30
+main_force_net=-172
+broker_diff=-13
+chip_signal_state=neutral
+chips_status=ok
+---
+stock_id=1717
+name=長興
+chip_latest_date=2026-09-30
+main_force_net=188
+broker_diff=-16
+chip_signal_state=neutral
+chips_status=ok
+---
 stock_id=1727
 name=中華化
 chip_latest_date=2026-09-30
 main_force_net=-8072
 broker_diff=57
+chip_signal_state=neutral
+chips_status=ok
+---
+stock_id=1785
+name=光洋科
+chip_latest_date=2026-09-30
+main_force_net=-672
+broker_diff=-1
 chip_signal_state=neutral
 chips_status=ok
 ---
@@ -222,30 +244,6 @@ broker_diff=91
 chip_signal_state=bearish_distributed
 chips_status=ok
 ---
-stock_id=2207
-name=和泰車
-chip_latest_date=2026-09-30
-main_force_net=-11
-broker_diff=40
-chip_signal_state=bearish_distributed
-chips_status=ok
----
-stock_id=2233
-name=宇隆
-chip_latest_date=2026-09-30
-main_force_net=-124
-broker_diff=70
-chip_signal_state=neutral
-chips_status=ok
----
-stock_id=2301
-name=光寶科
-chip_latest_date=2026-09-30
-main_force_net=-3221
-broker_diff=137
-chip_signal_state=neutral
-chips_status=ok
----
-rows= 226
-status= {'ok': 226}
+rows= 285
+status= {'ok': 285}
 No stock_id selected; skip single-stock print.
