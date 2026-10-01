@@ -2296,7 +2296,7 @@
         return sellRuleCell(checks.rsiDivergence, `${buyDateValueText(s, 0, rsi0, "%")}${buyDateValueText(s, 1, rsi1, "%")}`);
       }
       if (key === "sell_resistance") {
-        return sellRuleCell(checks.resistance, `<div class="table-lv2">${fmt(s?.resistance_price)}，${fmt(s?.resistance_distance_pct, "%")}</div>`);
+        return sellRuleCell(checks.resistance, renderSupportResistanceBlock(s, "resistance"));
       }
       if (key === "sell_institutional") {
         const date = chipDateMMDD(s?.chip_date_t0 ?? s?.chip_latest_date, "T");
@@ -2379,9 +2379,7 @@
         return buyRuleCell(checks.rsiDivergence, `${buyDateValueText(s, 0, rsi0, "%")}${buyDateValueText(s, 1, rsi1, "%")}`);
       }
       if (key === "buy_support") {
-        const supportPrice = s?.support_price;
-        const supportText = `${fmt(supportPrice)}，${fmt(supportDistance, "%")}`;
-        return buyRuleCell(checks.support, `<div class="table-lv2">${supportText}</div>`);
+        return buyRuleCell(checks.support, renderSupportResistanceBlock(s, "support"));
       }
       if (key === "buy_institutional") {
         const institutionalDate = chipDateMMDD(s?.chip_date_t0 ?? s?.chip_latest_date, "T");
