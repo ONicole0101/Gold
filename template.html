@@ -78,6 +78,14 @@
       align-self: center;
     }
 
+    .tab-note.buy-ticker {
+      color: #f85149;
+    }
+
+    .tab-note.sell-ticker {
+      color: #3fb950;
+    }
+
     .buy-signal-settings {
       display: none;
       gap: 8px;
@@ -1404,7 +1412,7 @@
         ]
       },
       buy: {
-        note: "買(+)：一般條件符合 +1；毛利率、日PER、日VR、日OBV、周轉率符合 +1.1",
+        note: "買(+)買得低：低於月線、布林通道底",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>", tooltip: "股票代號與簡稱，不參與買(+)分數計算。" },
           { key: "buy_score", label: "買(+)分數<br><small>符合條件加總</small>", tooltip: "總分＝7項一般條件各 +1，加上5項加權條件各 +1.1。一般分與加權分會分開顯示；最高 12.5 分。" },
@@ -1424,7 +1432,7 @@
         ]
       },
       sell: {
-        note: "賣(-)：一般條件符合 -1；毛利率、日PER、日VR、日OBV、周轉率符合 +1.1",
+        note: "賣(-)賣得高：KD頓化、價格壓力點、布林通道頂",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>", tooltip: "股票代號與簡稱，不參與賣(-)分數計算。" },
           { key: "sell_score", label: "賣(-)分數<br><small>符合條件加總</small>", tooltip: "總分＝7項一般條件各 -1，加上5項加權條件各 +1.1。一般分與加權分會分開顯示；最低 -7 分，最高 +5.5 分。" },
@@ -3355,6 +3363,8 @@
           document.querySelectorAll(".tab-btn[data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === currentTab));
           const note = document.getElementById("tabNote");
           if (note) {
+            note.classList.toggle("buy-ticker", currentTab === "buy");
+            note.classList.toggle("sell-ticker", currentTab === "sell");
             if (currentTab === "cb") {
               const statusText = (cbMeta.status === "ok" || cbMeta.status === "partial_ok")
                 ? `資料日 ${cbMeta.as_of || "-"}`
