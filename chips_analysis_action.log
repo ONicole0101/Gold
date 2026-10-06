@@ -1,11 +1,12 @@
-[32m2026-10-06 11:18:29.053[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-10-06 11:18:29.167[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-06 11:43:39.156[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-06 11:43:39.270[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 852/6000, remain=5148
-Incremental probe: stock_id=2330, latest_date=2026-10-06, status=ok
-Build chips: total=288, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=287, latest_date=2026-10-06
-[50/288] 2357 華碩 status=ok date=2026-10-06 main=180 diff=-149 state=neutral
-[75/288] 2801 彰銀 status=ok date=2026-10-06 main=772 diff=90 state=neutral
+FinMind usage: 6037/6000, remain=0
+❌ chip analysis API error 2330: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+Incremental probe: stock_id=2330, latest_date=2026-10-06, status=no_data
+Build chips: total=288, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=287, pending=0, latest_date=2026-10-06
+2330 籌碼分頁結果 date=2026-10-06 ; main_force=-1147 ; concentration=-5.75 ; broker_diff=2
+Done: rows=288, status={'ok': 288}, preserved=1, skipped=287, elapsed=1.7s, output=AllStatic_Chips.csv
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-10-06
