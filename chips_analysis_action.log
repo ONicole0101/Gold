@@ -1,11 +1,12 @@
-[32m2026-10-06 12:09:44.827[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-10-06 12:09:44.944[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-06 14:36:35.913[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-06 14:36:36.045[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 5260/6000, remain=740
+FinMind usage: 2304/6000, remain=3696
 Incremental probe: stock_id=2330, latest_date=2026-10-06, status=ok
-Build chips: total=288, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=287, pending=0, latest_date=2026-10-06
+Build chips: total=288, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=286, pending=1, latest_date=2026-10-06
+[288/288] 5269 祥碩 status=ok date=2026-10-06 main=-12 diff=106 state=neutral
 2330 籌碼分頁結果 date=2026-10-06 ; main_force=-1147 ; concentration=-5.75 ; broker_diff=2
-Done: rows=288, status={'ok': 288}, preserved=0, skipped=287, elapsed=9.0s, output=AllStatic_Chips.csv
+Done: rows=288, status={'ok': 288}, preserved=0, skipped=286, elapsed=17.3s, output=AllStatic_Chips.csv
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-10-06
