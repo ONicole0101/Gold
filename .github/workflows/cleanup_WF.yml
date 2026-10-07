@@ -2,6 +2,8 @@ name: Cleanup Workflow Runs
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '10 16 * * *'
 
 permissions:
   actions: write
@@ -12,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Delete workflow runs older than 2 days
+      - name: Delete workflow runs older than 1 day
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
