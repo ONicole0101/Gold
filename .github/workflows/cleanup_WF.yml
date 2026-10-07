@@ -18,7 +18,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           NOW=$(date -u +%s)
-          CUTOFF=$((NOW - 2 * 24 * 60 * 60))
+          CUTOFF=$((NOW - 1 * 24 * 60 * 60))
 
           gh run list \
             --repo "$GH_REPO" \
