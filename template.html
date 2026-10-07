@@ -1422,6 +1422,7 @@
           { key: "buy_kd_divergence", label: "KD低檔背離<br><small>符合 +1</small>", tooltip: "一般條件 +1：股價低點創最近三個已知日值新低，但 K 值未同步創新低；若資料已有 KD 底背離旗標，優先採用旗標。" },
           { key: "buy_rsi_divergence", label: "RSI底背離<br><small>符合 +1</small>", tooltip: "一般條件 +1：股價低點創最近三個已知日值新低，但 RSI 未同步創新低；若資料已有 RSI 底背離旗標，優先採用旗標。" },
           { key: "buy_support", label: "支撐點距離<br><small>&lt;參數 +1</small>", tooltip: "一般條件 +1：支撐點距離百分比小於「支撐距離%」參數；缺少距離資料時不計分。" },
+          { key: "buy_fibonacci_support", label: "黃金分割<br>支撐價位", tooltip: "以近120個交易日高低價計算回撤支撐價位：高點 −（高點 − 低點）× 回撤比例。50%為慣用回撤位；本欄不參與買(+)分數計算。" },
           { key: "buy_institutional", label: "三大法人<br><small>符合 +1</small>", tooltip: "一般條件 +1：T 日三大法人合計買賣超大於 0。" },
           { key: "buy_gross_margin", label: "毛利率<br><small>符合 +1.1</small>", tooltip: "加權條件 +1.1：毛利率大於 25%。" },
           { key: "buy_per", label: "日PER<br><small>符合前50%低位 +1.1</small>", tooltip: "加權條件 +1.1：日 PER 位於 120 日區間的下半部，位置百分比 < 50%。" },
@@ -1441,6 +1442,7 @@
           { key: "sell_kd_divergence", label: "KD高檔背離<br><small>符合 -1</small>", tooltip: "一般條件 -1：股價高點創最近三個已知日值新高，但 K 值未同步創新高；若資料已有 KD 頂背離旗標，優先採用旗標。" },
           { key: "sell_rsi_divergence", label: "RSI高檔背離<br><small>符合 -1</small>", tooltip: "一般條件 -1：股價高點創最近三個已知日值新高，但 RSI 未同步創新高；若資料已有 RSI 頂背離旗標，優先採用旗標。" },
           { key: "sell_resistance", label: "壓力點距離<br><small>&lt;參數 -1</small>", tooltip: "一般條件 -1：壓力點距離百分比小於「壓力距離%」參數；缺少距離資料時不計分。" },
+          { key: "sell_fibonacci_resistance", label: "黃金分割<br>壓力價位", tooltip: "以近120個交易日高低價計算反彈壓力價位：低點 ＋（高點 − 低點）× 反彈比例。50%為慣用反彈位；本欄不參與賣(-)分數計算。" },
           { key: "sell_institutional", label: "三大法人<br><small>符合 -1</small>", tooltip: "一般條件 -1：T 日三大法人合計買賣超小於 0。" },
           { key: "sell_per", label: "日PER<br><small>符合後50% +1.1</small>", tooltip: "加權條件 +1.1：日 PER 位於 120 日區間的上半部，位置百分比 >= 50%。" },
           { key: "sell_vr", label: "日VR<br><small>符合高高 +1.1</small>", tooltip: "加權條件 +1.1：T 日 VR 高於 T-1，呈上升趨勢。" },
@@ -2265,6 +2267,9 @@
     function renderSellSignalCell(s, key) {
       const result = sellSignalResult(s);
       const checks = result.checks;
+      if (key === "sell_fibonacci_resistance") {
+        return `<td>${renderFibonacciContent(s, "resistance")}</td>`;
+      }
       if (key === "sell_score") {
         return `<td><div class="buy-score ${result.score < 0 ? "dn" : result.score > 0 ? "up" : ""}">${fmt(result.score)} 分</div><div class="table-lv3">一般 ${result.baseScore}</div><div class="table-lv3">加權 ${fmt(result.bonusScore)}</div></td>`;
       }
@@ -2325,9 +2330,33 @@
       return `<td>0</td>`;
     }
 
+    function fibonacciLevels(s, type = "support") {
+      const lowRaw = s?.price_120d_low;
+      const highRaw = s?.price_120d_high;
+      const low = Number(lowRaw);
+      const high = Number(highRaw);
+      const valid = !isNil(lowRaw) && lowRaw !== "" && !isNil(highRaw) && highRaw !== ""
+        && Number.isFinite(low) && Number.isFinite(high) && low > 0 && high > low;
+      return [23.6, 38.2, 50.0, 61.8].map(percent => ({
+        percent,
+        price: !valid ? null : type === "resistance"
+          ? low + (high - low) * percent / 100
+          : high - (high - low) * percent / 100,
+      }));
+    }
+
+    function renderFibonacciContent(s, type = "support") {
+      return fibonacciLevels(s, type).map(level =>
+        `<div class="table-lv2">${level.percent.toFixed(1)}%：${fmt(level.price)}</div>`
+      ).join("");
+    }
+
     function renderBuySignalCell(s, key) {
       const result = buySignalResult(s);
       const checks = result.checks;
+      if (key === "buy_fibonacci_support") {
+        return `<td>${renderFibonacciContent(s)}</td>`;
+      }
       if (key === "buy_score") {
         return `<td><div class="buy-score ${result.score > 0 ? "up" : ""}">${fmt(result.score)} 分</div><div class="table-lv3">一般 ${result.baseScore}</div><div class="table-lv3">加權 ${fmt(result.bonusScore)}</div></td>`;
       }
@@ -2971,6 +3000,7 @@
         case "buy_kd_divergence":
         case "buy_rsi_divergence":
         case "buy_support":
+        case "buy_fibonacci_support":
         case "buy_institutional":
         case "buy_low_turnover":
         case "buy_gross_margin":
@@ -2986,6 +3016,7 @@
         case "sell_kd_divergence":
         case "sell_rsi_divergence":
         case "sell_resistance":
+        case "sell_fibonacci_resistance":
         case "sell_institutional":
         case "sell_high_turnover":
         case "sell_gross_margin":
@@ -3159,6 +3190,7 @@
           <div class="stock-item"><div class="stock-label">買(+)分數</div><div class="stock-value buy-score ${buyResult.score > 0 ? "up" : ""}">${fmt(buyResult.score)} 分</div></div>
           <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list"><div class="category-list-text">${buyResult.categories.length ? buyResult.categories.map(escapeHtml).join("、") : "-"}</div></div></div>
           <div class="stock-item"><div class="stock-label">買(+)計分表</div>${renderBuyScoreDetail(s)}</div>
+          <div class="stock-item"><div class="stock-label">黃金分割支撐價位</div><div class="stock-value">${renderFibonacciContent(s)}</div></div>
         </div>`;
 
       const sellResult = sellSignalResult(s);
@@ -3167,6 +3199,7 @@
           <div class="stock-item"><div class="stock-label">賣(-)分數</div><div class="stock-value buy-score ${sellResult.score < 0 ? "dn" : sellResult.score > 0 ? "up" : ""}">${fmt(sellResult.score)} 分</div></div>
           <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list"><div class="category-list-text">${sellResult.categories.length ? sellResult.categories.map(escapeHtml).join("、") : "-"}</div></div></div>
           <div class="stock-item"><div class="stock-label">賣(-)計分表</div>${renderSellScoreDetail(s)}</div>
+          <div class="stock-item"><div class="stock-label">黃金分割壓力價位</div><div class="stock-value">${renderFibonacciContent(s, "resistance")}</div></div>
         </div>`;
 
       const cbGrid = `
@@ -3229,6 +3262,10 @@
           return buySignalResult(s).score;
         case "buy_categories":
           return buySignalResult(s).categories.join("、");
+        case "buy_fibonacci_support":
+          return fibonacciLevels(s)[2].price ?? -999999;
+        case "sell_fibonacci_resistance":
+          return fibonacciLevels(s, "resistance")[2].price ?? -999999;
         case "sell_score":
           return sellSignalResult(s).score;
         case "sell_categories":
