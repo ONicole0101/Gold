@@ -1,9 +1,16 @@
-[32m2026-10-07 13:56:42.814[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-10-07 13:56:42.931[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-07 14:56:13.622[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-07 14:56:13.749[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 0/6000, remain=6000
-Incremental probe: stock_id=2330, latest_date=2026-10-07, status=ok
-Build chips: total=288, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=287, latest_date=2026-10-07
+FinMind usage: 6041/6000, remain=0
+❌ chip analysis API error 2330: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+Incremental probe: stock_id=2330, latest_date=2026-10-07, status=no_data
+Build chips: total=288, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=286, pending=1, latest_date=2026-10-07
+❌ chip analysis API error 6173: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+[288/288] 6173 信昌電 status=no_data date=- main=- diff=- state=no_data
+2330 籌碼分頁結果 date=2026-10-07 ; main_force=-943 ; concentration=-6.06 ; broker_diff=17
+Done: rows=288, status={'ok': 288}, preserved=2, skipped=286, elapsed=1.9s, output=AllStatic_Chips.csv
+Notable rows:
+- 6173 信昌電 status=no_data date=- main=- diff=- state=no_data reason=籌碼資料不足
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-10-07
