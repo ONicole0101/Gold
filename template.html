@@ -238,6 +238,10 @@
       color: #8b949e;
     }
 
+    .fibonacci-next-level {
+      font-weight: 700;
+    }
+
     .table-lv3 {
       font-size: clamp(9px, 0.85vw, 10px);
       line-height: 1.2;
@@ -2346,8 +2350,17 @@
     }
 
     function renderFibonacciContent(s, type = "support") {
-      return fibonacciLevels(s, type).map(level =>
-        `<div class="table-lv2">${level.percent.toFixed(1)}%：${fmt(level.price)}</div>`
+      const levels = fibonacciLevels(s, type);
+      const currentPrice = Number(s?.price);
+      const hasCurrentPrice = !isNil(s?.price) && s.price !== "" && Number.isFinite(currentPrice);
+      const nextLevel = hasCurrentPrice
+        ? levels
+          .filter(level => Number.isFinite(level.price)
+            && (type === "resistance" ? level.price > currentPrice : level.price < currentPrice))
+          .sort((a, b) => type === "resistance" ? a.price - b.price : b.price - a.price)[0]
+        : null;
+      return levels.map(level =>
+        `<div class="table-lv2${level.percent === nextLevel?.percent ? " fibonacci-next-level" : ""}">${level.percent.toFixed(1)}%：${fmt(level.price)}</div>`
       ).join("");
     }
 
@@ -2664,10 +2677,14 @@
 
     function renderCodeCell(s) {
       const dispositionHtml = dispositionPeriodHtml(s);
+      const closePriceHtml = ["buy", "sell"].includes(currentTab)
+        ? `<div class="table-lv2">收盤價 ${fmt(s.price)}</div>`
+        : "";
       return `
         <td>
           <div class="table-lv1">${s.code ?? ""}</div>
           ${s.is_index ? "" : `<div class="table-lv2">${shortName(s.name)}</div>`}
+          ${closePriceHtml}
           ${renderDataStatus(s)}
           ${dispositionHtml ? `<div class="table-lv3 text-red disposition-period">${dispositionHtml}</div>` : ""}
         </td>`;
