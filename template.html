@@ -1418,7 +1418,7 @@
       buy: {
         note: "買(+)買得低：低於月線、布林通道底",
         columns: [
-          { key: "code", label: "代碼<br><small>名稱</small>", tooltip: "股票代號與簡稱，不參與買(+)分數計算。" },
+          { key: "code", label: "代碼<br><small>名稱/價格</small>", tooltip: "股票代號與簡稱，不參與買(+)分數計算。" },
           { key: "buy_score", label: "買(+)分數<br><small>符合條件加總</small>", tooltip: "總分＝7項一般條件各 +1，加上5項加權條件各 +1.1。一般分與加權分會分開顯示；最高 12.5 分。" },
           { key: "buy_categories", label: "符合自選分類<br><small>顯示清單</small>", tooltip: "顯示此股票所屬的自選分類，不參與分數計算。" },
           { key: "buy_price_lh", label: "價格LH3天<br><small>低低 +1</small>", tooltip: "一般條件 +1：最近三個交易日的價格低點連續走低，T 低點 < T-1 < T-2。" },
@@ -1438,7 +1438,7 @@
       sell: {
         note: "賣(-)賣得高：KD頓化、價格壓力點、布林通道頂",
         columns: [
-          { key: "code", label: "代碼<br><small>名稱</small>", tooltip: "股票代號與簡稱，不參與賣(-)分數計算。" },
+          { key: "code", label: "代碼<br><small>名稱/價格</small>", tooltip: "股票代號與簡稱，不參與賣(-)分數計算。" },
           { key: "sell_score", label: "賣(-)分數<br><small>符合條件加總</small>", tooltip: "總分＝一般分（每項 -1）－加權分（每項 +1.1）。一般分與加權分會分開顯示；範圍 -12.5 至 0 分。" },
           { key: "sell_categories", label: "符合自選分類<br><small>顯示清單</small>", tooltip: "顯示此股票所屬的自選分類，不參與分數計算。" },
           { key: "sell_price_lh", label: "價格LH3天<br><small>高高 -1</small>", tooltip: "一般條件 -1：最近三個交易日的價格高點連續走高，T 高點 > T-1 > T-2。" },
@@ -2356,7 +2356,7 @@
       const nextLevel = hasCurrentPrice
         ? levels
           .filter(level => Number.isFinite(level.price)
-            && (type === "resistance" ? level.price > currentPrice : level.price < currentPrice))
+            && (type === "resistance" ? level.price >= currentPrice : level.price <= currentPrice))
           .sort((a, b) => type === "resistance" ? a.price - b.price : b.price - a.price)[0]
         : null;
       return levels.map(level =>
@@ -2678,7 +2678,7 @@
     function renderCodeCell(s) {
       const dispositionHtml = dispositionPeriodHtml(s);
       const closePriceHtml = ["buy", "sell"].includes(currentTab)
-        ? `<div class="table-lv2">收盤價 ${fmt(s.price)}</div>`
+        ? `<div class="table-lv2">${fmt(s.price)}</div>`
         : "";
       return `
         <td>
