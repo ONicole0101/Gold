@@ -1,9 +1,12 @@
-[32m2026-10-08 15:05:07.323[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-10-08 15:05:07.480[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-09 14:48:34.299[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-09 14:48:34.451[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 1176/6000, remain=4824
+FinMind usage: 1962/6000, remain=4038
 Incremental probe: stock_id=2330, latest_date=2026-10-08, status=ok
-Build chips: total=288, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=249, pending=38, latest_date=2026-10-08
+Build chips: total=288, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=286, pending=1, latest_date=2026-10-08
+[288/288] 6173 信昌電 status=ok date=2026-10-06 main=-423 diff=60 state=neutral
+2330 籌碼分頁結果 date=2026-10-08 ; main_force=-9384 ; concentration=-41.42 ; broker_diff=40
+Done: rows=288, status={'ok': 288}, preserved=0, skipped=286, elapsed=23.8s, output=AllStatic_Chips.csv
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-10-08
