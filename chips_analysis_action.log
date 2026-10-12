@@ -1,22 +1,13 @@
-[32m2026-10-12 11:54:57.256[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-10-12 11:54:57.422[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-12 15:08:05.136[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-12 15:08:05.298[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 1962/6000, remain=4038
+FinMind usage: 41/6000, remain=5959
 Incremental probe: stock_id=2330, latest_date=2026-10-12, status=ok
-Build chips: total=288, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=287, latest_date=2026-10-12
-[209/288] 6257 矽格 status=no_data date=- main=- diff=- state=no_data
-[32m2026-10-12 12:02:58.720[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1508[0m - [33m[1mTaiwanStockMarginMaintenance request failed for stock_id=6243 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
-❌ chip analysis API error 6274: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
-[211/288] 6278 台表科 status=no_data date=- main=- diff=- state=no_data
-[32m2026-10-12 12:02:59.237[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1589[0m - [33m[1mTaiwanStockMarginPurchaseShortSale request failed for stock_id=6243 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
-[214/288] 6285 啟碁 status=no_data date=- main=- diff=- state=no_data
-❌ chip analysis API error 6290: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
-[217/288] 6412 群電 status=no_data date=- main=- diff=- state=no_data
-❌ chip analysis API error 6415: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
-[220/288] 6446 藥華藥 status=no_data date=- main=- diff=- state=no_data
-[32m2026-10-12 12:03:02.142[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1508[0m - [33m[1mTaiwanStockMarginMaintenance request failed for stock_id=6239 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
-[32m2026-10-12 12:03:02.657[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1589[0m - [33m[1mTaiwanStockMarginPurchaseShortSale request failed for stock_id=6239 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
-❌ chip analysis API error 6451: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+Build chips: total=288, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=208, pending=79, latest_date=2026-10-12
+[250/288] 6805 富世達 status=ok date=2026-10-12 main=-253 diff=334 state=neutral
+[288/288] 00981A 主動統一台股增長 status=ok date=2026-10-12 main=-9324 diff=34 state=neutral
+2330 籌碼分頁結果 date=2026-10-12 ; main_force=-5629 ; concentration=-24.94 ; broker_diff=37
+Done: rows=288, status={'ok': 288}, preserved=0, skipped=208, elapsed=160.7s, output=AllStatic_Chips.csv
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-10-12
