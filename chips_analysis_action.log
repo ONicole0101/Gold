@@ -1,13 +1,12 @@
-[32m2026-10-12 15:08:05.136[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-10-12 15:08:05.298[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-12 15:50:53.786[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-12 15:50:53.916[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 41/6000, remain=5959
+FinMind usage: 3724/6000, remain=2276
 Incremental probe: stock_id=2330, latest_date=2026-10-12, status=ok
-Build chips: total=288, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=208, pending=79, latest_date=2026-10-12
-[250/288] 6805 富世達 status=ok date=2026-10-12 main=-253 diff=334 state=neutral
-[288/288] 00981A 主動統一台股增長 status=ok date=2026-10-12 main=-9324 diff=34 state=neutral
+Build chips: total=288, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=286, pending=1, latest_date=2026-10-12
+[288/288] 6173 信昌電 status=ok date=2026-10-06 main=-423 diff=60 state=neutral
 2330 籌碼分頁結果 date=2026-10-12 ; main_force=-5629 ; concentration=-24.94 ; broker_diff=37
-Done: rows=288, status={'ok': 288}, preserved=0, skipped=208, elapsed=160.7s, output=AllStatic_Chips.csv
+Done: rows=288, status={'ok': 288}, preserved=0, skipped=286, elapsed=23.3s, output=AllStatic_Chips.csv
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-10-12
