@@ -130,7 +130,6 @@ jobs:
               cols = [
                   'stock_id', 'name', 'chip_latest_date', 'chip_available_days',
                   'main_force_net', 'chip_concentration_pct', 'broker_diff',
-                  'main_force_net_5d', 'main_force_buy_rate_5d_pct', 'broker_diff_avg_5d',
                   'main_force_net_20d', 'main_force_buy_rate_20d_pct', 'broker_diff_avg_20d',
                   'chip_signal_state', 'chip_signal_text'
               ]

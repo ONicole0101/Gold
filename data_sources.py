@@ -839,12 +839,7 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         "institutional_total_net_t1": None,
         "institutional_total_net_t2": None,
         "institutional_total_net_score": None,
-        "main_force_net_5d": None,
-        "total_volume_5d": None,
-        "main_force_buy_rate_5d_pct": None,
-        "chip_concentration_avg_5d": None,
-        "chip_concentration_change_5d": None,
-        "broker_diff_avg_5d": None,
+        "chip_concentration_avg_20d": None,
         "chip_signal_state": "no_data",
         "chip_signal_text": "籌碼資料不足",
         "recent_rows": [],
@@ -1604,64 +1599,11 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         def _window_metrics(window_days: int) -> dict:
             window_df = all_report.head(window_days).copy()
             if window_df.empty:
-                return {
-                    f"main_force_net_{window_days}d": None,
-                    f"total_volume_{window_days}d": None,
-                    f"main_force_buy_rate_{window_days}d_pct": None,
-                    f"chip_concentration_avg_{window_days}d": None,
-                    f"chip_concentration_change_{window_days}d": None,
-                    f"broker_diff_avg_{window_days}d": None,
-                }
-
-            selected_dates = list(window_df["date"])
-            frames = [
-                broker_frames_by_date.get(d)
-                for d in selected_dates
-                if broker_frames_by_date.get(d) is not None
-            ]
-
-            main_force_window = None
-            total_volume_sum = None
-            buy_rate_pct = None
-            if frames:
-                brokers_window = pd.concat(frames, ignore_index=True)
-                broker_agg = brokers_window.groupby("broker", as_index=False)[
-                    ["buy", "sell"]].sum()
-                main_force_window = _calc_cmoney_main_force_from_brokers(
-                    broker_agg)
-
-                daily_volume_lots = []
-                for frame in frames:
-                    actual_volume = _actual_volume_shares(
-                        frame["buy"].sum(), frame["sell"].sum())
-                    lots = _shares_to_lots(actual_volume)
-                    if lots is not None:
-                        daily_volume_lots.append(lots)
-                total_volume_sum = sum(
-                    daily_volume_lots) if daily_volume_lots else None
-                buy_rate_pct = _cmoney_concentration_pct(
-                    main_force_window, total_volume_sum)
-
+                return {f"chip_concentration_avg_{window_days}d": None}
             concentration_series = pd.to_numeric(
                 window_df["chip_concentration_pct"], errors="coerce")
-            broker_series = pd.to_numeric(
-                window_df["broker_diff"], errors="coerce")
-
-            latest_conc = pd.to_numeric(window_df.iloc[0].get(
-                "chip_concentration_pct"), errors="coerce")
-            oldest_conc = pd.to_numeric(
-                window_df.iloc[-1].get("chip_concentration_pct"), errors="coerce")
-            concentration_change = None
-            if pd.notna(latest_conc) and pd.notna(oldest_conc):
-                concentration_change = float(latest_conc - oldest_conc)
-
             return {
-                f"main_force_net_{window_days}d": _int_or_none(main_force_window),
-                f"total_volume_{window_days}d": _int_or_none(total_volume_sum),
-                f"main_force_buy_rate_{window_days}d_pct": _round_or_none(buy_rate_pct, 2),
                 f"chip_concentration_avg_{window_days}d": _round_or_none(concentration_series.mean(), 2),
-                f"chip_concentration_change_{window_days}d": _round_or_none(concentration_change, 2),
-                f"broker_diff_avg_{window_days}d": _round_or_none(broker_series.mean(), 2),
             }
 
         main_pos = int((report["main_force_net"] > 0).sum())
@@ -1866,7 +1808,7 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             "recent_rows": recent_rows,
         }
 
-        result.update(_window_metrics(5))
+        result.update(_window_metrics(20))
 
         for idx, rec in enumerate(recent_rows[:3]):
             suffix = f"t{idx}"

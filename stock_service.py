@@ -472,6 +472,12 @@ def process_stock(s, static_map=None, chips_map=None):
         volume = latest.get("volume", None)
         prev_volume = prev.get("volume", None)
         prev2_volume = prev2.get("volume", None)
+        volume_window = pd.to_numeric(df["volume"].tail(5), errors="coerce")
+        volume_ma5 = (
+            float(round(volume_window.mean(), 2))
+            if len(volume_window) == 5 and volume_window.notna().all()
+            else None
+        )
         prev3 = df.iloc[-4] if len(df) >= 4 else None
         prev3_volume = prev3.get("volume", None) if prev3 is not None else None
         volume_ratio = None
@@ -759,6 +765,7 @@ def process_stock(s, static_map=None, chips_map=None):
             "bb_trend": bb_trend.get("bb_trend"),
             "bb_score": bb_trend.get("bb_score"),
             "volume": int(round(volume, 0)) if pd.notna(volume) else None,
+            "volume_ma5": volume_ma5,
             "prev_volume": int(round(prev_volume, 0)) if pd.notna(prev_volume) else None,
             "prev2_volume": int(round(prev2_volume, 0)) if pd.notna(prev2_volume) else None,
             "volume_ratio": float(volume_ratio) if volume_ratio is not None else None,
@@ -947,12 +954,7 @@ def _build_chip_fields(chip_row):
         "institutional_total_net": to_int_or_none(chip_row.get("institutional_total_net")),
         "institutional_total_net_score": to_float_or_none(chip_row.get("institutional_total_net_score")),
 
-        "main_force_net_5d": to_int_or_none(chip_row.get("main_force_net_5d")),
-        "total_volume_5d": to_int_or_none(chip_row.get("total_volume_5d")),
-        "main_force_buy_rate_5d_pct": to_float_or_none(chip_row.get("main_force_buy_rate_5d_pct")),
-        "chip_concentration_avg_5d": to_float_or_none(chip_row.get("chip_concentration_avg_5d")),
-        "chip_concentration_change_5d": to_float_or_none(chip_row.get("chip_concentration_change_5d")),
-        "broker_diff_avg_5d": to_float_or_none(chip_row.get("broker_diff_avg_5d")),
+        "chip_concentration_avg_20d": to_float_or_none(chip_row.get("chip_concentration_avg_20d")),
 
         "chip_date_t0": to_str_or_none(chip_row.get("chip_date_t0")) or latest_date,
         "chip_date_t1": to_str_or_none(chip_row.get("chip_date_t1")),

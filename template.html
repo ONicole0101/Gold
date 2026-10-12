@@ -1379,15 +1379,15 @@
         ]
       },
       chip: {
-        note: "籌碼面：價格趨勢、融資成本線、籌碼集中、主力買賣超、買賣家數差與三日趨勢",
+        note: "籌碼面：量與籌碼集中度對比 5 日/20 日均值，並顯示籌碼及法人趨勢",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>120日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值，高點距離為正值。" },
           { key: "margin_cost_line", label: "融資成本線<br><small>T/T-1/T-2</small>", tooltip: "融資成本線（融資部位估算加權平均成本，單位：元）；股價跌破該成本線代表融資帳面轉損、壓力升高。" },
-          { key: "volume", label: "量<br><small>昨/增/張</small>", cls: "col-volume" },
+          { key: "volume", label: "量<br><small>5MA/增減%</small>", cls: "col-volume" },
           { key: "turnover_pct", label: "周轉率%<br><small>T/T-1/T-2</small>", tooltip: "周轉率%＝成交股數（張）× 1,000 ÷（已發行普通股股數 − 庫藏股股數）× 100%；已發行股數取自 FinMind TaiwanStockShareholding.NumberOfSharesIssued。" },
           { key: "short_margin_ratio_score", label: "券資比%<br><small>3天趨勢</small>", tooltip: "券資比%＝融券餘額 ÷ 融資餘額 × 100。數值越高代表放空籌碼占比越高，常見於市場偏保守或避險需求升高時；需搭配價格趨勢與主力買賣超共同判讀。" },
-          { key: "chip_concentration_score", label: "籌碼集中%<br><small>3天趨勢</small>", tooltip: "籌碼集中%＝主力買賣超張數 ÷ 成交量張數 × 100%。正值代表主力集中買超，負值代表主力集中賣超；數值絕對值越大代表集中度越高。" },
+          { key: "chip_concentration_score", label: "籌碼集中%<br><small>20MA/增減%</small>", tooltip: "籌碼集中%＝主力買賣超張數 ÷ 成交量張數 × 100%。顯示 T 日值與近 20 日均值比較的方向及增減百分比。" },
           { key: "margin_purchase_change_score", label: "融資增減<br><small>3天趨勢</small>", tooltip: "融資增減＝當日融資今日餘額 - 融資昨日餘額，正值代表融資餘額增加，負值代表減少。" },
           { key: "short_sale_change_score", label: "融券增減<br><small>3天趨勢</small>", tooltip: "融券增減＝當日融券今日餘額 - 融券昨日餘額，正值代表融券餘額增加，負值代表減少。" },
           { key: "main_force_score", label: "主力買賣超<br><small>3天趨勢</small>", tooltip: "依券商分點彙總後，取買超前15大分點與賣超前15大分點互抵，並以張為單位。正值偏主力買進，負值偏主力賣出。" },
@@ -1395,10 +1395,7 @@
           { key: "foreign_investor_net", label: "外資買賣超<br><small>T/T-1/T-2</small>", tooltip: "外資買賣超，顯示最近三個交易日數值與方向。" },
           { key: "investment_trust_net", label: "投信買賣超<br><small>T/T-1/T-2</small>", tooltip: "投信買賣超，顯示最近三個交易日數值與方向。" },
           { key: "dealer_net", label: "自營商買賣超<br><small>T/T-1/T-2</small>", tooltip: "自營商買賣超，顯示最近三個交易日數值與方向。" },
-          { key: "institutional_total_net", label: "三大法人合計<br><small>T/T-1/T-2</small>", tooltip: "三大法人合計買賣超 = 外資買賣超 + 投信買賣超 + 自營商買賣超。" },
-          { key: "main_force_buy_rate_5d_pct", label: "5日主力<br><small>集中度%</small>", tooltip: "5日主力集中度%＝5日主力買賣超張數 ÷ 5日成交量張數 × 100，保留正負號。" },
-          { key: "chip_concentration_5d", label: "5日籌碼<br><small>平均/變化</small>", tooltip: "5日籌碼集中度顯示最近5天平均集中度；變化＝今日集中度 - 5日資料最早一日集中度。" },
-          { key: "broker_diff_5d", label: "5日買賣<br><small>家數差</small>", tooltip: "5日買賣家數差＝最近5天買方券商家數 - 賣方券商家數的平均。" }
+          { key: "institutional_total_net", label: "三大法人合計<br><small>T/T-1/T-2</small>", tooltip: "三大法人合計買賣超 = 外資買賣超 + 投信買賣超 + 自營商買賣超。" }
         ]
       },
       fundamental: {
@@ -1669,6 +1666,36 @@
       const label = chipDateMMDD(dateText, fallbackLabel);
       const displayValue = isNil(value) ? "-" : `${fmt(value, suffix)}${unit}`;
       return `<div class="table-lv2 ${colorCls}">${label ? `${label}：` : ""}${displayValue}</div>`;
+    }
+
+    function comparisonPct(value, average) {
+      if (isNil(value) || isNil(average)) return null;
+      const current = Number(value);
+      const mean = Number(average);
+      if (!Number.isFinite(current) || !Number.isFinite(mean) || mean === 0) return null;
+      return (current / mean - 1) * 100;
+    }
+
+    function renderVolumeComparisonContent(s) {
+      const changePct = comparisonPct(s.volume, s.volume_ma5);
+      const dateLabel = chipDateMMDD(s.price_date_t0 ?? s.chip_date_t0 ?? s.chip_latest_date, "T");
+      return `<div class="stock-value">
+        <div class="table-lv1">${dateLabel}：${fmt(s.volume)} 張</div>
+        <div class="table-lv2 ${trendClass(changePct)}">${isNil(changePct) ? "-" : `${fmtTrend(changePct)} ${signedFmt(changePct, "%")}`}</div>
+        <div class="table-lv3">5MA：${fmt(s.volume_ma5)} 張</div>
+      </div>`;
+    }
+
+    function renderChipConcentrationComparisonContent(s) {
+      const value = pickFirst(s.chip_concentration_pct_t0, s.chip_concentration_pct);
+      const average = s.chip_concentration_avg_20d;
+      const changePct = isNil(value) || isNil(average) ? null : Number(value) - Number(average);
+      const dateLabel = chipDateMMDD(s.chip_date_t0 ?? s.chip_latest_date, "T");
+      return `<div class="stock-value">
+        <div class="table-lv1">${dateLabel}：${fmt(value, "%")}</div>
+        <div class="table-lv2 ${trendClass(changePct)}">${isNil(changePct) ? "-" : `${fmtTrend(changePct)} ${signedFmt(changePct, "%")}`}</div>
+        <div class="table-lv3">20MA：${fmt(s.chip_concentration_avg_20d, "%")}</div>
+      </div>`;
     }
 
     function dayLabel(idx) {
@@ -2451,15 +2478,7 @@
     }
 
     function renderChipConcentrationCell(s) {
-      return `
-        <td>
-          <div class="chip-detail">
-            <div class="table-lv1 ${trendClass(s.chip_concentration_score)}">${isNil(s.chip_concentration_score) ? "-" : fmtTrend(s.chip_concentration_score)}</div>
-            ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.chip_concentration_pct_t0, s.chip_concentration_pct), s.chip_concentration_pct_t1, "%", "", false, "今日")}
-            ${chipLine(s.chip_date_t1, s.chip_concentration_pct_t1, s.chip_concentration_pct_t2, "%", "", true, "T-1")}
-            ${chipLine(s.chip_date_t2, s.chip_concentration_pct_t2, undefined, "%", "", true, "T-2")}
-          </div>
-        </td>`;
+      return `<td>${renderChipConcentrationComparisonContent(s)}</td>`;
     }
 
     function renderMarginPurchaseChangeCell(s) {
@@ -2540,57 +2559,6 @@
       const num = Number(value);
       if (!Number.isFinite(num)) return "-";
       return `${num > 0 ? "+" : ""}${fmt(num, suffix)}`;
-    }
-
-    function renderMainForceBuyRateContent(s, days) {
-      const rate = s[`main_force_buy_rate_${days}d_pct`];
-      const mainForce = s[`main_force_net_${days}d`];
-      const totalVolume = s[`total_volume_${days}d`];
-      return `
-        <div class="stock-value">
-          <div class="table-lv1 ${distClass(rate)}">${signedFmt(rate, "%")}</div>
-          <div class="table-lv2 ${distClass(mainForce)}">買賣超 ${signedFmt(mainForce, "張")}</div>
-          <div class="table-lv2">成交量 ${fmt(totalVolume, "張")}</div>
-        </div>`;
-    }
-
-    function renderMainForceBuyRateCell(s, days) {
-      return `<td>${renderMainForceBuyRateContent(s, days)}</td>`;
-    }
-
-    function renderChipConcentrationWindowContent(s, days) {
-      const avg = s[`chip_concentration_avg_${days}d`];
-      const change = s[`chip_concentration_change_${days}d`];
-      return `
-        <div class="stock-value">
-          <div class="table-lv1">${fmt(avg, "%")}</div>
-          <div class="table-lv2 ${distClass(change)}">變化 ${signedFmt(change, "%")}</div>
-        </div>`;
-    }
-
-    function renderChipConcentrationWindowCell(s, days) {
-      return `<td>${renderChipConcentrationWindowContent(s, days)}</td>`;
-    }
-
-    function renderBrokerDiffWindowContent(s, days) {
-      const avg = s[`broker_diff_avg_${days}d`];
-      return `
-        <div class="stock-value">
-          <div class="table-lv1 ${distClass(avg)}">${signedFmt(avg, "家")}</div>
-        </div>`;
-    }
-
-    function renderBrokerDiffWindowCell(s, days) {
-      return `<td>${renderBrokerDiffWindowContent(s, days)}</td>`;
-    }
-
-    function renderChipConcentrationBlock(s) {
-      return `<div class="stock-value">
-        <div class="table-lv1 ${trendClass(s.chip_concentration_score)}">${isNil(s.chip_concentration_score) ? "-" : fmtTrend(s.chip_concentration_score)}</div>
-        ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.chip_concentration_pct_t0, s.chip_concentration_pct), s.chip_concentration_pct_t1, "%", "", false, "今日")}
-        ${chipLine(s.chip_date_t1, s.chip_concentration_pct_t1, s.chip_concentration_pct_t2, "%", "", true, "T-1")}
-        ${chipLine(s.chip_date_t2, s.chip_concentration_pct_t2, undefined, "%", "", true, "T-2")}
-      </div>`;
     }
 
     function renderMarginPurchaseChangeBlock(s) {
@@ -2933,6 +2901,9 @@
               ${renderChangePctBlock(s)}
             </td>`;
         case "volume":
+          if (currentTab === "chip") {
+            return `<td class="col-volume">${renderVolumeComparisonContent(s)}</td>`;
+          }
           return `
             <td class="col-volume">
               <div class="table-lv1">${fmt(s.volume)}</div>
@@ -3004,12 +2975,6 @@
           return renderInstitutionalCell(s, "dealer_net", "dealer_net_score");
         case "institutional_total_net":
           return renderInstitutionalCell(s, "institutional_total_net", "institutional_total_net_score");
-        case "main_force_buy_rate_5d_pct":
-          return renderMainForceBuyRateCell(s, 5);
-        case "chip_concentration_5d":
-          return renderChipConcentrationWindowCell(s, 5);
-        case "broker_diff_5d":
-          return renderBrokerDiffWindowCell(s, 5);
         case "buy_score":
         case "buy_categories":
         case "buy_price_lh":
@@ -3176,7 +3141,8 @@
           <div class="stock-item"><div class="stock-label">價格LH 3天趨勢</div>${renderPriceLHTrendBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">融資成本線 T/T-1/T-2</div>${renderThreeDayMetricContent(s, "margin_cost_line")}</div>
           <div class="stock-item"><div class="stock-label">券資比% 3天趨勢</div>${renderShortMarginRatioBlock(s)}</div>
-          <div class="stock-item"><div class="stock-label">籌碼集中% 3天趨勢</div>${renderChipConcentrationBlock(s)}</div>
+          <div class="stock-item"><div class="stock-label">量 / 5MA</div>${renderVolumeComparisonContent(s)}</div>
+          <div class="stock-item"><div class="stock-label">籌碼集中% / 20MA</div>${renderChipConcentrationComparisonContent(s)}</div>
           <div class="stock-item"><div class="stock-label">融資增減 3天趨勢</div>${renderMarginPurchaseChangeBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">融券增減 3天趨勢</div>${renderShortSaleChangeBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">主力買賣超 3天趨勢</div>${renderMainForceBlock(s)}</div>
@@ -3185,9 +3151,6 @@
           <div class="stock-item"><div class="stock-label">投信買賣超 T/T-1/T-2</div>${renderInstitutionalBlock(s, "investment_trust_net", "investment_trust_net_score")}</div>
           <div class="stock-item"><div class="stock-label">自營商買賣超 T/T-1/T-2</div>${renderInstitutionalBlock(s, "dealer_net", "dealer_net_score")}</div>
           <div class="stock-item"><div class="stock-label">三大法人合計 T/T-1/T-2</div>${renderInstitutionalBlock(s, "institutional_total_net", "institutional_total_net_score")}</div>
-          <div class="stock-item"><div class="stock-label">5日主力集中度%</div>${renderMainForceBuyRateContent(s, 5)}</div>
-          <div class="stock-item"><div class="stock-label">5日籌碼集中度</div>${renderChipConcentrationWindowContent(s, 5)}</div>
-          <div class="stock-item"><div class="stock-label">5日買賣家數差</div>${renderBrokerDiffWindowContent(s, 5)}</div>
         </div>`;
 
       const fundamentalGrid = `
@@ -3289,10 +3252,6 @@
           return sellSignalResult(s).categories.join("、");
         case "roe":
           return Number(s.roe_ttm ?? s.roe_last_year ?? -999999);
-        case "chip_concentration_5d":
-          return Number(s.chip_concentration_avg_5d ?? -999999);
-        case "broker_diff_5d":
-          return Number(s.broker_diff_avg_5d ?? -999999);
         case "foreign_investor_net":
           return Number(s.foreign_investor_net ?? -999999);
         case "investment_trust_net":

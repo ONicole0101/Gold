@@ -108,12 +108,7 @@ CHIP_DATA_COLS = [
     "institutional_total_net_t1",
     "institutional_total_net_t2",
     "institutional_total_net_score",
-    "main_force_net_5d",
-    "total_volume_5d",
-    "main_force_buy_rate_5d_pct",
-    "chip_concentration_avg_5d",
-    "chip_concentration_change_5d",
-    "broker_diff_avg_5d",
+    "chip_concentration_avg_20d",
     "chip_signal_state",
     "chip_signal_text",
 ]
