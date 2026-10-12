@@ -1680,21 +1680,21 @@
       const changePct = comparisonPct(s.volume, s.volume_ma5);
       const dateLabel = chipDateMMDD(s.price_date_t0 ?? s.chip_date_t0 ?? s.chip_latest_date, "T");
       return `<div class="stock-value">
-        <div class="table-lv1">${dateLabel}：${fmt(s.volume)} 張</div>
         <div class="table-lv2 ${trendClass(changePct)}">${isNil(changePct) ? "-" : `${fmtTrend(changePct)} ${signedFmt(changePct, "%")}`}</div>
-        <div class="table-lv3">5MA：${fmt(s.volume_ma5)} 張</div>
+        <div class="table-lv2">${dateLabel}：${fmt(s.volume)} 張</div>
+        <div class="table-lv2">5MA：${fmt(s.volume_ma5)} 張</div>
       </div>`;
     }
 
     function renderChipConcentrationComparisonContent(s) {
       const value = pickFirst(s.chip_concentration_pct_t0, s.chip_concentration_pct);
       const average = s.chip_concentration_avg_20d;
-      const changePct = isNil(value) || isNil(average) ? null : Number(value) - Number(average);
+      const changePct = comparisonPct(value, average);
       const dateLabel = chipDateMMDD(s.chip_date_t0 ?? s.chip_latest_date, "T");
       return `<div class="stock-value">
-        <div class="table-lv1">${dateLabel}：${fmt(value, "%")}</div>
         <div class="table-lv2 ${trendClass(changePct)}">${isNil(changePct) ? "-" : `${fmtTrend(changePct)} ${signedFmt(changePct, "%")}`}</div>
-        <div class="table-lv3">20MA：${fmt(s.chip_concentration_avg_20d, "%")}</div>
+        <div class="table-lv2">${dateLabel}：${fmt(value, "%")}</div>
+        <div class="table-lv2">20MA：${fmt(s.chip_concentration_avg_20d, "%")}</div>
       </div>`;
     }
 
