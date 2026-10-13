@@ -1111,6 +1111,7 @@
       <button type="button" class="tab-btn" data-tab="sell">賣(-)</button>
       <button type="button" class="tab-btn" data-tab="cb">CB</button>
       <button type="button" class="index-toggle-btn active" id="indexToggleBtn" title="切換顯示加權/櫃買指數固定列">📊 顯示指數</button>
+      <button type="button" class="index-toggle-btn" id="exportExcelBtn" title="匯出目前畫面欄位與顯示值為 Excel">匯出</button>
       <span class="tab-note" id="tabNote">總覽：價格、漲跌、量、KD、布林</span>
     </div>
 
@@ -3786,6 +3787,179 @@
         btn.textContent = showIndexRows ? "📊 顯示指數" : "📊 隱藏指數";
         renderAll();
       });
+    })();
+
+    function excelColumnName(index) {
+      let name = "";
+      let value = index + 1;
+      while (value > 0) {
+        const remainder = (value - 1) % 26;
+        name = String.fromCharCode(65 + remainder) + name;
+        value = Math.floor((value - 1) / 26);
+      }
+      return name;
+    }
+
+    function excelXmlEscape(value) {
+      return String(value ?? "")
+        .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&apos;");
+    }
+
+    function excelCellText(cell) {
+      let text = String(cell.innerText ?? "").trim();
+      if (!text) text = String(cell.textContent ?? "").trim();
+      return text.replace(/\r\n?/g, "\n").replace(/[ \t]*\n[ \t]*/g, "\n");
+    }
+
+    function crc32(bytes) {
+      let crc = 0xFFFFFFFF;
+      for (const byte of bytes) {
+        crc ^= byte;
+        for (let bit = 0; bit < 8; bit += 1) {
+          crc = (crc >>> 1) ^ ((crc & 1) ? 0xEDB88320 : 0);
+        }
+      }
+      return (crc ^ 0xFFFFFFFF) >>> 0;
+    }
+
+    function createExcelZip(files) {
+      const encoder = new TextEncoder();
+      const localParts = [];
+      const centralParts = [];
+      let localOffset = 0;
+
+      const write16 = (view, offset, value) => view.setUint16(offset, value, true);
+      const write32 = (view, offset, value) => view.setUint32(offset, value >>> 0, true);
+      const concatBytes = parts => {
+        const result = new Uint8Array(parts.reduce((total, part) => total + part.length, 0));
+        let offset = 0;
+        parts.forEach(part => {
+          result.set(part, offset);
+          offset += part.length;
+        });
+        return result;
+      };
+
+      files.forEach(file => {
+        const name = encoder.encode(file.name);
+        const data = encoder.encode(file.content);
+        const checksum = crc32(data);
+        const localHeader = new Uint8Array(30 + name.length);
+        const localView = new DataView(localHeader.buffer);
+        write32(localView, 0, 0x04034B50);
+        write16(localView, 4, 20);
+        write16(localView, 6, 0x0800);
+        write16(localView, 8, 0);
+        write32(localView, 14, checksum);
+        write32(localView, 18, data.length);
+        write32(localView, 22, data.length);
+        write16(localView, 26, name.length);
+        localHeader.set(name, 30);
+        localParts.push(localHeader, data);
+
+        const centralHeader = new Uint8Array(46 + name.length);
+        const centralView = new DataView(centralHeader.buffer);
+        write32(centralView, 0, 0x02014B50);
+        write16(centralView, 4, 20);
+        write16(centralView, 6, 20);
+        write16(centralView, 8, 0x0800);
+        write16(centralView, 10, 0);
+        write32(centralView, 16, checksum);
+        write32(centralView, 20, data.length);
+        write32(centralView, 24, data.length);
+        write16(centralView, 28, name.length);
+        write32(centralView, 42, localOffset);
+        centralHeader.set(name, 46);
+        centralParts.push(centralHeader);
+        localOffset += localHeader.length + data.length;
+      });
+
+      const centralDirectory = concatBytes(centralParts);
+      const endRecord = new Uint8Array(22);
+      const endView = new DataView(endRecord.buffer);
+      write32(endView, 0, 0x06054B50);
+      write16(endView, 8, files.length);
+      write16(endView, 10, files.length);
+      write32(endView, 12, centralDirectory.length);
+      write32(endView, 16, localOffset);
+      return concatBytes([...localParts, centralDirectory, endRecord]);
+    }
+
+    function exportVisibleTableToExcel() {
+      const table = document.querySelector(".table-scroll table");
+      const headerCells = Array.from(table?.querySelectorAll("thead th") ?? []);
+      const rows = Array.from(table?.querySelectorAll("tbody tr") ?? []);
+      if (!headerCells.length) {
+        alert("目前沒有可匯出的欄位。");
+        return;
+      }
+
+      const sheetRows = [
+        headerCells.map(cell => excelCellText(cell).replace(/\s*[▲▼]$/, "")),
+        ...rows.map(row => Array.from(row.cells, excelCellText)),
+      ];
+      const worksheetRows = sheetRows.map((row, rowIndex) => {
+        const cells = row.map((value, columnIndex) => {
+          const reference = `${excelColumnName(columnIndex)}${rowIndex + 1}`;
+          return `<c r="${reference}" t="inlineStr"><is><t xml:space="preserve">${excelXmlEscape(value)}</t></is></c>`;
+        }).join("");
+        return `<row r="${rowIndex + 1}">${cells}</row>`;
+      }).join("");
+
+      const tabNames = {
+        overview: "總覽",
+        technical: "技術面",
+        chip: "籌碼面",
+        fundamental: "基本面",
+        buy: "買(+)",
+        sell: "賣(-)",
+        cb: "CB",
+      };
+      const sheetName = tabNames[currentTab] || "資料";
+      const today = new Date();
+      const monthDay = `${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}`;
+      const worksheet = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${worksheetRows}</sheetData></worksheet>`;
+      const files = [
+        {
+          name: "[Content_Types].xml",
+          content: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>',
+        },
+        {
+          name: "_rels/.rels",
+          content: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>',
+        },
+        {
+          name: "xl/workbook.xml",
+          content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${excelXmlEscape(sheetName)}" sheetId="1" r:id="rId1"/></sheets></workbook>`,
+        },
+        {
+          name: "xl/_rels/workbook.xml.rels",
+          content: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>',
+        },
+        { name: "xl/worksheets/sheet1.xml", content: worksheet },
+      ];
+      const workbook = createExcelZip(files);
+      const blob = new Blob([workbook], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${sheetName}_${monthDay}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    (function bindExcelExport() {
+      const btn = document.getElementById("exportExcelBtn");
+      if (btn) btn.addEventListener("click", exportVisibleTableToExcel);
     })();
 
     bindTabs();
