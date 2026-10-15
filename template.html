@@ -3810,10 +3810,79 @@
         .replace(/'/g, "&apos;");
     }
 
-    function excelCellText(cell) {
-      let text = String(cell.innerText ?? "").trim();
-      if (!text) text = String(cell.textContent ?? "").trim();
-      return text.replace(/\r\n?/g, "\n").replace(/[ \t]*\n[ \t]*/g, "\n");
+    function excelCssColor(color) {
+      const rgb = String(color ?? "").match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+      if (rgb) {
+        return rgb.slice(1, 4).map(value => Number(value).toString(16).padStart(2, "0")).join("").toUpperCase();
+      }
+      const hex = String(color ?? "").match(/^#([0-9a-f]{6})$/i);
+      return hex ? hex[1].toUpperCase() : "";
+    }
+
+    function excelCellRuns(cell) {
+      const runs = [];
+      const append = (text, color) => {
+        if (!text) return;
+        const previous = runs[runs.length - 1];
+        if (previous && previous.color === color) previous.text += text;
+        else runs.push({ text, color });
+      };
+      const currentText = () => runs.map(run => run.text).join("");
+      const appendLineBreak = color => {
+        if (currentText() && !currentText().endsWith("\n")) append("\n", color);
+      };
+      const isBlock = element => {
+        const display = getComputedStyle(element).display;
+        return display === "block" || display === "flex" || display === "grid"
+          || display === "list-item" || display === "table" || display === "table-row"
+          || display === "-webkit-box";
+      };
+      const isFormattingWhitespace = node => {
+        const text = node.nodeValue ?? "";
+        return /^[\t\n\f\r ]+$/.test(text) && /[\r\n]/.test(text)
+          && Boolean(node.parentElement?.children.length);
+      };
+      const hasFollowingContent = (nodes, index) => nodes.slice(index + 1).some(node => {
+        if (node.nodeType === Node.ELEMENT_NODE) return true;
+        return node.nodeType === Node.TEXT_NODE && !isFormattingWhitespace(node) && Boolean(node.nodeValue);
+      });
+      const walk = node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          if (!isFormattingWhitespace(node)) {
+            const color = excelCssColor(getComputedStyle(node.parentElement ?? cell).color);
+            append(node.nodeValue ?? "", color);
+          }
+          return;
+        }
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+        const element = node;
+        const color = excelCssColor(getComputedStyle(element).color);
+        if (element.tagName === "BR") {
+          append("\n", color);
+          return;
+        }
+        const children = Array.from(element.childNodes);
+        children.forEach((child, index) => {
+          const childBlock = child.nodeType === Node.ELEMENT_NODE && isBlock(child);
+          if (childBlock) {
+            appendLineBreak(excelCssColor(getComputedStyle(child).color));
+          }
+          walk(child);
+          if (childBlock && hasFollowingContent(children, index)) {
+            appendLineBreak(excelCssColor(getComputedStyle(child).color));
+          }
+        });
+      };
+      walk(cell);
+      return runs;
+    }
+
+    function excelCellXml(runs, reference) {
+      const inlineRuns = runs.map(run => {
+        const color = run.color ? `<color rgb="FF${run.color}"/>` : "";
+        return `<r><rPr>${color}</rPr><t xml:space="preserve">${excelXmlEscape(run.text)}</t></r>`;
+      }).join("");
+      return `<c r="${reference}" s="0" t="inlineStr"><is>${inlineRuns}</is></c>`;
     }
 
     function crc32(bytes) {
@@ -3900,13 +3969,23 @@
       }
 
       const sheetRows = [
-        headerCells.map(cell => excelCellText(cell).replace(/\s*[▲▼]$/, "")),
-        ...rows.map(row => Array.from(row.cells, excelCellText)),
+        headerCells.map(cell => {
+          const runs = excelCellRuns(cell);
+          const text = runs.map(run => run.text).join("");
+          const stripped = text.replace(/\s*[▲▼]$/, "");
+          let remaining = stripped.length;
+          return runs.map(run => {
+            const kept = run.text.slice(0, remaining);
+            remaining -= kept.length;
+            return { ...run, text: kept };
+          }).filter(run => run.text);
+        }),
+        ...rows.map(row => Array.from(row.cells, excelCellRuns)),
       ];
       const worksheetRows = sheetRows.map((row, rowIndex) => {
-        const cells = row.map((value, columnIndex) => {
+        const cells = row.map((runs, columnIndex) => {
           const reference = `${excelColumnName(columnIndex)}${rowIndex + 1}`;
-          return `<c r="${reference}" t="inlineStr"><is><t xml:space="preserve">${excelXmlEscape(value)}</t></is></c>`;
+          return excelCellXml(runs, reference);
         }).join("");
         return `<row r="${rowIndex + 1}">${cells}</row>`;
       }).join("");
@@ -3927,7 +4006,7 @@
       const files = [
         {
           name: "[Content_Types].xml",
-          content: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>',
+          content: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>',
         },
         {
           name: "_rels/.rels",
@@ -3939,7 +4018,11 @@
         },
         {
           name: "xl/_rels/workbook.xml.rels",
-          content: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>',
+          content: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>',
+        },
+        {
+          name: "xl/styles.xml",
+          content: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="1"><font><sz val="11"/><name val="Arial"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>',
         },
         { name: "xl/worksheets/sheet1.xml", content: worksheet },
       ];
