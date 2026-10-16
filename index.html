@@ -1100,7 +1100,7 @@
 
 <body>
   <div class="container">
-    <p>產生時間：2026-10-16 22:31</p>
+    <p>產生時間：2026-10-16 23:43</p>
 
     <div class="tabs" id="tabs">
       <button type="button" class="tab-btn active" data-tab="overview">總覽</button>
@@ -1289,6 +1289,11 @@
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
           </select><input data-filter-key="volume" type="number" step="1" placeholder="張數"></div>
+        <div class="filter-item" title="增減%＝(當日成交量 ÷ 5日均量 − 1) × 100%">
+          <label>量5MA/增減%</label><select data-filter-op="volume_ma5_change_pct">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+          </select><input data-filter-key="volume_ma5_change_pct" type="number" step="0.01" placeholder="%"></div>
         <div class="filter-item filter-item-comparison"><label>T日比較</label><select id="comparisonBasePeriod">
             <option value="t1">T-1</option>
             <option value="t2">T-2</option>
@@ -3527,6 +3532,9 @@
     }
 
     function getNumericValue(s, key) {
+      if (key === "volume_ma5_change_pct") {
+        return comparisonPct(s?.volume, s?.volume_ma5);
+      }
       if (key === "bias5" || key === "bias20" || key === "bias60") {
         const value = pickFirst(s?.[`${key}_t0`], s?.[key]);
         if (isNil(value) || value === "") return null;
