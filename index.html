@@ -1100,7 +1100,7 @@
 
 <body>
   <div class="container">
-    <p>產生時間：2026-10-16 21:41</p>
+    <p>產生時間：2026-10-16 22:31</p>
 
     <div class="tabs" id="tabs">
       <button type="button" class="tab-btn active" data-tab="overview">總覽</button>
@@ -1500,7 +1500,7 @@
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>120日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值，高點距離為正值。" },
           { key: "margin_cost_line", label: "融資成本線<br><small>T/T-1/T-2</small>", tooltip: "融資成本線（融資部位估算加權平均成本，單位：元）；股價跌破該成本線代表融資帳面轉損、壓力升高。" },
-          { key: "volume", label: "量<br><small>5MA/增減%</small>", cls: "col-volume" },
+          { key: "volume", label: "量<br><small>5MA/增減%</small>", cls: "col-volume", tooltip: "增減%＝(當日成交量 ÷ 5日均量 − 1) × 100%；正值代表成交量高於5日均量，負值代表低於5日均量。籌碼面點擊此欄可依增減%排序。" },
           { key: "turnover_pct", label: "周轉率%<br><small>T/T-1/T-2</small>", tooltip: "周轉率%＝成交股數（張）× 1,000 ÷（已發行普通股股數 − 庫藏股股數）× 100%；已發行股數取自 FinMind TaiwanStockShareholding.NumberOfSharesIssued。" },
           { key: "short_margin_ratio_score", label: "券資比%<br><small>3天趨勢</small>", tooltip: "券資比%＝融券餘額 ÷ 融資餘額 × 100。數值越高代表放空籌碼占比越高，常見於市場偏保守或避險需求升高時；需搭配價格趨勢與主力買賣超共同判讀。" },
           { key: "chip_concentration_score", label: "籌碼集中%<br><small>20MA/增減%</small>", tooltip: "籌碼集中%＝主力買賣超張數 ÷ 成交量張數 × 100%。顯示 T 日值與近 20 日均值比較的方向及增減百分比。" },
@@ -1600,6 +1600,12 @@
           maximumFractionDigits: 2
         });
       return formatted + suffix;
+    }
+
+    function fmtInteger(v, suffix = "") {
+      if (isNil(v) || v === "") return "-";
+      const num = Number(v);
+      return Number.isFinite(num) ? fmt(Math.round(num), suffix) : "-";
     }
 
     function fmtTrend(v) {
@@ -1798,7 +1804,7 @@
       return `<div class="stock-value">
         <div class="table-lv2 ${trendClass(changePct)}">${isNil(changePct) ? "-" : `${fmtTrend(changePct)} ${signedFmt(changePct, "%")}`}</div>
         <div class="table-lv2">${dateLabel}：${fmt(s.volume)} 張</div>
-        <div class="table-lv2">5MA：${fmt(s.volume_ma5)} 張</div>
+        <div class="table-lv2">5MA：${fmtInteger(s.volume_ma5)} 張</div>
       </div>`;
     }
 
@@ -2036,7 +2042,7 @@
       const score = dayMetricScore(s, key);
       return `
         <div class="table-lv1 ${trendClass(score)}">${fmtTrend(score)}</div>
-        <div class="table-lv2">MA${maPeriod}：${fmt(ma)}</div>
+        <div class="table-lv2">MA${maPeriod}：${fmtInteger(ma)}</div>
         ${dayMetricLine(s, key, 0, "%")}
         ${dayMetricLine(s, key, 1, "%")}
         <div class="table-lv3">${fmt(low, "%")} / ${fmt(high, "%")}</div>`;
@@ -3344,6 +3350,14 @@
 
     function getSortValue(s, key) {
       switch (key) {
+        case "volume": {
+          const value = currentTab === "chip"
+            ? comparisonPct(s.volume, s.volume_ma5)
+            : s.volume;
+          if (isNil(value) || value === "") return -999999;
+          const num = Number(value);
+          return Number.isNaN(num) ? String(value) : num;
+        }
         case "name":
           return s.name ?? "";
         case "code":
