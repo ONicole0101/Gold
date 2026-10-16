@@ -1,13 +1,9 @@
-[32m2026-10-16 12:00:34.081[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-10-16 12:00:34.195[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-16 12:52:46.013[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-16 12:52:46.177[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 2296/6000, remain=3704
+FinMind usage: 4932/6000, remain=1068
 Incremental probe: stock_id=2330, latest_date=2026-10-16, status=ok
-Build chips: total=287, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=286, latest_date=2026-10-16
-[32m2026-10-16 12:06:10.063[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1503[0m - [33m[1mTaiwanStockMarginMaintenance request failed for stock_id=8039 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
-[32m2026-10-16 12:06:10.114[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1503[0m - [33m[1mTaiwanStockMarginMaintenance request failed for stock_id=7828 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
-[32m2026-10-16 12:06:10.445[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1584[0m - [33m[1mTaiwanStockMarginPurchaseShortSale request failed for stock_id=8039 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
-[32m2026-10-16 12:06:10.482[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1584[0m - [33m[1mTaiwanStockMarginPurchaseShortSale request failed for stock_id=7828 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
+Build chips: total=287, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=261, pending=25, latest_date=2026-10-16
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-10-16
