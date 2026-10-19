@@ -130,6 +130,7 @@ jobs:
           set -o pipefail
           python generate_static_csv.py \
             --output "${STATIC_OUTPUT_FILE}" \
+            --retry-errors \
             --sleep-sec "${STATIC_SLEEP_SEC}"
 
       - name: Generate AllStatic_Valuation.csv

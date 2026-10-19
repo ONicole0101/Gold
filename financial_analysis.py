@@ -93,11 +93,17 @@ def _metric_name_mask(df: pd.DataFrame, names: list[str]):
 
 def _standardize_financial_df(data) -> pd.DataFrame:
     df = data.copy() if isinstance(data, pd.DataFrame) else pd.DataFrame(data or [])
-    if df.empty or "date" not in df.columns or "value" not in df.columns:
+    if df.empty:
         return pd.DataFrame()
+    if not {"date", "value"}.issubset(df.columns):
+        raise ValueError("financial statements: missing date/value columns")
+    if not {"type", "name", "origin_name"}.intersection(df.columns):
+        raise ValueError("financial statements: missing metric columns")
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
     df["value"] = pd.to_numeric(df["value"], errors="coerce")
-    return df.dropna(subset=["date", "value"]).sort_values("date")
+    if df[["date", "value"]].isna().any().any():
+        raise ValueError("financial statements: invalid date/value")
+    return df.sort_values("date", kind="stable")
 
 
 def _series_by_metric(df: pd.DataFrame, aliases: list[str]) -> pd.Series:
@@ -116,8 +122,15 @@ def _series_by_metric(df: pd.DataFrame, aliases: list[str]) -> pd.Series:
     m = m.dropna(subset=["date", "value"]).sort_values("date")
     if m.empty:
         return pd.Series(dtype="float64")
+    # Prefer canonical type aliases over overlapping translated labels.
+    m["priority"] = len(aliases)
+    for priority, alias in enumerate(aliases):
+        mask = _metric_name_mask(df.loc[m.index], [alias])
+        m.loc[mask, "priority"] = m.loc[mask, "priority"].clip(upper=priority)
+    m["period"] = m["date"].dt.to_period("Q")
     return (
-        m.drop_duplicates("date", keep="last")
+        m.sort_values("priority", ascending=False, kind="stable")
+         .drop_duplicates("period", keep="last")
          .set_index("date")["value"]
          .sort_index()
          .astype(float)
@@ -211,11 +224,7 @@ def _normalize_percent_series(s: pd.Series, max_abs: float = 200.0) -> pd.Series
     if s.empty:
         return s
 
-    # Some APIs store ratios as decimals, for example 0.2332 means 23.32%.
-    median_abs = s.abs().median()
-    if pd.notna(median_abs) and median_abs <= 1.5:
-        s = s * 100
-
+    # Amount-derived margins and FinMind ratio aliases are percentage points.
     s = s.round(2)
     return s[s.between(-max_abs, max_abs)]
 
@@ -229,22 +238,11 @@ def _calc_current_qoq_yoy(s: pd.Series, latest_statement_date=None) -> dict:
     current_date = s.index.max()
     current = float(s.loc[current_date])
 
-    prev = float(s.iloc[-2]) if len(s) >= 2 else None
-
-    # Prefer same year/quarter matching instead of exact date - 1 year.
-    current_year = int(current_date.year)
-    current_quarter = int(current_date.quarter)
-    yoy_candidates = [
-        idx for idx in s.index
-        if int(idx.year) == current_year - 1 and int(idx.quarter) == current_quarter
-    ]
-    if yoy_candidates:
-        yoy_date = max(yoy_candidates)
-        yoy = float(s.loc[yoy_date])
-    elif len(s) >= 5:
-        yoy = float(s.iloc[-5])
-    else:
-        yoy = None
+    quarters = s.copy()
+    quarters.index = quarters.index.to_period("Q")
+    current_period = current_date.to_period("Q")
+    prev = quarters.get(current_period - 1)
+    yoy = quarters.get(current_period - 4)
 
     if latest_statement_date is None:
         latest_statement_date = current_date
@@ -255,11 +253,11 @@ def _calc_current_qoq_yoy(s: pd.Series, latest_statement_date=None) -> dict:
         "yoy": round(yoy, 2) if yoy is not None else None,
         "qoq": calc_diff(current, prev),
         "yoy_diff": calc_diff(current, yoy),
-        "is_prev": bool(current_date < latest_statement_date),
+        "is_prev": bool(current_period < latest_statement_date.to_period("Q")),
     }
 
 
-def get_profit_ratio(stock_id):
+def get_profit_ratio(stock_id, *, raise_errors=False):
     """
     Return latest gross/operating/net margins.
 
@@ -302,6 +300,9 @@ def get_profit_ratio(stock_id):
             ],
             "IncomeAfterTaxes": [
                 "IncomeAfterTaxes",
+                "IncomeAfterTax",
+                "NetIncome",
+                "ProfitLoss",
                 "本期淨利",
                 "本期淨利(淨損)",
                 "本期淨利（淨損）",
@@ -341,7 +342,7 @@ def get_profit_ratio(stock_id):
         op_s = calc_margin_from_amount("OperatingIncome")
         net_s = calc_margin_from_amount("IncomeAfterTaxes")
 
-        # Ratio rows are fallback only, and only for the specific metric that is missing.
+        # Fill missing quarters per metric; amount-derived values take precedence.
         ratio_aliases = {
             "gross": [
                 "GrossMargin",
@@ -367,12 +368,18 @@ def get_profit_ratio(stock_id):
             ],
         }
 
-        if gross_s.empty:
-            gross_s = _series_by_metric(df, ratio_aliases["gross"])
-        if op_s.empty:
-            op_s = _series_by_metric(df, ratio_aliases["op"])
-        if net_s.empty:
-            net_s = _series_by_metric(df, ratio_aliases["net"])
+        def fill_ratio_periods(amounts, aliases):
+            ratios = _series_by_metric(df, aliases)
+            amounts = amounts.copy()
+            amounts.index = pd.DatetimeIndex(amounts.index).to_period("Q")
+            ratios.index = pd.DatetimeIndex(ratios.index).to_period("Q")
+            combined = amounts.combine_first(ratios).sort_index()
+            combined.index = combined.index.to_timestamp(how="end").normalize()
+            return combined
+
+        gross_s = fill_ratio_periods(gross_s, ratio_aliases["gross"])
+        op_s = fill_ratio_periods(op_s, ratio_aliases["op"])
+        net_s = fill_ratio_periods(net_s, ratio_aliases["net"])
 
         gross = _calc_current_qoq_yoy(gross_s, latest_statement_date)
         op = _calc_current_qoq_yoy(op_s, latest_statement_date)
@@ -387,6 +394,8 @@ def get_profit_ratio(stock_id):
             "is_prev": {"gross": gross["is_prev"], "op": op["is_prev"], "net": net["is_prev"]},
         }
     except Exception as e:
+        if raise_errors:
+            raise
         print(f'❌ profit error {stock_id}: {e}')
         return None
 
@@ -400,10 +409,10 @@ def _calc_roe(net_income: float | None, equity_start: float | None, equity_end: 
     return round(float(net_income) / avg_equity * 100, 2)
 
 
-def _value_at_or_before(s: pd.Series, date_value):
-    if s is None or s.empty or date_value is None:
+def _value_in_quarter(s: pd.Series, period):
+    if s is None or s.empty or period is None:
         return None
-    values = s.loc[s.index <= date_value]
+    values = s.loc[s.index.to_period("Q") == period]
     if values.empty:
         return None
     return float(values.iloc[-1])
@@ -429,7 +438,7 @@ def _latest_complete_statement_year(net_income: pd.Series, latest_statement_date
     return max(older) if older else max(complete_years)
 
 
-def get_roe_analysis(stock_id):
+def get_roe_analysis(stock_id, *, raise_errors=False):
     """
     Return last complete year ROE and trailing-twelve-month ROE.
 
@@ -445,11 +454,11 @@ def get_roe_analysis(stock_id):
 
         latest_statement_date = income_df["date"].max()
 
-        net_income_aliases = [
+        total_income_aliases = [
             "IncomeAfterTaxes",
+            "IncomeAfterTax",
             "NetIncome",
             "ProfitLoss",
-            "ProfitLossAttributableToOwnersOfParent",
             "本期淨利",
             "本期淨利(淨損)",
             "本期淨利（淨損）",
@@ -457,6 +466,10 @@ def get_roe_analysis(stock_id):
             "本期稅後淨利",
             "本期稅後淨利(淨損)",
             "本期稅後淨利（淨損）",
+        ]
+        parent_income_aliases = [
+            "EquityAttributableToOwnersOfParent",
+            "ProfitLossAttributableToOwnersOfParent",
             "母公司業主淨利",
             "歸屬於母公司業主之淨利",
             "歸屬於母公司業主之淨利(損)",
@@ -484,9 +497,10 @@ def get_roe_analysis(stock_id):
             "股東權益合計",
         ]
 
-        net_income = _series_by_metric(income_df, net_income_aliases)
+        net_income = _series_by_metric(income_df, parent_income_aliases)
         equity = _series_by_metric(equity_df, parent_equity_aliases)
-        if equity.empty:
+        if net_income.empty or equity.empty:
+            net_income = _series_by_metric(income_df, total_income_aliases)
             equity = _series_by_metric(equity_df, total_equity_aliases)
         if net_income.empty or equity.empty:
             return {"roe_last_year": None, "roe_ttm": None}
@@ -502,28 +516,20 @@ def get_roe_analysis(stock_id):
             if len(yearly_income) >= 4:
                 income_sum = float(yearly_income.sum())
                 year_end = yearly_income.index.max()
-                prev_year_equity = equity.loc[equity.index.year < target_year]
-                equity_start = (
-                    float(prev_year_equity.iloc[-1])
-                    if not prev_year_equity.empty
-                    else _value_at_or_before(equity, yearly_income.index.min())
+                equity_start = _value_in_quarter(
+                    equity, pd.Period(f"{target_year - 1}Q4")
                 )
-                equity_end = _value_at_or_before(equity, year_end)
+                equity_end = _value_in_quarter(equity, year_end.to_period("Q"))
                 roe_last_year = _calc_roe(income_sum, equity_start, equity_end)
 
         roe_ttm = None
         latest4 = net_income.tail(4)
-        if len(latest4) >= 4:
+        latest_period = latest_statement_date.to_period("Q")
+        expected_periods = pd.period_range(end=latest_period, periods=4, freq="Q")
+        if list(latest4.index.to_period("Q")) == list(expected_periods):
             ttm_income = float(latest4.sum())
-            first_date = latest4.index.min()
-            last_date = latest4.index.max()
-            prior_equity = equity.loc[equity.index < first_date]
-            equity_start = (
-                float(prior_equity.iloc[-1])
-                if not prior_equity.empty
-                else _value_at_or_before(equity, first_date)
-            )
-            equity_end = _value_at_or_before(equity, last_date)
+            equity_start = _value_in_quarter(equity, expected_periods[0] - 1)
+            equity_end = _value_in_quarter(equity, latest_period)
             roe_ttm = _calc_roe(ttm_income, equity_start, equity_end)
 
         return {
@@ -532,6 +538,8 @@ def get_roe_analysis(stock_id):
         }
 
     except Exception as e:
+        if raise_errors:
+            raise
         print(f"❌ ROE error {stock_id}: {e}")
         return {"roe_last_year": None, "roe_ttm": None}
 
@@ -552,7 +560,7 @@ def extract_metric_is_prev(res, key):
     return bool(res.get('is_prev', {}).get(key, False))
 
 
-def get_eps_analysis(stock_id, current_price=None):
+def get_eps_analysis(stock_id, current_price=None, *, raise_errors=False):
     """
     EPS from FinMind TaiwanStockFinancialStatements.
 
@@ -644,6 +652,8 @@ def get_eps_analysis(stock_id, current_price=None):
         return eps_year, eps_ttm, per_y, per_ttm, False, eps_ttm_is_prev, eps_y_quarters, eps_yoy
 
     except Exception as e:
+        if raise_errors:
+            raise
         print(f"❌ EPS error {stock_id}: {e}")
         return (None, None, None, None, False, False, None, None)
 

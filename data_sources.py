@@ -453,55 +453,49 @@ def get_latest_convertible_bond_overview(
     }
 
 
-def get_revenue_raw(stock_id):
+def _get_fundamental_rows(stock_id, dataset, start_date, source):
+    """Keep successful empty responses distinct from failed financial downloads."""
+    _record_finmind_request(source, stock_id, dataset)
+    params = {
+        "dataset": dataset,
+        "data_id": stock_id,
+        "start_date": start_date,
+        "token": FINMIND_token,
+    }
+    res = requests.get(API_URL, params=params, headers=headers, timeout=300)
     try:
-        params = {
-            'dataset': 'TaiwanStockMonthRevenue',  # 🔥 月營收
-            'data_id': stock_id,
-            'start_date': '2022-01-01',
-            'token': FINMIND_token,
-        }
+        body = res.json()
+    except ValueError as exc:
+        raise ValueError(
+            f"{source} {stock_id}: HTTP {res.status_code}, invalid JSON"
+        ) from exc
+    if not isinstance(body, dict):
+        raise ValueError(f"{source} {stock_id}: invalid response object")
+    api_status = body.get("status")
+    if res.status_code != 200 or (
+        api_status is not None and str(api_status) != "200"
+    ):
+        message = body.get("msg") or body.get("message") or ""
+        raise RuntimeError(
+            f"{source} {stock_id}: HTTP {res.status_code}, "
+            f"API status={api_status}, {message}"
+        )
+    rows = body.get("data")
+    if not isinstance(rows, list):
+        raise ValueError(f"{source} {stock_id}: missing or invalid data list")
+    return rows
 
-        _record_finmind_request(
-            "revenue source", stock_id, "TaiwanStockMonthRevenue")
-        res = requests.get(API_URL, params=params,
-                           headers=headers, timeout=300)
-        res_data = _safe_response_json(res)
 
-        if res.status_code != 200:
-            _print_api_status_error('revenue source', stock_id, res, res_data)
-            return []
-
-        data = res_data.get('data', [])
-        return data
-
-    except Exception as e:
-        print(f'❌ revenue source error {stock_id}: {e}')
-        return []
+def get_revenue_raw(stock_id):
+    return _get_fundamental_rows(
+        stock_id, "TaiwanStockMonthRevenue", "2022-01-01", "revenue source"
+    )
 
 
 def get_profit_ratio(stock_id):
-    try:
-        params = {
-            'dataset': 'TaiwanStockFinancialStatements',
-            'data_id': stock_id,
-            'start_date': '2020-01-01',
-            'token': FINMIND_token,
-        }
-        _record_finmind_request("profit source", stock_id,
-                                "TaiwanStockFinancialStatements")
-        res = requests.get(API_URL, params=params,
-                           headers=headers, timeout=300)
-        data = _safe_response_json(res)
-
-        if res.status_code != 200:
-            _print_api_status_error('profit source', stock_id, res, data)
-            return pd.DataFrame()
-
-        return pd.DataFrame(data.get('data', []))
-    except Exception as e:
-        print(f'❌ profit source error {stock_id}: {e}')
-        return pd.DataFrame()
+    return pd.DataFrame(_get_fundamental_rows(
+        stock_id, "TaiwanStockFinancialStatements", "2020-01-01", "profit source"
+    ))
 
 
 def get_shareholding_raw(stock_id):
@@ -528,52 +522,15 @@ def get_shareholding_raw(stock_id):
 
 
 def get_balance_sheet_raw(stock_id):
-    try:
-        params = {
-            'dataset': 'TaiwanStockBalanceSheet',
-            'data_id': stock_id,
-            'start_date': '2020-01-01',
-            'token': FINMIND_token,
-        }
-        _record_finmind_request("balance sheet source",
-                                stock_id, "TaiwanStockBalanceSheet")
-        res = requests.get(API_URL, params=params,
-                           headers=headers, timeout=300)
-        data = _safe_response_json(res)
-
-        if res.status_code != 200:
-            _print_api_status_error(
-                'balance sheet source', stock_id, res, data)
-            return pd.DataFrame()
-
-        return pd.DataFrame(data.get('data', []))
-    except Exception as e:
-        print(f'❌ balance sheet source error {stock_id}: {e}')
-        return pd.DataFrame()
+    return pd.DataFrame(_get_fundamental_rows(
+        stock_id, "TaiwanStockBalanceSheet", "2020-01-01", "balance sheet source"
+    ))
 
 
 def get_eps_raw(stock_id):
-    try:
-        params = {
-            'dataset': 'TaiwanStockFinancialStatements',
-            'data_id': stock_id,
-            'start_date': '2020-01-01',
-            'token': FINMIND_token,
-        }
-        _record_finmind_request("EPS source", stock_id,
-                                "TaiwanStockFinancialStatements")
-        res = requests.get(API_URL, params=params,
-                           headers=headers, timeout=300)
-        data = _safe_response_json(res)
-
-        if res.status_code != 200:
-            _print_api_status_error('EPS source', stock_id, res, data)
-            return []
-
-        return data.get('data', [])
-    except Exception as e:
-        print(f'❌ EPS source error {stock_id}: {e}')
-        return []
+    return _get_fundamental_rows(
+        stock_id, "TaiwanStockFinancialStatements", "2020-01-01", "EPS source"
+    )
 
 
 def get_dividend_raw(stock_id):

@@ -41,7 +41,7 @@ DISPOSITION_COLS = [
 GROUPS = {
     # Required fields for status. Optional derived fields such as per_Y/per_ttm,
     # QoQ/YoY and 60D high/low should not make a row look empty.
-    "eps": ["eps_Y", "eps_ttm"],
+    "eps": ["eps_Y", "eps_Y_quarters", "eps_ttm"],
     "roe": ["roe_last_year", "roe_ttm"],
     "revenue": ["rev"],
     "profit": ["gross_margin", "operating_margin", "net_margin"],
@@ -77,7 +77,7 @@ ORDERED_COLS = BASE_COLS + SOURCE_META_COLS + FINMIND_META_COLS
 _LAST_FINMIND_USAGE_INFO = None
 
 TERMINAL_STATUSES = {"ok", "partial_ok"}
-SOURCE_TERMINAL_STATUSES = {"ok"}
+SOURCE_TERMINAL_STATUSES = {"ok", "no_data"}
 DEFAULT_REFRESH_DAYS = 7
 
 
@@ -174,12 +174,12 @@ def parse_static_updated_at(value):
 
 
 def is_stale_ok_row(row: dict, refresh_hours: int) -> bool:
-    """Return True when an OK row is older than refresh_hours and should be refreshed."""
+    """Refresh completed rows periodically, including previously empty sources."""
     if refresh_hours is None or refresh_hours <= 0:
         return False
 
     status = str(row.get("static_status", "")).strip().lower()
-    if status != "ok":
+    if status not in TERMINAL_STATUSES:
         return False
 
     updated_at = parse_static_updated_at(row.get("static_updated_at"))
@@ -275,7 +275,7 @@ def empty_static_row(s: dict) -> dict:
 
 
 def apply_eps_fields(row: dict, stock_id: str) -> dict:
-    eps_res = get_eps_analysis(stock_id, None)
+    eps_res = get_eps_analysis(stock_id, None, raise_errors=True)
     print("EPS =", stock_id, eps_res, flush=True)
     eps_res = tuple(eps_res) if isinstance(eps_res, tuple) else (None,) * 8
     eps_res = eps_res + (None,) * (8 - len(eps_res))
@@ -303,34 +303,57 @@ def get_revenue_trend(stock_id):
         return None, "empty"
 
     df = pd.DataFrame(data)
+    if "date" not in df.columns:
+        raise ValueError(f"revenue {stock_id}: missing date column")
     if "revenue" not in df.columns:
         if "value" in df.columns:
             df["revenue"] = df["value"]
         else:
-            return None, "missing revenue/value col"
+            raise ValueError(f"revenue {stock_id}: missing revenue/value column")
 
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
     df["revenue"] = pd.to_numeric(df["revenue"], errors="coerce")
-    df = df.sort_values("date").dropna(subset=["date", "revenue"])
+    if {"revenue_year", "revenue_month"}.intersection(df.columns):
+        if not {"revenue_year", "revenue_month"}.issubset(df.columns):
+            raise ValueError(f"revenue {stock_id}: incomplete revenue period columns")
+        period_dates = pd.to_datetime({
+            "year": pd.to_numeric(df["revenue_year"], errors="coerce"),
+            "month": pd.to_numeric(df["revenue_month"], errors="coerce"),
+            "day": 1,
+        }, errors="coerce")
+    else:
+        period_dates = df["date"]
+    df["period"] = period_dates.dt.to_period("M")
+    if df[["date", "period", "revenue"]].isna().any().any():
+        raise ValueError(f"revenue {stock_id}: invalid date, period or revenue")
 
-    if df.empty:
-        return None, "empty after clean"
+    order = ["date"]
+    if "create_time" in df.columns:
+        df["create_time"] = pd.to_datetime(df["create_time"], errors="coerce")
+        order = ["create_time", "date"]
+    df = (
+        df.sort_values(order, kind="stable", na_position="first")
+        .drop_duplicates("period", keep="last")
+        .set_index("period").sort_index()
+    )
 
     curr = df.iloc[-1]["revenue"]
+    current_period = df.index[-1]
 
-    def pct_by_offset(offset: int):
-        if len(df) <= offset:
+    def pct_by_months(months: int):
+        previous_period = current_period - months
+        if previous_period not in df.index:
             return None
-        prev = df.iloc[-1 - offset]["revenue"]
+        prev = df.loc[previous_period, "revenue"]
         if prev is None or pd.isna(prev) or prev == 0:
             return None
         return round((curr - prev) / prev * 100, 2)
 
     return {
         "rev": round((curr / 1e9), 2),  # 改為bn顯示
-        "mom": pct_by_offset(1),
-        "qoq": pct_by_offset(3),
-        "yoy": pct_by_offset(12),
+        "mom": pct_by_months(1),
+        "qoq": pct_by_months(3),
+        "yoy": pct_by_months(12),
     }, ""
 
 
@@ -398,7 +421,7 @@ def build_static_row(s: dict) -> dict:
 
     # ROE: last complete year and trailing twelve months.
     try:
-        roe_res = get_roe_analysis(stock_id) or {}
+        roe_res = get_roe_analysis(stock_id, raise_errors=True) or {}
         print("ROE =", stock_id, roe_res, flush=True)
         row["roe_last_year"] = roe_res.get("roe_last_year")
         row["roe_ttm"] = roe_res.get("roe_ttm")
@@ -439,7 +462,7 @@ def build_static_row(s: dict) -> dict:
 
     # Profit ratios.
     try:
-        profit_res = get_profit_ratio(stock_id)
+        profit_res = get_profit_ratio(stock_id, raise_errors=True)
         cur_g, qoq_g, yoy_g = extract_metric(profit_res, "gross")
         cur_o, qoq_o, yoy_o = extract_metric(profit_res, "op")
         cur_n, qoq_n, yoy_n = extract_metric(profit_res, "net")
@@ -464,6 +487,8 @@ def build_static_row(s: dict) -> dict:
         elif any_blank(row, GROUPS["profit"]):
             set_group_status(row, "profit", "incomplete",
                              "partial")
+        elif any(extract_metric_is_prev(profit_res, key) for key in ("gross", "op", "net")):
+            set_group_status(row, "profit", "incomplete", "older metric quarter")
         else:
             set_group_status(row, "profit", "ok", "")
     except Exception as e:
@@ -546,34 +571,57 @@ def should_update(row, retry_errors: bool, retry_no_data: bool, force: bool, ref
 
     static_status = str(row.get("static_status", "")).strip().lower()
 
-    # 24HR refresh: completed OK rows older than refresh_24HR are refreshed.
-    # partial_ok/no_data remains terminal by default unless --retry-no-data is used.
+    if static_status == "error" and not retry_errors:
+        return False
+
     if is_stale_ok_row(row, refresh_hours):
         return True
 
-    # Rows created by v3 have source statuses. Trust them more than field blankness.
+    # Confirmed no_data may be blank; successful sources must have required fields.
     has_source_meta = any(not is_blank_value(
         row.get(f"{g}_status")) for g in GROUPS)
     if has_source_meta:
         source_statuses = [
             str(row.get(f"{g}_status", "")).strip().lower() for g in GROUPS]
-        if all(s in SOURCE_TERMINAL_STATUSES for s in source_statuses):
-            # ok: all data present. partial_ok: some source confirmed no_data. Both are terminal by default.
-            if static_status == "partial_ok" and retry_no_data:
-                return True
-            return False
-        if any(s == "no_data" for s in source_statuses) and retry_no_data:
+        if any(
+            status == "ok" and any_blank(row, GROUPS[group])
+            for group, status in zip(GROUPS, source_statuses)
+        ):
             return True
-        if static_status == "error" and not retry_errors:
-            return False
+        if all(s in SOURCE_TERMINAL_STATUSES for s in source_statuses):
+            return retry_no_data and "no_data" in source_statuses
         return True
 
     # Legacy rows do not know whether blanks are true no_data, so blanks must be rechecked once.
-    if static_status == "error" and not retry_errors:
-        return False
     if static_status in TERMINAL_STATUSES and not legacy_missing_data_cols(row):
         return False
     return True
+
+
+def preserve_failed_group_values(row: dict, existing_row: dict | None) -> dict:
+    """Retain last-known values without hiding failed/pending source statuses."""
+    if existing_row is None:
+        return row
+    group_fields = {
+        "eps": [
+            "eps_Y", "eps_Y_quarters", "eps_ttm", "eps_yoy", "per_ttm",
+            "eps_Y_is_prev", "eps_ttm_is_prev",
+        ],
+        "roe": ["roe_last_year", "roe_ttm"],
+        "revenue": ["rev", "rev_mom", "rev_qoq", "rev_yoy"],
+        "profit": [
+            col for col in DATA_COLS + PREV_FLAG_COLS
+            if col.startswith(("gross_margin", "operating_margin", "net_margin"))
+        ],
+        "valuation": [
+            "per_latest", "per_120d_high", "per_120d_low", "per_latest_is_prev",
+        ],
+    }
+    for group, cols in group_fields.items():
+        if row.get(f"{group}_status") in {"error", "api_limited", "pending"}:
+            for col in cols:
+                row[col] = existing_row.get(col)
+    return row
 
 
 def repair_legacy_status_only(df: pd.DataFrame) -> pd.DataFrame:
@@ -656,12 +704,6 @@ def build_incremental(stock_list, output_file, max_rows=None, min_remain=None, r
         sid = str(s.get("stock_id", "")).strip()
         existing_row = existing_by_id.get(sid)
         if not should_update(existing_row, retry_errors, retry_no_data, force, refresh_hours):
-            if existing_row is not None:
-                try:
-                    rows_by_id[sid] = apply_eps_fields(
-                        existing_row.copy(), sid)
-                except Exception as e:
-                    print(f"EPS refresh failed for {sid}: {e}", flush=True)
             print(
                 f"Reuse {i}/{len(source_list)}: {sid} {s.get('name')}", flush=True)
             continue
@@ -669,7 +711,7 @@ def build_incremental(stock_list, output_file, max_rows=None, min_remain=None, r
         print(
             f"Processing {i}/{len(source_list)}: {sid} {s.get('name')}", flush=True)
 
-        row = build_static_row(s)
+        row = preserve_failed_group_values(build_static_row(s), existing_row)
         apply_finmind_usage_to_row(row)
         rows_by_id[sid] = row
         processed += 1
@@ -760,7 +802,7 @@ def main():
     parser.add_argument("--check-every", type=int, default=10,
                         help="Check FinMind usage before first stock and every N processed stocks. Use 1 for every stock.")
     parser.add_argument("--refresh-hours", type=int, default=24,
-                        help="Refresh OK rows older than this many hours. 0 means keep current OK rows indefinitely.")
+                        help="Refresh ok/partial_ok rows older than this many hours. 0 disables periodic refresh.")
     args = parser.parse_args()
 
     try:
