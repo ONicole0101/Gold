@@ -1,14 +1,12 @@
-[32m2026-10-19 09:58:18.922[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-10-19 09:58:19.035[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-19 15:09:20.983[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-19 15:09:21.109[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 834/6000, remain=5166
+FinMind usage: 2298/6000, remain=3702
 Incremental probe: stock_id=2330, latest_date=2026-10-19, status=ok
-Build chips: total=288, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=287, latest_date=2026-10-19
-[75/288] 2880 華南金 status=ok date=2026-10-19 main=753 diff=35 state=neutral
-[100/288] 3105 穩懋 status=ok date=2026-10-19 main=-808 diff=40 state=bearish_distributed
-[175/288] 5351 鈺創 status=ok date=2026-10-19 main=-848 diff=131 state=neutral
-[32m2026-10-19 10:06:03.137[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1503[0m - [33m[1mTaiwanStockMarginMaintenance request failed for stock_id=00953B status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
-[32m2026-10-19 10:06:03.507[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1584[0m - [33m[1mTaiwanStockMarginPurchaseShortSale request failed for stock_id=00953B status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
+Build chips: total=288, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=286, pending=1, latest_date=2026-10-19
+[288/288] 00981A 主動統一台股增長 status=ok date=2026-10-19 main=-68594 diff=50 state=bearish_distributed
+2330 籌碼分頁結果 date=2026-10-19 ; main_force=-6426 ; concentration=-23.43 ; broker_diff=23
+Done: rows=288, status={'ok': 288}, preserved=0, skipped=286, elapsed=19.2s, output=AllStatic_Chips.csv
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-10-19
