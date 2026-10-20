@@ -86,56 +86,6 @@
       color: #3fb950;
     }
 
-    .buy-signal-settings {
-      display: none;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin: 8px 0 12px;
-      padding: 8px;
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 8px;
-      color: #8b949e;
-      font-size: 12px;
-    }
-
-    .buy-signal-settings.is-visible {
-      display: flex;
-    }
-
-    .buy-signal-settings label {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .buy-signal-settings input {
-      width: 64px;
-      padding: 4px 6px;
-      border: 1px solid #30363d;
-      border-radius: 4px;
-      background: #0d1117;
-      color: #e6edf3;
-    }
-
-    .buy-score {
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .buy-score-detail {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(120px, 1fr));
-      gap: 4px 12px;
-      min-width: 260px;
-      white-space: normal;
-    }
-
-    .buy-score-detail span {
-      color: #8b949e;
-    }
-
     .buy-category-list {
       white-space: normal;
       width: 112px;
@@ -1115,18 +1065,6 @@
       <span class="tab-note" id="tabNote">總覽：價格、漲跌、量、KD、布林</span>
     </div>
 
-    <div class="buy-signal-settings" id="buySignalSettings">
-      <strong id="buySignalSettingsTitle">買(+)參數</strong>
-      <label><span id="buyLowPriceLabel">低檔價格距離%</span> <input id="buyLowPricePct" type="number" min="0" step="0.5"
-          value="10"></label>
-      <label>高周轉率% <input id="buyHighTurnoverPct" type="number" min="0" step="0.1" value="3"></label>
-      <label><span id="buySupportLabel">支撐距離%</span> <input id="buySupportPct" type="number" min="0" step="0.5"
-          value="10"></label>
-      <label><span id="buyKdLabel">KD低檔值</span> <input id="buyKdOversold" type="number" min="0" max="100" step="1"
-          value="30"></label>
-      <button type="button" class="secondary" id="buySignalResetBtn">恢復預設</button>
-    </div>
-
     <div class="filter-panel" id="filterPanel">
       <div class="filter-title-row">
         <button type="button" class="filter-toggle-btn" id="filterToggleBtn" aria-controls="filterPanel"
@@ -1524,7 +1462,7 @@
         note: "基本面：EPS、ROE、營收、毛利率、營益率、淨利率、PER",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
-          { key: "custom_categories", label: "符合自選分類<br><small>顯示清單</small>", tooltip: "顯示此股票所屬的自選分類，不參與分數計算。" },
+          { key: "custom_categories", label: "符合自選分類<br><small>顯示清單</small>", tooltip: "顯示此股票所屬的自選分類。" },
           { key: "price", label: "價格<br><small>120日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值，高點距離為正值。" },
           { key: "eps_Y", label: "EPS<small>(季數)</small><br><small>TTM</small> / 年增率" },
           { key: "roe", label: "ROE%<br><small>TTM</small>" },
@@ -1536,41 +1474,42 @@
         ]
       },
       buy: {
-        note: "買(+)買得低：低於月線、布林通道底",
+        note: "買(+)觀察：價格、KD、支撐、法人與技術指標數值，不計分",
         columns: [
-          { key: "code", label: "代碼<br><small>名稱/價格</small>", tooltip: "股票代號與簡稱，不參與買(+)分數計算。" },
-          { key: "buy_score", label: "買(+)分數<br>", tooltip: "總分＝5項一般條件各 +1，加上5項加權條件各 +1.1。一般分與加權分會分開顯示；最高 10.5 分。" },
-          { key: "buy_price_lh", label: "價格LH3天<br><small>低低 +1</small>", tooltip: "一般條件 +1：最近三個交易日的價格低點連續走低，T 低點 < T-1 < T-2。" },
-          { key: "buy_kd_oversold", label: "KD值&lt;參數<br><small>低低 +1</small>", tooltip: "一般條件 +1：T 日 K 值低於「KD低檔值」參數，且低於 T-1 的 K 值。" },
+          { key: "code", label: "代碼<br><small>名稱/價格</small>" },
+          { key: "buy_price_lh", label: "價格L/H<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日的價格低點與高點。" },
+          { key: "buy_kd_oversold", label: "日KD K值<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日的 K 值。" },
           { key: "bb_pct", label: "日布林%<br><small>T/T-1/T-2</small>", tooltip: "布林% ＝ (收盤價 - BB下軌) ÷ (BB上軌 - BB下軌) × 100。當值越高代表股價偏向上軌、越低代表偏向下軌，並以箭頭與 T/T-1/T-2 顯示趨勢變化。" },
           { key: "macd_hist", label: "MACD值<br><small>T/T-1/T-2</small>", tooltip: "MACD值 = DIF - DEA；柱狀體轉正代表動能轉強，轉負代表動能轉弱，箭頭與 T/T-1/T-2 展示最近三天變化。" },
           { key: "bias5", label: "日Bias5<br><small>120日LH</small>", tooltip: "日Bias5＝(收盤價 - 5日均線MA5) ÷ MA5 × 100。正值代表股價在5日均線之上，負值代表在均線之下。" },
           { key: "bias20", label: "日Bias20<br><small>120日LH</small>", tooltip: "日Bias20＝(收盤價 - 20日均線MA20) ÷ MA20 × 100。數值越大代表短中期乖離越高，越小代表偏離均線下方。" },
-          { key: "buy_support", label: "支撐點距離<br><small>&lt;參數 +1</small>", tooltip: "一般條件 +1：支撐點距離百分比小於「支撐距離%」參數；缺少距離資料時不計分。" },
-          { key: "buy_fibonacci_support", label: "黃金分割<br>支撐價位", tooltip: "以近120個交易日高低價計算回撤支撐價位：高點 −（高點 − 低點）× 回撤比例。50%為慣用回撤位；本欄不參與買(+)分數計算。" },
-          { key: "buy_institutional", label: "三大法人<br><small>符合 +1</small>", tooltip: "一般條件 +1：T 日三大法人合計買賣超大於 0。" },
-          { key: "buy_gross_margin", label: "毛利率<br><small>符合 +1.1</small>", tooltip: "加權條件 +1.1：毛利率大於 25%。" },
-          { key: "buy_per", label: "日PER<br><small>符合前50%低位 +1.1</small>", tooltip: "加權條件 +1.1：日 PER 位於 120 日區間的下半部，位置百分比 < 50%。" },
-          { key: "buy_vr", label: "日VR<br><small>符合低低 +1.1</small>", tooltip: "加權條件 +1.1：T 日 VR 低於 T-1，呈下降趨勢。" },
-          { key: "buy_obv", label: "日OBV<br><small>符合高高 +1.1</small>", tooltip: "加權條件 +1.1：T 日 OBV 高於 T-1，呈上升趨勢。" },
-          { key: "buy_turnover", label: "周轉率<br><small>符合 +1.1</small>", tooltip: "加權條件 +1.1：T 日周轉率高於 T-1，呈上升趨勢。" }
+          { key: "bias60", label: "日Bias60<br><small>120日LH</small>", tooltip: "日Bias60＝(收盤價 - 60日均線MA60) ÷ MA60 × 100。正值代表股價在均線之上，負值代表在均線之下。" },
+          { key: "buy_support", label: "支撐點<br><small>距離%</small>", tooltip: "顯示支撐價位與目前收盤價的距離百分比。" },
+          { key: "buy_fibonacci_support", label: "黃金分割<br>支撐價位", tooltip: "以近120個交易日高低價計算回撤支撐價位：高點 −（高點 − 低點）× 回撤比例。" },
+          { key: "buy_institutional", label: "三大法人<br><small>買賣超</small>", tooltip: "顯示 T 日三大法人合計買賣超張數。" },
+          { key: "buy_gross_margin", label: "毛利率<br><small>QoQ / YoY</small>", tooltip: "顯示毛利率及其季度、年度變化。" },
+          { key: "buy_per", label: "日PER<br><small>120日區間</small>", tooltip: "顯示日 PER、TTM 與 120 日區間。" },
+          { key: "buy_vr", label: "日VR<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 VR 值。" },
+          { key: "buy_obv", label: "日OBV<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 OBV 值。" },
+          { key: "buy_turnover", label: "周轉率<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日周轉率。" }
         ]
       },
       sell: {
-        note: "賣(-)賣得高：KD頓化、價格壓力點、布林通道頂",
+        note: "賣(-)觀察：價格、KD、壓力、法人與技術指標數值，不計分",
         columns: [
-          { key: "code", label: "代碼<br><small>名稱/價格</small>", tooltip: "股票代號與簡稱，不參與賣(-)分數計算。" },
-          { key: "sell_score", label: "賣(-)分數<br>", tooltip: "總分＝5項一般條件各 -1，減去5項加權條件各 +1.1。一般分與加權分會分開顯示；範圍 -10.5 至 0 分。" },
-          { key: "sell_categories", label: "符合自選分類<br><small>顯示清單</small>", tooltip: "顯示此股票所屬的自選分類，不參與分數計算。" },
-          { key: "sell_price_lh", label: "價格LH3天<br><small>高高 -1</small>", tooltip: "一般條件 -1：最近三個交易日的價格高點連續走高，T 高點 > T-1 > T-2。" },
-          { key: "sell_kd_overbought", label: "KD值&gt;高檔參數<br><small>高高 -1</small>", tooltip: "一般條件 -1：T 日 K 值高於 100 減去「KD高檔值」參數，且高於 T-1 的 K 值。" },
-          { key: "sell_resistance", label: "壓力點距離<br><small>&lt;參數 -1</small>", tooltip: "一般條件 -1：壓力點距離百分比小於「壓力距離%」參數；缺少距離資料時不計分。" },
-          { key: "sell_fibonacci_resistance", label: "黃金分割<br>壓力價位", tooltip: "以近120個交易日高低價計算反彈壓力價位：低點 ＋（高點 − 低點）× 反彈比例。50%為慣用反彈位；本欄不參與賣(-)分數計算。" },
-          { key: "sell_institutional", label: "三大法人<br><small>符合 -1</small>", tooltip: "一般條件 -1：T 日三大法人合計買賣超小於 0。" },
-          { key: "sell_per", label: "日PER<br><small>符合後50% +1.1</small>", tooltip: "加權條件 +1.1：日 PER 位於 120 日區間的上半部，位置百分比 >= 50%。" },
-          { key: "sell_vr", label: "日VR<br><small>符合高高 +1.1</small>", tooltip: "加權條件 +1.1：T 日 VR 高於 T-1，呈上升趨勢。" },
-          { key: "sell_obv", label: "日OBV<br><small>符合高高 +1.1</small>", tooltip: "加權條件 +1.1：T 日 OBV 高於 T-1，呈上升趨勢。" },
-          { key: "sell_turnover", label: "周轉率<br><small>符合高高 +1.1</small>", tooltip: "加權條件 +1.1：T 日周轉率高於 T-1，呈上升趨勢。" }
+          { key: "code", label: "代碼<br><small>名稱/價格</small>" },
+          { key: "sell_price_lh", label: "價格L/H<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日的價格低點與高點。" },
+          { key: "sell_kd_overbought", label: "日KD K值<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日的 K 值。" },
+          { key: "sell_resistance", label: "壓力點<br><small>距離%</small>", tooltip: "顯示壓力價位與目前收盤價的距離百分比。" },
+          { key: "sell_fibonacci_resistance", label: "黃金分割<br>壓力價位", tooltip: "以近120個交易日高低價計算反彈壓力價位：低點 ＋（高點 − 低點）× 反彈比例。" },
+          { key: "sell_institutional", label: "三大法人<br><small>買賣超</small>", tooltip: "顯示 T 日三大法人合計買賣超張數。" },
+          { key: "sell_per", label: "日PER<br><small>120日區間</small>", tooltip: "顯示日 PER、TTM 與 120 日區間。" },
+          { key: "sell_vr", label: "日VR<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 VR 值。" },
+          { key: "sell_obv", label: "日OBV<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 OBV 值。" },
+          { key: "sell_turnover", label: "周轉率<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日周轉率。" },
+          { key: "bias5", label: "日Bias5<br><small>120日LH</small>", tooltip: "日Bias5＝(收盤價 - 5日均線MA5) ÷ MA5 × 100。正值代表股價在均線之上，負值代表在均線之下。" },
+          { key: "bias20", label: "日Bias20<br><small>120日LH</small>", tooltip: "日Bias20＝(收盤價 - 20日均線MA20) ÷ MA20 × 100。正值代表股價在均線之上，負值代表在均線之下。" },
+          { key: "bias60", label: "日Bias60<br><small>120日LH</small>", tooltip: "日Bias60＝(收盤價 - 60日均線MA60) ÷ MA60 × 100。正值代表股價在均線之上，負值代表在均線之下。" }
         ]
       },
       cb: {
@@ -2131,181 +2070,6 @@
           ${renderPriceLHLine(s, 2, 3)}
         </td>`;
     }
-    const buySignalCache = new Map();
-    const sellSignalCache = new Map();
-
-    function buySignalNumber(id, fallback) {
-      const value = Number(document.getElementById(id)?.value);
-      return Number.isFinite(value) ? value : fallback;
-    }
-
-    function buySignalParams() {
-      return {
-        lowPricePct: buySignalNumber("buyLowPricePct", 10),
-        highTurnoverPct: buySignalNumber("buyHighTurnoverPct", 3),
-        supportPct: buySignalNumber("buySupportPct", 10),
-        kdOversold: buySignalNumber("buyKdOversold", 30),
-      };
-    }
-
-    function buySignalTrend(s, key, direction) {
-      const current = dayMetricValue(s, key, 0);
-      const previous = dayMetricValue(s, key, 1);
-      if (isNil(current) || isNil(previous)) return false;
-      return direction === "up" ? Number(current) > Number(previous) : Number(current) < Number(previous);
-    }
-
-    function buySignalGrossBonus(s) {
-      const grossMargin = Number(s?.gross_margin);
-      if (!Number.isFinite(grossMargin)) return { value: null, qualified: false };
-      return {
-        value: grossMargin,
-        qualified: grossMargin > 25,
-      };
-    }
-
-    function buySignalPerBonus(s) {
-      const current = Number(s?.per_latest);
-      const low = Number(s?.per_120d_low);
-      const high = Number(s?.per_120d_high);
-      if (!Number.isFinite(current) || current === 0) {
-        return { current: null, low: null, high: null, lowPct: null, qualified: false };
-      }
-      if (!Number.isFinite(low) || !Number.isFinite(high) || high <= low) {
-        return {
-          current,
-          low: Number.isFinite(low) ? low : null,
-          high: Number.isFinite(high) ? high : null,
-          lowPct: null,
-          qualified: false,
-        };
-      }
-      const position = Math.min(1, Math.max(0, (current - low) / (high - low)));
-      const lowPct = position * 100;
-      return {
-        current,
-        low,
-        high,
-        lowPct,
-        qualified: position < 0.5,
-      };
-    }
-
-    function calculateBuySignal(s) {
-      const params = buySignalParams();
-      const low0 = priceLHValue(s, 0, "low");
-      const low1 = priceLHValue(s, 1, "low");
-      const price = Number(s?.price);
-      const lowPrice = Number(low0);
-      const k0 = kdValue(s, 0);
-      const k1 = kdValue(s, 1);
-      const supportDistanceRaw = s?.support_distance_pct;
-      const supportDistance = Number(supportDistanceRaw);
-      const institutional = Number(pickFirst(s?.institutional_total_net_t0, s?.institutional_total_net));
-      const turnover = Number(dayMetricValue(s, "turnover_pct", 0));
-      const gross = buySignalGrossBonus(s);
-      const per = buySignalPerBonus(s);
-      const checks = {
-        priceLH: Number.isFinite(Number(low0)) && Number.isFinite(Number(low1)) && Number(low0) < Number(low1) && Number(low1) < Number(priceLHValue(s, 2, "low")),
-        kdOversold: Number.isFinite(Number(k0)) && Number.isFinite(Number(k1)) && Number(k0) < params.kdOversold && Number(k0) < Number(k1),
-        support: !isNil(supportDistanceRaw) && supportDistanceRaw !== "" && Number.isFinite(supportDistance) && supportDistance < params.supportPct,
-        institutional: Number.isFinite(institutional) && institutional > 0,
-        lowTurnover: Number.isFinite(price) && Number.isFinite(lowPrice) && price <= lowPrice * (1 + params.lowPricePct / 100) && Number.isFinite(turnover) && turnover >= params.highTurnoverPct,
-      };
-      const bonuses = {
-        gross: gross.qualified,
-        per: per.qualified,
-        vr: buySignalTrend(s, "vr", "down"),
-        obv: buySignalTrend(s, "obv", "up"),
-        turnover: buySignalTrend(s, "turnover_pct", "up"),
-      };
-      const baseScore = Object.values(checks).filter(Boolean).length;
-      const bonusScore = Object.values(bonuses).filter(Boolean).length * 1.1;
-      return {
-        score: Number((baseScore + bonusScore).toFixed(2)),
-        baseScore,
-        bonusScore,
-        checks,
-        bonuses,
-        grossMargin: gross.value,
-        per,
-        categories: stockCustomCategories(s),
-      };
-    }
-
-    function buySignalResult(s) {
-      const key = String(s?.code ?? s?.stock_id ?? "");
-      const params = JSON.stringify(buySignalParams());
-      const cached = buySignalCache.get(key);
-      if (!cached || cached.params !== params) {
-        const result = calculateBuySignal(s);
-        buySignalCache.set(key, { params, result });
-        return result;
-      }
-      return cached.result;
-    }
-
-    function calculateSellSignal(s) {
-      const params = buySignalParams();
-      const high0 = priceLHValue(s, 0, "high");
-      const high1 = priceLHValue(s, 1, "high");
-      const high2 = priceLHValue(s, 2, "high");
-      const price = Number(s?.price);
-      const highPrice = Number(high0);
-      const k0 = Number(kdValue(s, 0));
-      const k1 = Number(kdValue(s, 1));
-      const resistanceDistanceRaw = s?.resistance_distance_pct;
-      const resistanceDistance = Number(resistanceDistanceRaw);
-      const institutional = Number(pickFirst(s?.institutional_total_net_t0, s?.institutional_total_net));
-      const turnover = Number(dayMetricValue(s, "turnover_pct", 0));
-      const per = buySignalPerBonus(s);
-      const checks = {
-        priceLH: Number.isFinite(Number(high0)) && Number.isFinite(Number(high1)) && Number.isFinite(Number(high2)) && Number(high0) > Number(high1) && Number(high1) > Number(high2),
-        kdOverbought: Number.isFinite(k0) && Number.isFinite(k1) && k0 > 100 - params.kdOversold && k0 > k1,
-        resistance: !isNil(resistanceDistanceRaw) && resistanceDistanceRaw !== "" && Number.isFinite(resistanceDistance) && resistanceDistance < params.supportPct,
-        institutional: Number.isFinite(institutional) && institutional < 0,
-        highTurnover: Number.isFinite(price) && Number.isFinite(highPrice) && price >= highPrice * (1 - params.lowPricePct / 100) && Number.isFinite(turnover) && turnover >= params.highTurnoverPct,
-      };
-      const bonuses = {
-        gross: buySignalGrossBonus(s).qualified,
-        per: Number.isFinite(per.lowPct) && per.lowPct >= 50,
-        vr: buySignalTrend(s, "vr", "up"),
-        obv: buySignalTrend(s, "obv", "up"),
-        turnover: buySignalTrend(s, "turnover_pct", "up"),
-      };
-      const baseScore = -Object.values(checks).filter(Boolean).length;
-      const bonusScore = Object.values(bonuses).filter(Boolean).length * 1.1;
-      return {
-        score: Number((baseScore - bonusScore).toFixed(2)),
-        baseScore,
-        bonusScore,
-        checks,
-        bonuses,
-        per,
-        categories: stockCustomCategories(s),
-      };
-    }
-
-    function sellSignalResult(s) {
-      const key = String(s?.code ?? s?.stock_id ?? "");
-      const params = JSON.stringify(buySignalParams());
-      const cached = sellSignalCache.get(key);
-      if (!cached || cached.params !== params) {
-        const result = calculateSellSignal(s);
-        sellSignalCache.set(key, { params, result });
-        return result;
-      }
-      return cached.result;
-    }
-
-    function buyCheckText(value) {
-      return value ? `<span class="up">符合 +1</span>` : `<span>未符合</span>`;
-    }
-
-    function buyBonusText(qualified, label) {
-      return `<span class="${qualified ? "up" : ""}">${label} ${qualified ? "+1.1" : "0"}</span>`;
-    }
-
     function buyValueText(label, value, suffix = "") {
       const displayValue = typeof value === "string" && value.includes("/")
         ? escapeHtml(value)
@@ -2329,71 +2093,13 @@
       return buyValueText(buyActualDate(s, idx), value, suffix);
     }
 
-    function buyRuleCell(qualified, valueHtml, bonus = false) {
-      const scoreHtml = `<span class="${qualified ? "up" : ""}">${qualified ? (bonus ? "+1.1" : "+1") : "0"}</span>`;
-      return `<td><div class="table-lv1">${scoreHtml}</div>${valueHtml}</td>`;
-    }
-
     function buyTrendValues(s, key, suffix = "") {
       return `${buyDateValueText(s, 0, dayMetricValue(s, key, 0), suffix)}${buyDateValueText(s, 1, dayMetricValue(s, key, 1), suffix)}${buyDateValueText(s, 2, dayMetricValue(s, key, 2), suffix)}`;
     }
 
-    function renderBuyScoreDetail(s) {
-      const result = buySignalResult(s);
-      const checks = result.checks;
-      const bonuses = result.bonuses;
-      return `<div class="buy-score-detail">
-        <div>價格LH：${buyCheckText(checks.priceLH)}</div>
-        <div>KD低檔：${buyCheckText(checks.kdOversold)}</div>
-        <div>支撐距離：${buyCheckText(checks.support)}</div>
-        <div>法人買進：${buyCheckText(checks.institutional)}</div>
-        <div>低檔周轉：${buyCheckText(checks.lowTurnover)}</div>
-        <div>毛利率：${buyBonusText(bonuses.gross, isNil(result.grossMargin) ? "-" : `${fmt(result.grossMargin, "%")} `)}</div>
-        <div>日PER：${buyBonusText(bonuses.per, isNil(result.per.lowPct) ? "-" : `位置 ${fmt(result.per.lowPct, "%")} `)}</div>
-        <div>日VR：${buyBonusText(bonuses.vr, "低低")}</div>
-        <div>日OBV：${buyBonusText(bonuses.obv, "高高")}</div>
-        <div>周轉率：${buyBonusText(bonuses.turnover, "高高")}</div>
-      </div>`;
-    }
-
-    function renderSellScoreDetail(s) {
-      const result = sellSignalResult(s);
-      const checks = result.checks;
-      const bonuses = result.bonuses;
-      return `<div class="buy-score-detail">
-        <div>價格LH：${sellCheckText(checks.priceLH)}</div>
-        <div>KD高檔：${sellCheckText(checks.kdOverbought)}</div>
-        <div>壓力距離：${sellCheckText(checks.resistance)}</div>
-        <div>法人賣出：${sellCheckText(checks.institutional)}</div>
-        <div>高檔周轉：${sellCheckText(checks.highTurnover)}</div>
-        <div>毛利率：${buyBonusText(bonuses.gross, "毛利率")}</div>
-        <div>日PER：${buyBonusText(bonuses.per, isNil(result.per.lowPct) ? "-" : `位置 ${fmt(result.per.lowPct, "%")} `)}</div>
-        <div>日VR：${buyBonusText(bonuses.vr, "高高")}</div>
-        <div>日OBV：${buyBonusText(bonuses.obv, "高高")}</div>
-        <div>周轉率：${buyBonusText(bonuses.turnover, "高高")}</div>
-      </div>`;
-    }
-
-    function sellCheckText(value) {
-      return value ? `<span class="text-red">符合 -1</span>` : `<span>未符合</span>`;
-    }
-
-    function sellRuleCell(qualified, valueHtml, bonus = false) {
-      const scoreHtml = `<span class="${qualified ? (bonus ? "up" : "text-red") : ""}">${qualified ? (bonus ? "+1.1" : "-1") : "0"}</span>`;
-      return `<td><div class="table-lv1">${scoreHtml}</div>${valueHtml}</td>`;
-    }
-
     function renderSellSignalCell(s, key) {
-      const result = sellSignalResult(s);
-      const checks = result.checks;
       if (key === "sell_fibonacci_resistance") {
         return `<td>${renderFibonacciContent(s, "resistance")}</td>`;
-      }
-      if (key === "sell_score") {
-        return `<td><div class="buy-score ${result.score < 0 ? "dn" : result.score > 0 ? "up" : ""}">${fmt(result.score)} 分</div><div class="table-lv3">一般 ${result.baseScore}</div><div class="table-lv3">加權 ${fmt(result.bonusScore)}</div></td>`;
-      }
-      if (key === "sell_categories") {
-        return `<td class="buy-category-list"><div class="category-list-text">${result.categories.length ? result.categories.map(escapeHtml).join("、") : "-"}</div></td>`;
       }
       const low0 = priceLHValue(s, 0, "low");
       const low1 = priceLHValue(s, 1, "low");
@@ -2403,42 +2109,30 @@
       const high2 = priceLHValue(s, 2, "high");
       const k0 = kdValue(s, 0);
       const k1 = kdValue(s, 1);
-      const turnover0 = dayMetricValue(s, "turnover_pct", 0);
       const institutional = pickFirst(s?.institutional_total_net_t0, s?.institutional_total_net);
       if (key === "sell_price_lh") {
-        return sellRuleCell(checks.priceLH, `${buyDateValueText(s, 0, `${fmt(low0)} / ${fmt(high0)}`)}${buyDateValueText(s, 1, `${fmt(low1)} / ${fmt(high1)}`)}${buyDateValueText(s, 2, `${fmt(low2)} / ${fmt(high2)}`)}`);
+        return `<td>${buyDateValueText(s, 0, `${fmt(low0)} / ${fmt(high0)}`)}${buyDateValueText(s, 1, `${fmt(low1)} / ${fmt(high1)}`)}${buyDateValueText(s, 2, `${fmt(low2)} / ${fmt(high2)}`)}</td>`;
       }
       if (key === "sell_kd_overbought") {
-        return sellRuleCell(checks.kdOverbought, `${buyDateValueText(s, 0, k0)}${buyDateValueText(s, 1, k1)}`);
+        return `<td>${buyDateValueText(s, 0, k0)}${buyDateValueText(s, 1, k1)}${buyDateValueText(s, 2, kdValue(s, 2))}</td>`;
       }
       if (key === "sell_resistance") {
-        return sellRuleCell(
-          checks.resistance,
-          renderSupportResistanceBlock(s, "resistance")
-        );
+        return `<td>${renderSupportResistanceBlock(s, "resistance")}</td>`;
       }
       if (key === "sell_institutional") {
         const date = chipDateMMDD(s?.chip_date_t0 ?? s?.chip_latest_date, "T");
-        return sellRuleCell(checks.institutional, `<div class="table-lv2">${date}：${fmt(institutional, "張")}</div>`);
-      }
-      if (key === "sell_high_turnover") {
-        return sellRuleCell(checks.highTurnover, `${buyValueText("價格", s?.price)}${buyValueText("高點", high0)}${buyValueText("周轉率", turnover0, "%")}`);
-      }
-      if (key === "sell_gross_margin") {
-        return sellRuleCell(result.bonuses.gross, renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff), true);
+        return `<td><div class="table-lv2">${date}：${fmt(institutional, "張")}</div></td>`;
       }
       if (key === "sell_per") {
-        const per = result.per;
-        const raw = `${buyValueText("TTM", s?.per_ttm)}<div class="table-lv2">${fmt(per.current)}，${isNil(per.lowPct) ? "-" : fmt(per.lowPct, "%")}</div><div class="table-lv2">${fmt(per.low)} / ${fmt(per.high)}</div>`;
-        return sellRuleCell(result.bonuses.per, raw, true);
+        return `<td>${buyValueText("TTM", s?.per_ttm)}${buyValueText("日PER", s?.per_latest)}${buyValueText("120日區間", `${fmt(s?.per_120d_low)} / ${fmt(s?.per_120d_high)}`)}</td>`;
       }
       if (["sell_vr", "sell_obv", "sell_turnover"].includes(key)) {
         const metricKey = key.replace("sell_", "");
         const metric = metricKey === "turnover" ? "turnover_pct" : metricKey;
         const suffix = metricKey === "obv" ? "" : "%";
-        return sellRuleCell(result.bonuses[metricKey], buyTrendValues(s, metric, suffix), true);
+        return `<td>${buyTrendValues(s, metric, suffix)}</td>`;
       }
-      return `<td>0</td>`;
+      return `<td>-</td>`;
     }
 
     function fibonacciLevels(s, type = "support") {
@@ -2472,13 +2166,8 @@
     }
 
     function renderBuySignalCell(s, key) {
-      const result = buySignalResult(s);
-      const checks = result.checks;
       if (key === "buy_fibonacci_support") {
         return `<td>${renderFibonacciContent(s)}</td>`;
-      }
-      if (key === "buy_score") {
-        return `<td><div class="buy-score ${result.score > 0 ? "up" : ""}">${fmt(result.score)} 分</div><div class="table-lv3">一般 ${result.baseScore}</div><div class="table-lv3">加權 ${fmt(result.bonusScore)}</div></td>`;
       }
       const low0 = priceLHValue(s, 0, "low");
       const low1 = priceLHValue(s, 1, "low");
@@ -2486,54 +2175,32 @@
       const high0 = priceLHValue(s, 0, "high");
       const high1 = priceLHValue(s, 1, "high");
       const high2 = priceLHValue(s, 2, "high");
-      const k0 = kdValue(s, 0);
-      const k1 = kdValue(s, 1);
-      const k2 = kdValue(s, 2);
-      const supportDistance = s?.support_distance_pct;
       const institutional = pickFirst(s?.institutional_total_net_t0, s?.institutional_total_net);
-      const turnover0 = dayMetricValue(s, "turnover_pct", 0);
+      if (key === "buy_price_lh") {
+        return `<td>${buyDateValueText(s, 0, `${fmt(low0)} / ${fmt(high0)}`)}${buyDateValueText(s, 1, `${fmt(low1)} / ${fmt(high1)}`)}${buyDateValueText(s, 2, `${fmt(low2)} / ${fmt(high2)}`)}</td>`;
+      }
+      if (key === "buy_kd_oversold") {
+        return `<td>${buyDateValueText(s, 0, kdValue(s, 0))}${buyDateValueText(s, 1, kdValue(s, 1))}${buyDateValueText(s, 2, kdValue(s, 2))}</td>`;
+      }
+      if (key === "buy_support") {
+        return `<td>${renderSupportResistanceBlock(s, "support")}</td>`;
+      }
+      if (key === "buy_institutional") {
+        const date = chipDateMMDD(s?.chip_date_t0 ?? s?.chip_latest_date, "T");
+        return `<td><div class="table-lv2">${date}：${fmt(institutional, "張")}</div></td>`;
+      }
       if (key === "buy_gross_margin") {
-        return buyRuleCell(
-          result.bonuses.gross,
-          renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff),
-          true
-        );
+        return `<td>${renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff)}</td>`;
       }
       if (key === "buy_per") {
-        const per = result.per;
-        const currentText = fmt(per.current);
-        const positionText = isNil(per.lowPct) ? "-" : fmt(per.lowPct, "%");
-        const rangeText = `${fmt(per.low)} / ${fmt(per.high)}`;
-        const raw = `${buyValueText("TTM", s?.per_ttm)}<div class="table-lv2">${currentText}，${positionText}</div><div class="table-lv2">${rangeText}</div>`;
-        return buyRuleCell(per.qualified, raw, true);
+        return `<td>${buyValueText("TTM", s?.per_ttm)}${buyValueText("日PER", s?.per_latest)}${buyValueText("120日區間", `${fmt(s?.per_120d_low)} / ${fmt(s?.per_120d_high)}`)}</td>`;
       }
       if (["buy_vr", "buy_obv", "buy_turnover"].includes(key)) {
         const metricKey = key.replace("buy_", "");
-        const qualified = result.bonuses[metricKey];
         const suffix = key === "buy_vr" ? "%" : key === "buy_turnover" ? "%" : "";
-        return buyRuleCell(qualified, buyTrendValues(s, metricKey === "turnover" ? "turnover_pct" : metricKey, suffix), true);
+        return `<td>${buyTrendValues(s, metricKey === "turnover" ? "turnover_pct" : metricKey, suffix)}</td>`;
       }
-      if (key === "buy_price_lh") {
-        return buyRuleCell(checks.priceLH, `${buyDateValueText(s, 0, `${fmt(low0)} / ${fmt(high0)}`)}${buyDateValueText(s, 1, `${fmt(low1)} / ${fmt(high1)}`)}${buyDateValueText(s, 2, `${fmt(low2)} / ${fmt(high2)}`)}`);
-      }
-      if (key === "buy_kd_oversold") {
-        return buyRuleCell(checks.kdOversold, `${buyDateValueText(s, 0, k0)}${buyDateValueText(s, 1, k1)}${buyDateValueText(s, 2, k2)}`);
-      }
-      if (key === "buy_support") {
-        return buyRuleCell(
-          checks.support,
-          renderSupportResistanceBlock(s, "support")
-        );
-      }
-      if (key === "buy_institutional") {
-        const institutionalDate = chipDateMMDD(s?.chip_date_t0 ?? s?.chip_latest_date, "T");
-        const institutionalText = `${institutionalDate}：${fmt(institutional, "張")}`;
-        return buyRuleCell(checks.institutional, `<div class="table-lv2">${institutionalText}</div>`);
-      }
-      if (key === "buy_low_turnover") {
-        return buyRuleCell(checks.lowTurnover, `${buyValueText("價格", s?.price)}${buyValueText("低點", low0)}${buyValueText("周轉率", turnover0, "%")}`);
-      }
-      return `<td>0</td>`;
+      return `<td>-</td>`;
     }
 
     function renderPriceLHTrendBlock(s) {
@@ -3048,7 +2715,6 @@
           return renderInstitutionalCell(s, "dealer_net", "dealer_net_score");
         case "institutional_total_net":
           return renderInstitutionalCell(s, "institutional_total_net", "institutional_total_net_score");
-        case "buy_score":
         case "buy_price_lh":
         case "buy_kd_oversold":
         case "buy_support":
@@ -3061,8 +2727,6 @@
         case "buy_obv":
         case "buy_turnover":
           return renderBuySignalCell(s, key);
-        case "sell_score":
-        case "sell_categories":
         case "sell_price_lh":
         case "sell_kd_overbought":
         case "sell_resistance":
@@ -3234,25 +2898,22 @@
           <div class="stock-item"><div class="stock-label">日PER 120日LH</div><div class="stock-value">${renderPerRangeMetric(s.per_latest, s.per_120d_low, s.per_120d_high, s.per_ttm)}</div></div>
         </div>`;
 
-      const buyResult = buySignalResult(s);
       const buyGrid = `
         <div class="stock-grid buy-grid">
-          <div class="stock-item"><div class="stock-label">買(+)分數</div><div class="stock-value buy-score ${buyResult.score > 0 ? "up" : ""}">${fmt(buyResult.score)} 分</div></div>
-          <div class="stock-item"><div class="stock-label">買(+)計分表</div>${renderBuyScoreDetail(s)}</div>
           <div class="stock-item"><div class="stock-label">日KD 3天趨勢</div>${renderKDBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">日布林% (T/T-1/T-2)</div><div class="stock-value">${renderBBTechnicalContent(s)}</div></div>
           <div class="stock-item"><div class="stock-label">MACD值 (T/T-1/T-2)</div><div class="stock-value">${renderMacdTechnicalContent(s)}</div></div>
           <div class="stock-item"><div class="stock-label">日Bias5 120日LH</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias5")}</div></div>
           <div class="stock-item"><div class="stock-label">日Bias20 120日LH</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias20")}</div></div>
+          <div class="stock-item"><div class="stock-label">日Bias60 120日LH</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias60")}</div></div>
           <div class="stock-item"><div class="stock-label">黃金分割支撐價位</div><div class="stock-value">${renderFibonacciContent(s)}</div></div>
         </div>`;
 
-      const sellResult = sellSignalResult(s);
       const sellGrid = `
         <div class="stock-grid sell-grid">
-          <div class="stock-item"><div class="stock-label">賣(-)分數</div><div class="stock-value buy-score ${sellResult.score < 0 ? "dn" : sellResult.score > 0 ? "up" : ""}">${fmt(sellResult.score)} 分</div></div>
-          <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list"><div class="category-list-text">${sellResult.categories.length ? sellResult.categories.map(escapeHtml).join("、") : "-"}</div></div></div>
-          <div class="stock-item"><div class="stock-label">賣(-)計分表</div>${renderSellScoreDetail(s)}</div>
+          <div class="stock-item"><div class="stock-label">日Bias5 120日LH</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias5")}</div></div>
+          <div class="stock-item"><div class="stock-label">日Bias20 120日LH</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias20")}</div></div>
+          <div class="stock-item"><div class="stock-label">日Bias60 120日LH</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias60")}</div></div>
           <div class="stock-item"><div class="stock-label">黃金分割壓力價位</div><div class="stock-value">${renderFibonacciContent(s, "resistance")}</div></div>
         </div>`;
 
@@ -3320,18 +2981,12 @@
           const score = priceLHTrendScore(s);
           return isNil(score) ? -999999 : Number(score);
         }
-        case "buy_score":
-          return buySignalResult(s).score;
         case "custom_categories":
           return stockCustomCategories(s).join("、");
         case "buy_fibonacci_support":
           return fibonacciLevels(s)[2].price ?? -999999;
         case "sell_fibonacci_resistance":
           return fibonacciLevels(s, "resistance")[2].price ?? -999999;
-        case "sell_score":
-          return sellSignalResult(s).score;
-        case "sell_categories":
-          return sellSignalResult(s).categories.join("、");
         case "roe":
           return Number(s.roe_ttm ?? s.roe_last_year ?? -999999);
         case "foreign_investor_net":
@@ -3443,19 +3098,6 @@
           const nextTab = btn.dataset.tab;
           if (!TAB_CONFIG[nextTab]) return;
           currentTab = nextTab;
-          const buySettings = document.getElementById("buySignalSettings");
-          if (buySettings) buySettings.classList.toggle("is-visible", currentTab === "buy" || currentTab === "sell");
-          const settingsTitle = document.getElementById("buySignalSettingsTitle");
-          if (settingsTitle) settingsTitle.textContent = currentTab === "sell" ? "賣(-)參數" : "買(+)參數";
-          const settingLabels = {
-            buyLowPriceLabel: currentTab === "sell" ? "高檔價格距離%" : "低檔價格距離%",
-            buySupportLabel: currentTab === "sell" ? "壓力距離%" : "支撐距離%",
-            buyKdLabel: currentTab === "sell" ? "KD高檔值（100 - 此值）" : "KD低檔值",
-          };
-          Object.entries(settingLabels).forEach(([id, label]) => {
-            const element = document.getElementById(id);
-            if (element) element.textContent = label;
-          });
           document.querySelectorAll(".tab-btn[data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === currentTab));
           const note = document.getElementById("tabNote");
           if (note) {
@@ -3469,9 +3111,6 @@
             } else {
               note.innerText = TAB_CONFIG[currentTab].note;
             }
-          }
-          if (currentTab === "buy") {
-            sortedStocks.forEach(stock => buySignalResult(stock));
           }
           renderAll();
         });
@@ -3837,31 +3476,6 @@
       if (clearBtn) clearBtn.addEventListener("click", clearFilters);
     }
 
-    function bindBuySignalSettings() {
-      const settings = document.getElementById("buySignalSettings");
-      if (!settings) return;
-      settings.querySelectorAll("input").forEach(input => {
-        input.addEventListener("input", () => {
-          buySignalCache.clear();
-          sellSignalCache.clear();
-          if (currentTab === "buy" || currentTab === "sell") renderAll();
-        });
-      });
-      const resetBtn = document.getElementById("buySignalResetBtn");
-      if (resetBtn) {
-        resetBtn.addEventListener("click", () => {
-          const defaults = { buyLowPricePct: 10, buyHighTurnoverPct: 3, buySupportPct: 10, buyKdOversold: 30 };
-          Object.entries(defaults).forEach(([id, value]) => {
-            const input = document.getElementById(id);
-            if (input) input.value = value;
-          });
-          buySignalCache.clear();
-          sellSignalCache.clear();
-          if (currentTab === "buy" || currentTab === "sell") renderAll();
-        });
-      }
-    }
-
     (function bindIndexToggle() {
       const btn = document.getElementById("indexToggleBtn");
       if (!btn) return;
@@ -4133,7 +3747,6 @@
 
     bindTabs();
     bindFilters();
-    bindBuySignalSettings();
     renderAll();
   </script>
 
