@@ -1100,7 +1100,7 @@
 
 <body>
   <div class="container">
-    <p>產生時間：2026-10-20 22:33</p>
+    <p>產生時間：2026-10-20 23:02</p>
 
     <div class="tabs" id="tabs">
       <button type="button" class="tab-btn active" data-tab="overview">總覽</button>
@@ -1293,7 +1293,8 @@
           <label>量5MA/增減%</label><select data-filter-op="volume_ma5_change_pct">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
-          </select><input data-filter-key="volume_ma5_change_pct" type="number" step="0.01" placeholder="%"></div>
+          </select><input data-filter-key="volume_ma5_change_pct" type="number" step="0.01" placeholder="%">
+        </div>
         <div class="filter-item filter-item-comparison"><label>T日比較</label><select id="comparisonBasePeriod">
             <option value="t1">T-1</option>
             <option value="t2">T-2</option>
@@ -1538,7 +1539,7 @@
         note: "買(+)買得低：低於月線、布林通道底",
         columns: [
           { key: "code", label: "代碼<br><small>名稱/價格</small>", tooltip: "股票代號與簡稱，不參與買(+)分數計算。" },
-          { key: "buy_score", label: "買(+)分數<br><small>符合條件加總</small>", tooltip: "總分＝5項一般條件各 +1，加上5項加權條件各 +1.1。一般分與加權分會分開顯示；最高 10.5 分。" },
+          { key: "buy_score", label: "買(+)分數<br>", tooltip: "總分＝5項一般條件各 +1，加上5項加權條件各 +1.1。一般分與加權分會分開顯示；最高 10.5 分。" },
           { key: "buy_price_lh", label: "價格LH3天<br><small>低低 +1</small>", tooltip: "一般條件 +1：最近三個交易日的價格低點連續走低，T 低點 < T-1 < T-2。" },
           { key: "buy_kd_oversold", label: "KD值&lt;參數<br><small>低低 +1</small>", tooltip: "一般條件 +1：T 日 K 值低於「KD低檔值」參數，且低於 T-1 的 K 值。" },
           { key: "bb_pct", label: "日布林%<br><small>T/T-1/T-2</small>", tooltip: "布林% ＝ (收盤價 - BB下軌) ÷ (BB上軌 - BB下軌) × 100。當值越高代表股價偏向上軌、越低代表偏向下軌，並以箭頭與 T/T-1/T-2 顯示趨勢變化。" },
@@ -1559,7 +1560,7 @@
         note: "賣(-)賣得高：KD頓化、價格壓力點、布林通道頂",
         columns: [
           { key: "code", label: "代碼<br><small>名稱/價格</small>", tooltip: "股票代號與簡稱，不參與賣(-)分數計算。" },
-          { key: "sell_score", label: "賣(-)分數<br><small>符合條件加總</small>", tooltip: "總分＝5項一般條件各 -1，減去5項加權條件各 +1.1。一般分與加權分會分開顯示；範圍 -10.5 至 0 分。" },
+          { key: "sell_score", label: "賣(-)分數<br>", tooltip: "總分＝5項一般條件各 -1，減去5項加權條件各 +1.1。一般分與加權分會分開顯示；範圍 -10.5 至 0 分。" },
           { key: "sell_categories", label: "符合自選分類<br><small>顯示清單</small>", tooltip: "顯示此股票所屬的自選分類，不參與分數計算。" },
           { key: "sell_price_lh", label: "價格LH3天<br><small>高高 -1</small>", tooltip: "一般條件 -1：最近三個交易日的價格高點連續走高，T 高點 > T-1 > T-2。" },
           { key: "sell_kd_overbought", label: "KD值&gt;高檔參數<br><small>高高 -1</small>", tooltip: "一般條件 -1：T 日 K 值高於 100 減去「KD高檔值」參數，且高於 T-1 的 K 值。" },
