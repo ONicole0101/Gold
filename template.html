@@ -1422,12 +1422,14 @@
         note: "買(+)買得低：低於月線、布林通道底",
         columns: [
           { key: "code", label: "代碼<br><small>名稱/價格</small>", tooltip: "股票代號與簡稱，不參與買(+)分數計算。" },
-          { key: "buy_score", label: "買(+)分數<br><small>符合條件加總</small>", tooltip: "總分＝7項一般條件各 +1，加上5項加權條件各 +1.1。一般分與加權分會分開顯示；最高 12.5 分。" },
+          { key: "buy_score", label: "買(+)分數<br><small>符合條件加總</small>", tooltip: "總分＝5項一般條件各 +1，加上5項加權條件各 +1.1。一般分與加權分會分開顯示；最高 10.5 分。" },
           { key: "buy_categories", label: "符合自選分類<br><small>顯示清單</small>", tooltip: "顯示此股票所屬的自選分類，不參與分數計算。" },
           { key: "buy_price_lh", label: "價格LH3天<br><small>低低 +1</small>", tooltip: "一般條件 +1：最近三個交易日的價格低點連續走低，T 低點 < T-1 < T-2。" },
           { key: "buy_kd_oversold", label: "KD值&lt;參數<br><small>低低 +1</small>", tooltip: "一般條件 +1：T 日 K 值低於「KD低檔值」參數，且低於 T-1 的 K 值。" },
-          { key: "buy_kd_divergence", label: "KD低檔背離<br><small>符合 +1</small>", tooltip: "一般條件 +1：股價低點創最近三個已知日值新低，但 K 值未同步創新低；若資料已有 KD 底背離旗標，優先採用旗標。" },
-          { key: "buy_rsi_divergence", label: "RSI底背離<br><small>符合 +1</small>", tooltip: "一般條件 +1：股價低點創最近三個已知日值新低，但 RSI 未同步創新低；若資料已有 RSI 底背離旗標，優先採用旗標。" },
+          { key: "bb_pct", label: "日布林%<br><small>T/T-1/T-2</small>", tooltip: "布林% ＝ (收盤價 - BB下軌) ÷ (BB上軌 - BB下軌) × 100。當值越高代表股價偏向上軌、越低代表偏向下軌，並以箭頭與 T/T-1/T-2 顯示趨勢變化。" },
+          { key: "macd_hist", label: "MACD值<br><small>T/T-1/T-2</small>", tooltip: "MACD值 = DIF - DEA；柱狀體轉正代表動能轉強，轉負代表動能轉弱，箭頭與 T/T-1/T-2 展示最近三天變化。" },
+          { key: "bias5", label: "日Bias5<br><small>120日LH</small>", tooltip: "日Bias5＝(收盤價 - 5日均線MA5) ÷ MA5 × 100。正值代表股價在5日均線之上，負值代表在均線之下。" },
+          { key: "bias20", label: "日Bias20<br><small>120日LH</small>", tooltip: "日Bias20＝(收盤價 - 20日均線MA20) ÷ MA20 × 100。數值越大代表短中期乖離越高，越小代表偏離均線下方。" },
           { key: "buy_support", label: "支撐點距離<br><small>&lt;參數 +1</small>", tooltip: "一般條件 +1：支撐點距離百分比小於「支撐距離%」參數；缺少距離資料時不計分。" },
           { key: "buy_fibonacci_support", label: "黃金分割<br>支撐價位", tooltip: "以近120個交易日高低價計算回撤支撐價位：高點 −（高點 − 低點）× 回撤比例。50%為慣用回撤位；本欄不參與買(+)分數計算。" },
           { key: "buy_institutional", label: "三大法人<br><small>符合 +1</small>", tooltip: "一般條件 +1：T 日三大法人合計買賣超大於 0。" },
@@ -2124,8 +2126,6 @@
       const checks = {
         priceLH: Number.isFinite(Number(low0)) && Number.isFinite(Number(low1)) && Number(low0) < Number(low1) && Number(low1) < Number(priceLHValue(s, 2, "low")),
         kdOversold: Number.isFinite(Number(k0)) && Number.isFinite(Number(k1)) && Number(k0) < params.kdOversold && Number(k0) < Number(k1),
-        kdDivergence: signalDivergence(s, "bullish", "k", ["kd_bullish_divergence", "kd_low_divergence", "kd_divergence"]),
-        rsiDivergence: signalDivergence(s, "bullish", "rsi", ["rsi_bullish_divergence", "rsi_bottom_divergence", "rsi_divergence"]),
         support: !isNil(supportDistanceRaw) && supportDistanceRaw !== "" && Number.isFinite(supportDistance) && supportDistance < params.supportPct,
         institutional: Number.isFinite(institutional) && institutional > 0,
         lowTurnover: Number.isFinite(price) && Number.isFinite(lowPrice) && price <= lowPrice * (1 + params.lowPricePct / 100) && Number.isFinite(turnover) && turnover >= params.highTurnoverPct,
@@ -2265,8 +2265,6 @@
       return `<div class="buy-score-detail">
         <div>價格LH：${buyCheckText(checks.priceLH)}</div>
         <div>KD低檔：${buyCheckText(checks.kdOversold)}</div>
-        <div>KD背離：${buyCheckText(checks.kdDivergence)}</div>
-        <div>RSI背離：${buyCheckText(checks.rsiDivergence)}</div>
         <div>支撐距離：${buyCheckText(checks.support)}</div>
         <div>法人買進：${buyCheckText(checks.institutional)}</div>
         <div>低檔周轉：${buyCheckText(checks.lowTurnover)}</div>
@@ -2424,8 +2422,6 @@
       const k0 = kdValue(s, 0);
       const k1 = kdValue(s, 1);
       const k2 = kdValue(s, 2);
-      const rsi0 = dayMetricValue(s, "rsi", 0);
-      const rsi1 = dayMetricValue(s, "rsi", 1);
       const supportDistance = s?.support_distance_pct;
       const institutional = pickFirst(s?.institutional_total_net_t0, s?.institutional_total_net);
       const turnover0 = dayMetricValue(s, "turnover_pct", 0);
@@ -2455,12 +2451,6 @@
       }
       if (key === "buy_kd_oversold") {
         return buyRuleCell(checks.kdOversold, `${buyDateValueText(s, 0, k0)}${buyDateValueText(s, 1, k1)}${buyDateValueText(s, 2, k2)}`);
-      }
-      if (key === "buy_kd_divergence") {
-        return buyRuleCell(checks.kdDivergence, `${buyDateValueText(s, 0, k0, "")}${buyDateValueText(s, 1, k1, "")}`);
-      }
-      if (key === "buy_rsi_divergence") {
-        return buyRuleCell(checks.rsiDivergence, `${buyDateValueText(s, 0, rsi0, "%")}${buyDateValueText(s, 1, rsi1, "%")}`);
       }
       if (key === "buy_support") {
         return buyRuleCell(
@@ -2991,8 +2981,6 @@
         case "buy_categories":
         case "buy_price_lh":
         case "buy_kd_oversold":
-        case "buy_kd_divergence":
-        case "buy_rsi_divergence":
         case "buy_support":
         case "buy_fibonacci_support":
         case "buy_institutional":
@@ -3051,7 +3039,7 @@
         case "obv":
           return `<td>${renderThreeDayMetricContent(s, "obv")}</td>`;
         case "bb_pct":
-          if (currentTab === "technical" || currentTab === "overview") {
+          if (currentTab === "technical" || currentTab === "overview" || currentTab === "buy") {
             return `<td>${renderBBTechnicalContent(s)}</td>`;
           }
           return `<td>${renderBBBlock(s)}</td>`;
@@ -3182,6 +3170,11 @@
           <div class="stock-item"><div class="stock-label">買(+)分數</div><div class="stock-value buy-score ${buyResult.score > 0 ? "up" : ""}">${fmt(buyResult.score)} 分</div></div>
           <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list"><div class="category-list-text">${buyResult.categories.length ? buyResult.categories.map(escapeHtml).join("、") : "-"}</div></div></div>
           <div class="stock-item"><div class="stock-label">買(+)計分表</div>${renderBuyScoreDetail(s)}</div>
+          <div class="stock-item"><div class="stock-label">日KD 3天趨勢</div>${renderKDBlock(s)}</div>
+          <div class="stock-item"><div class="stock-label">日布林% (T/T-1/T-2)</div><div class="stock-value">${renderBBTechnicalContent(s)}</div></div>
+          <div class="stock-item"><div class="stock-label">MACD值 (T/T-1/T-2)</div><div class="stock-value">${renderMacdTechnicalContent(s)}</div></div>
+          <div class="stock-item"><div class="stock-label">日Bias5 120日LH</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias5")}</div></div>
+          <div class="stock-item"><div class="stock-label">日Bias20 120日LH</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias20")}</div></div>
           <div class="stock-item"><div class="stock-label">黃金分割支撐價位</div><div class="stock-value">${renderFibonacciContent(s)}</div></div>
         </div>`;
 
@@ -3884,8 +3877,10 @@
           return;
         }
         const children = Array.from(element.childNodes);
+        // Grid items in a price LH row compute to block but belong on the same line.
+        const inlineRow = element.classList.contains("price-lh-line");
         children.forEach((child, index) => {
-          const childBlock = child.nodeType === Node.ELEMENT_NODE && isBlock(child);
+          const childBlock = !inlineRow && child.nodeType === Node.ELEMENT_NODE && isBlock(child);
           if (childBlock) {
             appendLineBreak(excelCssColor(getComputedStyle(child).color));
           }

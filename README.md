@@ -1,6 +1,33 @@
 # StockHolding-report
 TW Stcok Holding
 
+## Excel 匯出
+
+報表的「匯出」按鈕會將目前頁籤、篩選及排序後的表格輸出為 Excel，
+保留儲存格內的換行與文字顏色。「價格LH3天趨勢 T/T-1/T-2」保留
+趨勢摘要及三天資料共四行，每天的日期、低價與高價維持在同一行。
+此修正已同步至 `index.html`；既有日期命名的歷史報表需重新產生才會套用。
+
+離線匯出回歸測試（需 Node.js，無額外套件）：
+
+```powershell
+node --test tests\test_excel_export.cjs
+```
+
+## 買(+)分頁
+
+- 移除 KD 低檔背離與 RSI 底背離欄位及其買方計分；賣(-)高檔背離維持不變。
+- 買方總分為 5 項一般條件各 +1、5 項加權條件各 +1.1，最高 10.5 分。
+- KD 值後依序顯示日布林%、MACD 值（T/T-1/T-2）、日Bias5 與
+  日Bias20（120 日 LH），沿用技術面的數值與格式，僅供參考、不額外計分；
+  桌面表格、手機卡片及 Excel 匯出同步提供。
+
+離線買方欄位及計分回歸測試：
+
+```powershell
+node --test tests\test_buy_tab.cjs tests\test_excel_export.cjs
+```
+
 ## 基本面資料增補
 
 `generate_static_csv.py` 以 `AllStatic.csv` 為基底增量更新：
