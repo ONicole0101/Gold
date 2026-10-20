@@ -21,8 +21,12 @@ for (const [index, source] of sources.entries()) {
     vm.runInContext(section(source, "    const TAB_CONFIG =", "    function isNil("), context);
     const config = vm.runInContext("TAB_CONFIG", context);
     const keys = Array.from(config.buy.columns, column => column.key);
-    assert.deepEqual(keys.slice(keys.indexOf("buy_kd_oversold") + 1, 9),
+    const kdIndex = keys.indexOf("buy_kd_oversold");
+    assert.deepEqual(keys.slice(kdIndex + 1, kdIndex + 5),
       ["bb_pct", "macd_hist", "bias5", "bias20"]);
+    assert.deepEqual(Array.from(config.fundamental.columns.slice(0, 3), column => column.key),
+      ["code", "custom_categories", "price"]);
+    assert.ok(!keys.some(key => key.includes("categories")));
     assert.ok(!keys.some(key => key.includes("divergence")));
     for (const key of ["bb_pct", "macd_hist", "bias5", "bias20"]) {
       assert.deepEqual(
@@ -70,6 +74,7 @@ for (const [index, source] of sources.entries()) {
       renderMacdTechnicalContent: () => "macd-three-days",
       renderBiasTechnicalContent: (stock, key) => `${key}-range`,
     });
+
     vm.runInContext(section(source, "    function renderCell(", "    function renderHead("), context);
     for (const [key, expected] of Object.entries({
       bb_pct: "bb-three-days", macd_hist: "macd-three-days",
@@ -77,6 +82,22 @@ for (const [index, source] of sources.entries()) {
     })) {
       assert.equal(context.renderCell({}, key), `<td>${expected}</td>`);
     }
+  });
+
+  test(`${name}: fundamental categories render independently of buy scoring`, () => {
+    const context = vm.createContext({
+      stockCustomCategories: stock => stock.custom_category_list ?? [],
+      escapeHtml: value => value.replace(/&/g, "&amp;").replace(/</g, "&lt;"),
+    });
+    vm.runInContext(section(source, "    function renderCell(", "    function renderHead("), context);
+    const html = context.renderCell({ custom_category_list: ["AI", "<A&B"] }, "custom_categories");
+    assert.ok(html.includes("AI、&lt;A&amp;B"));
+    assert.ok(context.renderCell({}, "custom_categories").includes('class="category-list-text">-</div>'));
+    const fundamentalGrid = section(source, "      const fundamentalGrid =", "      const buyResult =");
+    const buyGrid = section(source, "      const buyGrid =", "      const sellResult =");
+    assert.ok(fundamentalGrid.includes("符合自選分類"));
+    assert.ok(!buyGrid.includes("符合自選分類"));
+    assert.ok(!source.includes("buy_categories"));
   });
 }
 

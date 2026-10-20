@@ -1062,7 +1062,7 @@
         grid-template-columns: 1fr;
       }
 
-      .buy-grid .buy-category-list {
+      .stock-grid .buy-category-list {
         width: auto;
         min-width: 0;
         max-width: none;
@@ -1408,6 +1408,7 @@
         note: "基本面：EPS、ROE、營收、毛利率、營益率、淨利率、PER",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
+          { key: "custom_categories", label: "符合自選分類<br><small>顯示清單</small>", tooltip: "顯示此股票所屬的自選分類，不參與分數計算。" },
           { key: "price", label: "價格<br><small>120日LH/距離%</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值，高點距離為正值。" },
           { key: "eps_Y", label: "EPS<small>(季數)</small><br><small>TTM</small> / 年增率" },
           { key: "roe", label: "ROE%<br><small>TTM</small>" },
@@ -1423,7 +1424,6 @@
         columns: [
           { key: "code", label: "代碼<br><small>名稱/價格</small>", tooltip: "股票代號與簡稱，不參與買(+)分數計算。" },
           { key: "buy_score", label: "買(+)分數<br><small>符合條件加總</small>", tooltip: "總分＝5項一般條件各 +1，加上5項加權條件各 +1.1。一般分與加權分會分開顯示；最高 10.5 分。" },
-          { key: "buy_categories", label: "符合自選分類<br><small>顯示清單</small>", tooltip: "顯示此股票所屬的自選分類，不參與分數計算。" },
           { key: "buy_price_lh", label: "價格LH3天<br><small>低低 +1</small>", tooltip: "一般條件 +1：最近三個交易日的價格低點連續走低，T 低點 < T-1 < T-2。" },
           { key: "buy_kd_oversold", label: "KD值&lt;參數<br><small>低低 +1</small>", tooltip: "一般條件 +1：T 日 K 值低於「KD低檔值」參數，且低於 T-1 的 K 值。" },
           { key: "bb_pct", label: "日布林%<br><small>T/T-1/T-2</small>", tooltip: "布林% ＝ (收盤價 - BB下軌) ÷ (BB上軌 - BB下軌) × 100。當值越高代表股價偏向上軌、越低代表偏向下軌，並以箭頭與 T/T-1/T-2 顯示趨勢變化。" },
@@ -2410,9 +2410,6 @@
       if (key === "buy_score") {
         return `<td><div class="buy-score ${result.score > 0 ? "up" : ""}">${fmt(result.score)} 分</div><div class="table-lv3">一般 ${result.baseScore}</div><div class="table-lv3">加權 ${fmt(result.bonusScore)}</div></td>`;
       }
-      if (key === "buy_categories") {
-        return `<td class="buy-category-list"><div class="category-list-text">${result.categories.length ? result.categories.map(escapeHtml).join("、") : "-"}</div></td>`;
-      }
       const low0 = priceLHValue(s, 0, "low");
       const low1 = priceLHValue(s, 1, "low");
       const low2 = priceLHValue(s, 2, "low");
@@ -2879,6 +2876,10 @@
 
     function renderCell(s, key) {
       switch (key) {
+        case "custom_categories": {
+          const categories = stockCustomCategories(s);
+          return `<td class="buy-category-list"><div class="category-list-text">${categories.length ? categories.map(escapeHtml).join("、") : "-"}</div></td>`;
+        }
         case "code":
           return renderCodeCell(s);
         case "price":
@@ -2978,7 +2979,6 @@
         case "institutional_total_net":
           return renderInstitutionalCell(s, "institutional_total_net", "institutional_total_net_score");
         case "buy_score":
-        case "buy_categories":
         case "buy_price_lh":
         case "buy_kd_oversold":
         case "buy_support":
@@ -3153,8 +3153,10 @@
           <div class="stock-item"><div class="stock-label">三大法人合計 T/T-1/T-2</div>${renderInstitutionalBlock(s, "institutional_total_net", "institutional_total_net_score")}</div>
         </div>`;
 
+      const categories = stockCustomCategories(s);
       const fundamentalGrid = `
         <div class="stock-grid">
+          <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list"><div class="category-list-text">${categories.length ? categories.map(escapeHtml).join("、") : "-"}</div></div></div>
           <div class="stock-item"><div class="stock-label">EPS<small>(季數)</small><br>TTM / 年增率</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y ?? 0)} (${Number.isInteger(Number(s.eps_Y_quarters)) ? Number(s.eps_Y_quarters) : 0})</div><div class="table-lv2">${fmt(s.eps_ttm)}</div><div class="table-lv2 ${trendClass(s.eps_yoy)}">${isNil(s.eps_yoy) ? "-" : `Y ${fmtTrend(s.eps_yoy)} ${fmt(s.eps_yoy, "%")}`}</div></div></div>
           <div class="stock-item"><div class="stock-label">ROE% / TTM</div>${renderRoeBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">營收</div><div class="stock-value">${renderMetric3(s.rev, s.rev_mom, s.rev_qoq, s.rev_yoy)}</div></div>
@@ -3168,7 +3170,6 @@
       const buyGrid = `
         <div class="stock-grid buy-grid">
           <div class="stock-item"><div class="stock-label">買(+)分數</div><div class="stock-value buy-score ${buyResult.score > 0 ? "up" : ""}">${fmt(buyResult.score)} 分</div></div>
-          <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list"><div class="category-list-text">${buyResult.categories.length ? buyResult.categories.map(escapeHtml).join("、") : "-"}</div></div></div>
           <div class="stock-item"><div class="stock-label">買(+)計分表</div>${renderBuyScoreDetail(s)}</div>
           <div class="stock-item"><div class="stock-label">日KD 3天趨勢</div>${renderKDBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">日布林% (T/T-1/T-2)</div><div class="stock-value">${renderBBTechnicalContent(s)}</div></div>
@@ -3253,8 +3254,8 @@
         }
         case "buy_score":
           return buySignalResult(s).score;
-        case "buy_categories":
-          return buySignalResult(s).categories.join("、");
+        case "custom_categories":
+          return stockCustomCategories(s).join("、");
         case "buy_fibonacci_support":
           return fibonacciLevels(s)[2].price ?? -999999;
         case "sell_fibonacci_resistance":
