@@ -35,7 +35,8 @@ for (const [index, source] of sources.entries()) {
       );
     }
     assert.ok(config.buy.columns.find(column => column.key === "buy_score").tooltip.includes("10.5"));
-    assert.equal(config.sell.columns.filter(column => column.key.includes("divergence")).length, 2);
+    assert.equal(config.sell.columns.filter(column => column.key.includes("divergence")).length, 0);
+    assert.ok(config.sell.columns.find(column => column.key === "sell_score").tooltip.includes("-10.5"));
   });
 
   test(`${name}: buy scoring ignores bullish flags and never calculates divergence`, () => {
@@ -65,6 +66,39 @@ for (const [index, source] of sources.entries()) {
     assert.equal(Object.keys(plain.checks).length, 5);
     assert.ok(!source.includes("buy_kd_divergence"));
     assert.ok(!source.includes("buy_rsi_divergence"));
+  });
+
+  test(`${name}: sell scoring ignores bearish flags and retains the other five checks`, () => {
+    const context = vm.createContext({
+      buySignalParams: () => ({ lowPricePct: 10, highTurnoverPct: 3, supportPct: 10, kdOversold: 30 }),
+      priceLHValue: (stock, day) => [120, 110, 100][day],
+      kdValue: (stock, day) => [90, 80][day],
+      dayMetricValue: () => 4,
+      pickFirst: (...values) => values.find(value => value != null),
+      isNil: value => value == null,
+      buySignalGrossBonus: () => ({ qualified: true }),
+      buySignalPerBonus: () => ({ lowPct: 75 }),
+      buySignalTrend: () => true,
+      stockCustomCategories: () => [],
+    });
+    vm.runInContext(section(source, "    function calculateSellSignal(", "    function sellSignalResult("), context);
+    const stock = { price: 120, resistance_distance_pct: 5, institutional_total_net: -1 };
+    const plain = context.calculateSellSignal(stock);
+    assert.equal(plain.baseScore, -5);
+    assert.equal(plain.bonusScore, 5.5);
+    assert.equal(plain.score, -10.5);
+    assert.deepEqual(plain, context.calculateSellSignal({
+      ...stock, kd_bearish_divergence: true, rsi_bearish_divergence: true,
+    }));
+    assert.equal(Object.keys(plain.checks).length, 5);
+    context.buySignalResult = () => ({ checks: {}, bonuses: {}, per: {} });
+    context.sellSignalResult = () => plain;
+    context.fmt = String;
+    context.isNil = value => value == null;
+    vm.runInContext(section(source, "    function buyCheckText(", "    function renderSellSignalCell("), context);
+    assert.ok(!context.renderBuyScoreDetail(stock).includes("背離"));
+    assert.ok(!context.renderSellScoreDetail(stock).includes("背離"));
+    assert.ok(!/divergence|buySignalBool/i.test(source));
   });
 
   test(`${name}: buy uses technical renderers for the four reference metrics`, () => {
@@ -106,6 +140,9 @@ test("report and template keep buy calculation and rendering in sync", () => {
     ["    function calculateBuySignal(", "    function buySignalResult("],
     ["    function renderBuyScoreDetail(", "    function renderSellScoreDetail("],
     ["    function renderBuySignalCell(", "    function "],
+    ["    function calculateSellSignal(", "    function sellSignalResult("],
+    ["    function renderSellScoreDetail(", "    function sellCheckText("],
+    ["    function renderSellSignalCell(", "    function fibonacciLevels("],
   ]) {
     assert.equal(section(sources[0], start, end), section(sources[1], start, end));
   }

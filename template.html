@@ -1178,7 +1178,8 @@
           <label>量5MA/增減%</label><select data-filter-op="volume_ma5_change_pct">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
-          </select><input data-filter-key="volume_ma5_change_pct" type="number" step="0.01" placeholder="%"></div>
+          </select><input data-filter-key="volume_ma5_change_pct" type="number" step="0.01" placeholder="%">
+        </div>
         <div class="filter-item filter-item-comparison"><label>T日比較</label><select id="comparisonBasePeriod">
             <option value="t1">T-1</option>
             <option value="t2">T-2</option>
@@ -1423,7 +1424,7 @@
         note: "買(+)買得低：低於月線、布林通道底",
         columns: [
           { key: "code", label: "代碼<br><small>名稱/價格</small>", tooltip: "股票代號與簡稱，不參與買(+)分數計算。" },
-          { key: "buy_score", label: "買(+)分數<br><small>符合條件加總</small>", tooltip: "總分＝5項一般條件各 +1，加上5項加權條件各 +1.1。一般分與加權分會分開顯示；最高 10.5 分。" },
+          { key: "buy_score", label: "買(+)分數<br>", tooltip: "總分＝5項一般條件各 +1，加上5項加權條件各 +1.1。一般分與加權分會分開顯示；最高 10.5 分。" },
           { key: "buy_price_lh", label: "價格LH3天<br><small>低低 +1</small>", tooltip: "一般條件 +1：最近三個交易日的價格低點連續走低，T 低點 < T-1 < T-2。" },
           { key: "buy_kd_oversold", label: "KD值&lt;參數<br><small>低低 +1</small>", tooltip: "一般條件 +1：T 日 K 值低於「KD低檔值」參數，且低於 T-1 的 K 值。" },
           { key: "bb_pct", label: "日布林%<br><small>T/T-1/T-2</small>", tooltip: "布林% ＝ (收盤價 - BB下軌) ÷ (BB上軌 - BB下軌) × 100。當值越高代表股價偏向上軌、越低代表偏向下軌，並以箭頭與 T/T-1/T-2 顯示趨勢變化。" },
@@ -1444,12 +1445,10 @@
         note: "賣(-)賣得高：KD頓化、價格壓力點、布林通道頂",
         columns: [
           { key: "code", label: "代碼<br><small>名稱/價格</small>", tooltip: "股票代號與簡稱，不參與賣(-)分數計算。" },
-          { key: "sell_score", label: "賣(-)分數<br><small>符合條件加總</small>", tooltip: "總分＝一般分（每項 -1）－加權分（每項 +1.1）。一般分與加權分會分開顯示；範圍 -12.5 至 0 分。" },
+          { key: "sell_score", label: "賣(-)分數<br>", tooltip: "總分＝5項一般條件各 -1，減去5項加權條件各 +1.1。一般分與加權分會分開顯示；範圍 -10.5 至 0 分。" },
           { key: "sell_categories", label: "符合自選分類<br><small>顯示清單</small>", tooltip: "顯示此股票所屬的自選分類，不參與分數計算。" },
           { key: "sell_price_lh", label: "價格LH3天<br><small>高高 -1</small>", tooltip: "一般條件 -1：最近三個交易日的價格高點連續走高，T 高點 > T-1 > T-2。" },
           { key: "sell_kd_overbought", label: "KD值&gt;高檔參數<br><small>高高 -1</small>", tooltip: "一般條件 -1：T 日 K 值高於 100 減去「KD高檔值」參數，且高於 T-1 的 K 值。" },
-          { key: "sell_kd_divergence", label: "KD高檔背離<br><small>符合 -1</small>", tooltip: "一般條件 -1：股價高點創最近三個已知日值新高，但 K 值未同步創新高；若資料已有 KD 頂背離旗標，優先採用旗標。" },
-          { key: "sell_rsi_divergence", label: "RSI高檔背離<br><small>符合 -1</small>", tooltip: "一般條件 -1：股價高點創最近三個已知日值新高，但 RSI 未同步創新高；若資料已有 RSI 頂背離旗標，優先採用旗標。" },
           { key: "sell_resistance", label: "壓力點距離<br><small>&lt;參數 -1</small>", tooltip: "一般條件 -1：壓力點距離百分比小於「壓力距離%」參數；缺少距離資料時不計分。" },
           { key: "sell_fibonacci_resistance", label: "黃金分割<br>壓力價位", tooltip: "以近120個交易日高低價計算反彈壓力價位：低點 ＋（高點 − 低點）× 反彈比例。50%為慣用反彈位；本欄不參與賣(-)分數計算。" },
           { key: "sell_institutional", label: "三大法人<br><small>符合 -1</small>", tooltip: "一般條件 -1：T 日三大法人合計買賣超小於 0。" },
@@ -2034,43 +2033,11 @@
       };
     }
 
-    function buySignalBool(s, keys) {
-      for (const key of keys) {
-        const value = s?.[key];
-        if (value === true || Number(value) > 0 || ["true", "yes", "y", "符合", "是"].includes(String(value).trim().toLowerCase())) {
-          return true;
-        }
-      }
-      return false;
-    }
-
     function buySignalTrend(s, key, direction) {
       const current = dayMetricValue(s, key, 0);
       const previous = dayMetricValue(s, key, 1);
       if (isNil(current) || isNil(previous)) return false;
       return direction === "up" ? Number(current) > Number(previous) : Number(current) < Number(previous);
-    }
-
-    function signalDivergence(s, direction, metricKey, flagKeys) {
-      if (buySignalBool(s, flagKeys)) return true;
-      const kind = direction === "bullish" ? "low" : "high";
-      const currentPrice = priceLHValue(s, 0, kind);
-      const currentMetric = dayMetricValue(s, metricKey, 0);
-      const previousPrices = [1, 2, 3].map(idx => priceLHValue(s, idx, kind));
-      const previousMetrics = [1, 2, 3].map(idx => dayMetricValue(s, metricKey, idx));
-      const values = [currentPrice, currentMetric, ...previousPrices, ...previousMetrics];
-      if (values.some(value => isNil(value) || value === "" || !Number.isFinite(Number(value)))) return false;
-
-      const currentPriceValue = Number(currentPrice);
-      const currentMetricValue = Number(currentMetric);
-      const previousPriceValues = previousPrices.map(Number);
-      const previousMetricValues = previousMetrics.map(Number);
-      if (direction === "bullish") {
-        return currentPriceValue < Math.min(...previousPriceValues)
-          && currentMetricValue >= Math.min(...previousMetricValues);
-      }
-      return currentPriceValue > Math.max(...previousPriceValues)
-        && currentMetricValue <= Math.max(...previousMetricValues);
     }
 
     function buySignalGrossBonus(s) {
@@ -2180,8 +2147,6 @@
       const checks = {
         priceLH: Number.isFinite(Number(high0)) && Number.isFinite(Number(high1)) && Number.isFinite(Number(high2)) && Number(high0) > Number(high1) && Number(high1) > Number(high2),
         kdOverbought: Number.isFinite(k0) && Number.isFinite(k1) && k0 > 100 - params.kdOversold && k0 > k1,
-        kdDivergence: signalDivergence(s, "bearish", "k", ["kd_bearish_divergence", "kd_high_divergence", "kd_top_divergence"]),
-        rsiDivergence: signalDivergence(s, "bearish", "rsi", ["rsi_bearish_divergence", "rsi_top_divergence", "rsi_high_divergence"]),
         resistance: !isNil(resistanceDistanceRaw) && resistanceDistanceRaw !== "" && Number.isFinite(resistanceDistance) && resistanceDistance < params.supportPct,
         institutional: Number.isFinite(institutional) && institutional < 0,
         highTurnover: Number.isFinite(price) && Number.isFinite(highPrice) && price >= highPrice * (1 - params.lowPricePct / 100) && Number.isFinite(turnover) && turnover >= params.highTurnoverPct,
@@ -2283,8 +2248,6 @@
       return `<div class="buy-score-detail">
         <div>價格LH：${sellCheckText(checks.priceLH)}</div>
         <div>KD高檔：${sellCheckText(checks.kdOverbought)}</div>
-        <div>KD背離：${sellCheckText(checks.kdDivergence)}</div>
-        <div>RSI背離：${sellCheckText(checks.rsiDivergence)}</div>
         <div>壓力距離：${sellCheckText(checks.resistance)}</div>
         <div>法人賣出：${sellCheckText(checks.institutional)}</div>
         <div>高檔周轉：${sellCheckText(checks.highTurnover)}</div>
@@ -2325,8 +2288,6 @@
       const high2 = priceLHValue(s, 2, "high");
       const k0 = kdValue(s, 0);
       const k1 = kdValue(s, 1);
-      const rsi0 = dayMetricValue(s, "rsi", 0);
-      const rsi1 = dayMetricValue(s, "rsi", 1);
       const turnover0 = dayMetricValue(s, "turnover_pct", 0);
       const institutional = pickFirst(s?.institutional_total_net_t0, s?.institutional_total_net);
       if (key === "sell_price_lh") {
@@ -2334,12 +2295,6 @@
       }
       if (key === "sell_kd_overbought") {
         return sellRuleCell(checks.kdOverbought, `${buyDateValueText(s, 0, k0)}${buyDateValueText(s, 1, k1)}`);
-      }
-      if (key === "sell_kd_divergence") {
-        return sellRuleCell(checks.kdDivergence, `${buyDateValueText(s, 0, k0)}${buyDateValueText(s, 1, k1)}`);
-      }
-      if (key === "sell_rsi_divergence") {
-        return sellRuleCell(checks.rsiDivergence, `${buyDateValueText(s, 0, rsi0, "%")}${buyDateValueText(s, 1, rsi1, "%")}`);
       }
       if (key === "sell_resistance") {
         return sellRuleCell(
@@ -2995,8 +2950,6 @@
         case "sell_categories":
         case "sell_price_lh":
         case "sell_kd_overbought":
-        case "sell_kd_divergence":
-        case "sell_rsi_divergence":
         case "sell_resistance":
         case "sell_fibonacci_resistance":
         case "sell_institutional":
