@@ -1374,9 +1374,9 @@
           { key: "buy_institutional", label: "三大法人<br><small>買賣超</small>", tooltip: "顯示 T 日三大法人合計買賣超張數。" },
           { key: "buy_gross_margin", label: "毛利率<br><small>QoQ / YoY</small>", tooltip: "顯示毛利率及其季度、年度變化。" },
           { key: "buy_per", label: "日PER<br><small>120日區間</small>", tooltip: "顯示日 PER、TTM 與 120 日區間。" },
-          { key: "buy_vr", label: "日VR<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 VR 值。" },
-          { key: "buy_obv", label: "日OBV<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 OBV 值。" },
-          { key: "buy_turnover", label: "周轉率<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日周轉率。" }
+          { key: "buy_vr", label: "日VR<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 VR 值及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。" },
+          { key: "buy_obv", label: "日OBV<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 OBV 值及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。" },
+          { key: "buy_turnover", label: "周轉率<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日周轉率及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。" }
         ]
       },
       sell: {
@@ -1389,9 +1389,9 @@
           { key: "sell_fibonacci_resistance", label: "黃金分割<br>壓力價位", tooltip: "以近120個交易日高低價計算反彈壓力價位：低點 ＋（高點 − 低點）× 反彈比例。" },
           { key: "sell_institutional", label: "三大法人<br><small>買賣超</small>", tooltip: "顯示 T 日三大法人合計買賣超張數。" },
           { key: "sell_per", label: "日PER<br><small>120日區間</small>", tooltip: "顯示日 PER、TTM 與 120 日區間。" },
-          { key: "sell_vr", label: "日VR<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 VR 值。" },
-          { key: "sell_obv", label: "日OBV<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 OBV 值。" },
-          { key: "sell_turnover", label: "周轉率<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日周轉率。" },
+          { key: "sell_vr", label: "日VR<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 VR 值及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。" },
+          { key: "sell_obv", label: "日OBV<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 OBV 值及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。" },
+          { key: "sell_turnover", label: "周轉率<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日周轉率及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。" },
           { key: "bias5", label: "日Bias5<br><small>120日LH</small>", tooltip: "日Bias5＝(收盤價 - 5日均線MA5) ÷ MA5 × 100。正值代表股價在均線之上，負值代表在均線之下。" },
           { key: "bias20", label: "日Bias20<br><small>120日LH</small>", tooltip: "日Bias20＝(收盤價 - 20日均線MA20) ÷ MA20 × 100。正值代表股價在均線之上，負值代表在均線之下。" },
           { key: "bias60", label: "日Bias60<br><small>120日LH</small>", tooltip: "日Bias60＝(收盤價 - 60日均線MA60) ÷ MA60 × 100。正值代表股價在均線之上，負值代表在均線之下。" }
@@ -1962,26 +1962,6 @@
       return `<div class="table-lv2">${label}：${displayValue}</div>`;
     }
 
-    function buyActualDate(s, idx) {
-      const value = pickFirst(
-        s?.[`price_date_t${idx}`],
-        s?.[`kd_date_t${idx}`],
-        s?.[`rsi_date_t${idx}`],
-        s?.[`date_t${idx}`],
-        s?.[`chip_date_t${idx}`],
-        s?.[`date${idx}`]
-      );
-      return isNil(value) || value === "" ? dayLabel(idx) : chipDateMMDD(value, dayLabel(idx));
-    }
-
-    function buyDateValueText(s, idx, value, suffix = "") {
-      return buyValueText(buyActualDate(s, idx), value, suffix);
-    }
-
-    function buyTrendValues(s, key, suffix = "") {
-      return `${buyDateValueText(s, 0, dayMetricValue(s, key, 0), suffix)}${buyDateValueText(s, 1, dayMetricValue(s, key, 1), suffix)}${buyDateValueText(s, 2, dayMetricValue(s, key, 2), suffix)}`;
-    }
-
     function buyKDValueText(s, idx) {
       const value = kdValue(s, idx);
       const previous = kdValue(s, idx + 1);
@@ -2019,7 +1999,7 @@
         const metricKey = key.replace("sell_", "");
         const metric = metricKey === "turnover" ? "turnover_pct" : metricKey;
         const suffix = metricKey === "obv" ? "" : "%";
-        return `<td>${buyTrendValues(s, metric, suffix)}</td>`;
+        return `<td>${renderThreeDayMetricContent(s, metric, suffix)}</td>`;
       }
       return `<td>-</td>`;
     }
@@ -2080,8 +2060,9 @@
       }
       if (["buy_vr", "buy_obv", "buy_turnover"].includes(key)) {
         const metricKey = key.replace("buy_", "");
-        const suffix = key === "buy_vr" ? "%" : key === "buy_turnover" ? "%" : "";
-        return `<td>${buyTrendValues(s, metricKey === "turnover" ? "turnover_pct" : metricKey, suffix)}</td>`;
+        const metric = metricKey === "turnover" ? "turnover_pct" : metricKey;
+        const suffix = metricKey === "obv" ? "" : "%";
+        return `<td>${renderThreeDayMetricContent(s, metric, suffix)}</td>`;
       }
       return `<td>-</td>`;
     }

@@ -100,6 +100,54 @@ for (const { name, source } of pages) {
     }
   });
 
+  test(`${name}: buy and sell VR, OBV, and turnover use technical trend rendering`, () => {
+    const context = vm.createContext({
+      chipValueClass: (current, previous) => current > previous ? "up" : current < previous ? "dn" : "",
+      dayDateLabel: (_stock, idx) => `T-${idx}`,
+      dayMetricValue: (stock, key, idx) => stock[`${key}_t${idx}`] ?? (idx === 0 ? stock[key] : null),
+      fmt: (value, suffix = "") => `${value}${suffix}`,
+      fmtTrend: score => score > 0 ? "↑" : score < 0 ? "↓" : "→",
+      isNil: value => value == null,
+      pickFirst: (...values) => values.find(value => value != null && value !== "") ?? null,
+      trendClass: score => score > 0 ? "up" : score < 0 ? "dn" : "",
+    });
+    vm.runInContext(
+      section(source, "    function renderThreeDayMetricContent(", "    function renderBBTechnicalContent("),
+      context
+    );
+    vm.runInContext(section(source, "    function renderSellSignalCell(", "    function fibonacciLevels("), context);
+    vm.runInContext(section(source, "    function renderBuySignalCell(", "    function renderPriceLHTrendBlock("), context);
+
+    const stock = {
+      vr_t0: 120,
+      vr_t1: 100,
+      vr_t2: 80,
+      obv_t0: 300,
+      obv_t1: 400,
+      obv_t2: 500,
+      turnover_pct_t0: 3,
+      turnover_pct_t1: 2,
+      turnover_pct_t2: 1,
+    };
+    const cases = [
+      ["vr", "buy_vr", "sell_vr", "%", "120% ↑", "class=\"table-lv1 up\">↑"],
+      ["obv", "buy_obv", "sell_obv", "", "300 ↓", "class=\"table-lv1 dn\">↓"],
+      ["turnover_pct", "buy_turnover", "sell_turnover", "%", "3% ↑", "class=\"table-lv1 up\">↑"],
+    ];
+
+    for (const [metric, buyKey, sellKey, suffix, latestLine, summary] of cases) {
+      const expected = context.renderThreeDayMetricContent(stock, metric, suffix);
+      for (const [tab, key] of [["Buy", buyKey], ["Sell", sellKey]]) {
+        const html = context[`render${tab}SignalCell`](stock, key);
+        assert.equal(html, `<td>${expected}</td>`);
+        assert.ok(html.includes(summary));
+        assert.ok(html.includes(latestLine));
+        assert.match(html, /↑|↓|→/);
+        assert.match(html, /class="table-lv2 (up|dn)">/);
+      }
+    }
+  });
+
   test(`${name}: buy and sell PER cells show 120-day low and high without a label`, () => {
     const context = vm.createContext({
       fmt: value => String(value),
