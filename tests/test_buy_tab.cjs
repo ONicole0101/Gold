@@ -65,6 +65,54 @@ for (const { name, source } of pages) {
     }
   });
 
+  test(`${name}: buy and sell price LH and KD values use technical color classes`, () => {
+    const context = vm.createContext({
+      chipValueClass: (current, previous) => current > previous ? "up" : current < previous ? "dn" : "",
+      dayDateLabel: (_stock, idx) => `T-${idx}`,
+      dayDateMMDD: (_stock, idx) => `date-${idx}`,
+      escapeHtml: value => value,
+      fmt: value => String(value),
+      kdValue: (_stock, idx) => [60, 50, 55, 40][idx],
+      pickFirst: (...values) => values.find(value => value != null),
+      priceLHValue: (_stock, idx, kind) => {
+        const values = kind === "low" ? [10, 9, 8, 7] : [12, 13, 11, 10];
+        return values[idx];
+      },
+    });
+    vm.runInContext(
+      section(source, "    function renderPriceLHLine(", "    function renderPriceLHTrendCell("),
+      context
+    );
+    vm.runInContext(section(source, "    function buyValueText(", "    function renderPriceLHTrendBlock("), context);
+
+    for (const [tab, priceKey, kdKey] of [
+      ["Buy", "buy_price_lh", "buy_kd_oversold"],
+      ["Sell", "sell_price_lh", "sell_kd_overbought"],
+    ]) {
+      const priceHtml = context[`render${tab}SignalCell`]({}, priceKey);
+      assert.ok(priceHtml.includes('class="up"> 10'));
+      assert.ok(priceHtml.includes('class="dn">/ 12'));
+
+      const kdHtml = context[`render${tab}SignalCell`]({}, kdKey);
+      assert.ok(kdHtml.includes('class="table-lv2 up">T-0：K 60'));
+      assert.ok(kdHtml.includes('class="table-lv2 dn">T-1：K 50'));
+      assert.ok(kdHtml.includes('class="table-lv2 up">T-2：K 55'));
+    }
+  });
+
+  test(`${name}: buy and sell PER cells show 120-day low and high without a label`, () => {
+    const context = vm.createContext({
+      fmt: value => String(value),
+      pickFirst: (...values) => values.find(value => value != null),
+    });
+    vm.runInContext(section(source, "    function buyValueText(", "    function renderPriceLHTrendBlock("), context);
+    for (const [tab, key] of [["Buy", "buy_per"], ["Sell", "sell_per"]]) {
+      const html = context[`render${tab}SignalCell`]({ per_120d_low: 8, per_120d_high: 12 }, key);
+      assert.ok(html.includes("<div class=\"table-lv2\">8 / 12</div>"));
+      assert.doesNotMatch(html, /120日區間/);
+    }
+  });
+
   test(`${name}: self-selected categories remain in fundamental only`, () => {
     const context = vm.createContext({
       stockCustomCategories: stock => stock.custom_category_list ?? [],

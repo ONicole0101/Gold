@@ -1982,24 +1982,28 @@
       return `${buyDateValueText(s, 0, dayMetricValue(s, key, 0), suffix)}${buyDateValueText(s, 1, dayMetricValue(s, key, 1), suffix)}${buyDateValueText(s, 2, dayMetricValue(s, key, 2), suffix)}`;
     }
 
+    function buyKDValueText(s, idx) {
+      const value = kdValue(s, idx);
+      const previous = kdValue(s, idx + 1);
+      const colorCls = chipValueClass(value, previous);
+      const label = dayDateLabel(s, idx, "kd");
+      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：` : ""}K ${fmt(value)}</div>`;
+    }
+
+    function buyKDTrendValues(s) {
+      return [0, 1, 2].map(idx => buyKDValueText(s, idx)).join("");
+    }
+
     function renderSellSignalCell(s, key) {
       if (key === "sell_fibonacci_resistance") {
         return `<td>${renderFibonacciContent(s, "resistance")}</td>`;
       }
-      const low0 = priceLHValue(s, 0, "low");
-      const low1 = priceLHValue(s, 1, "low");
-      const low2 = priceLHValue(s, 2, "low");
-      const high0 = priceLHValue(s, 0, "high");
-      const high1 = priceLHValue(s, 1, "high");
-      const high2 = priceLHValue(s, 2, "high");
-      const k0 = kdValue(s, 0);
-      const k1 = kdValue(s, 1);
       const institutional = pickFirst(s?.institutional_total_net_t0, s?.institutional_total_net);
       if (key === "sell_price_lh") {
-        return `<td>${buyDateValueText(s, 0, `${fmt(low0)} / ${fmt(high0)}`)}${buyDateValueText(s, 1, `${fmt(low1)} / ${fmt(high1)}`)}${buyDateValueText(s, 2, `${fmt(low2)} / ${fmt(high2)}`)}</td>`;
+        return `<td>${renderPriceLHLine(s, 0, 1)}${renderPriceLHLine(s, 1, 2)}${renderPriceLHLine(s, 2, 3)}</td>`;
       }
       if (key === "sell_kd_overbought") {
-        return `<td>${buyDateValueText(s, 0, k0)}${buyDateValueText(s, 1, k1)}${buyDateValueText(s, 2, kdValue(s, 2))}</td>`;
+        return `<td>${buyKDTrendValues(s)}</td>`;
       }
       if (key === "sell_resistance") {
         return `<td>${renderSupportResistanceBlock(s, "resistance")}</td>`;
@@ -2009,7 +2013,7 @@
         return `<td><div class="table-lv2">${date}：${fmt(institutional, "張")}</div></td>`;
       }
       if (key === "sell_per") {
-        return `<td>${buyValueText("TTM", s?.per_ttm)}${buyValueText("日PER", s?.per_latest)}${buyValueText("120日區間", `${fmt(s?.per_120d_low)} / ${fmt(s?.per_120d_high)}`)}</td>`;
+        return `<td>${buyValueText("TTM", s?.per_ttm)}${buyValueText("日PER", s?.per_latest)}<div class="table-lv2">${fmt(s?.per_120d_low)} / ${fmt(s?.per_120d_high)}</div></td>`;
       }
       if (["sell_vr", "sell_obv", "sell_turnover"].includes(key)) {
         const metricKey = key.replace("sell_", "");
@@ -2054,18 +2058,12 @@
       if (key === "buy_fibonacci_support") {
         return `<td>${renderFibonacciContent(s)}</td>`;
       }
-      const low0 = priceLHValue(s, 0, "low");
-      const low1 = priceLHValue(s, 1, "low");
-      const low2 = priceLHValue(s, 2, "low");
-      const high0 = priceLHValue(s, 0, "high");
-      const high1 = priceLHValue(s, 1, "high");
-      const high2 = priceLHValue(s, 2, "high");
       const institutional = pickFirst(s?.institutional_total_net_t0, s?.institutional_total_net);
       if (key === "buy_price_lh") {
-        return `<td>${buyDateValueText(s, 0, `${fmt(low0)} / ${fmt(high0)}`)}${buyDateValueText(s, 1, `${fmt(low1)} / ${fmt(high1)}`)}${buyDateValueText(s, 2, `${fmt(low2)} / ${fmt(high2)}`)}</td>`;
+        return `<td>${renderPriceLHLine(s, 0, 1)}${renderPriceLHLine(s, 1, 2)}${renderPriceLHLine(s, 2, 3)}</td>`;
       }
       if (key === "buy_kd_oversold") {
-        return `<td>${buyDateValueText(s, 0, kdValue(s, 0))}${buyDateValueText(s, 1, kdValue(s, 1))}${buyDateValueText(s, 2, kdValue(s, 2))}</td>`;
+        return `<td>${buyKDTrendValues(s)}</td>`;
       }
       if (key === "buy_support") {
         return `<td>${renderSupportResistanceBlock(s, "support")}</td>`;
@@ -2078,7 +2076,7 @@
         return `<td>${renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff)}</td>`;
       }
       if (key === "buy_per") {
-        return `<td>${buyValueText("TTM", s?.per_ttm)}${buyValueText("日PER", s?.per_latest)}${buyValueText("120日區間", `${fmt(s?.per_120d_low)} / ${fmt(s?.per_120d_high)}`)}</td>`;
+        return `<td>${buyValueText("TTM", s?.per_ttm)}${buyValueText("日PER", s?.per_latest)}<div class="table-lv2">${fmt(s?.per_120d_low)} / ${fmt(s?.per_120d_high)}</div></td>`;
       }
       if (["buy_vr", "buy_obv", "buy_turnover"].includes(key)) {
         const metricKey = key.replace("buy_", "");
