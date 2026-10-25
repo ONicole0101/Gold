@@ -72,6 +72,9 @@ for (const { name, source } of pages) {
       dayDateMMDD: (_stock, idx) => `date-${idx}`,
       escapeHtml: value => value,
       fmt: value => String(value),
+      fmtTrend: score => score > 0 ? "↑" : score < 0 ? "↓" : "→",
+      kdDayScore: () => 0.5,
+      trendClass: score => score > 0 ? "up" : score < 0 ? "dn" : "",
       kdValue: (_stock, idx) => [60, 50, 55, 40][idx],
       pickFirst: (...values) => values.find(value => value != null),
       priceLHValue: (_stock, idx, kind) => {
@@ -94,9 +97,39 @@ for (const { name, source } of pages) {
       assert.ok(priceHtml.includes('class="dn">/ 12'));
 
       const kdHtml = context[`render${tab}SignalCell`]({}, kdKey);
+      assert.ok(kdHtml.includes('class="table-lv1 up">↑</div>'));
       assert.ok(kdHtml.includes('class="table-lv2 up">T-0：K 60'));
       assert.ok(kdHtml.includes('class="table-lv2 dn">T-1：K 50'));
       assert.ok(kdHtml.includes('class="table-lv2 up">T-2：K 55'));
+    }
+  });
+
+  test(`${name}: buy and sell KD direction follows the technical K-day score`, () => {
+    const context = vm.createContext({
+      chipValueClass: (current, previous) => current > previous ? "up" : current < previous ? "dn" : "",
+      dayDateLabel: (_stock, idx) => `T-${idx}`,
+      fmt: value => value == null ? "-" : String(value),
+      fmtTrend: score => score > 0 ? "↑" : score < 0 ? "↓" : "→",
+      isNil: value => value == null,
+      kdValue: (stock, idx) => stock.values[idx],
+      pickFirst: (...values) => values.find(value => value != null),
+      trendClass: score => score > 0 ? "up" : score < 0 ? "dn" : "",
+    });
+    vm.runInContext(section(source, "    function kdDayScore(", "    function renderKDContent("), context);
+    vm.runInContext(section(source, "    function buyValueText(", "    function renderPriceLHTrendBlock("), context);
+    for (const [values, color, arrow] of [
+      [[60, 50, 40, 30], "up", "↑"],
+      [[40, 50, 60, 70], "dn", "↓"],
+      [[50, 50, 50, 50], "", "→"],
+      [[null, 50, 40, 30], "", "→"],
+      [[50, null, 40, 30], "", "→"],
+    ]) {
+      for (const [tab, key] of [["Buy", "buy_kd_oversold"], ["Sell", "sell_kd_overbought"]]) {
+        const html = context[`render${tab}SignalCell`]({ values }, key);
+        assert.ok(html.includes(`<div class="table-lv1 ${color}">${arrow}</div>`));
+        assert.equal((html.match(/class="table-lv2 /g) ?? []).length, 3);
+        assert.doesNotMatch(html, /\/ D /);
+      }
     }
   });
 

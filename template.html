@@ -1363,7 +1363,7 @@
         columns: [
           { key: "code", label: "代碼<br><small>名稱/價格</small>" },
           { key: "buy_price_lh", label: "價格L/H<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日的價格低點與高點。" },
-          { key: "buy_kd_oversold", label: "日KD K值<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日的 K 值。" },
+          { key: "buy_kd_oversold", label: "日KD K值<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日的 K 值；方向依最新 K 值與前一交易日比較，沿用技術面箭頭。" },
           { key: "bb_pct", label: "日布林%<br><small>T/T-1/T-2</small>", tooltip: "布林% ＝ (收盤價 - BB下軌) ÷ (BB上軌 - BB下軌) × 100。當值越高代表股價偏向上軌、越低代表偏向下軌，並以箭頭與 T/T-1/T-2 顯示趨勢變化。" },
           { key: "macd_hist", label: "MACD值<br><small>T/T-1/T-2</small>", tooltip: "MACD值 = DIF - DEA；柱狀體轉正代表動能轉強，轉負代表動能轉弱，箭頭與 T/T-1/T-2 展示最近三天變化。" },
           { key: "bias5", label: "日Bias5<br><small>120日LH</small>", tooltip: "日Bias5＝(收盤價 - 5日均線MA5) ÷ MA5 × 100。正值代表股價在5日均線之上，負值代表在均線之下。" },
@@ -1384,7 +1384,7 @@
         columns: [
           { key: "code", label: "代碼<br><small>名稱/價格</small>" },
           { key: "sell_price_lh", label: "價格L/H<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日的價格低點與高點。" },
-          { key: "sell_kd_overbought", label: "日KD K值<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日的 K 值。" },
+          { key: "sell_kd_overbought", label: "日KD K值<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日的 K 值；方向依最新 K 值與前一交易日比較，沿用技術面箭頭。" },
           { key: "sell_resistance", label: "壓力點<br><small>距離%</small>", tooltip: "顯示壓力價位與目前收盤價的距離百分比。" },
           { key: "sell_fibonacci_resistance", label: "黃金分割<br>壓力價位", tooltip: "以近120個交易日高低價計算反彈壓力價位：低點 ＋（高點 − 低點）× 反彈比例。" },
           { key: "sell_institutional", label: "三大法人<br><small>買賣超</small>", tooltip: "顯示 T 日三大法人合計買賣超張數。" },
@@ -1971,7 +1971,9 @@
     }
 
     function buyKDTrendValues(s) {
-      return [0, 1, 2].map(idx => buyKDValueText(s, idx)).join("");
+      const score = kdDayScore(s);
+      return `<div class="table-lv1 ${trendClass(score)}">${fmtTrend(score)}</div>`
+        + [0, 1, 2].map(idx => buyKDValueText(s, idx)).join("");
     }
 
     function renderSellSignalCell(s, key) {
