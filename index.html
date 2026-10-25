@@ -3490,7 +3490,7 @@
         return rgb.slice(1, 4).map(value => Number(value).toString(16).padStart(2, "0")).join("").toUpperCase();
       }
       const hex = String(color ?? "").match(/^#([0-9a-f]{6})$/i);
-      return hex ? hex[1].toUpperCase() : "";
+      return hex ? hex[1].toUpperCase():"";
     }
 
     function excelCellRuns(cell) {
@@ -3502,7 +3502,16 @@
         else runs.push({ text, color });
       };
       const currentText = () => runs.map(run => run.text).join("");
+      const trimLineEnd = () => {
+        while (runs.length) {
+          const last = runs[runs.length - 1];
+          last.text = last.text.replace(/ +$/, "");
+          if (last.text) break;
+          runs.pop();
+        }
+      };
       const appendLineBreak = color => {
+        trimLineEnd();
         if (currentText() && !currentText().endsWith("\n")) append("\n", color);
       };
       const isBlock = element => {
@@ -3524,7 +3533,9 @@
         if (node.nodeType === Node.TEXT_NODE) {
           if (!isFormattingWhitespace(node)) {
             const color = excelCssColor(getComputedStyle(node.parentElement ?? cell).color);
-            append(node.nodeValue ?? "", color);
+            let text = (node.nodeValue ?? "").replace(/[\t\n\f\r ]+/g, " ");
+            if (!currentText() || currentText().endsWith("\n")) text = text.replace(/^ +/, "");
+            append(text, color);
           }
           return;
         }
@@ -3550,12 +3561,13 @@
         });
       };
       walk(cell);
+      trimLineEnd();
       return runs;
     }
 
     function excelCellXml(runs, reference) {
       const inlineRuns = runs.map(run => {
-        const color = run.color ? `<color rgb="FF${run.color}"/>` : "";
+        const color = run.color ? `<color rgb="FF${run.color}"/>`:"";
         return `<r><rPr>${color}</rPr><t xml:space="preserve">${excelXmlEscape(run.text)}</t></r>`;
       }).join("");
       return `<c r="${reference}" s="0" t="inlineStr"><is>${inlineRuns}</is></c>`;

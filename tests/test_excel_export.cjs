@@ -71,6 +71,37 @@ test("ordinary blocks and explicit BR retain existing line breaks", () => {
   assert.equal(cellText(cell), "first\nsecond\nthird");
 });
 
+test("gross margin source indentation does not add lines to populated metrics", () => {
+  const cell = element("TD", [
+    text("\n  "),
+    element("DIV", [
+      text("\n    "),
+      element("DIV", [text("35.50")]),
+      text("\n    "),
+      element("DIV", [
+        text("\n      "),
+        element("DIV", [text("M -")]),
+        text("\n      \n      "),
+        element("DIV", [text("\n        Q ↑ 0.50%\n      ")], {
+          style: { color: "rgb(255, 0, 0)" },
+        }),
+        text("\n    \n      "),
+        element("DIV", [text("\n        Y ↓↓ -2%\n      ")], {
+          style: { color: "rgb(0, 255, 0)" },
+        }),
+        text("\n    \n    "),
+      ], { style: { display: "flex" } }),
+      text("\n  "),
+    ]),
+  ]);
+  const expected = "35.50\nM -\nQ ↑ 0.50%\nY ↓↓ -2%";
+  const runs = context.excelCellRuns(cell);
+  assert.equal(cellText(cell), expected);
+  assert.equal(context.excelCellXml(runs, "C2").replace(/<[^>]*>/g, ""), expected);
+  assert.ok(runs.some(run => run.text.includes("Q ↑ 0.50%") && run.color === "FF0000"));
+  assert.ok(runs.some(run => run.text.includes("Y ↓↓ -2%") && run.color === "00FF00"));
+});
+
 test("inline text, missing values and XML escaping remain intact", () => {
   const cell = element("TD", [
     element("SPAN", [text("<&>")], { style: { display: "inline" } }),

@@ -3387,7 +3387,16 @@
         else runs.push({ text, color });
       };
       const currentText = () => runs.map(run => run.text).join("");
+      const trimLineEnd = () => {
+        while (runs.length) {
+          const last = runs[runs.length - 1];
+          last.text = last.text.replace(/ +$/, "");
+          if (last.text) break;
+          runs.pop();
+        }
+      };
       const appendLineBreak = color => {
+        trimLineEnd();
         if (currentText() && !currentText().endsWith("\n")) append("\n", color);
       };
       const isBlock = element => {
@@ -3409,7 +3418,9 @@
         if (node.nodeType === Node.TEXT_NODE) {
           if (!isFormattingWhitespace(node)) {
             const color = excelCssColor(getComputedStyle(node.parentElement ?? cell).color);
-            append(node.nodeValue ?? "", color);
+            let text = (node.nodeValue ?? "").replace(/[\t\n\f\r ]+/g, " ");
+            if (!currentText() || currentText().endsWith("\n")) text = text.replace(/^ +/, "");
+            append(text, color);
           }
           return;
         }
@@ -3435,6 +3446,7 @@
         });
       };
       walk(cell);
+      trimLineEnd();
       return runs;
     }
 
