@@ -1283,7 +1283,7 @@
     const indexRows = {{ index_rows | default ([]) | tojson }};
     const cbMeta = {{ cb_meta | default ({}) | tojson }};
     let showIndexRows = true;
-    const baseStocks = Array.isArray(stocks) ? [...stocks] : [];
+    const baseStocks = Array.isArray(stocks) ? [...stocks]:[];
     let sortedStocks = [...baseStocks];
     let currentSortKey = "";
     let currentSortDirection = "asc";
@@ -1425,7 +1425,7 @@
       const isInteger = Number.isInteger(num);
       const formatted = isInteger
         ? num.toLocaleString("en-US")
-        : num.toLocaleString("en-US", {
+       :num.toLocaleString("en-US", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
         });
@@ -1435,7 +1435,7 @@
     function fmtInteger(v, suffix = "") {
       if (isNil(v) || v === "") return "-";
       const num = Number(v);
-      return Number.isFinite(num) ? fmt(Math.round(num), suffix) : "-";
+      return Number.isFinite(num) ? fmt(Math.round(num), suffix):"-";
     }
 
     function fmtTrend(v) {
@@ -1482,17 +1482,17 @@
         <div class="table-lv1 ${cls}">${fmt(current, suffix)}</div>
         <div class="table-lv2">${fmt(low, suffix)}</div>
         <div class="table-lv2">${fmt(high, suffix)}</div>
-        ${footer ? `<div class="table-lv2">${footer}</div>` : ""}
+        ${footer ? `<div class="table-lv2">${footer}</div>`:""}
       </div>`;
     }
 
     function closingPriceClass(chgPct) {
       const change = Number(chgPct);
       if (!Number.isFinite(change) || change === 0) return "";
-      const direction = change > 0 ? "up" : "dn";
+      const direction = change > 0 ? "up":"dn";
       const magnitude = Math.abs(change);
-      if (magnitude > 9) return `${direction} price-limit-${change > 0 ? "up" : "down"}`;
-      if (magnitude > 5) return `${direction} price-move-${change > 0 ? "up" : "down"}`;
+      if (magnitude > 9) return `${direction} price-limit-${change > 0 ? "up":"down"}`;
+      if (magnitude > 5) return `${direction} price-move-${change > 0 ? "up":"down"}`;
       return direction;
     }
 
@@ -1501,10 +1501,10 @@
       const lowNum = Number(low);
       const highNum = Number(high);
       const hasCur = !isNil(current) && Number.isFinite(cur) && cur !== 0;
-      const highDist = hasCur && !isNil(high) && Number.isFinite(highNum) ? ((highNum - cur) / cur) * 100 : null;
-      const lowDist = hasCur && !isNil(low) && Number.isFinite(lowNum) ? ((lowNum - cur) / cur) * 100 : null;
-      const lowDistText = isNil(lowDist) ? "" : ` <span class="table-lv2">${fmt(lowDist, "%")}</span>`;
-      const highDistText = isNil(highDist) ? "" : ` <span class="table-lv2">${signedFmt(highDist, "%")}</span>`;
+      const highDist = hasCur && !isNil(high) && Number.isFinite(highNum) ? ((highNum - cur) / cur) * 100:null;
+      const lowDist = hasCur && !isNil(low) && Number.isFinite(lowNum) ? ((lowNum - cur) / cur) * 100:null;
+      const lowDistText = isNil(lowDist) ? "":` <span class="table-lv2">${fmt(lowDist, "%")}</span>`;
+      const highDistText = isNil(highDist) ? "":` <span class="table-lv2">${signedFmt(highDist, "%")}</span>`;
       return `
       <div class="metric metric-2line">
         <div class="table-lv1"><span class="closing-price ${closingPriceClass(chgPct)}">${fmt(current)}</span></div>
@@ -1518,10 +1518,10 @@
       const lowNum = Number(low);
       const highNum = Number(high);
       const hasCur = !isNil(current) && Number.isFinite(cur) && cur !== 0;
-      const lowDist = hasCur && !isNil(low) && Number.isFinite(lowNum) ? ((lowNum - cur) / cur) * 100 : null;
-      const highDist = hasCur && !isNil(high) && Number.isFinite(highNum) ? ((highNum - cur) / cur) * 100 : null;
-      const lowDistText = isNil(lowDist) ? "" : ` <span class="table-lv2">${signedFmt(lowDist, "%")}</span>`;
-      const highDistText = isNil(highDist) ? "" : ` <span class="table-lv2">${signedFmt(highDist, "%")}</span>`;
+      const lowDist = hasCur && !isNil(low) && Number.isFinite(lowNum) ? ((lowNum - cur) / cur) * 100:null;
+      const highDist = hasCur && !isNil(high) && Number.isFinite(highNum) ? ((highNum - cur) / cur) * 100:null;
+      const lowDistText = isNil(lowDist) ? "":` <span class="table-lv2">${signedFmt(lowDist, "%")}</span>`;
+      const highDistText = isNil(highDist) ? "":` <span class="table-lv2">${signedFmt(highDist, "%")}</span>`;
       return `
       <div class="metric metric-2line">
         <div class="table-lv2">TTM ${fmt(ttm)}</div>
@@ -1549,11 +1549,11 @@
     }
 
     function renderChangePctBlock(s) {
-      const priceChange = isNil(s.chg) ? null : Number(s.chg);
-      const priceAmplitude = isNil(s.chgamp) ? null : Number(s.chgamp);
+      const priceChange = isNil(s.chg) ? null:Number(s.chg);
+      const priceAmplitude = isNil(s.chgamp) ? null:Number(s.chgamp);
       return `
         <div class="table-lv1 ${chgClass(s)}">${chgSign(s)}${fmt(s.chgPct, "%")}</div>
-        <div class="table-lv2 ${distClass(priceChange)}">${isNil(priceChange) ? "-" : `${priceChange > 0 ? "+" : ""}${fmt(priceChange)}`}</div>
+        <div class="table-lv2 ${distClass(priceChange)}">${isNil(priceChange) ? "-":`${priceChange > 0 ? "+":""}${fmt(priceChange)}`}</div>
         <div class="table-lv2">幅${fmt(s.amp, "%")}</div>
         <div class="table-lv2">幅${fmt(priceAmplitude)}</div>`;
     }
@@ -1575,21 +1575,21 @@
 
     function chipDateMMDD(dateText, fallback = "") {
       const value = fmtMonthDay(dateText);
-      return value ? value.replace("/", "") : fallback;
+      return value ? value.replace("/", ""):fallback;
     }
 
     function renderSupportResistanceLevel(s, type, suffix) {
       const isResistance = type === "resistance";
-      const price = isResistance ? s[`resistance_price${suffix}`] : s[`support_price${suffix}`];
-      const distance = isResistance ? s[`resistance_distance_pct${suffix}`] : s[`support_distance_pct${suffix}`];
-      const dateText = isResistance ? s[`resistance_date${suffix}`] : s[`support_date${suffix}`];
+      const price = isResistance ? s[`resistance_price${suffix}`]:s[`support_price${suffix}`];
+      const distance = isResistance ? s[`resistance_distance_pct${suffix}`]:s[`support_distance_pct${suffix}`];
+      const dateText = isResistance ? s[`resistance_date${suffix}`]:s[`support_date${suffix}`];
       const dateLabel = chipDateMMDD(dateText);
       const dateLine = dateLabel || "-";
-      const priceLine = isNil(price) ? "-" : fmt(price);
-      const distanceText = isNil(distance) ? "-" : `${isResistance ? "+" : "-"}${fmt(distance, "%")}`;
+      const priceLine = isNil(price) ? "-":fmt(price);
+      const distanceText = isNil(distance) ? "-":`${isResistance ? "+":"-"}${fmt(distance, "%")}`;
       return `
         <div class="table-lv2">${dateLine}</div>
-        <div><span class="table-lv2 ${isResistance ? "text-red" : "text-green"}">${priceLine}</span> <span class="table-lv2">${distanceText}</span></div>`;
+        <div><span class="table-lv2 ${isResistance ? "text-red":"text-green"}">${priceLine}</span> <span class="table-lv2">${distanceText}</span></div>`;
     }
 
     function renderSupportResistanceBlock(s, type) {
@@ -1614,10 +1614,10 @@
     }
 
     function chipLine(dateText, value, previousValue, suffix = "", unit = "", small = false, fallbackLabel = "") {
-      const colorCls = previousValue === undefined ? "" : chipValueClass(value, previousValue);
+      const colorCls = previousValue === undefined ? "":chipValueClass(value, previousValue);
       const label = chipDateMMDD(dateText, fallbackLabel);
-      const displayValue = isNil(value) ? "-" : `${fmt(value, suffix)}${unit}`;
-      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：` : ""}${displayValue}</div>`;
+      const displayValue = isNil(value) ? "-":`${fmt(value, suffix)}${unit}`;
+      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：`:""}${displayValue}</div>`;
     }
 
     function comparisonPct(value, average) {
@@ -1632,7 +1632,7 @@
       const changePct = comparisonPct(s.volume, s.volume_ma5);
       const dateLabel = chipDateMMDD(s.price_date_t0 ?? s.chip_date_t0 ?? s.chip_latest_date, "T");
       return `<div class="stock-value">
-        <div class="table-lv2 ${trendClass(changePct)}">${isNil(changePct) ? "-" : `${fmtTrend(changePct)} ${signedFmt(changePct, "%")}`}</div>
+        <div class="table-lv2 ${trendClass(changePct)}">${isNil(changePct) ? "-":`${fmtTrend(changePct)} ${signedFmt(changePct, "%")}`}</div>
         <div class="table-lv2">${dateLabel}：${fmt(s.volume)} 張</div>
         <div class="table-lv2">5MA：${fmtInteger(s.volume_ma5)} 張</div>
       </div>`;
@@ -1644,7 +1644,7 @@
       const changePct = comparisonPct(value, average);
       const dateLabel = chipDateMMDD(s.chip_date_t0 ?? s.chip_latest_date, "T");
       return `<div class="stock-value">
-        <div class="table-lv2 ${trendClass(changePct)}">${isNil(changePct) ? "-" : `${fmtTrend(changePct)} ${signedFmt(changePct, "%")}`}</div>
+        <div class="table-lv2 ${trendClass(changePct)}">${isNil(changePct) ? "-":`${fmtTrend(changePct)} ${signedFmt(changePct, "%")}`}</div>
         <div class="table-lv2">${dateLabel}：${fmt(value, "%")}</div>
         <div class="table-lv2">20MA：${fmt(s.chip_concentration_avg_20d, "%")}</div>
       </div>`;
@@ -1703,9 +1703,9 @@
       if (isNil(kValue) && isNil(dVal)) return "";
       const previousK = kdValue(s, idx + 1);
       const label = dayDateLabel(s, idx, "kd");
-      const colorCls = isNil(previousK) ? "" : chipValueClass(kValue, previousK);
-      const dPart = isNil(dVal) ? "" : ` / D ${fmt(dVal)}`;
-      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：` : ""}K ${fmt(kValue)}${dPart}</div>`;
+      const colorCls = isNil(previousK) ? "":chipValueClass(kValue, previousK);
+      const dPart = isNil(dVal) ? "":` / D ${fmt(dVal)}`;
+      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：`:""}K ${fmt(kValue)}${dPart}</div>`;
     }
 
     function kdDayScore(s) {
@@ -1743,7 +1743,7 @@
         const explicit = pickFirst(s[`${key}_t1`]);
         if (!isNil(explicit)) return explicit;
 
-        const period = key === "bias5" ? 5 : key === "bias20" ? 20 : 60;
+        const period = key === "bias5" ? 5:key === "bias20" ? 20:60;
         const prevMa = pickFirst(s[`prev_ma${period}`], s[`ma${period}_t1`]);
         let prevClose = pickFirst(s.close_t1, s.prev_close);
 
@@ -1770,9 +1770,9 @@
       const value = dayMetricValue(s, key, idx);
       if (isNil(value)) return "";
       const previous = dayMetricValue(s, key, idx + 1);
-      const colorCls = isNil(previous) ? "" : chipValueClass(value, previous);
+      const colorCls = isNil(previous) ? "":chipValueClass(value, previous);
       const label = dayDateLabel(s, idx, "date");
-      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：` : ""}${fmt(value, suffix)}</div>`;
+      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：`:""}${fmt(value, suffix)}</div>`;
     }
 
     function dayMetricScore(s, key) {
@@ -1831,15 +1831,15 @@
     function renderThreeDayMetricContent(s, key, suffix = "") {
       const cur = dayMetricValue(s, key, 0);
       const prev = dayMetricValue(s, key, 1);
-      const score = isNil(cur) || isNil(prev) ? 0 : Number(cur) > Number(prev) ? 0.5 : Number(cur) < Number(prev) ? -0.5 : 0;
+      const score = isNil(cur) || isNil(prev) ? 0:Number(cur) > Number(prev) ? 0.5:Number(cur) < Number(prev) ? -0.5:0;
       const line = (idx) => {
         const value = dayMetricValue(s, key, idx);
         if (isNil(value)) return "";
-        const previous = idx < 2 ? dayMetricValue(s, key, idx + 1) : null;
-        const cls = isNil(previous) ? "" : chipValueClass(value, previous);
+        const previous = idx < 2 ? dayMetricValue(s, key, idx + 1):null;
+        const cls = isNil(previous) ? "":chipValueClass(value, previous);
         const label = dayDateLabel(s, idx);
-        const arrow = isNil(previous) ? "" : Number(value) > Number(previous) ? " ↑" : Number(value) < Number(previous) ? " ↓" : " →";
-        return `<div class="table-lv2 ${cls}">${label ? `${label}：` : ""}${fmt(value, suffix)}${arrow}</div>`;
+        const arrow = isNil(previous) ? "":Number(value) > Number(previous) ? " ↑":Number(value) < Number(previous) ? " ↓":" →";
+        return `<div class="table-lv2 ${cls}">${label ? `${label}：`:""}${fmt(value, suffix)}${arrow}</div>`;
       };
       return `
         <div class="table-lv1 ${trendClass(score)}">${fmtTrend(score)}</div>
@@ -1879,10 +1879,10 @@
     }
 
     function priceLHValue(s, idx, kind) {
-      const field = kind === "low" ? "min" : "max";
-      const legacy = kind === "low" ? "low" : "high";
+      const field = kind === "low" ? "min":"max";
+      const legacy = kind === "low" ? "low":"high";
       if (idx === 0) {
-        return pickFirst(s[`price_${field}_t0`], s[`price_${legacy}_t0`], kind === "low" ? s.price_min : s.price_max);
+        return pickFirst(s[`price_${field}_t0`], s[`price_${legacy}_t0`], kind === "low" ? s.price_min:s.price_max);
       }
       if (idx === 1) {
         return pickFirst(s[`price_${field}_t1`], s[`price_${legacy}_t1`], s[`prev_price_${field}`], s[`prev_${legacy}`]);
@@ -1932,10 +1932,10 @@
     function renderPriceLHLine(s, idx, previousIdx) {
       const low = priceLHValue(s, idx, "low");
       const high = priceLHValue(s, idx, "high");
-      const previousLow = previousIdx === undefined ? undefined : priceLHValue(s, previousIdx, "low");
-      const previousHigh = previousIdx === undefined ? undefined : priceLHValue(s, previousIdx, "high");
-      const lowCls = previousIdx === undefined ? "" : chipValueClass(low, previousLow);
-      const highCls = previousIdx === undefined ? "" : chipValueClass(high, previousHigh);
+      const previousLow = previousIdx === undefined ? undefined:priceLHValue(s, previousIdx, "low");
+      const previousHigh = previousIdx === undefined ? undefined:priceLHValue(s, previousIdx, "high");
+      const lowCls = previousIdx === undefined ? "":chipValueClass(low, previousLow);
+      const highCls = previousIdx === undefined ? "":chipValueClass(high, previousHigh);
       const label = dayDateMMDD(s, idx, "price");
       return `
         <div class="table-lv2 price-lh-line">
@@ -1958,7 +1958,7 @@
     function buyValueText(label, value, suffix = "") {
       const displayValue = typeof value === "string" && value.includes("/")
         ? escapeHtml(value)
-        : fmt(value, suffix);
+       :fmt(value, suffix);
       return `<div class="table-lv2">${label}：${displayValue}</div>`;
     }
 
@@ -1967,7 +1967,7 @@
       const previous = kdValue(s, idx + 1);
       const colorCls = chipValueClass(value, previous);
       const label = dayDateLabel(s, idx, "kd");
-      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：` : ""}K ${fmt(value)}</div>`;
+      return `<div class="table-lv2 ${colorCls}">${label ? `${label}：`:""}K ${fmt(value)}</div>`;
     }
 
     function buyKDTrendValues(s) {
@@ -1997,8 +1997,8 @@
       }
       if (["sell_vr", "sell_obv", "sell_turnover"].includes(key)) {
         const metricKey = key.replace("sell_", "");
-        const metric = metricKey === "turnover" ? "turnover_pct" : metricKey;
-        const suffix = metricKey === "obv" ? "" : "%";
+        const metric = metricKey === "turnover" ? "turnover_pct":metricKey;
+        const suffix = metricKey === "obv" ? "":"%";
         return `<td>${renderThreeDayMetricContent(s, metric, suffix)}</td>`;
       }
       return `<td>-</td>`;
@@ -2013,9 +2013,9 @@
         && Number.isFinite(low) && Number.isFinite(high) && low > 0 && high > low;
       return [23.6, 38.2, 50.0, 61.8].map(percent => ({
         percent,
-        price: !valid ? null : type === "resistance"
+        price: !valid ? null:type === "resistance"
           ? low + (high - low) * percent / 100
-          : high - (high - low) * percent / 100,
+         :high - (high - low) * percent / 100,
       }));
     }
 
@@ -2026,11 +2026,11 @@
       const nextLevel = hasCurrentPrice
         ? levels
           .filter(level => Number.isFinite(level.price)
-            && (type === "resistance" ? level.price >= currentPrice : level.price <= currentPrice))
-          .sort((a, b) => type === "resistance" ? a.price - b.price : b.price - a.price)[0]
-        : null;
+            && (type === "resistance" ? level.price >= currentPrice:level.price <= currentPrice))
+          .sort((a, b) => type === "resistance" ? a.price - b.price:b.price - a.price)[0]
+       :null;
       return levels.map(level =>
-        `<div class="table-lv2${level.percent === nextLevel?.percent ? " fibonacci-next-level" : ""}">${level.percent.toFixed(1)}%：${fmt(level.price)}</div>`
+        `<div class="table-lv2${level.percent === nextLevel?.percent ? " fibonacci-next-level":""}">${level.percent.toFixed(1)}%：${fmt(level.price)}</div>`
       ).join("");
     }
 
@@ -2060,8 +2060,8 @@
       }
       if (["buy_vr", "buy_obv", "buy_turnover"].includes(key)) {
         const metricKey = key.replace("buy_", "");
-        const metric = metricKey === "turnover" ? "turnover_pct" : metricKey;
-        const suffix = metricKey === "obv" ? "" : "%";
+        const metric = metricKey === "turnover" ? "turnover_pct":metricKey;
+        const suffix = metricKey === "obv" ? "":"%";
         return `<td>${renderThreeDayMetricContent(s, metric, suffix)}</td>`;
       }
       return `<td>-</td>`;
@@ -2085,7 +2085,7 @@
       return `
         <td>
           <div class="chip-detail">
-            <div class="table-lv1 ${trendClass(s.margin_purchase_change_score)}">${isNil(s.margin_purchase_change_score) ? "-" : fmtTrend(s.margin_purchase_change_score)}</div>
+            <div class="table-lv1 ${trendClass(s.margin_purchase_change_score)}">${isNil(s.margin_purchase_change_score) ? "-":fmtTrend(s.margin_purchase_change_score)}</div>
             ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.margin_purchase_change_t0, s.margin_purchase_change), s.margin_purchase_change_t1, "", "張", false, "今日")}
             ${chipLine(s.chip_date_t1, s.margin_purchase_change_t1, s.margin_purchase_change_t2, "", "張", true, "T-1")}
             ${chipLine(s.chip_date_t2, s.margin_purchase_change_t2, undefined, "", "張", true, "T-2")}
@@ -2097,7 +2097,7 @@
       return `
         <td>
           <div class="chip-detail">
-            <div class="table-lv1 ${trendClass(s.short_sale_change_score)}">${isNil(s.short_sale_change_score) ? "-" : fmtTrend(s.short_sale_change_score)}</div>
+            <div class="table-lv1 ${trendClass(s.short_sale_change_score)}">${isNil(s.short_sale_change_score) ? "-":fmtTrend(s.short_sale_change_score)}</div>
             ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.short_sale_change_t0, s.short_sale_change), s.short_sale_change_t1, "", "張", false, "今日")}
             ${chipLine(s.chip_date_t1, s.short_sale_change_t1, s.short_sale_change_t2, "", "張", true, "T-1")}
             ${chipLine(s.chip_date_t2, s.short_sale_change_t2, undefined, "", "張", true, "T-2")}
@@ -2109,7 +2109,7 @@
       return `
         <td>
           <div class="chip-detail">
-            <div class="table-lv1 ${trendClass(s.short_margin_ratio_score)}">${isNil(s.short_margin_ratio_score) ? "-" : fmtTrend(s.short_margin_ratio_score)}</div>
+            <div class="table-lv1 ${trendClass(s.short_margin_ratio_score)}">${isNil(s.short_margin_ratio_score) ? "-":fmtTrend(s.short_margin_ratio_score)}</div>
             ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.short_margin_ratio_pct_t0, s.short_margin_ratio_pct), s.short_margin_ratio_pct_t1, "%", "", false, "今日")}
             ${chipLine(s.chip_date_t1, s.short_margin_ratio_pct_t1, s.short_margin_ratio_pct_t2, "%", "", true, "T-1")}
             ${chipLine(s.chip_date_t2, s.short_margin_ratio_pct_t2, undefined, "%", "", true, "T-2")}
@@ -2121,7 +2121,7 @@
       return `
         <td>
           <div class="chip-detail">
-            <div class="table-lv1 ${trendClass(s.main_force_score)}">${isNil(s.main_force_score) ? "-" : fmtTrend(s.main_force_score)}</div>
+            <div class="table-lv1 ${trendClass(s.main_force_score)}">${isNil(s.main_force_score) ? "-":fmtTrend(s.main_force_score)}</div>
             ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.main_force_net_t0, s.main_force_net), s.main_force_net_t1, "", "張", false, "今日")}
             ${chipLine(s.chip_date_t1, s.main_force_net_t1, s.main_force_net_t2, "", "張", true, "T-1")}
             ${chipLine(s.chip_date_t2, s.main_force_net_t2, undefined, "", "張", true, "T-2")}
@@ -2133,7 +2133,7 @@
       return `
         <td>
           <div class="chip-detail">
-            <div class="table-lv1 ${trendClass(s.broker_diff_score)}">${isNil(s.broker_diff_score) ? "-" : fmtTrend(s.broker_diff_score)}</div>
+            <div class="table-lv1 ${trendClass(s.broker_diff_score)}">${isNil(s.broker_diff_score) ? "-":fmtTrend(s.broker_diff_score)}</div>
             ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.broker_diff_t0, s.broker_diff), s.broker_diff_t1, "", "家", false, "今日")}
             ${chipLine(s.chip_date_t1, s.broker_diff_t1, s.broker_diff_t2, "", "家", true, "T-1")}
             ${chipLine(s.chip_date_t2, s.broker_diff_t2, undefined, "", "家", true, "T-2")}
@@ -2142,11 +2142,11 @@
     }
 
     function renderInstitutionalCell(s, valueKey, scoreKey) {
-      const unit = s.is_index ? "億" : "張";
+      const unit = s.is_index ? "億":"張";
       return `
         <td>
           <div class="chip-detail">
-            <div class="table-lv1 ${trendClass(s[scoreKey])}">${isNil(s[scoreKey]) ? "-" : fmtTrend(s[scoreKey])}</div>
+            <div class="table-lv1 ${trendClass(s[scoreKey])}">${isNil(s[scoreKey]) ? "-":fmtTrend(s[scoreKey])}</div>
             ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s[`${valueKey}_t0`], s[valueKey]), s[`${valueKey}_t1`], "", unit, false, "T")}
             ${chipLine(s.chip_date_t1, s[`${valueKey}_t1`], s[`${valueKey}_t2`], "", unit, true, "T-1")}
             ${chipLine(s.chip_date_t2, s[`${valueKey}_t2`], undefined, "", unit, true, "T-2")}
@@ -2158,12 +2158,12 @@
       if (isNil(value) || value === "") return "-";
       const num = Number(value);
       if (!Number.isFinite(num)) return "-";
-      return `${num > 0 ? "+" : ""}${fmt(num, suffix)}`;
+      return `${num > 0 ? "+":""}${fmt(num, suffix)}`;
     }
 
     function renderMarginPurchaseChangeBlock(s) {
       return `<div class="stock-value">
-        <div class="table-lv1 ${trendClass(s.margin_purchase_change_score)}">${isNil(s.margin_purchase_change_score) ? "-" : fmtTrend(s.margin_purchase_change_score)}</div>
+        <div class="table-lv1 ${trendClass(s.margin_purchase_change_score)}">${isNil(s.margin_purchase_change_score) ? "-":fmtTrend(s.margin_purchase_change_score)}</div>
         ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.margin_purchase_change_t0, s.margin_purchase_change), s.margin_purchase_change_t1, "", "張", false, "今日")}
         ${chipLine(s.chip_date_t1, s.margin_purchase_change_t1, s.margin_purchase_change_t2, "", "張", true, "T-1")}
         ${chipLine(s.chip_date_t2, s.margin_purchase_change_t2, undefined, "", "張", true, "T-2")}
@@ -2172,7 +2172,7 @@
 
     function renderShortSaleChangeBlock(s) {
       return `<div class="stock-value">
-        <div class="table-lv1 ${trendClass(s.short_sale_change_score)}">${isNil(s.short_sale_change_score) ? "-" : fmtTrend(s.short_sale_change_score)}</div>
+        <div class="table-lv1 ${trendClass(s.short_sale_change_score)}">${isNil(s.short_sale_change_score) ? "-":fmtTrend(s.short_sale_change_score)}</div>
         ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.short_sale_change_t0, s.short_sale_change), s.short_sale_change_t1, "", "張", false, "今日")}
         ${chipLine(s.chip_date_t1, s.short_sale_change_t1, s.short_sale_change_t2, "", "張", true, "T-1")}
         ${chipLine(s.chip_date_t2, s.short_sale_change_t2, undefined, "", "張", true, "T-2")}
@@ -2181,7 +2181,7 @@
 
     function renderShortMarginRatioBlock(s) {
       return `<div class="stock-value">
-        <div class="table-lv1 ${trendClass(s.short_margin_ratio_score)}">${isNil(s.short_margin_ratio_score) ? "-" : fmtTrend(s.short_margin_ratio_score)}</div>
+        <div class="table-lv1 ${trendClass(s.short_margin_ratio_score)}">${isNil(s.short_margin_ratio_score) ? "-":fmtTrend(s.short_margin_ratio_score)}</div>
         ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.short_margin_ratio_pct_t0, s.short_margin_ratio_pct), s.short_margin_ratio_pct_t1, "%", "", false, "今日")}
         ${chipLine(s.chip_date_t1, s.short_margin_ratio_pct_t1, s.short_margin_ratio_pct_t2, "%", "", true, "T-1")}
         ${chipLine(s.chip_date_t2, s.short_margin_ratio_pct_t2, undefined, "%", "", true, "T-2")}
@@ -2190,7 +2190,7 @@
 
     function renderMainForceBlock(s) {
       return `<div class="stock-value">
-        <div class="table-lv1 ${trendClass(s.main_force_score)}">${isNil(s.main_force_score) ? "-" : fmtTrend(s.main_force_score)}</div>
+        <div class="table-lv1 ${trendClass(s.main_force_score)}">${isNil(s.main_force_score) ? "-":fmtTrend(s.main_force_score)}</div>
         ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.main_force_net_t0, s.main_force_net), s.main_force_net_t1, "", "張", false, "今日")}
         ${chipLine(s.chip_date_t1, s.main_force_net_t1, s.main_force_net_t2, "", "張", true, "T-1")}
         ${chipLine(s.chip_date_t2, s.main_force_net_t2, undefined, "", "張", true, "T-2")}
@@ -2199,7 +2199,7 @@
 
     function renderBrokerDiffBlock(s) {
       return `<div class="stock-value">
-        <div class="table-lv1 ${trendClass(s.broker_diff_score)}">${isNil(s.broker_diff_score) ? "-" : fmtTrend(s.broker_diff_score)}</div>
+        <div class="table-lv1 ${trendClass(s.broker_diff_score)}">${isNil(s.broker_diff_score) ? "-":fmtTrend(s.broker_diff_score)}</div>
         ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s.broker_diff_t0, s.broker_diff), s.broker_diff_t1, "", "家", false, "今日")}
         ${chipLine(s.chip_date_t1, s.broker_diff_t1, s.broker_diff_t2, "", "家", true, "T-1")}
         ${chipLine(s.chip_date_t2, s.broker_diff_t2, undefined, "", "家", true, "T-2")}
@@ -2207,9 +2207,9 @@
     }
 
     function renderInstitutionalBlock(s, valueKey, scoreKey) {
-      const unit = s.is_index ? "億" : "張";
+      const unit = s.is_index ? "億":"張";
       return `<div class="stock-value">
-        <div class="table-lv1 ${trendClass(s[scoreKey])}">${isNil(s[scoreKey]) ? "-" : fmtTrend(s[scoreKey])}</div>
+        <div class="table-lv1 ${trendClass(s[scoreKey])}">${isNil(s[scoreKey]) ? "-":fmtTrend(s[scoreKey])}</div>
         ${chipLine(s.chip_date_t0 ?? s.chip_latest_date, pickFirst(s[`${valueKey}_t0`], s[valueKey]), s[`${valueKey}_t1`], "", unit, false, "T")}
         ${chipLine(s.chip_date_t1, s[`${valueKey}_t1`], s[`${valueKey}_t2`], "", unit, true, "T-1")}
         ${chipLine(s.chip_date_t2, s[`${valueKey}_t2`], undefined, "", unit, true, "T-2")}
@@ -2236,25 +2236,25 @@
     }
 
     function chgClass(s) {
-      return Number(s.chgPct ?? 0) >= 0 ? "up" : "dn";
+      return Number(s.chgPct ?? 0) >= 0 ? "up":"dn";
     }
 
     function chgSign(s) {
-      return Number(s.chgPct ?? 0) >= 0 ? "+" : "";
+      return Number(s.chgPct ?? 0) >= 0 ? "+":"";
     }
 
     function renderCodeCell(s) {
       const dispositionHtml = dispositionPeriodHtml(s);
       const closePriceHtml = ["buy", "sell"].includes(currentTab)
         ? `<div class="table-lv2">${fmt(s.price)}</div>`
-        : "";
+       :"";
       return `
         <td>
           <div class="table-lv1">${s.code ?? ""}</div>
-          ${s.is_index ? "" : `<div class="table-lv2">${shortName(s.name)}</div>`}
+          ${s.is_index ? "":`<div class="table-lv2">${shortName(s.name)}</div>`}
           ${closePriceHtml}
           ${renderDataStatus(s)}
-          ${dispositionHtml ? `<div class="table-lv3 text-red disposition-period">${dispositionHtml}</div>` : ""}
+          ${dispositionHtml ? `<div class="table-lv3 text-red disposition-period">${dispositionHtml}</div>`:""}
         </td>`;
     }
 
@@ -2262,11 +2262,11 @@
       const signal = String(s?.signal ?? "").trim();
       if (!["資料不足", "無資料", "資料異常"].includes(signal)) return "";
       const reason = String(s?.reason ?? "").trim();
-      const brief = reason.length > 28 ? `${reason.slice(0, 28)}...` : reason;
+      const brief = reason.length > 28 ? `${reason.slice(0, 28)}...`:reason;
       if (signal === "資料不足" && brief) {
         return `<div class="table-lv3 text-red" title="${escapeHtml(`資料不足：${reason}`)}">${escapeHtml(brief)}</div>`;
       }
-      return `<div class="table-lv3 text-red" title="${escapeHtml(reason || signal)}">${escapeHtml(signal)}${brief ? `：${escapeHtml(brief)}` : ""}</div>`;
+      return `<div class="table-lv3 text-red" title="${escapeHtml(reason || signal)}">${escapeHtml(signal)}${brief ? `：${escapeHtml(brief)}`:""}</div>`;
     }
 
     function escapeHtml(value) {
@@ -2309,7 +2309,7 @@
         else if (item.startsWith("技術：")) sections.tech = item.replace(/^技術：/, "");
         else if (item.startsWith("籌碼面：")) sections.chip = item.replace(/^籌碼面：/, "");
         else if (item.startsWith("籌碼：")) sections.chip = item.replace(/^籌碼：/, "");
-        else sections.other += (sections.other ? " / " : "") + item;
+        else sections.other += (sections.other ? " / ":"") + item;
       });
       const blocks = [];
       if (sections.tech) {
@@ -2329,23 +2329,23 @@
         <td class="signal-cell">
           <div class="signal-wrap">
             ${renderSignalText(s.signal_text)}
-            ${s.entry_note ? `<div class="table-lv2">${escapeHtml(cleanSignalOutput(s.entry_note))}</div>` : ""}
+            ${s.entry_note ? `<div class="table-lv2">${escapeHtml(cleanSignalOutput(s.entry_note))}</div>`:""}
           </div>
         </td>`;
     }
 
     function renderSignalBadge(s) {
       const signal = cleanSignalOutput(s?.signal || "");
-      const badgeClass = signal === "買進" || signal === "偏多" ? "up" : signal === "賣出" || signal === "偏空" ? "dn" : "watch";
+      const badgeClass = signal === "買進" || signal === "偏多" ? "up":signal === "賣出" || signal === "偏空" ? "dn":"watch";
       return `<span class="sig ${badgeClass}">${escapeHtml(signal || "等待觀察")}</span>`;
     }
 
     function renderMobileSignalFooter(s) {
-      return `<div class="stock-signal">${renderSignalText(s.signal_text)}${s.entry_note ? `<div class="table-lv2">${escapeHtml(cleanSignalOutput(s.entry_note))}</div>` : ""}</div>`;
+      return `<div class="stock-signal">${renderSignalText(s.signal_text)}${s.entry_note ? `<div class="table-lv2">${escapeHtml(cleanSignalOutput(s.entry_note))}</div>`:""}</div>`;
     }
 
     function cbItems(s) {
-      return Array.isArray(s?.cb_items) ? s.cb_items : [];
+      return Array.isArray(s?.cb_items) ? s.cb_items:[];
     }
 
     function renderCbStack(s, renderer) {
@@ -2366,8 +2366,8 @@
     }
 
     function cbHistory(item, monthly = false) {
-      const values = monthly ? item?.cb_monthly_history : item?.cb_history;
-      return Array.isArray(values) ? values : [];
+      const values = monthly ? item?.cb_monthly_history:item?.cb_history;
+      return Array.isArray(values) ? values:[];
     }
 
     function cbChangeClass(current, previous, mode = "pressure_up") {
@@ -2377,8 +2377,8 @@
       if (Number.isNaN(now) || Number.isNaN(before) || now === before) return "";
       if (mode === "neutral") return "";
       const increase = now > before;
-      const pressureIncrease = mode === "pressure_down" ? !increase : increase;
-      return pressureIncrease ? "up" : "dn";
+      const pressureIncrease = mode === "pressure_down" ? !increase:increase;
+      return pressureIncrease ? "up":"dn";
     }
 
     function cbChangeArrow(current, previous) {
@@ -2386,21 +2386,21 @@
       const now = Number(current);
       const before = Number(previous);
       if (Number.isNaN(now) || Number.isNaN(before) || now === before) return "→";
-      return now > before ? "↑" : "↓";
+      return now > before ? "↑":"↓";
     }
 
     function renderCbMetricHistory(item, key, suffix = "", mode = "pressure_up", monthly = false) {
       const history = cbHistory(item, monthly);
       if (!history.length) return `<div class="table-lv2">-</div>`;
-      const prefix = monthly ? "M" : "T";
+      const prefix = monthly ? "M":"T";
       return history.slice(0, 3).map((point, index) => {
         const previous = history[index + 1];
         const value = point?.[key];
         const previousValue = previous?.[key];
-        const cls = previous ? cbChangeClass(value, previousValue, mode) : "";
-        const arrow = previous ? cbChangeArrow(value, previousValue) : "";
-        const label = index === 0 ? prefix : `${prefix}-${index}`;
-        return `<div class="${index === 0 ? "table-lv1" : "table-lv2"} ${cls}">${label} ${fmt(value, suffix)} ${arrow}</div>`;
+        const cls = previous ? cbChangeClass(value, previousValue, mode):"";
+        const arrow = previous ? cbChangeArrow(value, previousValue):"";
+        const label = index === 0 ? prefix:`${prefix}-${index}`;
+        return `<div class="${index === 0 ? "table-lv1":"table-lv2"} ${cls}">${label} ${fmt(value, suffix)} ${arrow}</div>`;
       }).join("");
     }
 
@@ -2411,10 +2411,10 @@
         const previous = history[index + 1];
         const value = point?.[rightKey];
         const previousValue = previous?.[rightKey];
-        const cls = previous ? cbChangeClass(value, previousValue, mode) : "";
-        const arrow = previous ? cbChangeArrow(value, previousValue) : "";
-        const label = index === 0 ? "T" : `T-${index}`;
-        return `<div class="${index === 0 ? "table-lv1" : "table-lv2"} ${cls}">${label} ${leftLabel}${fmt(point?.[leftKey])}／${rightLabel}${fmt(value, suffix)} ${arrow}</div>`;
+        const cls = previous ? cbChangeClass(value, previousValue, mode):"";
+        const arrow = previous ? cbChangeArrow(value, previousValue):"";
+        const label = index === 0 ? "T":`T-${index}`;
+        return `<div class="${index === 0 ? "table-lv1":"table-lv2"} ${cls}">${label} ${leftLabel}${fmt(point?.[leftKey])}／${rightLabel}${fmt(value, suffix)} ${arrow}</div>`;
       }).join("");
     }
 
@@ -2423,12 +2423,12 @@
       if (!history.length) return `<div class="table-lv2">-</div>`;
       return history.slice(0, 3).map((point, index) => {
         const previous = history[index + 1];
-        const label = index === 0 ? "T" : `T-${index}`;
-        const stockClass = previous ? cbChangeClass(point.cb_underlying_price, previous.cb_underlying_price, "pressure_up") : "";
-        const cbClass = previous ? cbChangeClass(point.cb_price, previous.cb_price, "pressure_up") : "";
-        const stockArrow = previous ? cbChangeArrow(point.cb_underlying_price, previous.cb_underlying_price) : "";
-        const cbArrow = previous ? cbChangeArrow(point.cb_price, previous.cb_price) : "";
-        return `<div class="${index === 0 ? "table-lv1" : "table-lv2"}">${label} <span class="${stockClass}">股${fmt(point.cb_underlying_price)} ${stockArrow}</span>／<span class="${cbClass}">CB${fmt(point.cb_price)} ${cbArrow}</span></div>`;
+        const label = index === 0 ? "T":`T-${index}`;
+        const stockClass = previous ? cbChangeClass(point.cb_underlying_price, previous.cb_underlying_price, "pressure_up"):"";
+        const cbClass = previous ? cbChangeClass(point.cb_price, previous.cb_price, "pressure_up"):"";
+        const stockArrow = previous ? cbChangeArrow(point.cb_underlying_price, previous.cb_underlying_price):"";
+        const cbArrow = previous ? cbChangeArrow(point.cb_price, previous.cb_price):"";
+        return `<div class="${index === 0 ? "table-lv1":"table-lv2"}">${label} <span class="${stockClass}">股${fmt(point.cb_underlying_price)} ${stockArrow}</span>／<span class="${cbClass}">CB${fmt(point.cb_price)} ${cbArrow}</span></div>`;
       }).join("");
     }
 
@@ -2439,21 +2439,21 @@
         const previous = history[index + 1];
         const currentValue = point?.cb_outstanding_amount;
         const previousValue = previous?.cb_outstanding_amount;
-        const cls = previous ? cbChangeClass(currentValue, previousValue, "pressure_up") : "";
-        const arrow = previous ? cbChangeArrow(currentValue, previousValue) : "";
-        const label = index === 0 ? "M" : `M-${index}`;
-        return `<div class="${index === 0 ? "table-lv1" : "table-lv2"} ${cls}">${label} ${cbAmountMillion(currentValue)}／${fmt(point?.cb_remaining_pct, "%")} ${arrow}</div>`;
+        const cls = previous ? cbChangeClass(currentValue, previousValue, "pressure_up"):"";
+        const arrow = previous ? cbChangeArrow(currentValue, previousValue):"";
+        const label = index === 0 ? "M":`M-${index}`;
+        return `<div class="${index === 0 ? "table-lv1":"table-lv2"} ${cls}">${label} ${cbAmountMillion(currentValue)}／${fmt(point?.cb_remaining_pct, "%")} ${arrow}</div>`;
       }).join("");
     }
 
     function renderCbPressureHistory(item) {
       const history = cbHistory(item);
       if (!history.length) return `<div class="table-lv2">-</div>`;
-      const trendClassName = Number(item.cb_trend_score ?? 0) > 0 ? "up" : Number(item.cb_trend_score ?? 0) < 0 ? "dn" : "";
-      const trendArrow = Number(item.cb_trend_score ?? 0) > 0 ? "↑" : Number(item.cb_trend_score ?? 0) < 0 ? "↓" : "→";
+      const trendClassName = Number(item.cb_trend_score ?? 0) > 0 ? "up":Number(item.cb_trend_score ?? 0) < 0 ? "dn":"";
+      const trendArrow = Number(item.cb_trend_score ?? 0) > 0 ? "↑":Number(item.cb_trend_score ?? 0) < 0 ? "↓":"→";
       const lines = history.slice(0, 3).map((point, index) => {
-        const label = index === 0 ? "T" : `T-${index}`;
-        return `<div class="${index === 0 ? "table-lv1" : "table-lv2"} ${cbPressureClass(point.cb_pressure_label)}">${label} ${escapeHtml(point.cb_pressure_label || "-")}</div>`;
+        const label = index === 0 ? "T":`T-${index}`;
+        return `<div class="${index === 0 ? "table-lv1":"table-lv2"} ${cbPressureClass(point.cb_pressure_label)}">${label} ${escapeHtml(point.cb_pressure_label || "-")}</div>`;
       }).join("");
       return `<div class="table-lv2 ${trendClassName}">${trendArrow} ${escapeHtml(item.cb_trend_label || "資料不足")}</div>${lines}`;
     }
@@ -2479,7 +2479,7 @@
       switch (key) {
         case "custom_categories": {
           const categories = stockCustomCategories(s);
-          return `<td class="buy-category-list"><div class="category-list-text">${categories.length ? categories.map(escapeHtml).join("、") : "-"}</div></td>`;
+          return `<td class="buy-category-list"><div class="category-list-text">${categories.length ? categories.map(escapeHtml).join("、"):"-"}</div></td>`;
         }
         case "code":
           return renderCodeCell(s);
@@ -2512,8 +2512,8 @@
             <td class="col-volume">
               <div class="table-lv1">${fmt(s.volume)}</div>
               <div class="table-lv2">昨 ${fmt(s.prev_volume)}</div>
-              <div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-" : `${fmtTrend(s.volume_ratio)}${fmt(s.volume_ratio, "%")}`}</div>
-              <div class="table-lv3">${isNil(s.volume_add) ? "-" : `${fmt(s.volume_add)}張`}</div>
+              <div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-":`${fmtTrend(s.volume_ratio)}${fmt(s.volume_ratio, "%")}`}</div>
+              <div class="table-lv3">${isNil(s.volume_add) ? "-":`${fmt(s.volume_add)}張`}</div>
             </td>`;
         case "turnover_pct":
           return `<td>${renderThreeDayMetricContent(s, "turnover_pct", "%")}</td>`;
@@ -2529,7 +2529,7 @@
           return `<td>${renderCbStack(s, item => `
             <div class="table-lv1">${fmt(item.cb_conversion_price)}</div>
             ${cbHistory(item).length > 1 && Number(cbHistory(item)[0]?.cb_conversion_price) !== Number(cbHistory(item)[1]?.cb_conversion_price)
-              ? `<div class="table-lv2">轉換價調整：${fmt(cbHistory(item)[1]?.cb_conversion_price)} → ${fmt(cbHistory(item)[0]?.cb_conversion_price)}</div>` : ""}
+              ? `<div class="table-lv2">轉換價調整：${fmt(cbHistory(item)[1]?.cb_conversion_price)} → ${fmt(cbHistory(item)[0]?.cb_conversion_price)}</div>`:""}
             ${renderCbMetricHistory(item, "cb_moneyness_pct", "%", "pressure_up")}`)}</td>`;
         case "cb_parity_premium":
           return `<td>${renderCbStack(s, item => renderCbCombinedHistory(
@@ -2554,11 +2554,11 @@
         case "cb_period":
           return `<td>${renderCbStack(s, item => `
             <div class="table-lv1">${escapeHtml(item.cb_conversion_end || "-")}</div>
-            <div class="table-lv2">${isNil(item.cb_days_to_due) ? "-" : `${fmt(item.cb_days_to_due)}天`}</div>`)}</td>`;
+            <div class="table-lv2">${isNil(item.cb_days_to_due) ? "-":`${fmt(item.cb_days_to_due)}天`}</div>`)}</td>`;
         case "cb_pressure_rank":
           return `<td>${renderCbStack(s, item => `
             ${renderCbPressureHistory(item)}
-            ${item.cb_early_redemption_active ? `<div class="table-lv2 text-red">提前贖回期</div>` : ""}`)}</td>`;
+            ${item.cb_early_redemption_active ? `<div class="table-lv2 text-red">提前贖回期</div>`:""}`)}</td>`;
         case "short_margin_ratio_score":
           return renderShortMarginRatioCell(s);
         case "chip_concentration_score":
@@ -2604,12 +2604,12 @@
           {
             const epsYearQuarters = Number.isInteger(Number(s.eps_Y_quarters))
               ? Number(s.eps_Y_quarters)
-              : 0;
+             :0;
             return `
             <td>
               <div class="table-lv1">${fmt(s.eps_Y ?? 0)} (${epsYearQuarters})</div>
               <div class="table-lv2">${fmt(s.eps_ttm)}</div>
-              <div class="table-lv2 ${trendClass(s.eps_yoy)}">${isNil(s.eps_yoy) ? "-" : `Y ${fmtTrend(s.eps_yoy)} ${fmt(s.eps_yoy, "%")}`}</div>
+              <div class="table-lv2 ${trendClass(s.eps_yoy)}">${isNil(s.eps_yoy) ? "-":`Y ${fmtTrend(s.eps_yoy)} ${fmt(s.eps_yoy, "%")}`}</div>
             </td>`;
           }
         case "roe":
@@ -2660,7 +2660,7 @@
       const columns = TAB_CONFIG[currentTab].columns;
       document.getElementById("stockHead").innerHTML = `
         <tr>
-          ${columns.map(col => `<th class="${col.cls ?? ""}" data-key="${col.key}"${col.tooltip ? ` data-tooltip="${escapeHtml(col.tooltip)}" tabindex="0"` : ""}>${col.label}</th>`).join("")}
+          ${columns.map(col => `<th class="${col.cls ?? ""}" data-key="${col.key}"${col.tooltip ? ` data-tooltip="${escapeHtml(col.tooltip)}" tabindex="0"`:""}>${col.label}</th>`).join("")}
         </tr>`;
       bindSorting();
       updateSortIndicators();
@@ -2668,7 +2668,7 @@
 
     function renderRow(s, isIndex = false) {
       const columns = TAB_CONFIG[currentTab].columns;
-      const rowClass = isIndex ? ' class="index-row"' : '';
+      const rowClass = isIndex ? ' class="index-row"':'';
       return `<tr${rowClass}>${columns.map(col => applyColumnClass(renderCell(s, col.key), col)).join("")}</tr>`;
     }
 
@@ -2697,16 +2697,16 @@
         <div class="stock-head">
           <div>
             <div class="table-lv1"><b>${s.code ?? ""}</b></div>
-            ${dispositionHtml ? `<div class="table-lv3 text-red disposition-period">${dispositionHtml}</div>` : ""}
+            ${dispositionHtml ? `<div class="table-lv3 text-red disposition-period">${dispositionHtml}</div>`:""}
             <div class="table-lv2 ${chgClass(s)}">${chgSign(s)}${fmt(s.chg)} / ${chgSign(s)}${fmt(s.chgPct, "%")}</div>
           </div>
           <div class="stock-value">${renderPriceRangeMetric(s.price, s.price_120d_low, s.price_120d_high, s.chgPct)}</div>
         </div>`
-        : `
+       :`
         <div class="stock-head">
           <div>
-            <div class="table-lv1"><b>${s.is_index ? (s.code ?? "") : `${shortName(s.name)} (${s.code ?? ""})`}</b></div>
-            ${dispositionHtml ? `<div class="table-lv3 text-red disposition-period">${dispositionHtml}</div>` : ""}
+            <div class="table-lv1"><b>${s.is_index ? (s.code ?? ""):`${shortName(s.name)} (${s.code ?? ""})`}</b></div>
+            ${dispositionHtml ? `<div class="table-lv3 text-red disposition-period">${dispositionHtml}</div>`:""}
             <div class="table-lv2 ${chgClass(s)}">${chgSign(s)}${fmt(s.chg)} / ${chgSign(s)}${fmt(s.chgPct, "%")}</div>
           </div>
           <div class="stock-value">${renderPriceRangeMetric(s.price, s.price_120d_low, s.price_120d_high, s.chgPct)}</div>
@@ -2724,7 +2724,7 @@
           <div class="stock-item"><div class="stock-label">日Bias5 (T/T-1+LH)</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias5")}</div></div>
           <div class="stock-item"><div class="stock-label">日Bias20 (T/T-1+LH)</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias20")}</div></div>
           <div class="stock-item"><div class="stock-label">日Bias60 (T/T-1+LH)</div><div class="stock-value">${renderBiasTechnicalContent(s, "bias60")}</div></div>
-          <div class="stock-item"><div class="stock-label">量 / 昨 / 增 / 張</div><div class="stock-value"><div>${fmt(s.volume)} 張</div><div class="table-lv2">昨 ${fmt(s.prev_volume)}</div><div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-" : `${fmtTrend(s.volume_ratio)} ${fmt(s.volume_ratio, "%")}`}</div><div class="table-lv2">${isNil(s.volume_add) ? "-" : `${fmt(s.volume_add)} 張`}</div></div></div>
+          <div class="stock-item"><div class="stock-label">量 / 昨 / 增 / 張</div><div class="stock-value"><div>${fmt(s.volume)} 張</div><div class="table-lv2">昨 ${fmt(s.prev_volume)}</div><div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-":`${fmtTrend(s.volume_ratio)} ${fmt(s.volume_ratio, "%")}`}</div><div class="table-lv2">${isNil(s.volume_add) ? "-":`${fmt(s.volume_add)} 張`}</div></div></div>
           <div class="stock-item"><div class="stock-label">壓力點 / 距離</div>${renderSupportResistanceBlock(s, "resistance")}</div>
           <div class="stock-item"><div class="stock-label">支撐點 / 距離</div>${renderSupportResistanceBlock(s, "support")}</div>
         </div>`;
@@ -2749,8 +2749,8 @@
       const categories = stockCustomCategories(s);
       const fundamentalGrid = `
         <div class="stock-grid">
-          <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list"><div class="category-list-text">${categories.length ? categories.map(escapeHtml).join("、") : "-"}</div></div></div>
-          <div class="stock-item"><div class="stock-label">EPS<small>(季數)</small><br>TTM / 年增率</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y ?? 0)} (${Number.isInteger(Number(s.eps_Y_quarters)) ? Number(s.eps_Y_quarters) : 0})</div><div class="table-lv2">${fmt(s.eps_ttm)}</div><div class="table-lv2 ${trendClass(s.eps_yoy)}">${isNil(s.eps_yoy) ? "-" : `Y ${fmtTrend(s.eps_yoy)} ${fmt(s.eps_yoy, "%")}`}</div></div></div>
+          <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list"><div class="category-list-text">${categories.length ? categories.map(escapeHtml).join("、"):"-"}</div></div></div>
+          <div class="stock-item"><div class="stock-label">EPS<small>(季數)</small><br>TTM / 年增率</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y ?? 0)} (${Number.isInteger(Number(s.eps_Y_quarters)) ? Number(s.eps_Y_quarters):0})</div><div class="table-lv2">${fmt(s.eps_ttm)}</div><div class="table-lv2 ${trendClass(s.eps_yoy)}">${isNil(s.eps_yoy) ? "-":`Y ${fmtTrend(s.eps_yoy)} ${fmt(s.eps_yoy, "%")}`}</div></div></div>
           <div class="stock-item"><div class="stock-label">ROE% / TTM</div>${renderRoeBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">營收</div><div class="stock-value">${renderMetric3(s.rev, s.rev_mom, s.rev_qoq, s.rev_yoy)}</div></div>
           <div class="stock-item"><div class="stock-label">毛利率</div><div class="stock-value">${renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff)}</div></div>
@@ -2789,7 +2789,7 @@
           <div class="stock-item"><div class="stock-label">價格漲跌% / 漲跌 / 震幅</div><div class="stock-value">${renderChangePctBlock(s)}</div></div>
           <div class="stock-item"><div class="stock-label">日KD T/T-1/T-2</div>${renderKDBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">日布林% (T/T-1)</div><div class="stock-value">${renderBBTechnicalContent(s)}</div></div>
-          <div class="stock-item"><div class="stock-label">量 / 昨 / 增 / 張</div><div class="stock-value"><div>${fmt(s.volume)} 張</div><div class="table-lv2">昨 ${fmt(s.prev_volume)}</div><div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-" : `${fmtTrend(s.volume_ratio)} ${fmt(s.volume_ratio, "%")}`}</div><div class="table-lv2">${isNil(s.volume_add) ? "-" : `${fmt(s.volume_add)} 張`}</div></div></div>
+          <div class="stock-item"><div class="stock-label">量 / 昨 / 增 / 張</div><div class="stock-value"><div>${fmt(s.volume)} 張</div><div class="table-lv2">昨 ${fmt(s.prev_volume)}</div><div class="table-lv2 ${trendClass(s.volume_ratio)}">${isNil(s.volume_ratio) ? "-":`${fmtTrend(s.volume_ratio)} ${fmt(s.volume_ratio, "%")}`}</div><div class="table-lv2">${isNil(s.volume_add) ? "-":`${fmt(s.volume_add)} 張`}</div></div></div>
         </div>`;
 
       let bodyGrid = overviewGrid;
@@ -2800,7 +2800,7 @@
       if (tab === "sell") bodyGrid = sellGrid;
       if (tab === "cb") bodyGrid = cbGrid;
 
-      const signalFooter = (tab === "fundamental" || tab === "buy" || tab === "sell" || tab === "cb") ? "" : renderMobileSignalFooter(s);
+      const signalFooter = (tab === "fundamental" || tab === "buy" || tab === "sell" || tab === "cb") ? "":renderMobileSignalFooter(s);
 
       return `
         <div class="stock-card">
@@ -2818,7 +2818,7 @@
     function renderMobileCards(data) {
       const indexCards = (showIndexRows && indexRows.length && currentTab !== "cb")
         ? indexRows.map(s => renderMobileCard(s)).join("")
-        : "";
+       :"";
       document.getElementById("mobileList").innerHTML = indexCards + data.map(renderMobileCard).join("");
     }
 
@@ -2827,10 +2827,10 @@
         case "volume": {
           const value = currentTab === "chip"
             ? comparisonPct(s.volume, s.volume_ma5)
-            : s.volume;
+           :s.volume;
           if (isNil(value) || value === "") return -999999;
           const num = Number(value);
-          return Number.isNaN(num) ? String(value) : num;
+          return Number.isNaN(num) ? String(value):num;
         }
         case "name":
           return s.name ?? "";
@@ -2840,7 +2840,7 @@
           return Number(s.sig ?? -999999);
         case "price_lh_trend": {
           const score = priceLHTrendScore(s);
-          return isNil(score) ? -999999 : Number(score);
+          return isNil(score) ? -999999:Number(score);
         }
         case "custom_categories":
           return stockCustomCategories(s).join("、");
@@ -2882,14 +2882,14 @@
           const value = s[key];
           if (isNil(value) || value === "") return -999999;
           const num = Number(value);
-          return Number.isNaN(num) ? String(value) : num;
+          return Number.isNaN(num) ? String(value):num;
         }
       }
     }
 
     function sortStocks(key) {
       if (currentSortKey === key) {
-        currentSortDirection = currentSortDirection === "asc" ? "desc" : "asc";
+        currentSortDirection = currentSortDirection === "asc" ? "desc":"asc";
       } else {
         currentSortKey = key;
         currentSortDirection = "asc";
@@ -2906,11 +2906,11 @@
         const bothNumbers = typeof aVal === "number" && typeof bVal === "number";
 
         if (bothNumbers) {
-          return currentSortDirection === "asc" ? aVal - bVal : bVal - aVal;
+          return currentSortDirection === "asc" ? aVal - bVal:bVal - aVal;
         }
 
         const result = String(aVal).localeCompare(String(bVal), "zh-Hant");
-        return currentSortDirection === "asc" ? result : -result;
+        return currentSortDirection === "asc" ? result:-result;
       });
     }
 
@@ -2919,7 +2919,7 @@
       document.body.classList.toggle("sell-tab-active", currentTab === "sell");
       const visibleRows = currentTab === "cb"
         ? sortedStocks.filter(stock => Number(stock.cb_count ?? 0) > 0)
-        : sortedStocks;
+       :sortedStocks;
       renderHead();
       renderTable(visibleRows);
       renderMobileCards(visibleRows);
@@ -2927,7 +2927,7 @@
       const countEl = document.getElementById("filterCount");
       if (countEl) countEl.innerText = currentTab === "cb"
         ? `顯示 ${visibleRows.length} 檔含CB股票 / ${sortedStocks.length} 筆篩選結果`
-        : `顯示 ${visibleRows.length} / ${baseStocks.length} 筆`;
+       :`顯示 ${visibleRows.length} / ${baseStocks.length} 筆`;
     }
 
     function updateSortIndicators() {
@@ -2940,8 +2940,8 @@
         }
 
         th.innerHTML = key === currentSortKey
-          ? `${th.dataset.label} ${currentSortDirection === "asc" ? "▲" : "▼"}`
-          : th.dataset.label;
+          ? `${th.dataset.label} ${currentSortDirection === "asc" ? "▲":"▼"}`
+         :th.dataset.label;
       });
     }
 
@@ -2967,7 +2967,7 @@
             if (currentTab === "cb") {
               const statusText = (cbMeta.status === "ok" || cbMeta.status === "partial_ok")
                 ? `資料日 ${cbMeta.as_of || "-"}`
-                : `資料未取得${cbMeta.reason ? `：${cbMeta.reason}` : ""}`;
+               :`資料未取得${cbMeta.reason ? `：${cbMeta.reason}`:""}`;
               note.innerText = `${TAB_CONFIG[currentTab].note}｜${statusText}`;
             } else {
               note.innerText = TAB_CONFIG[currentTab].note;
@@ -2986,55 +2986,55 @@
         const value = pickFirst(s?.[`${key}_t0`], s?.[key]);
         if (isNil(value) || value === "") return null;
         const num = Number(value);
-        return Number.isNaN(num) ? null : num;
+        return Number.isNaN(num) ? null:num;
       }
       if (key === "vr") {
         const value = pickFirst(s?.vr_t0, s?.vr);
         if (isNil(value) || value === "") return null;
         const num = Number(value);
-        return Number.isNaN(num) ? null : num;
+        return Number.isNaN(num) ? null:num;
       }
       if (key === "macd_hist") {
         const value = pickFirst(s?.macd_hist_t0, s?.macd_hist);
         if (isNil(value) || value === "") return null;
         const num = Number(value);
-        return Number.isNaN(num) ? null : num;
+        return Number.isNaN(num) ? null:num;
       }
       if (key === "chip_concentration_pct_filter") {
         const value = pickFirst(s?.chip_concentration_pct_t0, s?.chip_concentration_pct);
         if (isNil(value) || value === "") return null;
         const num = Number(value);
-        return Number.isNaN(num) ? null : num;
+        return Number.isNaN(num) ? null:num;
       }
       if (key === "main_force_net_filter") {
         const value = pickFirst(s?.main_force_net_t0, s?.main_force_net);
         if (isNil(value) || value === "") return null;
         const num = Number(value);
-        return Number.isNaN(num) ? null : num;
+        return Number.isNaN(num) ? null:num;
       }
       if (key === "institutional_total_net_filter") {
         const value = pickFirst(s?.institutional_total_net_t0, s?.institutional_total_net);
         if (isNil(value) || value === "") return null;
         const num = Number(value);
-        return Number.isNaN(num) ? null : num;
+        return Number.isNaN(num) ? null:num;
       }
       if (key === "broker_diff_filter") {
         const value = pickFirst(s?.broker_diff_t0, s?.broker_diff);
         if (isNil(value) || value === "") return null;
         const num = Number(value);
-        return Number.isNaN(num) ? null : num;
+        return Number.isNaN(num) ? null:num;
       }
       const value = s?.[key];
       if (isNil(value) || value === "") return null;
       const num = Number(value);
-      return Number.isNaN(num) ? null : num;
+      return Number.isNaN(num) ? null:num;
     }
 
     function getComparisonMetricValue(s, metric, period) {
-      const suffix = period === "t2" ? "t2" : "t1";
+      const suffix = period === "t2" ? "t2":"t1";
       const metricKeys = {
-        volume_ratio: period === "t0" ? "volume_ratio" : `volume_ratio_${suffix}`,
-        k: period === "t0" ? "k" : suffix === "t1" ? "prev_k" : "prev2_k",
+        volume_ratio: period === "t0" ? "volume_ratio":`volume_ratio_${suffix}`,
+        k: period === "t0" ? "k":suffix === "t1" ? "prev_k":"prev2_k",
         vr: `vr_${period}`,
         obv: `obv_${period}`,
         bb_pct: `bb_pct_${period}`,
@@ -3053,7 +3053,7 @@
       const value = s?.[key];
       if (isNil(value) || value === "") return null;
       const number = Number(value);
-      return Number.isNaN(number) ? null : number;
+      return Number.isNaN(number) ? null:number;
     }
 
     function selectedCustomCategories() {
@@ -3066,7 +3066,7 @@
       const button = document.getElementById("customCategoryToggle");
       if (!button) return;
       const count = selectedCustomCategories().length;
-      button.textContent = count > 0 ? `已選 ${count} 類` : "全部分類";
+      button.textContent = count > 0 ? `已選 ${count} 類`:"全部分類";
     }
 
     function filterCustomCategoryOptions() {
@@ -3093,7 +3093,7 @@
       if (!toggle || !popover) return;
 
       popover.hidden = !open;
-      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      toggle.setAttribute("aria-expanded", open ? "true":"false");
 
       if (open) {
         filterCustomCategoryOptions();
@@ -3243,7 +3243,7 @@
         const target = Number(comparisonRaw);
         const current = getComparisonMetricValue(s, metric, "t0");
         const base = getComparisonMetricValue(s, metric, basePeriod);
-        const difference = current === null || base === null ? null : current - base;
+        const difference = current === null || base === null ? null:current - base;
 
         if (Number.isNaN(target) || difference === null) return false;
         if (operator === ">" && !(difference > target)) return false;
@@ -3259,7 +3259,7 @@
         const target = Number(raw);
         const value = getNumericValue(s, key);
         const opEl = document.querySelector(`[data-filter-op="${key}"]`);
-        const op = opEl ? opEl.value : ">";
+        const op = opEl ? opEl.value:">";
 
         if (Number.isNaN(target) || value === null) return false;
         if (op === ">" && !(value > target)) return false;
@@ -3305,7 +3305,7 @@
       if (filterPanel && filterToggleBtn) {
         filterToggleBtn.addEventListener("click", () => {
           const collapsed = filterPanel.classList.toggle("is-collapsed");
-          filterToggleBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+          filterToggleBtn.setAttribute("aria-expanded", collapsed ? "false":"true");
         });
       }
 
@@ -3343,7 +3343,7 @@
       btn.addEventListener("click", () => {
         showIndexRows = !showIndexRows;
         btn.classList.toggle("active", showIndexRows);
-        btn.textContent = showIndexRows ? "📊 顯示指數" : "📊 隱藏指數";
+        btn.textContent = showIndexRows ? "📊 顯示指數":"📊 隱藏指數";
         renderAll();
       });
     })();
@@ -3375,7 +3375,7 @@
         return rgb.slice(1, 4).map(value => Number(value).toString(16).padStart(2, "0")).join("").toUpperCase();
       }
       const hex = String(color ?? "").match(/^#([0-9a-f]{6})$/i);
-      return hex ? hex[1].toUpperCase() : "";
+      return hex ? hex[1].toUpperCase():"";
     }
 
     function excelCellRuns(cell) {
@@ -3440,7 +3440,7 @@
 
     function excelCellXml(runs, reference) {
       const inlineRuns = runs.map(run => {
-        const color = run.color ? `<color rgb="FF${run.color}"/>` : "";
+        const color = run.color ? `<color rgb="FF${run.color}"/>`:"";
         return `<r><rPr>${color}</rPr><t xml:space="preserve">${excelXmlEscape(run.text)}</t></r>`;
       }).join("");
       return `<c r="${reference}" s="0" t="inlineStr"><is>${inlineRuns}</is></c>`;
@@ -3451,7 +3451,7 @@
       for (const byte of bytes) {
         crc ^= byte;
         for (let bit = 0; bit < 8; bit += 1) {
-          crc = (crc >>> 1) ^ ((crc & 1) ? 0xEDB88320 : 0);
+          crc = (crc >>> 1) ^ ((crc & 1) ? 0xEDB88320:0);
         }
       }
       return (crc ^ 0xFFFFFFFF) >>> 0;
