@@ -881,6 +881,7 @@ def _build_static_fields(static_row):
         "per_Y": to_float_or_none(static_row.get("per_Y")),
         "per_ttm": to_float_or_none(static_row.get("per_ttm")),
         "rev": to_float_or_none(static_row.get("rev")),
+        "rev_month": to_int_or_none(static_row.get("rev_month")),
         "rev_mom": to_float_or_none(static_row.get("rev_mom")),
         "rev_qoq": to_float_or_none(static_row.get("rev_qoq")),
         "rev_yoy": to_float_or_none(static_row.get("rev_yoy")),

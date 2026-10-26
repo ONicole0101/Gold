@@ -144,12 +144,19 @@ class FinancialDownloadTests(unittest.TestCase):
 
     def test_runtime_auth_is_resolved_before_query_parameters(self):
         self.response({"status": 200, "data": []})
-        with patch.object(sources, "FINMIND_token", "old"):
-            self.record.side_effect = lambda *args: setattr(
-                sources, "FINMIND_token", "new"
-            )
+        self.record.side_effect = lambda *args: sources._refresh_finmind_runtime_auth()
+        with patch.dict(os.environ, {"FINMIND_TOKEN": "first-token"}):
             sources.get_eps_raw("2330")
-        self.assertEqual(self.get.call_args.kwargs["params"]["token"], "new")
+            os.environ["FINMIND_TOKEN"] = "second-token"
+            sources.get_eps_raw("2330")
+        self.assertEqual(
+            [call.kwargs["params"]["token"] for call in self.get.call_args_list],
+            ["first-token", "second-token"],
+        )
+
+    def test_runtime_auth_does_not_fall_back_when_environment_token_is_missing(self):
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(sources._refresh_finmind_runtime_auth()[0], "")
 
 
 class FinancialAnalysisTests(unittest.TestCase):
@@ -168,20 +175,19 @@ class FinancialAnalysisTests(unittest.TestCase):
                         analyze("2330")
                     self.assertIn("429", output.getvalue())
 
-    def test_downloaded_third_quarter_updates_eps_and_quarter_count(self):
+    def test_downloaded_third_quarter_updates_eps_and_reported_quarter(self):
         year = datetime.now().year
         rows = [
             {"date": f"{year - 1}-12-31", "type": "EPS", "value": 4},
-            {"date": f"{year}-03-31", "type": "EPS", "value": 1},
             {"date": f"{year}-06-30", "type": "EPS", "value": 2},
             {"date": f"{year}-09-30", "type": "EPS", "value": 3},
         ]
         with patch.object(analysis, "get_eps_raw", return_value=rows):
             with contextlib.redirect_stdout(io.StringIO()):
                 row = static.apply_eps_fields({}, "2330")
-        self.assertEqual(row["eps_Y"], 6)
+        self.assertEqual(row["eps_Y"], 5)
         self.assertEqual(row["eps_Y_quarters"], 3)
-        self.assertEqual(row["eps_ttm"], 10)
+        self.assertEqual(row["eps_ttm"], 9)
         self.assertEqual(row["eps_status"], "ok")
 
 
@@ -193,7 +199,7 @@ class StaticBuildErrorTests(unittest.TestCase):
         patch.object(static, "get_roe_analysis", return_value={
             "roe_last_year": 10, "roe_ttm": 12,
         }).start()
-        patch.object(static, "get_revenue_trend", return_value=({"rev": 1}, "")).start()
+        patch.object(static, "get_revenue_trend", return_value=({"rev": 1, "month": 9}, "")).start()
         patch.object(static, "get_profit_ratio", return_value={
             "current": {"gross": 30, "op": 20, "net": 10},
         }).start()
@@ -225,6 +231,11 @@ class StaticBuildErrorTests(unittest.TestCase):
             row = self.build()
         self.assertEqual(row["eps_status"], "no_data")
         self.assertEqual(row["static_status"], "partial_ok")
+
+    def test_static_row_includes_revenue_period_month(self):
+        with patch.object(analysis, "get_eps_raw", return_value=[]):
+            row = self.build()
+        self.assertEqual(row["rev_month"], 9)
 
     def test_revenue_and_profit_errors_are_not_no_data(self):
         for group, function in (
@@ -264,6 +275,7 @@ class RevenuePeriodTests(unittest.TestCase):
         ]
         result = self.trend(rows)
         self.assertEqual(result["rev"], 4)
+        self.assertEqual(result["month"], 9)
         self.assertEqual(result["mom"], 33.33)
         self.assertEqual(result["qoq"], 100)
         self.assertEqual(result["yoy"], 300)
@@ -477,10 +489,36 @@ class IncrementalPersistenceTests(unittest.TestCase):
         self.path = os.path.join(self.temp_dir.name, "AllStatic.csv")
         self.stocks = [{"stock_id": "2330", "name": "Test stock"}]
         self.usage = patch.object(static, "get_finmind_usage").start()
-        patch.object(static, "get_finmind_token_status", return_value={}).start()
+        patch.object(
+            static,
+            "get_finmind_token_status",
+            return_value={"token_present": True, "login_status": "ok"},
+        ).start()
         patch.object(static, "log_finmind_static_event").start()
         self.addCleanup(patch.stopall)
         static.atomic_write_csv(pd.DataFrame([complete_row()]), self.path)
+
+    def test_missing_environment_token_aborts_before_refresh(self):
+        before = static.read_existing_static(self.path)
+        with patch.object(
+            static,
+            "get_finmind_token_status",
+            return_value={"token_present": False, "login_status": "missing_token"},
+        ):
+            with self.assertRaisesRegex(RuntimeError, "FINMIND_TOKEN"):
+                static.build_incremental(self.stocks, self.path, force=True)
+        pd.testing.assert_frame_equal(static.read_existing_static(self.path), before)
+        self.usage.assert_not_called()
+
+    def test_rejected_environment_token_aborts_before_refresh(self):
+        with patch.object(
+            static,
+            "get_finmind_token_status",
+            return_value={"token_present": True, "login_status": "error"},
+        ):
+            with self.assertRaisesRegex(RuntimeError, "validation failed"):
+                static.build_incremental(self.stocks, self.path, force=True)
+        self.usage.assert_not_called()
 
     def run_incremental(self, **kwargs):
         with contextlib.redirect_stdout(io.StringIO()):

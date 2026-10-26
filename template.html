@@ -1454,7 +1454,7 @@
       return "";
     }
 
-    function renderMetric3(value, m, q, y, suffix = "") {
+    function renderMetric3(value, m, q, y, suffix = "", options = {}) {
       const renderLine = (label, v) => {
         if (isNil(v)) {
           return `<div>${label} -</div>`;
@@ -1467,9 +1467,9 @@
       };
       return `
   <div class="metric">
-    <div class="table-lv1">${fmt(value, suffix)}</div>
+    <div class="table-lv1">${fmt(value, suffix)}${isNil(options.month) ? "":` (${fmt(options.month)})`}</div>
     <div class="metric-sub">
-      ${renderLine("M", m)}
+      ${options.showMonth === false ? "":renderLine("M", m)}
       ${renderLine("Q", q)}
       ${renderLine("Y", y)}
     </div>
@@ -2617,13 +2617,13 @@
         case "roe":
           return `<td>${renderRoeBlock(s)}</td>`;
         case "rev":
-          return `<td>${renderMetric3(s.rev, s.rev_mom, s.rev_qoq, s.rev_yoy)}</td>`;
+          return `<td>${renderMetric3(s.rev, s.rev_mom, s.rev_qoq, s.rev_yoy, "", { month: s.rev_month })}</td>`;
         case "gross_margin":
-          return `<td>${renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff)}</td>`;
+          return `<td>${renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff, "", { showMonth: false })}</td>`;
         case "operating_margin":
-          return `<td>${renderMetric3(s.operating_margin, null, s.operating_margin_qoq, s.operating_margin_yoy_diff)}</td>`;
+          return `<td>${renderMetric3(s.operating_margin, null, s.operating_margin_qoq, s.operating_margin_yoy_diff, "", { showMonth: false })}</td>`;
         case "net_margin":
-          return `<td>${renderMetric3(s.net_margin, null, s.net_margin_qoq, s.net_margin_yoy_diff)}</td>`;
+          return `<td>${renderMetric3(s.net_margin, null, s.net_margin_qoq, s.net_margin_yoy_diff, "", { showMonth: false })}</td>`;
         case "per_latest":
           return `<td>${renderPerRangeMetric(s.per_latest, s.per_120d_low, s.per_120d_high, s.per_ttm)}</td>`;
         case "k": {
@@ -2754,10 +2754,10 @@
           <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list"><div class="category-list-text">${categories.length ? categories.map(escapeHtml).join("、"):"-"}</div></div></div>
           <div class="stock-item"><div class="stock-label">EPS<small>(季數)</small><br>TTM / 年增率</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y ?? 0)} (${Number.isInteger(Number(s.eps_Y_quarters)) ? Number(s.eps_Y_quarters):0})</div><div class="table-lv2">${fmt(s.eps_ttm)}</div><div class="table-lv2 ${trendClass(s.eps_yoy)}">${isNil(s.eps_yoy) ? "-":`Y ${fmtTrend(s.eps_yoy)} ${fmt(s.eps_yoy, "%")}`}</div></div></div>
           <div class="stock-item"><div class="stock-label">ROE% / TTM</div>${renderRoeBlock(s)}</div>
-          <div class="stock-item"><div class="stock-label">營收</div><div class="stock-value">${renderMetric3(s.rev, s.rev_mom, s.rev_qoq, s.rev_yoy)}</div></div>
-          <div class="stock-item"><div class="stock-label">毛利率</div><div class="stock-value">${renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff)}</div></div>
-          <div class="stock-item"><div class="stock-label">營益率</div><div class="stock-value">${renderMetric3(s.operating_margin, null, s.operating_margin_qoq, s.operating_margin_yoy_diff)}</div></div>
-          <div class="stock-item"><div class="stock-label">淨利率</div><div class="stock-value">${renderMetric3(s.net_margin, null, s.net_margin_qoq, s.net_margin_yoy_diff)}</div></div>
+          <div class="stock-item"><div class="stock-label">營收</div><div class="stock-value">${renderMetric3(s.rev, s.rev_mom, s.rev_qoq, s.rev_yoy, "", { month: s.rev_month })}</div></div>
+          <div class="stock-item"><div class="stock-label">毛利率</div><div class="stock-value">${renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff, "", { showMonth: false })}</div></div>
+          <div class="stock-item"><div class="stock-label">營益率</div><div class="stock-value">${renderMetric3(s.operating_margin, null, s.operating_margin_qoq, s.operating_margin_yoy_diff, "", { showMonth: false })}</div></div>
+          <div class="stock-item"><div class="stock-label">淨利率</div><div class="stock-value">${renderMetric3(s.net_margin, null, s.net_margin_qoq, s.net_margin_yoy_diff, "", { showMonth: false })}</div></div>
           <div class="stock-item"><div class="stock-label">日PER 120日LH</div><div class="stock-value">${renderPerRangeMetric(s.per_latest, s.per_120d_low, s.per_120d_high, s.per_ttm)}</div></div>
         </div>`;
 
@@ -3380,6 +3380,13 @@
       return hex ? hex[1].toUpperCase():"";
     }
 
+    const EXCEL_TREND_COLORS = new Set(["F85149", "FF7B72", "FF4D4F", "3FB950", "56D364", "00B050"]);
+
+    function excelExportColor(color) {
+      const hex = excelCssColor(color);
+      return EXCEL_TREND_COLORS.has(hex) ? hex:"000000";
+    }
+
     function excelCellRuns(cell) {
       const runs = [];
       const append = (text, color) => {
@@ -3419,7 +3426,7 @@
       const walk = node => {
         if (node.nodeType === Node.TEXT_NODE) {
           if (!isFormattingWhitespace(node)) {
-            const color = excelCssColor(getComputedStyle(node.parentElement ?? cell).color);
+            const color = excelExportColor(getComputedStyle(node.parentElement ?? cell).color);
             let text = (node.nodeValue ?? "").replace(/[\t\n\f\r ]+/g, " ");
             if (!currentText() || currentText().endsWith("\n")) text = text.replace(/^ +/, "");
             append(text, color);
@@ -3428,7 +3435,7 @@
         }
         if (node.nodeType !== Node.ELEMENT_NODE) return;
         const element = node;
-        const color = excelCssColor(getComputedStyle(element).color);
+        const color = excelExportColor(getComputedStyle(element).color);
         if (element.tagName === "BR") {
           append("\n", color);
           return;
@@ -3439,11 +3446,11 @@
         children.forEach((child, index) => {
           const childBlock = !inlineRow && child.nodeType === Node.ELEMENT_NODE && isBlock(child);
           if (childBlock) {
-            appendLineBreak(excelCssColor(getComputedStyle(child).color));
+            appendLineBreak(excelExportColor(getComputedStyle(child).color));
           }
           walk(child);
           if (childBlock && hasFollowingContent(children, index)) {
-            appendLineBreak(excelCssColor(getComputedStyle(child).color));
+            appendLineBreak(excelExportColor(getComputedStyle(child).color));
           }
         });
       };

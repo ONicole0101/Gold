@@ -566,7 +566,7 @@ def get_eps_analysis(stock_id, current_price=None, *, raise_errors=False):
 
     Project rule:
         - eps_Y is the cumulative EPS announced in the current calendar year.
-        - eps_Y_quarters records how many quarters have been announced this year.
+        - eps_Y_quarters is the latest reported quarter number in the current year.
     - eps_ttm is the latest four quarters total.
     - PER is calculated only when current_price is provided.
     """
@@ -617,7 +617,7 @@ def get_eps_analysis(stock_id, current_price=None, *, raise_errors=False):
         latest_eps_date = eps_df["date"].max()
         current_year = datetime.now().year
         current_year_eps = eps_df[eps_df["year"] == current_year]
-        eps_y_quarters = int(len(current_year_eps))
+        eps_y_quarters = int(current_year_eps["season"].max()) if not current_year_eps.empty else 0
         eps_year = round(
             float(current_year_eps["value"].sum()), 2) if eps_y_quarters else 0
 

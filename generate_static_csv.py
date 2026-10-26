@@ -26,7 +26,7 @@ from financial_analysis import (
 DATA_COLS = [
     "eps_Y", "eps_Y_quarters", "eps_ttm", "eps_yoy",
     "roe_last_year", "roe_ttm",
-    "rev", "rev_mom", "rev_qoq", "rev_yoy",
+    "rev", "rev_month", "rev_mom", "rev_qoq", "rev_yoy",
     "gross_margin", "gross_margin_qoq", "gross_margin_yoy_diff",
     "operating_margin", "operating_margin_qoq", "operating_margin_yoy_diff",
     "net_margin", "net_margin_qoq", "net_margin_yoy_diff",
@@ -43,7 +43,7 @@ GROUPS = {
     # QoQ/YoY and 60D high/low should not make a row look empty.
     "eps": ["eps_Y", "eps_Y_quarters", "eps_ttm"],
     "roe": ["roe_last_year", "roe_ttm"],
-    "revenue": ["rev"],
+    "revenue": ["rev", "rev_month"],
     "profit": ["gross_margin", "operating_margin", "net_margin"],
     "valuation": ["per_latest"],
 }
@@ -351,6 +351,7 @@ def get_revenue_trend(stock_id):
 
     return {
         "rev": round((curr / 1e9), 2),  # 改為bn顯示
+        "month": int(current_period.month),
         "mom": pct_by_months(1),
         "qoq": pct_by_months(3),
         "yoy": pct_by_months(12),
@@ -442,6 +443,7 @@ def build_static_row(s: dict) -> dict:
         rev, reason = get_revenue_trend(stock_id)
         rev = rev or {}
         row["rev"] = rev.get("rev")
+        row["rev_month"] = rev.get("month")
         row["rev_mom"] = rev.get("mom")
         row["rev_qoq"] = rev.get("qoq")
         row["rev_yoy"] = rev.get("yoy")
@@ -608,7 +610,7 @@ def preserve_failed_group_values(row: dict, existing_row: dict | None) -> dict:
             "eps_Y_is_prev", "eps_ttm_is_prev",
         ],
         "roe": ["roe_last_year", "roe_ttm"],
-        "revenue": ["rev", "rev_mom", "rev_qoq", "rev_yoy"],
+        "revenue": ["rev", "rev_month", "rev_mom", "rev_qoq", "rev_yoy"],
         "profit": [
             col for col in DATA_COLS + PREV_FLAG_COLS
             if col.startswith(("gross_margin", "operating_margin", "net_margin"))
@@ -648,6 +650,15 @@ def repair_legacy_status_only(df: pd.DataFrame) -> pd.DataFrame:
 def build_incremental(stock_list, output_file, max_rows=None, min_remain=None, retry_errors=False, retry_no_data=False, force=False, sleep_sec=0.2, repair_only=False, check_every=10, refresh_hours=24):
     """Incrementally refresh AllStatic.csv using existing rows as the base."""
     token_status = get_finmind_token_status()
+    if not token_status.get("token_present"):
+        raise RuntimeError(
+            "FINMIND_TOKEN environment variable is required; refresh aborted."
+        )
+    if token_status.get("login_status") != "ok":
+        raise RuntimeError(
+            "FINMIND_TOKEN validation failed; refresh aborted."
+        )
+
     existing_df = read_existing_static(output_file)
     existing_by_id = {
         str(row.get("stock_id") or "").strip(): row
