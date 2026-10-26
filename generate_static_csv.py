@@ -767,6 +767,29 @@ def build_incremental(stock_list, output_file, max_rows=None, min_remain=None, r
     print(f"Reused this run: {reused}", flush=True)
     print(
         f"AllStatic incremental rebuild: {status_counts}, total={len(final_df)}", flush=True)
+    print_coverage_summary(final_df, [s.get("stock_id") for s in stock_list])
+
+
+def calc_coverage(df: pd.DataFrame, stock_ids, today=None):
+    today = today or datetime.now()
+    prev_month = 12 if today.month == 1 else today.month - 1
+    ids = {str(s).strip() for s in stock_ids if str(s).strip()}
+    sub = df[df["stock_id"].astype(str).str.strip().isin(ids)]
+    quarters = pd.to_numeric(sub["eps_Y_quarters"], errors="coerce")
+    latest_q = int(quarters.max()) if quarters.notna().any() else 0
+    eps_done = int((quarters == latest_q).sum()) if latest_q else 0
+    months = pd.to_numeric(sub["rev_month"], errors="coerce")
+    rev_done = int((months == prev_month).sum())
+    return {"total": len(ids), "latest_q": latest_q, "eps_done": eps_done,
+            "prev_month": prev_month, "rev_done": rev_done}
+
+
+def print_coverage_summary(df: pd.DataFrame, stock_ids, today=None):
+    c = calc_coverage(df, stock_ids, today)
+    print(f"EPS updated to latest quarter (Q{c['latest_q']}): "
+          f"{c['eps_done']}/{c['total']}", flush=True)
+    print(f"Revenue updated to last month ({c['prev_month']}): "
+          f"{c['rev_done']}/{c['total']}", flush=True)
 
 
 def resolve_config_value(env_name, config_name, default=None):
