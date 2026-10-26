@@ -1,11 +1,12 @@
-[32m2026-10-23 12:58:32.625[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-10-23 12:58:32.786[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-26 14:41:42.050[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-26 14:41:42.190[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 2304/6000, remain=3696
+FinMind usage: 3644/6000, remain=2356
 Incremental probe: stock_id=2330, latest_date=2026-10-22, status=ok
-Build chips: total=288, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=287, pending=0, latest_date=2026-10-22
+Build chips: total=289, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=287, pending=1, latest_date=2026-10-22
+[289/289] 3406 玉晶光 status=ok date=2026-10-22 main=155 diff=-16 state=neutral
 2330 籌碼分頁結果 date=2026-10-22 ; main_force=-9108 ; concentration=-32.95 ; broker_diff=31
-Done: rows=288, status={'ok': 288}, preserved=0, skipped=287, elapsed=11.5s, output=AllStatic_Chips.csv
+Done: rows=289, status={'ok': 289}, preserved=0, skipped=287, elapsed=23.8s, output=AllStatic_Chips.csv
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-10-22
@@ -246,6 +247,6 @@ broker_diff=-20
 chip_signal_state=neutral
 chips_status=ok
 ---
-rows= 288
-status= {'ok': 288}
+rows= 289
+status= {'ok': 289}
 No stock_id selected; skip single-stock print.
