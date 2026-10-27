@@ -60,4 +60,8 @@ jobs:
           fi
 
           git commit -m "Update stocks.csv"
-          git push origin "HEAD:$TARGET_BRANCH"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin "$TARGET_BRANCH" && git push origin "HEAD:$TARGET_BRANCH" && exit 0
+            sleep $((i * 5))
+          done
+          exit 1

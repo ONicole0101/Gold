@@ -126,4 +126,9 @@ jobs:
           git commit -m "Run one-click data and report pipeline"
 
       - name: Push changes
-        run: git push origin HEAD:${{ github.ref_name }}
+        run: |
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin "${{ github.ref_name }}" && git push origin "HEAD:${{ github.ref_name }}" && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
