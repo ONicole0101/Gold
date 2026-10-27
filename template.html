@@ -1363,6 +1363,7 @@
         columns: [
           { key: "code", label: "代碼<br><small>名稱/價格</small>" },
           { key: "buy_price_lh", label: "價格L/H<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日的價格低點與高點。" },
+          { key: "buy_per", label: "日PER<br><small>120日區間</small>", tooltip: "顯示日 PER、TTM 與 120 日區間。" },
           { key: "buy_kd_oversold", label: "日KD K值<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日的 K 值；方向依最新 K 值與前一交易日比較，沿用技術面箭頭。" },
           { key: "bb_pct", label: "日布林%<br><small>T/T-1/T-2</small>", tooltip: "布林% ＝ (收盤價 - BB下軌) ÷ (BB上軌 - BB下軌) × 100。當值越高代表股價偏向上軌、越低代表偏向下軌，並以箭頭與 T/T-1/T-2 顯示趨勢變化。" },
           { key: "macd_hist", label: "MACD值<br><small>T/T-1/T-2</small>", tooltip: "MACD值 = DIF - DEA；柱狀體轉正代表動能轉強，轉負代表動能轉弱，箭頭與 T/T-1/T-2 展示最近三天變化。" },
@@ -1373,7 +1374,6 @@
           { key: "buy_fibonacci_support", label: "黃金分割<br>支撐價位", tooltip: "以近120個交易日高低價計算回撤支撐價位：高點 −（高點 − 低點）× 回撤比例。" },
           { key: "buy_institutional", label: "三大法人<br><small>買賣超</small>", tooltip: "顯示 T 日三大法人合計買賣超張數。" },
           { key: "buy_gross_margin", label: "毛利率<br><small>QoQ / YoY</small>", tooltip: "顯示毛利率及其季度、年度變化。" },
-          { key: "buy_per", label: "日PER<br><small>120日區間</small>", tooltip: "顯示日 PER、TTM 與 120 日區間。" },
           { key: "buy_vr", label: "日VR<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 VR 值及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。" },
           { key: "buy_obv", label: "日OBV<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 OBV 值及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。" },
           { key: "buy_turnover", label: "周轉率<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日周轉率及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。" }
