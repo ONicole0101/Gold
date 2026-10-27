@@ -86,4 +86,9 @@ jobs:
           git diff --cached --quiet || git commit -m "Update ${REPORT_TYPE} report"
 
       - name: Push changes
-        run: git push
+        run: |
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash && git push && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
