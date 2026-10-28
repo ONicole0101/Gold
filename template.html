@@ -2878,6 +2878,9 @@
           return Number(s.cb_pressure_days ?? -999999);
         case "cb_period":
           return Number(s.cb_days_to_due ?? -999999);
+        case "buy_per":
+        case "sell_per":
+          return Number(s.per_latest ?? -999999);
         case "per_latest":
           return Number(s[key] ?? -999999);
         default: {
