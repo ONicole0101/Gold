@@ -1,102 +1,105 @@
-[32m2026-10-27 13:47:29.642[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-10-27 13:47:29.793[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-28 10:28:08.124[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-10-28 10:28:08.262[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 485/6000, remain=5515
-Incremental probe: stock_id=2330, latest_date=2026-10-27, status=ok
-Build chips: total=289, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=233, pending=55, latest_date=2026-10-27
+FinMind usage: 1671/6000, remain=4329
+Incremental probe: stock_id=2330, latest_date=2026-10-28, status=ok
+Build chips: total=289, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=288, latest_date=2026-10-28
+[32m2026-10-28 10:36:46.791[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1541[0m - [33m[1mTaiwanStockMarginPurchaseShortSale request failed for stock_id=00679B status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
+[32m2026-10-28 10:36:49.803[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1460[0m - [33m[1mTaiwanStockMarginMaintenance request failed for stock_id=00687B status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
+[32m2026-10-28 10:36:50.239[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1541[0m - [33m[1mTaiwanStockMarginPurchaseShortSale request failed for stock_id=00687B status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
 stock_id=0056
 name=元大高股息
-chip_latest_date=2026-10-27
-main_force_net=-1601
-broker_diff=62
-chip_signal_state=bearish_distributed
+chip_latest_date=2026-10-28
+main_force_net=6360
+broker_diff=8
+chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=00662
 name=富邦NASDAQ
-chip_latest_date=2026-10-27
-main_force_net=-1721
-broker_diff=421
+chip_latest_date=2026-10-28
+main_force_net=-345
+broker_diff=154
 chip_signal_state=bearish_distributed
 chips_status=ok
 ---
 stock_id=00878
 name=國泰永續高股息
-chip_latest_date=2026-10-27
-main_force_net=-2570
-broker_diff=101
-chip_signal_state=neutral
+chip_latest_date=2026-10-28
+main_force_net=-3383
+broker_diff=90
+chip_signal_state=bearish_distributed
 chips_status=ok
 ---
 stock_id=00919
 name=群益台灣精選高息
-chip_latest_date=2026-10-27
-main_force_net=18167
-broker_diff=-10
+chip_latest_date=2026-10-28
+main_force_net=8380
+broker_diff=7
 chip_signal_state=bullish_distributed
 chips_status=ok
 ---
 stock_id=00941
 name=中信上游半導體
-chip_latest_date=2026-10-27
-main_force_net=-98
-broker_diff=175
+chip_latest_date=2026-10-28
+main_force_net=81
+broker_diff=-3
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1101
 name=台泥
-chip_latest_date=2026-10-27
-main_force_net=-8983
-broker_diff=9
+chip_latest_date=2026-10-28
+main_force_net=2845
+broker_diff=-39
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1216
 name=統一
-chip_latest_date=2026-10-27
-main_force_net=2628
-broker_diff=-344
-chip_signal_state=bullish_concentrated
+chip_latest_date=2026-10-28
+main_force_net=-645
+broker_diff=223
+chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1301
 name=台塑
-chip_latest_date=2026-10-27
-main_force_net=1441
-broker_diff=18
+chip_latest_date=2026-10-28
+main_force_net=-1189
+broker_diff=21
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1303
 name=南亞
-chip_latest_date=2026-10-27
-main_force_net=-10231
-broker_diff=5
+chip_latest_date=2026-10-28
+main_force_net=15279
+broker_diff=-5
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1319
 name=東陽
-chip_latest_date=2026-10-27
-main_force_net=20
-broker_diff=23
+chip_latest_date=2026-10-28
+main_force_net=-22
+broker_diff=32
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1326
 name=台化
-chip_latest_date=2026-10-27
-main_force_net=4352
-broker_diff=-20
+chip_latest_date=2026-10-28
+main_force_net=-1002
+broker_diff=14
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1402
 name=遠東新
-chip_latest_date=2026-10-27
-main_force_net=972
-broker_diff=-26
+chip_latest_date=2026-10-28
+main_force_net=-4199
+broker_diff=374
 chip_signal_state=neutral
 chips_status=ok
 ---
@@ -198,9 +201,9 @@ chips_status=ok
 ---
 stock_id=1785
 name=光洋科
-chip_latest_date=2026-10-27
-main_force_net=335
-broker_diff=26
+chip_latest_date=2026-10-28
+main_force_net=488
+broker_diff=-48
 chip_signal_state=neutral
 chips_status=ok
 ---
@@ -214,10 +217,10 @@ chips_status=ok
 ---
 stock_id=1815
 name=富喬
-chip_latest_date=2026-10-27
-main_force_net=-5606
-broker_diff=11
-chip_signal_state=bearish_distributed
+chip_latest_date=2026-10-28
+main_force_net=11813
+broker_diff=-16
+chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=2002
