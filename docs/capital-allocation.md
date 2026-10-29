@@ -33,13 +33,23 @@
 
 ## 3. 輸出 Excel
 
-保留原檔 A～I 欄，附加三欄：
+保留原檔 A～I 欄，附加欄位：
 
 | 欄 | 標題 | 內容 |
 | --- | --- | --- |
 | J | KD值 | 依代碼比對報表資料，顯示最新 `K xx / D xx`；ETF、債券或不在報表內的標的留空 |
 | K | 階段 | `0`～`4`；已執行標「（已執行）」，階段 4 標「（停止加碼）」 |
 | L | 可投入資金 | 數值；已執行或停止加碼時空白 |
+| M | （空欄） | 間隔用 |
+| N | 階段說明 | 該列階段滾動判斷過程的文字說明（`capitalStageNote`） |
+
+N 欄說明範例：
+
+- `PL -0.5% 未達 -5%，階段 0 不加碼`
+- `PL -11.8% ≤ -10% → 階段 2，成本 838,093 已達累計目標 800,000（已執行）`
+- `PL -19.8% ≤ -15% → 階段 3，成本 522,678 未達目標，可投入 = 累計目標 1,400,000 − 成本 = 877,322`
+- `PL -100.0% ≤ -20% 最大容許虧損，停止加碼`
+- 上限低於累計目標時改顯示：`可投入 = 上限 600,000 − 成本 = 400,000`
 
 ## 4. 階段滾動判斷邏輯
 
@@ -101,6 +111,7 @@ E = 最大的 n，使得 投資成本 ≥ 累計目標[n] × 0.9
 | `allocatableAmount(investCost, stage, limit)` | 補齊累計目標的可投入資金 |
 | `holdingCodeFromName(value)` | 商品名稱 → 股票代碼 |
 | `plRatioFromCell(value)` | 解析損益率（小數或 `%` 字串） |
+| `capitalStageNote(plRatio, investCost, stage, executed, alloc, limit)` | 產出 N 欄階段滾動判斷說明 |
 | `capitalAllocCellXml(value, ref)` | 產出儲存格 XML（數值用 `<v>`，科學記號正規化） |
 | `buildCapitalAllocWorksheet(rows, limit, kdLookup)` | 組出完整 worksheet XML 與持股筆數 |
 | `capitalAllocKdText(code)` | 代碼 → 報表最新 `K xx / D xx` |

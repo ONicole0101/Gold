@@ -3879,6 +3879,26 @@
       return Math.max(0, Math.round(ceiling - cost));
     }
 
+    function capitalStageNote(plRatio, investCost, stage, executed, alloc, limit) {
+      const plText = Number.isFinite(Number(plRatio)) && plRatio !== ""
+        ? `PL ${(Number(plRatio) * 100).toFixed(1)}%` : "PL 無法判定";
+      const costText = Number.isFinite(Number(investCost)) ? `成本 ${Math.round(Number(investCost)).toLocaleString("en-US")}` : "成本未知";
+      if (stage === "") return `${plText}，階段無法判定`;
+      if (stage === 4) return `${plText} ≤ -20% 最大容許虧損，停止加碼`;
+      if (stage === 0) return `${plText} 未達 -5%，階段 0 不加碼`;
+      const rule = CAPITAL_ALLOC_STAGES[stage - 1];
+      const plRule = `${plText} ≤ ${(rule.pl * 100).toFixed(0)}% → 階段 ${stage}`;
+      if (stage <= executed) {
+        return `${plRule}，${costText} 已達累計目標 ${CAPITAL_ALLOC_CUMULATIVE[stage].toLocaleString("en-US")}（已執行）`;
+      }
+      const cap = Number(limit);
+      const capped = Number.isFinite(cap) && cap > 0 && cap < CAPITAL_ALLOC_CUMULATIVE[stage];
+      const targetText = capped
+        ? `上限 ${cap.toLocaleString("en-US")}`
+        : `累計目標 ${CAPITAL_ALLOC_CUMULATIVE[stage].toLocaleString("en-US")}`;
+      return `${plRule}，${costText} 未達目標，可投入 = ${targetText} − 成本 = ${Number(alloc).toLocaleString("en-US")}`;
+    }
+
     function holdingCodeFromName(value) {
       const match = String(value ?? "").trim().match(/^([0-9A-Za-z]+)/);
       return match ? match[1] : "";
@@ -3924,7 +3944,7 @@
       const colPlAmount = columnOf("損益");
       const width = Math.max(header.length, 9);
       const padRow = row => Array.from({ length: width }, (_, i) => (row ?? [])[i] ?? "");
-      const tableRows = [[...padRow(header), "KD值", "階段", "可投入資金"]];
+      const tableRows = [[...padRow(header), "KD值", "階段", "可投入資金", "", "階段說明"]];
       let count = 0;
       for (let i = headerIndex + 1; i < rows.length; i += 1) {
         const row = rows[i] ?? [];
@@ -3933,7 +3953,7 @@
         if (row.every(cell => String(cell ?? "").trim() === "")) continue;
         if (firstCell.includes("小計") || firstCell.includes("合計")
           || nameCell.includes("小計") || nameCell.includes("合計")) {
-          tableRows.push([...padRow(row), "", "", ""]);
+          tableRows.push([...padRow(row), "", "", "", "", ""]);
           continue;
         }
         const code = holdingCodeFromName(nameCell);
@@ -3951,7 +3971,8 @@
           : note ? `${stage}（${note}）`
           : stage >= 1 && stage <= 3 && stage <= executed ? `${stage}（已執行）`
           : String(stage);
-        tableRows.push([...padRow(row), kdText, stageText, alloc]);
+        const noteText = capitalStageNote(plRatio, investCost, stage, executed, alloc, limit);
+        tableRows.push([...padRow(row), kdText, stageText, alloc, "", noteText]);
         count += 1;
       }
       const worksheetRows = tableRows.map((row, rowIndex) => {

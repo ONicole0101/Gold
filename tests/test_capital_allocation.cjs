@@ -165,6 +165,28 @@ test("capitalAllocCellXml normalizes scientific-notation numbers", () => {
   assert.equal(context.capitalAllocCellXml("", "I2"), '<c r="I2" s="0"/>');
 });
 
+test("buildCapitalAllocWorksheet writes the rolling-stage explanation in column N", () => {
+  const { worksheet } = context.buildCapitalAllocWorksheet(HOLDINGS, 2000000, () => "");
+  assert.equal(cellText(worksheet, "N1"), "階段說明");
+  // Row 2: PL -0.5% → 階段 0
+  assert.equal(cellText(worksheet, "N2"), "PL -0.5% 未達 -5%，階段 0 不加碼");
+  // Row 3: 階段 2 已執行
+  assert.equal(cellText(worksheet, "N3"), "PL -11.8% ≤ -10% → 階段 2，成本 838,093 已達累計目標 800,000（已執行）");
+  // Row 4: 階段 3 未執行，補齊至 140 萬
+  assert.equal(cellText(worksheet, "N4"), "PL -19.8% ≤ -15% → 階段 3，成本 522,678 未達目標，可投入 = 累計目標 1,400,000 − 成本 = 877,322");
+  // Row 5: 停止加碼
+  assert.equal(cellText(worksheet, "N5"), "PL -100.0% ≤ -20% 最大容許虧損，停止加碼");
+  // 小計列 N 欄空白
+  assert.equal(cellText(worksheet, "N8"), "");
+});
+
+test("capitalStageNote shows the limit as ceiling when it is below the cumulative target", () => {
+  const alloc = context.allocatableAmount(200000, 2, 600000);
+  assert.equal(alloc, 400000);
+  const note = context.capitalStageNote(-0.12, 200000, 2, 0, alloc, 600000);
+  assert.equal(note, "PL -12.0% ≤ -10% → 階段 2，成本 200,000 未達目標，可投入 = 上限 600,000 − 成本 = 400,000");
+});
+
 test("buildCapitalAllocWorksheet rejects files without 商品名稱 header", () => {
   assert.throws(
     () => context.buildCapitalAllocWorksheet([["A", "B"], ["1", "2"]], 2000000, () => ""),
