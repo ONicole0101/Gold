@@ -931,6 +931,65 @@
       font-weight: bold;
     }
 
+    .capital-alloc-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .capital-alloc-overlay[hidden] {
+      display: none;
+    }
+
+    .capital-alloc-dialog {
+      background: #161b22;
+      border: 1px solid #2560a8;
+      border-radius: 12px;
+      padding: 20px;
+      width: min(420px, 92vw);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .capital-alloc-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #7eb8f7;
+    }
+
+    .capital-alloc-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .capital-alloc-row input {
+      background: #0d1117;
+      border: 1px solid #2560a8;
+      border-radius: 6px;
+      color: inherit;
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+
+    .capital-alloc-status {
+      min-height: 18px;
+      font-size: 12px;
+      color: #d29922;
+    }
+
+    .capital-alloc-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
     @media (max-width: 1024px) {
       .container {
         padding: 12px;
@@ -1062,7 +1121,27 @@
       <button type="button" class="tab-btn" data-tab="cb">CB</button>
       <button type="button" class="index-toggle-btn active" id="indexToggleBtn" title="切換顯示加權/櫃買指數固定列">📊 顯示指數</button>
       <button type="button" class="index-toggle-btn" id="exportExcelBtn" title="匯出目前畫面欄位與顯示值為 Excel">匯出</button>
+      <button type="button" class="index-toggle-btn" id="capitalAllocBtn" title="讀取未實現損益 Excel，依階段滾動計算可投入資金">資金配置</button>
       <span class="tab-note" id="tabNote">總覽：價格、漲跌、量、KD、布林</span>
+    </div>
+
+    <div class="capital-alloc-overlay" id="capitalAllocOverlay" hidden>
+      <div class="capital-alloc-dialog" role="dialog" aria-modal="true" aria-labelledby="capitalAllocTitle">
+        <div class="capital-alloc-title" id="capitalAllocTitle">資金配置</div>
+        <div class="capital-alloc-row">
+          <label for="capitalAllocFile">未實現損益 Excel（讀取預設工作表）</label>
+          <input type="file" id="capitalAllocFile" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+        </div>
+        <div class="capital-alloc-row">
+          <label for="capitalAllocLimit">股票投資上限</label>
+          <input type="text" id="capitalAllocLimit" inputmode="numeric" value="2,000,000">
+        </div>
+        <div class="capital-alloc-status" id="capitalAllocStatus"></div>
+        <div class="capital-alloc-actions">
+          <button type="button" class="index-toggle-btn active" id="capitalAllocRun">匯出資金配置</button>
+          <button type="button" class="index-toggle-btn" id="capitalAllocCancel">取消</button>
+        </div>
+      </div>
     </div>
 
     <div class="filter-panel" id="filterPanel">
@@ -3703,7 +3782,11 @@
       const today = new Date();
       const monthDay = `${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}`;
       const worksheet = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${worksheetRows}</sheetData></worksheet>`;
-      const files = [
+      downloadExcelFile(sheetName, worksheet, `${sheetName}_${monthDay}.xlsx`);
+    }
+
+    function excelWorkbookFiles(sheetName, worksheet) {
+      return [
         {
           name: "[Content_Types].xml",
           content: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>',
@@ -3726,14 +3809,17 @@
         },
         { name: "xl/worksheets/sheet1.xml", content: worksheet },
       ];
-      const workbook = createExcelZip(files);
+    }
+
+    function downloadExcelFile(sheetName, worksheet, fileName) {
+      const workbook = createExcelZip(excelWorkbookFiles(sheetName, worksheet));
       const blob = new Blob([workbook], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${sheetName}_${monthDay}.xlsx`;
+      link.download = fileName;
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -3743,6 +3829,291 @@
     (function bindExcelExport() {
       const btn = document.getElementById("exportExcelBtn");
       if (btn) btn.addEventListener("click", exportVisibleTableToExcel);
+    })();
+
+    // capital-allocation-logic-start
+    // 階段滾動加碼：初始已在 KD 低檔買入 20 萬；依目前損益率取最深階段，
+    // 以投資成本反推已執行階段（容許 10% 零頭誤差），可投入資金補齊到累計目標，
+    // -20% 為最大容許虧損，停止加碼。
+    const CAPITAL_ALLOC_STAGES = [
+      { stage: 1, pl: -0.05, amount: 200000 },
+      { stage: 2, pl: -0.10, amount: 400000 },
+      { stage: 3, pl: -0.15, amount: 600000 },
+    ];
+    const CAPITAL_ALLOC_MAX_PL = -0.20;
+    const CAPITAL_ALLOC_INITIAL = 200000;
+    const CAPITAL_ALLOC_TOLERANCE = 0.9;
+    const CAPITAL_ALLOC_CUMULATIVE = [CAPITAL_ALLOC_INITIAL];
+    CAPITAL_ALLOC_STAGES.forEach(rule => {
+      CAPITAL_ALLOC_CUMULATIVE.push(CAPITAL_ALLOC_CUMULATIVE[CAPITAL_ALLOC_CUMULATIVE.length - 1] + rule.amount);
+    });
+
+    function capitalStageForPL(plRatio) {
+      if (plRatio === "" || plRatio === null || plRatio === undefined) return { stage: "", amount: 0, note: "" };
+      const pl = Number(plRatio);
+      if (!Number.isFinite(pl)) return { stage: "", amount: 0, note: "" };
+      if (pl <= CAPITAL_ALLOC_MAX_PL) return { stage: 4, amount: 0, note: "停止加碼" };
+      for (let i = CAPITAL_ALLOC_STAGES.length - 1; i >= 0; i -= 1) {
+        const rule = CAPITAL_ALLOC_STAGES[i];
+        if (pl <= rule.pl) return { stage: rule.stage, amount: rule.amount, note: "" };
+      }
+      return { stage: 0, amount: 0, note: "" };
+    }
+
+    function executedStageFromCost(investCost) {
+      const cost = Number(investCost);
+      if (!Number.isFinite(cost) || cost <= 0) return 0;
+      let executed = 0;
+      for (let n = 1; n < CAPITAL_ALLOC_CUMULATIVE.length; n += 1) {
+        if (cost >= CAPITAL_ALLOC_CUMULATIVE[n] * CAPITAL_ALLOC_TOLERANCE) executed = n;
+      }
+      return executed;
+    }
+
+    function allocatableAmount(investCost, stage, limit) {
+      if (!(stage >= 1 && stage <= CAPITAL_ALLOC_STAGES.length)) return 0;
+      const target = CAPITAL_ALLOC_CUMULATIVE[stage];
+      const cost = Number(investCost) || 0;
+      const cap = Number(limit);
+      const ceiling = Number.isFinite(cap) && cap > 0 ? Math.min(target, cap) : target;
+      return Math.max(0, Math.round(ceiling - cost));
+    }
+
+    function holdingCodeFromName(value) {
+      const match = String(value ?? "").trim().match(/^([0-9A-Za-z]+)/);
+      return match ? match[1] : "";
+    }
+
+    function plRatioFromCell(value) {
+      const text = String(value ?? "").trim();
+      if (!text) return NaN;
+      if (text.endsWith("%")) return Number(text.slice(0, -1)) / 100;
+      return Number(text);
+    }
+
+    function capitalAllocCellXml(value, reference) {
+      if (typeof value === "number" && Number.isFinite(value)) {
+        return `<c r="${reference}" s="0"><v>${value}</v></c>`;
+      }
+      const text = String(value ?? "").trim();
+      if (text && /^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(text)) {
+        return `<c r="${reference}" s="0"><v>${Number(text)}</v></c>`;
+      }
+      return text ? excelCellXml([{ text }], reference) : `<c r="${reference}" s="0"/>`;
+    }
+
+    function buildCapitalAllocWorksheet(rows, limit, kdLookup) {
+      const headerIndex = rows.findIndex(row => (row ?? []).some(cell => String(cell ?? "").includes("商品名稱")));
+      if (headerIndex < 0) throw new Error("找不到「商品名稱」標頭列，請確認選擇的是未實現損益 Excel。");
+      const header = (rows[headerIndex] ?? []).map(cell => String(cell ?? ""));
+      const columnOf = (...names) => {
+        const normalized = header.map(cell => cell.replace(/\s/g, ""));
+        for (const name of names) {
+          const exact = normalized.findIndex(cell => cell === name);
+          if (exact >= 0) return exact;
+        }
+        for (const name of names) {
+          const partial = normalized.findIndex(cell => cell.includes(name));
+          if (partial >= 0) return partial;
+        }
+        return -1;
+      };
+      const colName = columnOf("商品名稱");
+      const colCost = columnOf("投資成本");
+      const colPlRatio = columnOf("損益率", "損益%");
+      const colPlAmount = columnOf("損益");
+      const width = Math.max(header.length, 9);
+      const padRow = row => Array.from({ length: width }, (_, i) => (row ?? [])[i] ?? "");
+      const tableRows = [[...padRow(header), "KD值", "階段", "可投入資金"]];
+      let count = 0;
+      for (let i = headerIndex + 1; i < rows.length; i += 1) {
+        const row = rows[i] ?? [];
+        const firstCell = String(row[0] ?? "").trim();
+        const nameCell = colName >= 0 ? String(row[colName] ?? "").trim() : "";
+        if (row.every(cell => String(cell ?? "").trim() === "")) continue;
+        if (firstCell.includes("小計") || firstCell.includes("合計")
+          || nameCell.includes("小計") || nameCell.includes("合計")) {
+          tableRows.push([...padRow(row), "", "", ""]);
+          continue;
+        }
+        const code = holdingCodeFromName(nameCell);
+        const investCost = colCost >= 0 ? Number(row[colCost]) : NaN;
+        let plRatio = colPlRatio >= 0 ? plRatioFromCell(row[colPlRatio]) : NaN;
+        if (!Number.isFinite(plRatio) && colPlAmount >= 0 && Number.isFinite(investCost) && investCost) {
+          plRatio = Number(row[colPlAmount]) / investCost;
+        }
+        const { stage, note } = capitalStageForPL(plRatio);
+        const executed = executedStageFromCost(investCost);
+        const pending = stage >= 1 && stage <= 3 && stage > executed;
+        const alloc = pending ? allocatableAmount(investCost, stage, limit) : "";
+        const kdText = typeof kdLookup === "function" ? kdLookup(code) ?? "" : "";
+        const stageText = stage === "" ? ""
+          : note ? `${stage}（${note}）`
+          : stage >= 1 && stage <= 3 && stage <= executed ? `${stage}（已執行）`
+          : String(stage);
+        tableRows.push([...padRow(row), kdText, stageText, alloc]);
+        count += 1;
+      }
+      const worksheetRows = tableRows.map((row, rowIndex) => {
+        const cells = row.map((value, columnIndex) => {
+          const reference = `${excelColumnName(columnIndex)}${rowIndex + 1}`;
+          return capitalAllocCellXml(value, reference);
+        }).join("");
+        return `<row r="${rowIndex + 1}">${cells}</row>`;
+      }).join("");
+      const worksheet = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${worksheetRows}</sheetData></worksheet>`;
+      return { worksheet, count };
+    }
+    // capital-allocation-logic-end
+
+    function capitalAllocKdText(code) {
+      if (!code) return "";
+      const stock = baseStocks.find(s => String(s?.code ?? s?.stock_id ?? "").trim() === code);
+      if (!stock) return "";
+      const k = kdValue(stock, 0);
+      const d = dValue(stock, 0);
+      if (isNil(k) && isNil(d)) return "";
+      return [isNil(k) ? "" : `K ${fmt(k)}`, isNil(d) ? "" : `D ${fmt(d)}`].filter(Boolean).join(" / ");
+    }
+
+    function unzipXlsxEntries(bytes) {
+      const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+      let eocd = -1;
+      for (let i = bytes.length - 22; i >= 0; i -= 1) {
+        if (view.getUint32(i, true) === 0x06054B50) { eocd = i; break; }
+      }
+      if (eocd < 0) throw new Error("不是有效的 xlsx（ZIP）檔案。");
+      const count = view.getUint16(eocd + 10, true);
+      let offset = view.getUint32(eocd + 16, true);
+      const decoder = new TextDecoder();
+      const entries = new Map();
+      for (let n = 0; n < count; n += 1) {
+        if (view.getUint32(offset, true) !== 0x02014B50) break;
+        const method = view.getUint16(offset + 10, true);
+        const compressedSize = view.getUint32(offset + 20, true);
+        const nameLen = view.getUint16(offset + 28, true);
+        const extraLen = view.getUint16(offset + 30, true);
+        const commentLen = view.getUint16(offset + 32, true);
+        const localOffset = view.getUint32(offset + 42, true);
+        const name = decoder.decode(bytes.subarray(offset + 46, offset + 46 + nameLen));
+        const localNameLen = view.getUint16(localOffset + 26, true);
+        const localExtraLen = view.getUint16(localOffset + 28, true);
+        const dataStart = localOffset + 30 + localNameLen + localExtraLen;
+        entries.set(name, { method, data: bytes.subarray(dataStart, dataStart + compressedSize) });
+        offset += 46 + nameLen + extraLen + commentLen;
+      }
+      return entries;
+    }
+
+    async function inflateZipEntry(entry) {
+      if (entry.method === 0) return entry.data;
+      const stream = new Blob([entry.data]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+      return new Uint8Array(await new Response(stream).arrayBuffer());
+    }
+
+    async function readXlsxFirstSheetRows(file) {
+      if (typeof DecompressionStream === "undefined") {
+        throw new Error("此瀏覽器不支援讀取 xlsx，請改用最新版 Chrome / Edge 開啟報表。");
+      }
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const entries = unzipXlsxEntries(bytes);
+      const readXml = async name => {
+        const entry = entries.get(name);
+        if (!entry) return null;
+        const data = await inflateZipEntry(entry);
+        return new DOMParser().parseFromString(new TextDecoder().decode(data), "application/xml");
+      };
+      const workbook = await readXml("xl/workbook.xml");
+      if (!workbook) throw new Error("不是有效的 xlsx 檔案。");
+      let target = "worksheets/sheet1.xml";
+      const sheetEl = workbook.getElementsByTagName("sheet")[0];
+      const relId = sheetEl
+        ? Array.from(sheetEl.attributes).find(attr => attr.localName === "id")?.value
+        : "";
+      const rels = await readXml("xl/_rels/workbook.xml.rels");
+      if (relId && rels) {
+        const rel = Array.from(rels.getElementsByTagName("Relationship"))
+          .find(el => el.getAttribute("Id") === relId);
+        if (rel?.getAttribute("Target")) target = rel.getAttribute("Target");
+      }
+      const sheetPath = `xl/${target.replace(/^\//, "").replace(/^xl\//, "")}`;
+      const sheet = await readXml(sheetPath);
+      if (!sheet) throw new Error("找不到預設工作表。");
+      const sharedStrings = [];
+      const shared = await readXml("xl/sharedStrings.xml");
+      if (shared) {
+        Array.from(shared.getElementsByTagName("si")).forEach(si => {
+          sharedStrings.push(Array.from(si.getElementsByTagName("t")).map(t => t.textContent ?? "").join(""));
+        });
+      }
+      const columnIndexOf = ref => {
+        const letters = String(ref ?? "").match(/^[A-Z]+/i);
+        if (!letters) return -1;
+        let index = 0;
+        for (const ch of letters[0].toUpperCase()) index = index * 26 + (ch.charCodeAt(0) - 64);
+        return index - 1;
+      };
+      const rows = [];
+      Array.from(sheet.getElementsByTagName("row")).forEach(rowEl => {
+        const row = [];
+        Array.from(rowEl.getElementsByTagName("c")).forEach(cellEl => {
+          const colIndex = columnIndexOf(cellEl.getAttribute("r"));
+          const type = cellEl.getAttribute("t") ?? "n";
+          let value = "";
+          if (type === "inlineStr") {
+            value = Array.from(cellEl.getElementsByTagName("t")).map(t => t.textContent ?? "").join("");
+          } else {
+            const v = cellEl.getElementsByTagName("v")[0]?.textContent ?? "";
+            value = type === "s" ? sharedStrings[Number(v)] ?? "" : v;
+          }
+          if (colIndex >= 0) row[colIndex] = value;
+        });
+        rows.push(row);
+      });
+      return rows;
+    }
+
+    (function bindCapitalAllocation() {
+      const openBtn = document.getElementById("capitalAllocBtn");
+      const overlay = document.getElementById("capitalAllocOverlay");
+      const fileInput = document.getElementById("capitalAllocFile");
+      const limitInput = document.getElementById("capitalAllocLimit");
+      const status = document.getElementById("capitalAllocStatus");
+      const runBtn = document.getElementById("capitalAllocRun");
+      const cancelBtn = document.getElementById("capitalAllocCancel");
+      if (!openBtn || !overlay) return;
+      const close = () => { overlay.hidden = true; };
+      openBtn.addEventListener("click", () => {
+        status.textContent = "";
+        overlay.hidden = false;
+      });
+      if (cancelBtn) cancelBtn.addEventListener("click", close);
+      overlay.addEventListener("click", event => {
+        if (event.target === overlay) close();
+      });
+      if (!runBtn) return;
+      runBtn.addEventListener("click", async () => {
+        const file = fileInput?.files?.[0];
+        if (!file) {
+          status.textContent = "請先選擇未實現損益 Excel 檔。";
+          return;
+        }
+        runBtn.disabled = true;
+        status.textContent = "讀取中…";
+        try {
+          const rows = await readXlsxFirstSheetRows(file);
+          const limit = Number(String(limitInput?.value ?? "").replace(/,/g, "")) || 2000000;
+          const { worksheet, count } = buildCapitalAllocWorksheet(rows, limit, capitalAllocKdText);
+          const today = new Date();
+          const monthDay = `${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}`;
+          downloadExcelFile("資金配置", worksheet, `資金配置_${monthDay}.xlsx`);
+          status.textContent = `已匯出 ${count} 檔持股。`;
+        } catch (err) {
+          status.textContent = err?.message || "讀取失敗，請確認檔案格式。";
+        } finally {
+          runBtn.disabled = false;
+        }
+      });
     })();
 
     bindTabs();
