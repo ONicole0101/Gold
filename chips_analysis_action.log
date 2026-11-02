@@ -1,10 +1,11 @@
-[32m2026-11-02 11:49:18.180[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-11-02 11:49:18.320[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-11-02 17:35:32.183[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-11-02 17:35:32.298[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 522/6000, remain=5478
+FinMind usage: 2293/6000, remain=3707
 Incremental probe: stock_id=2330, latest_date=2026-11-02, status=ok
-Build chips: total=291, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=290, latest_date=2026-11-02
-[100/291] 3131 弘塑 status=ok date=2026-11-02 main=9 diff=137 state=neutral
+Build chips: total=291, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=290, pending=0, latest_date=2026-11-02
+2330 籌碼分頁結果 date=2026-11-02 ; main_force=-8723 ; concentration=-22.35 ; broker_diff=32
+Done: rows=291, status={'ok': 291}, preserved=0, skipped=290, elapsed=9.5s, output=AllStatic_Chips.csv
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-11-02
