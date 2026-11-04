@@ -1,11 +1,16 @@
-[32m2026-11-04 15:28:17.608[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-11-04 15:28:17.713[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-11-04 15:52:24.188[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-11-04 15:52:24.302[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 885/6000, remain=5115
-Incremental probe: stock_id=2330, latest_date=2026-11-04, status=ok
-Build chips: total=291, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=290, latest_date=2026-11-04
-[50/291] 2367 燿華 status=ok date=2026-11-04 main=-56 diff=137 state=neutral
-[75/291] 2801 彰銀 status=ok date=2026-11-04 main=700 diff=114 state=bullish_distributed
+FinMind usage: 6097/6000, remain=0
+❌ chip analysis API error 2330: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+Incremental probe: stock_id=2330, latest_date=2026-11-04, status=no_data
+Build chips: total=291, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=289, pending=1, latest_date=2026-11-04
+❌ chip analysis API error 00981A: status_code=402, msg=Requests reach the upper limit. https://finmindtrade.com/
+[291/291] 00981A 主動統一台股增長 status=no_data date=- main=- diff=- state=no_data
+2330 籌碼分頁結果 date=2026-11-04 ; main_force=-11639 ; concentration=-21.73 ; broker_diff=14
+Done: rows=291, status={'ok': 291}, preserved=2, skipped=289, elapsed=2.0s, output=AllStatic_Chips.csv
+Notable rows:
+- 00981A 主動統一台股增長 status=no_data date=- main=- diff=- state=no_data reason=籌碼資料不足
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-11-04
