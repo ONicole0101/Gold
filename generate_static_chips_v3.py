@@ -65,6 +65,7 @@ CHIP_DATA_COLS = [
     "margin_maintenance_t2",
     "margin_maintenance_ma5",
     "margin_cost_status",
+    "margin_maintenance_status",
     "margin_purchase_change",
     "margin_purchase_change_t0",
     "margin_purchase_change_t1",
@@ -305,6 +306,16 @@ def has_margin_cost_attempt(row: dict) -> bool:
     return True
 
 
+def has_margin_maintenance_attempt(row: dict) -> bool:
+    """舊版輸出沒有 margin_maintenance_status，視為尚未抓過融資維持率，需漸進式回補一次。"""
+    if is_blank_value(row.get("margin_maintenance_status")):
+        return False
+    # 有歷史值卻缺 T 日值，代表是舊的無回溯填值結果，需重抓一次。
+    if str(row.get("margin_maintenance_status")).strip().lower() == "ok" and is_blank_value(row.get("margin_maintenance_t0")):
+        return False
+    return True
+
+
 def should_preserve_existing_row(new_row: dict, existing_row: dict | None) -> bool:
     if not existing_row or not has_valid_chip_data(existing_row):
         return False
@@ -338,6 +349,8 @@ def should_refresh_stock(existing_row: dict | None, latest_available_date: str) 
     if not has_valid_chip_data(existing_row):
         return True
     if not has_margin_cost_attempt(existing_row):
+        return True
+    if not has_margin_maintenance_attempt(existing_row):
         return True
     existing_date = row_effective_chip_date(existing_row)
     if latest_available_date and existing_date != latest_available_date:
@@ -499,6 +512,11 @@ def build_chip_row(stock: dict, trend_days: int, concentration_threshold: float,
             not is_blank_value(row.get(col))
             for col in ("margin_cost_line", "margin_cost_line_t0",
                         "margin_cost_line_t1", "margin_cost_line_t2")
+        ) else "empty"
+        row["margin_maintenance_status"] = "ok" if any(
+            not is_blank_value(row.get(col))
+            for col in ("margin_maintenance", "margin_maintenance_t0",
+                        "margin_maintenance_t1", "margin_maintenance_t2")
         ) else "empty"
         state = str(row.get("chip_signal_state") or "").strip().lower()
         if state and state not in {"no_data", "error"}:
