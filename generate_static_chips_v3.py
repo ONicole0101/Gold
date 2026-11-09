@@ -59,6 +59,11 @@ CHIP_DATA_COLS = [
     "margin_cost_line_t0",
     "margin_cost_line_t1",
     "margin_cost_line_t2",
+    "margin_maintenance",
+    "margin_maintenance_t0",
+    "margin_maintenance_t1",
+    "margin_maintenance_t2",
+    "margin_maintenance_ma5",
     "margin_cost_status",
     "margin_purchase_change",
     "margin_purchase_change_t0",
@@ -431,6 +436,7 @@ def add_t0_t1_t2_fields(row: dict, chip: dict) -> None:
         row["chip_date_t0"] = row.get("chip_latest_date")
         row["short_margin_ratio_pct_t0"] = row.get("short_margin_ratio_pct")
         row["margin_cost_line_t0"] = row.get("margin_cost_line")
+        row["margin_maintenance_t0"] = row.get("margin_maintenance")
         row["chip_concentration_pct_t0"] = row.get("chip_concentration_pct")
         row["main_force_net_t0"] = row.get("main_force_net")
         row["broker_diff_t0"] = row.get("broker_diff")
@@ -449,6 +455,8 @@ def add_t0_t1_t2_fields(row: dict, chip: dict) -> None:
             rec, "short_margin_ratio_pct", "券資比%", "short_margin_ratio")
         row[f"margin_cost_line_{suffix}"] = _row_value(
             rec, "margin_cost_line", "融資成本", "margin_cost")
+        row[f"margin_maintenance_{suffix}"] = _row_value(
+            rec, "margin_maintenance", "融資維持率")
         row[f"chip_concentration_pct_{suffix}"] = _row_value(
             rec, "chip_concentration_pct", "籌碼集中度%", "concentration_pct")
         row[f"main_force_net_{suffix}"] = _row_value(

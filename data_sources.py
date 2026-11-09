@@ -1405,6 +1405,7 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             institutional_map_by_date = {}
 
         margin_cost_map_by_date = {}
+        margin_maintenance_map_by_date = {}
         if _warn_missing_finmind_token("TaiwanStockMarginMaintenance", stock_id):
             margin_cost_map_by_date = {}
         else:
@@ -1456,6 +1457,20 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                                     stock_id,
                                     list(margin_cost_df.columns),
                                 )
+                            if "margin_maintenance" in margin_cost_df.columns:
+                                for date_value, group_df in margin_cost_df.groupby(date_col):
+                                    value = _first_non_na(
+                                        group_df.get("margin_maintenance"))
+                                    if value is None:
+                                        continue
+                                    margin_maintenance_map_by_date[date_value.date()] = _round_or_none(
+                                        value, 2)
+                            else:
+                                logger.warning(
+                                    "TaiwanStockMarginMaintenance missing margin_maintenance column for stock_id={} columns={}",
+                                    stock_id,
+                                    list(margin_cost_df.columns),
+                                )
                 elif margin_cost_res.status_code != 200:
                     logger.warning(
                         "TaiwanStockMarginMaintenance request failed for stock_id={} status={} body={}",
@@ -1471,6 +1486,7 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                     exc,
                 )
                 margin_cost_map_by_date = {}
+                margin_maintenance_map_by_date = {}
 
         # FinMind 融資維持率 22:30 才更新，當日無資料時沿用最近可得日期（與其成本線遞延規則一致）。
         margin_cost_dates_desc = sorted(
@@ -1484,6 +1500,19 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             for available_date in margin_cost_dates_desc:
                 if available_date <= target_date:
                     return margin_cost_map_by_date[available_date]
+            return None
+
+        margin_maintenance_dates_desc = sorted(
+            margin_maintenance_map_by_date.keys(), reverse=True)
+
+        def _margin_maintenance_on_or_before(target_date):
+            if target_date is None:
+                return None
+            if target_date in margin_maintenance_map_by_date:
+                return margin_maintenance_map_by_date[target_date]
+            for available_date in margin_maintenance_dates_desc:
+                if available_date <= target_date:
+                    return margin_maintenance_map_by_date[available_date]
             return None
 
         # 融資增減=今日餘額-昨日餘額、融券增減=今日餘額-昨日餘額，取自 TaiwanStockMarginPurchaseShortSale。
@@ -1620,6 +1649,7 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                 "main_force_net": _int_or_none(r["main_force_net"]),
                 "broker_diff": _int_or_none(r["broker_diff"]),
                 "margin_cost_line": _round_or_none(_margin_cost_on_or_before(date_key), 2),
+                "margin_maintenance": _round_or_none(_margin_maintenance_on_or_before(date_key), 2),
                 "margin_purchase_change": _int_or_none(
                     margin_balance_day.get("margin_purchase_change")
                 ),
@@ -1696,6 +1726,24 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             "margin_cost_line") if len(recent_rows) > 1 else None, 2)
         margin_cost_t2 = _round_or_none(recent_rows[2].get(
             "margin_cost_line") if len(recent_rows) > 2 else None, 2)
+        margin_maintenance_t0 = _round_or_none(recent_rows[0].get(
+            "margin_maintenance") if len(recent_rows) > 0 else None, 2)
+        margin_maintenance_t1 = _round_or_none(recent_rows[1].get(
+            "margin_maintenance") if len(recent_rows) > 1 else None, 2)
+        margin_maintenance_t2 = _round_or_none(recent_rows[2].get(
+            "margin_maintenance") if len(recent_rows) > 2 else None, 2)
+        latest_report_date = latest.get("date")
+        latest_date_key = latest_report_date.date() if hasattr(
+            latest_report_date, "date") else latest_report_date
+        margin_maintenance_ma5_values = [
+            margin_maintenance_map_by_date[available_date]
+            for available_date in margin_maintenance_dates_desc
+            if latest_date_key is None or available_date <= latest_date_key
+        ][:5]
+        margin_maintenance_ma5 = _round_or_none(
+            sum(margin_maintenance_ma5_values) /
+            len(margin_maintenance_ma5_values), 2
+        ) if margin_maintenance_ma5_values else None
         margin_purchase_change_t0 = _int_or_none(recent_rows[0].get(
             "margin_purchase_change") if len(recent_rows) > 0 else None)
         margin_purchase_change_t1 = _int_or_none(recent_rows[1].get(
@@ -1726,6 +1774,11 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             "margin_cost_line_t0": margin_cost_t0,
             "margin_cost_line_t1": margin_cost_t1,
             "margin_cost_line_t2": margin_cost_t2,
+            "margin_maintenance": margin_maintenance_t0,
+            "margin_maintenance_t0": margin_maintenance_t0,
+            "margin_maintenance_t1": margin_maintenance_t1,
+            "margin_maintenance_t2": margin_maintenance_t2,
+            "margin_maintenance_ma5": margin_maintenance_ma5,
             "margin_purchase_change": margin_purchase_change_t0,
             "margin_purchase_change_t0": margin_purchase_change_t0,
             "margin_purchase_change_t1": margin_purchase_change_t1,
@@ -1775,6 +1828,7 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             result[f"main_force_net_{suffix}"] = rec["main_force_net"]
             result[f"broker_diff_{suffix}"] = rec["broker_diff"]
             result[f"margin_cost_line_{suffix}"] = rec["margin_cost_line"]
+            result[f"margin_maintenance_{suffix}"] = rec["margin_maintenance"]
             result[f"margin_purchase_change_{suffix}"] = rec["margin_purchase_change"]
             result[f"short_sale_change_{suffix}"] = rec["short_sale_change"]
 
@@ -1785,6 +1839,7 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             result.setdefault(f"main_force_net_{suffix}", None)
             result.setdefault(f"broker_diff_{suffix}", None)
             result.setdefault(f"margin_cost_line_{suffix}", None)
+            result.setdefault(f"margin_maintenance_{suffix}", None)
             result.setdefault(f"margin_purchase_change_{suffix}", None)
             result.setdefault(f"short_sale_change_{suffix}", None)
 

@@ -157,6 +157,11 @@ def _empty_index_row(index_id, name, reason="資料無法取得"):
         "short_margin_ratio_pct_t1": None,
         "short_margin_ratio_pct_t2": None,
         "short_margin_ratio_score": None,
+        "margin_maintenance": None,
+        "margin_maintenance_t0": None,
+        "margin_maintenance_t1": None,
+        "margin_maintenance_t2": None,
+        "margin_maintenance_ma5": None,
         # Fundamental stubs
         "eps_Y": None,
         "roe": None,
@@ -427,15 +432,17 @@ _CHIP_LOOKBACK_DAYS = 20  # 保留 T/T-1/T-2 三日
 
 
 def _fetch_market_total_chips() -> dict:
-    """Fetch TaiwanStockTotalMarginPurchaseShortSale & TaiwanStockTotalInstitutionalInvestors."""
+    """Fetch TaiwanStockTotalMarginPurchaseShortSale, TaiwanStockTotalInstitutionalInvestors & TaiwanTotalExchangeMarginMaintenance."""
     token, headers = _refresh_finmind_runtime_auth()
     start_date = (datetime.now() -
                   timedelta(days=_CHIP_LOOKBACK_DAYS)).strftime("%Y-%m-%d")
-    result: dict = {"margin_rows": [], "institutional_rows": []}
+    result: dict = {"margin_rows": [],
+                    "institutional_rows": [], "maintenance_rows": []}
 
     for key, dataset in [
         ("margin_rows", "TaiwanStockTotalMarginPurchaseShortSale"),
         ("institutional_rows", "TaiwanStockTotalInstitutionalInvestors"),
+        ("maintenance_rows", "TaiwanTotalExchangeMarginMaintenance"),
     ]:
         try:
             _record_finmind_request("market_total_chips", "total", dataset)
@@ -536,7 +543,22 @@ def _parse_total_chips(chip_raw: dict) -> list:
     return parsed  # newest first
 
 
-def _build_index_chip_fields(parsed: list) -> dict:
+def _parse_maintenance_series(chip_raw: dict) -> list:
+    """Parse TaiwanTotalExchangeMarginMaintenance rows into [(date, ratio)] newest-first."""
+    series: dict = {}
+    for row in chip_raw.get("maintenance_rows") or []:
+        date_text = row.get("date")
+        if not date_text:
+            continue
+        try:
+            value = float(row.get("TotalExchangeMarginMaintenance"))
+        except (TypeError, ValueError):
+            continue
+        series[date_text] = round(value, 2)
+    return sorted(series.items(), reverse=True)
+
+
+def _build_index_chip_fields(parsed: list, maintenance_series: list | None = None) -> dict:
     """Extract T / T-1 / T-2 values and trend scores from parsed chip list."""
     if not parsed:
         return {}
@@ -571,6 +593,31 @@ def _build_index_chip_fields(parsed: list) -> dict:
     fields["short_margin_ratio_pct_t2"] = t2.get("short_margin_ratio_pct")
     fields["short_margin_ratio_score"] = _score(v0)
 
+    # 大盤融資維持率 22:30 才更新，當日無資料時沿用最近可得日期（與個股遞延規則一致）。
+    maintenance_series = maintenance_series or []
+
+    def _maintenance_on_or_before(target_date):
+        for date_text, value in maintenance_series:
+            if target_date is None or date_text <= target_date:
+                return value
+        return None
+
+    m0 = _maintenance_on_or_before(t0.get("date"))
+    fields["margin_maintenance"] = m0
+    fields["margin_maintenance_t0"] = m0
+    fields["margin_maintenance_t1"] = _maintenance_on_or_before(
+        t1.get("date")) if t1 else None
+    fields["margin_maintenance_t2"] = _maintenance_on_or_before(
+        t2.get("date")) if t2 else None
+    t0_date = t0.get("date")
+    ma5_values = [
+        value for date_text, value in maintenance_series
+        if t0_date is None or date_text <= t0_date
+    ][:5]
+    fields["margin_maintenance_ma5"] = (
+        round(sum(ma5_values) / len(ma5_values), 2) if ma5_values else None
+    )
+
     return fields
 
 
@@ -581,12 +628,14 @@ def get_market_index_rows():
         print("[index] fetching market-wide chip data...")
         chip_raw = _fetch_market_total_chips()
         parsed = _parse_total_chips(chip_raw)
-        chip_fields = _build_index_chip_fields(parsed)
+        maintenance_series = _parse_maintenance_series(chip_raw)
+        chip_fields = _build_index_chip_fields(parsed, maintenance_series)
         print(
             f"[index] chips: T={chip_fields.get('chip_date_t0', '?')}, "
             f"fi={chip_fields.get('foreign_investor_net_t0')} yi, "
             f"it={chip_fields.get('investment_trust_net_t0')} yi, "
-            f"smpct={chip_fields.get('short_margin_ratio_pct_t0')}"
+            f"smpct={chip_fields.get('short_margin_ratio_pct_t0')}, "
+            f"mm={chip_fields.get('margin_maintenance_t0')}"
         )
     except Exception as exc:
         print(f"[index] chips error: {exc}")
