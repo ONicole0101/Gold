@@ -614,7 +614,23 @@
     }
 
     .filter-item.filter-item-bias {
-      grid-template-columns: auto 52px 36px 62px 56px;
+      grid-template-columns: auto 44px 32px 56px 48px;
+    }
+
+    .filter-item.filter-item-kd {
+      grid-template-columns: auto 32px 56px 48px;
+    }
+
+    .filter-item.filter-item-vr {
+      grid-template-columns: auto 32px 56px 48px;
+    }
+
+    .filter-item.filter-item-bb {
+      grid-template-columns: auto 32px 56px 48px;
+    }
+
+    .filter-item.filter-item-macd {
+      grid-template-columns: auto 32px 60px 48px;
     }
 
     .filter-row {
@@ -761,7 +777,7 @@
     .filter-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       margin-left: auto;
     }
 
@@ -1113,7 +1129,7 @@
 
 <body>
   <div class="container">
-    <p>產生時間：2026-11-10 06:15</p>
+    <p>產生時間：2026-11-10 06:46</p>
 
     <div class="tabs" id="tabs">
       <button type="button" class="tab-btn active" data-tab="overview">總覽</button>
@@ -1347,23 +1363,21 @@
           </select><input data-filter-key="per_latest" type="number" step="0.01" placeholder="數值"></div>
       </div>
       <div class="filter-row">
-        <div class="filter-item"><label>日KD</label><select data-filter-op="k">
+        <div class="filter-item filter-item-kd"><label>日KD</label><select data-filter-op="k">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
-          </select><input data-filter-key="k" type="number" step="0.01" placeholder="數值"></div>
-        <div class="filter-item filter-item-direction"><label for="kdDirectionFilter">日KD方向</label><select
-            id="kdDirectionFilter" data-direction-filter>
+          </select><input data-filter-key="k" type="number" step="0.01" placeholder="數值"><select
+            id="kdDirectionFilter" data-direction-filter title="日KD方向">
             <option value="">全部</option>
             <option value="up">↑</option>
             <option value="down">↓</option>
             <option value="flat">→</option>
           </select></div>
-        <div class="filter-item"><label>日VR值</label><select data-filter-op="vr">
+        <div class="filter-item filter-item-vr"><label>日VR</label><select data-filter-op="vr">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
-          </select><input data-filter-key="vr" type="number" step="0.01" placeholder="數值"></div>
-        <div class="filter-item filter-item-direction"><label for="vrDirectionFilter">日VR方向</label><select
-            id="vrDirectionFilter" data-direction-filter>
+          </select><input data-filter-key="vr" type="number" step="0.01" placeholder="數值"><select
+            id="vrDirectionFilter" data-direction-filter title="日VR方向">
             <option value="">全部</option>
             <option value="up">↑</option>
             <option value="down">↓</option>
@@ -1376,23 +1390,21 @@
             <option value="down">↓</option>
             <option value="flat">→</option>
           </select></div>
-        <div class="filter-item"><label>日布林%</label><select data-filter-op="bb_pct">
+        <div class="filter-item filter-item-bb"><label>日布林%</label><select data-filter-op="bb_pct">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
-          </select><input data-filter-key="bb_pct" type="number" step="0.01" placeholder="數值"></div>
-        <div class="filter-item filter-item-direction"><label for="bbDirectionFilter">日布林方向</label><select
-            id="bbDirectionFilter" data-direction-filter>
+          </select><input data-filter-key="bb_pct" type="number" step="0.01" placeholder="數值"><select
+            id="bbDirectionFilter" data-direction-filter title="日布林方向">
             <option value="">全部</option>
             <option value="up">↑</option>
             <option value="down">↓</option>
             <option value="flat">→</option>
           </select></div>
-        <div class="filter-item"><label>MACD值</label><select data-filter-op="macd_hist">
+        <div class="filter-item filter-item-macd"><label>MACD</label><select data-filter-op="macd_hist">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
-          </select><input data-filter-key="macd_hist" type="number" step="0.0001" placeholder="數值"></div>
-        <div class="filter-item filter-item-direction"><label for="macdDirectionFilter">MACD方向</label><select
-            id="macdDirectionFilter" data-direction-filter>
+          </select><input data-filter-key="macd_hist" type="number" step="0.0001" placeholder="數值"><select
+            id="macdDirectionFilter" data-direction-filter title="MACD方向">
             <option value="">全部</option>
             <option value="up">↑</option>
             <option value="down">↓</option>
@@ -1413,11 +1425,11 @@
             <option value="down">↓</option>
             <option value="flat">→</option>
           </select></div>
-        <div class="filter-item"><label>壓力點距離%</label><select data-filter-op="resistance_distance_pct">
+        <div class="filter-item"><label>壓力距%</label><select data-filter-op="resistance_distance_pct">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
           </select><input data-filter-key="resistance_distance_pct" type="number" step="0.01" placeholder="%"></div>
-        <div class="filter-item"><label>支撐點距離%</label><select data-filter-op="support_distance_pct">
+        <div class="filter-item"><label>支撐距%</label><select data-filter-op="support_distance_pct">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
           </select><input data-filter-key="support_distance_pct" type="number" step="0.01" placeholder="%"></div>
@@ -1432,7 +1444,7 @@
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
           </select><input data-filter-key="main_force_net_filter" type="number" step="1" placeholder="張數"></div>
-        <div class="filter-item"><label>三大法人合計</label><select data-filter-op="institutional_total_net_filter">
+        <div class="filter-item"><label>法人合計</label><select data-filter-op="institutional_total_net_filter">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
           </select><input data-filter-key="institutional_total_net_filter" type="number" step="1" placeholder="張數">
