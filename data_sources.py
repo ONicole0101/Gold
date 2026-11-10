@@ -1109,6 +1109,183 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
 
         return None, None
 
+    def _fetch_trading_daily_report_day(query_date):
+        """抓取單日 TaiwanStockTradingDailyReport 分點資料。
+
+        回傳 (broker_daily, ok)：
+        - ok=False 代表請求失敗（非 200），呼叫端應中止並沿用快取。
+        - ok=True 但 broker_daily 為 None 代表該日無資料或資料無效。
+        """
+        date_str = query_date.strftime("%Y-%m-%d")
+        params = {
+            "dataset": "TaiwanStockTradingDailyReport",
+            "data_id": str(stock_id),
+            "start_date": date_str,
+            "end_date": date_str,
+            "token": FINMIND_token,
+        }
+
+        if not suppress_api_logs:
+            print(
+                f"🔎 chip analysis request: dataset={params['dataset']} stock_id={stock_id} date={date_str} token_present={bool(FINMIND_token)}"
+            )
+
+        _record_finmind_request(
+            "chip analysis", stock_id, "TaiwanStockTradingDailyReport"
+        )
+        res = requests.get(API_URL, params=params,
+                           headers=headers, timeout=300)
+
+        if not suppress_api_logs:
+            print(f"🔄 chip analysis response status: {res.status_code}")
+
+        res_data = _safe_response_json(res)
+
+        if res.status_code != 200:
+            _print_api_status_error(
+                "chip analysis", stock_id, res, res_data)
+            return None, False
+
+        data = res_data.get("data", [])
+        if not data:
+            return None, True
+
+        df = pd.DataFrame(data)
+        broker_column = None
+        if "broker" in df.columns:
+            broker_column = "broker"
+        elif "securities_trader" in df.columns:
+            broker_column = "securities_trader"
+        elif "securities_trader_id" in df.columns:
+            broker_column = "securities_trader_id"
+
+        required = {"date", "stock_id", "buy", "sell"}
+        if broker_column:
+            required.add(broker_column)
+
+        if not required.issubset(df.columns) or broker_column is None:
+            if not suppress_api_logs:
+                print(
+                    f"⚠️ chip analysis missing cols {stock_id} on {date_str}: cols={list(df.columns)}")
+            return None, True
+
+        df = df[df["stock_id"].astype(str) == str(stock_id)]
+        if df.empty:
+            return None, True
+
+        df["date"] = pd.to_datetime(df["date"], errors="coerce")
+        df["buy"] = pd.to_numeric(df["buy"], errors="coerce").fillna(0)
+        df["sell"] = pd.to_numeric(df["sell"], errors="coerce").fillna(0)
+        df = df.dropna(subset=["date"])
+        if df.empty:
+            return None, True
+
+        target_day = pd.to_datetime(date_str, errors="coerce")
+        if pd.isna(target_day):
+            return None, True
+        df = df[df["date"].dt.date == target_day.date()]
+        if df.empty:
+            return None, True
+
+        broker_daily = (
+            df.groupby(broker_column, as_index=False)[["buy", "sell"]]
+            .sum()
+            .rename(columns={broker_column: "broker"})
+        )
+        broker_daily["net_buy"] = broker_daily["buy"] - \
+            broker_daily["sell"]
+        return broker_daily, True
+
+    def _build_daily_entry(broker_daily, target_day):
+        """由單日分點彙總建立 daily_by_date 項目與分點明細。"""
+        top_buy_rows, top_sell_rows = _broker_trading_top_rows(broker_daily)
+
+        active_buyers = broker_daily.loc[broker_daily["buy"] > 0, "broker"].nunique(
+        )
+        active_sellers = broker_daily.loc[broker_daily["sell"] > 0, "broker"].nunique(
+        )
+        broker_diff = int(active_buyers - active_sellers)
+
+        main_force_net = _calc_cmoney_main_force_from_brokers(broker_daily)
+        total_volume_shares = _actual_volume_shares(
+            broker_daily["buy"].sum(), broker_daily["sell"].sum()
+        )
+        total_volume_lots = _shares_to_lots(total_volume_shares)
+        concentration_pct = _cmoney_concentration_pct(
+            main_force_net, total_volume_lots)
+
+        short_margin_ratio_pct, short_margin_source_date = _fetch_short_margin_ratio_with_fallback(
+            target_day, max_back_days=margin_ratio_lookback_days
+        )
+
+        if (
+            not suppress_api_logs
+            and short_margin_source_date is not None
+            and short_margin_source_date != target_day
+        ):
+            print(
+                f"ℹ️ chip analysis short margin fallback {stock_id}: {target_day} -> {short_margin_source_date}"
+            )
+        entry = {
+            "date": target_day,
+            "chip_concentration_pct": concentration_pct,
+            "short_margin_ratio_pct": short_margin_ratio_pct,
+            "main_force_net": main_force_net,
+            "broker_diff": broker_diff,
+            "total_volume": total_volume_lots,
+            "broker_trading_top_buy_15": top_buy_rows,
+            "broker_trading_top_sell_15": top_sell_rows,
+        }
+        frame = broker_daily[["broker", "buy", "sell"]].copy()
+        frame["date"] = target_day
+        return entry, frame
+
+    def _serialize_chip_payload(daily_map, broker_map):
+        def _json_safe(value):
+            if hasattr(value, "strftime"):
+                return _chip_date_to_text(value)
+            if isinstance(value, dict):
+                return {k: _json_safe(v) for k, v in value.items()}
+            if isinstance(value, (list, tuple)):
+                return [_json_safe(v) for v in value]
+            return value
+
+        return {
+            "daily_by_date": {
+                _chip_date_to_text(day): {
+                    key: _json_safe(value)
+                    for key, value in entry.items() if key != "date"
+                }
+                for day, entry in daily_map.items()
+            },
+            "broker_frames_by_date": {
+                _chip_date_to_text(day): _json_safe(
+                    frame.to_dict(orient="records"))
+                for day, frame in broker_map.items()
+            },
+        }
+
+    def _deserialize_chip_payload(payload):
+        daily_map = {}
+        for date_text, entry in (payload.get("daily_by_date") or {}).items():
+            day = pd.to_datetime(date_text, errors="coerce")
+            if pd.isna(day):
+                continue
+            item = dict(entry)
+            item["date"] = day.date()
+            daily_map[day.date()] = item
+        broker_map = {}
+        for date_text, records in (payload.get("broker_frames_by_date") or {}).items():
+            day = pd.to_datetime(date_text, errors="coerce")
+            if pd.isna(day):
+                continue
+            frame = pd.DataFrame(records)
+            if frame.empty:
+                continue
+            frame["date"] = day.date()
+            broker_map[day.date()] = frame
+        return daily_map, broker_map
+
     def _shares_to_lots(value):
         """
         CMoney 顯示主力買賣超以「張」為單位。
@@ -1375,11 +1552,10 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
         return _score_by_ratio(score / len(comparisons))
 
     try:
-        start_date = datetime.today().date() - timedelta(days=lookback_days)
-        end_date = datetime.today().date()
+        start_date = _taiwan_today_date() - timedelta(days=lookback_days)
+        end_date = _taiwan_today_date()
         daily_by_date = {}
         broker_frames_by_date = {}
-        current_date = end_date
         min_required_days = max(days, 5)
 
         suppress_api_logs = str(os.getenv("CHIP_SUPPRESS_API_LOGS", "1")).strip().lower() in {
@@ -1389,135 +1565,41 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             "CHIP_MARGIN_RATIO_LOOKBACK_DAYS", 5, min_value=0, max_value=10
         )
 
+        # 同日重複查詢：沿用本地快取，僅增補缺漏日期（含當日盤中變動）；
+        # 跨日查詢：全量重取（FinMind 可能回溯修正歷史資料）。
+        chip_cache_used = False
+        if CHIP_CACHE_ENABLED:
+            cached_payload, cached_meta = _load_chip_cache(stock_id)
+            if cached_payload is not None and cached_meta.get("fetch_date") == _taiwan_today_text():
+                daily_by_date, broker_frames_by_date = _deserialize_chip_payload(
+                    cached_payload)
+                chip_cache_used = bool(daily_by_date)
+                if chip_cache_used and not suppress_api_logs:
+                    print(
+                        f"📦 chip analysis cache hit {stock_id}: {len(daily_by_date)} days, 同日增補缺漏日期"
+                    )
+
+        current_date = end_date
         while current_date >= start_date:
-            date_str = current_date.strftime("%Y-%m-%d")
-            params = {
-                "dataset": "TaiwanStockTradingDailyReport",
-                "data_id": str(stock_id),
-                "start_date": date_str,
-                "end_date": date_str,
-                "token": FINMIND_token,
-            }
+            if current_date in daily_by_date:
+                current_date -= timedelta(days=1)
+                continue
 
-            if not suppress_api_logs:
-                print(
-                    f"🔎 chip analysis request: dataset={params['dataset']} stock_id={stock_id} date={date_str} token_present={bool(FINMIND_token)}"
-                )
-
-            _record_finmind_request(
-                "chip analysis", stock_id, "TaiwanStockTradingDailyReport"
-            )
-            res = requests.get(API_URL, params=params,
-                               headers=headers, timeout=300)
-
-            if not suppress_api_logs:
-                print(f"🔄 chip analysis response status: {res.status_code}")
-
-            res_data = _safe_response_json(res)
-
-            if res.status_code != 200:
-                _print_api_status_error(
-                    "chip analysis", stock_id, res, res_data)
+            broker_daily, ok = _fetch_trading_daily_report_day(current_date)
+            if not ok:
+                if chip_cache_used:
+                    print(
+                        f"⚠️ chip analysis 增補失敗 {stock_id}，沿用同日快取")
+                    break
                 return empty
-
-            data = res_data.get("data", [])
-            if not data:
+            if broker_daily is None:
                 # T 日無資料（例如週末/休市）時，往前遞延取 T-1。
                 current_date -= timedelta(days=1)
                 continue
 
-            df = pd.DataFrame(data)
-            broker_column = None
-            if "broker" in df.columns:
-                broker_column = "broker"
-            elif "securities_trader" in df.columns:
-                broker_column = "securities_trader"
-            elif "securities_trader_id" in df.columns:
-                broker_column = "securities_trader_id"
-
-            required = {"date", "stock_id", "buy", "sell"}
-            if broker_column:
-                required.add(broker_column)
-
-            if not required.issubset(df.columns) or broker_column is None:
-                if not suppress_api_logs:
-                    print(
-                        f"⚠️ chip analysis missing cols {stock_id} on {date_str}: cols={list(df.columns)}")
-                current_date -= timedelta(days=1)
-                continue
-
-            df = df[df["stock_id"].astype(str) == str(stock_id)]
-            if df.empty:
-                current_date -= timedelta(days=1)
-                continue
-
-            df["date"] = pd.to_datetime(df["date"], errors="coerce")
-            df["buy"] = pd.to_numeric(df["buy"], errors="coerce").fillna(0)
-            df["sell"] = pd.to_numeric(df["sell"], errors="coerce").fillna(0)
-            df = df.dropna(subset=["date"])
-            if df.empty:
-                current_date -= timedelta(days=1)
-                continue
-
-            target_day = pd.to_datetime(date_str, errors="coerce")
-            if pd.isna(target_day):
-                current_date -= timedelta(days=1)
-                continue
-            df = df[df["date"].dt.date == target_day.date()]
-            if df.empty:
-                current_date -= timedelta(days=1)
-                continue
-
-            broker_daily = (
-                df.groupby(broker_column, as_index=False)[["buy", "sell"]]
-                .sum()
-                .rename(columns={broker_column: "broker"})
-            )
-            broker_daily["net_buy"] = broker_daily["buy"] - \
-                broker_daily["sell"]
-            top_buy_rows, top_sell_rows = _broker_trading_top_rows(
-                broker_daily)
-
-            active_buyers = broker_daily.loc[broker_daily["buy"] > 0, "broker"].nunique(
-            )
-            active_sellers = broker_daily.loc[broker_daily["sell"] > 0, "broker"].nunique(
-            )
-            broker_diff = int(active_buyers - active_sellers)
-
-            main_force_net = _calc_cmoney_main_force_from_brokers(broker_daily)
-            total_volume_shares = _actual_volume_shares(
-                broker_daily["buy"].sum(), broker_daily["sell"].sum()
-            )
-            total_volume_lots = _shares_to_lots(total_volume_shares)
-            concentration_pct = _cmoney_concentration_pct(
-                main_force_net, total_volume_lots)
-
-            short_margin_ratio_pct, short_margin_source_date = _fetch_short_margin_ratio_with_fallback(
-                target_day.date(), max_back_days=margin_ratio_lookback_days
-            )
-
-            actual_date = df["date"].max().date()
-            if (
-                not suppress_api_logs
-                and short_margin_source_date is not None
-                and short_margin_source_date != actual_date
-            ):
-                print(
-                    f"ℹ️ chip analysis short margin fallback {stock_id}: {actual_date} -> {short_margin_source_date}"
-                )
-            daily_by_date[actual_date] = {
-                "date": actual_date,
-                "chip_concentration_pct": concentration_pct,
-                "short_margin_ratio_pct": short_margin_ratio_pct,
-                "main_force_net": main_force_net,
-                "broker_diff": broker_diff,
-                "total_volume": total_volume_lots,
-                "broker_trading_top_buy_15": top_buy_rows,
-                "broker_trading_top_sell_15": top_sell_rows,
-            }
-            broker_daily["date"] = actual_date
-            broker_frames_by_date[actual_date] = broker_daily[[
-                "date", "broker", "buy", "sell"]].copy()
+            entry, frame = _build_daily_entry(broker_daily, current_date)
+            daily_by_date[current_date] = entry
+            broker_frames_by_date[current_date] = frame
 
             current_date -= timedelta(days=1)
             if len(daily_by_date) >= min_required_days:
@@ -1525,6 +1607,10 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
 
         if not daily_by_date:
             return empty
+
+        if CHIP_CACHE_ENABLED:
+            _save_chip_cache(stock_id, _serialize_chip_payload(
+                daily_by_date, broker_frames_by_date))
 
         all_report = pd.DataFrame(list(daily_by_date.values()))
         if "date" not in all_report.columns:

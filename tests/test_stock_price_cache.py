@@ -168,6 +168,164 @@ class FetchStockPriceRemoteScaleTests(unittest.TestCase):
         self.assertEqual(df.iloc[0]["volume"], 2000)
 
 
+class ChipCacheTests(unittest.TestCase):
+    """get_chip_analysis 同日增補、跨日重取的快取行為。"""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self._old_dir = data_sources.CHIP_CACHE_DIR
+        self._old_enabled = data_sources.CHIP_CACHE_ENABLED
+        data_sources.CHIP_CACHE_DIR = self.tmp.name
+        data_sources.CHIP_CACHE_ENABLED = True
+        self.addCleanup(setattr, data_sources,
+                        "CHIP_CACHE_DIR", self._old_dir)
+        self.addCleanup(setattr, data_sources,
+                        "CHIP_CACHE_ENABLED", self._old_enabled)
+
+    @staticmethod
+    def _broker_frame(day, buy=1000, sell=500):
+        return pd.DataFrame({
+            "broker": ["A", "B"],
+            "buy": [buy, 0],
+            "sell": [0, sell],
+            "net_buy": [buy, -sell],
+        })
+
+    @staticmethod
+    def _daily_entry(day, concentration=20.0):
+        return {
+            "date": day,
+            "chip_concentration_pct": concentration,
+            "short_margin_ratio_pct": 10.0,
+            "main_force_net": 100,
+            "broker_diff": 1,
+            "total_volume": 1000,
+            "broker_trading_top_buy_15": [],
+            "broker_trading_top_sell_15": [],
+        }
+
+    def _run(self, stock_id="2330"):
+        with patch.object(data_sources.requests, "get") as mock_get:
+            mock_get.return_value.status_code = 200
+            mock_get.return_value.json.return_value = {"data": []}
+            return data_sources.get_chip_analysis(
+                stock_id, trend_days=3, concentration_threshold=15,
+                lookback_days=10), mock_get
+
+    def test_same_day_incremental_supplement(self):
+        stock_id = "2330"
+        today = data_sources._taiwan_today_date()
+        cached_day = today - timedelta(days=1)
+        payload = {
+            "daily_by_date": {
+                cached_day.strftime("%Y-%m-%d"): {
+                    k: v for k, v in self._daily_entry(cached_day).items()
+                    if k != "date"
+                },
+            },
+            "broker_frames_by_date": {
+                cached_day.strftime("%Y-%m-%d"):
+                    self._broker_frame(cached_day).to_dict(orient="records"),
+            },
+        }
+        json_path, meta_path = data_sources._chip_cache_paths(stock_id)
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(payload, f)
+        with open(meta_path, "w", encoding="utf-8") as f:
+            json.dump({"stock_id": stock_id,
+                       "fetch_date": data_sources._taiwan_today_text()}, f)
+
+        result, mock_get = self._run(stock_id)
+
+        # 同日：僅增補缺漏日期，快取日不重抓
+        called_dates = {
+            call.kwargs["params"]["start_date"]
+            for call in mock_get.call_args_list
+            if call.kwargs.get("params", {}).get("dataset")
+            == "TaiwanStockTradingDailyReport"
+        }
+        self.assertNotIn(cached_day.strftime("%Y-%m-%d"), called_dates)
+        self.assertEqual(result["chip_available_days"], 1)
+        self.assertEqual(result["chip_latest_date"],
+                         cached_day.strftime("%Y-%m-%d"))
+        self.assertEqual(result["chip_concentration_pct"], 20.0)
+
+    def test_cross_day_full_refetch(self):
+        stock_id = "2330"
+        today = data_sources._taiwan_today_date()
+        cached_day = today - timedelta(days=1)
+        payload = {
+            "daily_by_date": {
+                cached_day.strftime("%Y-%m-%d"): {
+                    k: v for k, v in self._daily_entry(cached_day).items()
+                    if k != "date"
+                },
+            },
+            "broker_frames_by_date": {},
+        }
+        json_path, meta_path = data_sources._chip_cache_paths(stock_id)
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(payload, f)
+        yesterday = (today - timedelta(days=1)).strftime("%Y-%m-%d")
+        with open(meta_path, "w", encoding="utf-8") as f:
+            json.dump({"stock_id": stock_id, "fetch_date": yesterday}, f)
+
+        result, mock_get = self._run(stock_id)
+
+        # 跨日：全量重取，快取日也重新查詢
+        called_dates = {
+            call.kwargs["params"]["start_date"]
+            for call in mock_get.call_args_list
+            if call.kwargs.get("params", {}).get("dataset")
+            == "TaiwanStockTradingDailyReport"
+        }
+        self.assertIn(cached_day.strftime("%Y-%m-%d"), called_dates)
+        self.assertEqual(result["chip_available_days"], 0)
+
+    def test_increment_failure_falls_back_to_cache(self):
+        stock_id = "2330"
+        today = data_sources._taiwan_today_date()
+        cached_day = today - timedelta(days=1)
+        payload = {
+            "daily_by_date": {
+                cached_day.strftime("%Y-%m-%d"): {
+                    k: v for k, v in self._daily_entry(cached_day).items()
+                    if k != "date"
+                },
+            },
+            "broker_frames_by_date": {
+                cached_day.strftime("%Y-%m-%d"):
+                    self._broker_frame(cached_day).to_dict(orient="records"),
+            },
+        }
+        json_path, meta_path = data_sources._chip_cache_paths(stock_id)
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(payload, f)
+        with open(meta_path, "w", encoding="utf-8") as f:
+            json.dump({"stock_id": stock_id,
+                       "fetch_date": data_sources._taiwan_today_text()}, f)
+
+        with patch.object(data_sources.requests, "get") as mock_get:
+            mock_get.return_value.status_code = 500
+            mock_get.return_value.json.return_value = {}
+            mock_get.return_value.text = "server error"
+            result = data_sources.get_chip_analysis(
+                stock_id, trend_days=3, concentration_threshold=15,
+                lookback_days=10)
+
+        # 增補失敗：沿用同日快取而非回傳空
+        self.assertEqual(result["chip_available_days"], 1)
+        self.assertEqual(result["chip_latest_date"],
+                         cached_day.strftime("%Y-%m-%d"))
+
+    def test_cache_disabled_always_full_fetch(self):
+        data_sources.CHIP_CACHE_ENABLED = False
+        result, _ = self._run("2330")
+        self.assertEqual(result["chip_available_days"], 0)
+        self.assertEqual(os.listdir(self.tmp.name), [])
+
+
 class IndexMaintenanceTests(unittest.TestCase):
     SERIES = [("2026-11-10", 167.99), ("2026-11-09", 162.46),
               ("2026-11-06", 151.93)]
