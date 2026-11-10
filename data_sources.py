@@ -1,5 +1,7 @@
+import json
 import logging
 import os
+import re
 from datetime import datetime, timedelta
 
 import pandas as pd
@@ -198,13 +200,149 @@ def _print_api_status_error(source, stock_id, res, data=None):
     )
 
 
-def get_stock_data(stock_id):
+# 股價查詢快取：同日重複查詢只增補最新資料，跨日才全量重取，
+# 以縮短 FinMind token 用量與查詢時間。STOCK_PRICE_CACHE_ENABLED=0 可停用。
+STOCK_PRICE_START_DATE = os.getenv("STOCK_PRICE_START_DATE", "2023-01-01")
+STOCK_PRICE_CACHE_ENABLED = os.getenv(
+    "STOCK_PRICE_CACHE_ENABLED", "1").strip().lower() not in {"0", "false", "no", "off"}
+STOCK_PRICE_CACHE_DIR = os.getenv(
+    "STOCK_PRICE_CACHE_DIR", os.path.join("Dataset", "StockPriceCache"))
+
+# 籌碼查詢快取：同日重複查詢只增補缺漏日期，跨日才全量重取，
+# 以縮短 FinMind token 用量與查詢時間。CHIP_CACHE_ENABLED=0 可停用。
+CHIP_CACHE_ENABLED = os.getenv(
+    "CHIP_CACHE_ENABLED", "1").strip().lower() not in {"0", "false", "no", "off"}
+CHIP_CACHE_DIR = os.getenv(
+    "CHIP_CACHE_DIR", os.path.join("Dataset", "ChipCache"))
+
+
+def _chip_cache_paths(stock_id):
+    safe_id = re.sub(r"[^0-9A-Za-z_-]", "_", str(stock_id))
+    base = os.path.join(CHIP_CACHE_DIR, safe_id)
+    return base + ".json", base + ".meta.json"
+
+
+def _chip_date_to_text(value):
+    try:
+        ts = pd.to_datetime(value, errors="coerce")
+        if pd.isna(ts):
+            return None
+        return ts.strftime("%Y-%m-%d")
+    except Exception:
+        return None
+
+
+def _load_chip_cache(stock_id):
+    """Return cached (payload, meta); (None, None) when cache is missing/invalid."""
+    json_path, meta_path = _chip_cache_paths(stock_id)
+    try:
+        if not (os.path.exists(json_path) and os.path.exists(meta_path)):
+            return None, None
+        with open(meta_path, "r", encoding="utf-8") as f:
+            meta = json.load(f)
+        with open(json_path, "r", encoding="utf-8") as f:
+            payload = json.load(f)
+        if not isinstance(payload, dict) or not payload.get("daily_by_date"):
+            return None, None
+        return payload, meta
+    except Exception as e:
+        print(f"⚠️ chip cache read error {stock_id}: {e}")
+        return None, None
+
+
+def _save_chip_cache(stock_id, payload):
+    if not payload or not payload.get("daily_by_date"):
+        return
+    json_path, meta_path = _chip_cache_paths(stock_id)
+    try:
+        os.makedirs(CHIP_CACHE_DIR, exist_ok=True)
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False)
+        meta = {
+            "stock_id": str(stock_id),
+            "fetch_date": _taiwan_today_text(),
+        }
+        with open(meta_path, "w", encoding="utf-8") as f:
+            json.dump(meta, f, ensure_ascii=False)
+    except Exception as e:
+        print(f"⚠️ chip cache write error {stock_id}: {e}")
+
+
+def _taiwan_today_text():
+    return (datetime.utcnow() + timedelta(hours=8)).strftime("%Y-%m-%d")
+
+
+def _taiwan_today_date():
+    return (datetime.utcnow() + timedelta(hours=8)).date()
+
+
+def _stock_price_cache_paths(stock_id):
+    safe_id = re.sub(r"[^0-9A-Za-z_-]", "_", str(stock_id))
+    base = os.path.join(STOCK_PRICE_CACHE_DIR, safe_id)
+    return base + ".csv", base + ".meta.json"
+
+
+def _load_stock_price_cache(stock_id):
+    """Return cached (df, meta); (None, None) when cache is missing/invalid."""
+    csv_path, meta_path = _stock_price_cache_paths(stock_id)
+    try:
+        if not (os.path.exists(csv_path) and os.path.exists(meta_path)):
+            return None, None
+        with open(meta_path, "r", encoding="utf-8") as f:
+            meta = json.load(f)
+        df = pd.read_csv(csv_path)
+        if df.empty or "date" not in df.columns:
+            return None, None
+        df["date"] = pd.to_datetime(df["date"], errors="coerce")
+        df = df.dropna(subset=["date"]).sort_values("date")
+        for col in ("open", "close", "max", "min", "volume"):
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors="coerce")
+        if df.empty:
+            return None, None
+        return df, meta
+    except Exception as e:
+        print(f"⚠️ stock price cache read error {stock_id}: {e}")
+        return None, None
+
+
+def _save_stock_price_cache(stock_id, df, volume_scale):
+    if df is None or df.empty:
+        return
+    csv_path, meta_path = _stock_price_cache_paths(stock_id)
+    try:
+        os.makedirs(STOCK_PRICE_CACHE_DIR, exist_ok=True)
+        out = df.copy()
+        out["date"] = pd.to_datetime(out["date"]).dt.strftime("%Y-%m-%d")
+        cols = [c for c in ("date", "open", "close",
+                            "max", "min", "volume") if c in out.columns]
+        out[cols].to_csv(csv_path, index=False, encoding="utf-8-sig")
+        meta = {
+            "stock_id": str(stock_id),
+            "fetch_date": _taiwan_today_text(),
+            "last_data_date": out["date"].max(),
+            "volume_scale": int(volume_scale or 1),
+        }
+        with open(meta_path, "w", encoding="utf-8") as f:
+            json.dump(meta, f, ensure_ascii=False)
+    except Exception as e:
+        print(f"⚠️ stock price cache write error {stock_id}: {e}")
+
+
+def _fetch_stock_price_remote(stock_id, start_date, volume_scale=None):
+    """Fetch TaiwanStockPrice from FinMind; return (cleaned df, volume_scale, ok).
+
+    ok=False 代表請求失敗（非 200 或例外）；ok=True 但 df 為空代表合法無資料。
+    volume_scale 指定時沿用該量綱（1 或 1000），未指定時以歷史啟發式判定，
+    確保同日增補資料與快取的量綱一致。
+    """
+    forced_scale = volume_scale if volume_scale in (1, 1000) else None
     try:
         _record_finmind_request("get_stock_data", stock_id, "TaiwanStockPrice")
         params = {
             'dataset': 'TaiwanStockPrice',
             'data_id': str(stock_id),
-            'start_date': '2023-01-01',
+            'start_date': start_date,
             'token': FINMIND_token,
         }
         res = requests.get(API_URL, params=params,
@@ -218,12 +356,12 @@ def get_stock_data(stock_id):
 
         if res.status_code != 200:
             _print_api_status_error('get_stock_data', stock_id, res, data)
-            return pd.DataFrame()
+            return pd.DataFrame(), 1, False
 
         if 'data' not in data or len(data['data']) == 0:
             print(
                 f"⚠️ get_stock_data empty {stock_id}: status={res.status_code}, msg={data.get('msg')}")
-            return pd.DataFrame()
+            return pd.DataFrame(), 1, True
 
         df = pd.DataFrame(data['data'])
 
@@ -242,10 +380,16 @@ def get_stock_data(stock_id):
         for col in ['open', 'close', 'max', 'min']:
             df[col] = pd.to_numeric(df[col], errors='coerce')
 
+        volume_scale = 1
         if volume_col:
             df['volume'] = pd.to_numeric(df[volume_col], errors='coerce')
-            if df['volume'].max() > 100000:
+            if forced_scale is not None:
+                if forced_scale != 1:
+                    df['volume'] = df['volume'] / forced_scale
+                volume_scale = forced_scale
+            elif df['volume'].max() > 100000:
                 df['volume'] = df['volume'] / 1000
+                volume_scale = 1000
         else:
             df['volume'] = None
 
@@ -256,12 +400,58 @@ def get_stock_data(stock_id):
         valid_prices &= df['open'].between(df['min'], df['max'])
         df = df.loc[valid_prices].sort_values('date')
 
-        return df
+        return df, volume_scale, True
     except RuntimeError:
         raise
     except Exception as e:
         print(f'❌ get_stock_data error {stock_id}: {e}')
-        return pd.DataFrame()
+        return pd.DataFrame(), 1, False
+
+
+def get_stock_data(stock_id):
+    """Fetch TaiwanStockPrice；同日增補、跨日重取，以縮短 token 用量與查詢時間。
+
+    - 同日重複查詢：沿用本地快取，僅自最後資料日起增補（涵蓋當日盤中變動）。
+    - 跨日查詢：全量重取（FinMind 可能回溯修正歷史資料）。
+    - 請求失敗時沿用快取；設 STOCK_PRICE_CACHE_ENABLED=0 可停用快取。
+    """
+    if not STOCK_PRICE_CACHE_ENABLED:
+        df, _, _ = _fetch_stock_price_remote(stock_id, STOCK_PRICE_START_DATE)
+        return df
+
+    cached_df, meta = _load_stock_price_cache(stock_id)
+    today = _taiwan_today_text()
+    same_day = (
+        cached_df is not None
+        and meta.get("fetch_date") == today
+        and bool(meta.get("last_data_date"))
+        and meta.get("volume_scale") in (1, 1000)
+    )
+
+    if same_day:
+        start_date = str(meta["last_data_date"])
+        volume_scale = meta["volume_scale"]
+        inc_df, _, ok = _fetch_stock_price_remote(
+            stock_id, start_date, volume_scale=volume_scale)
+        if not ok or inc_df is None or inc_df.empty:
+            if not ok:
+                print(f"⚠️ get_stock_data 增補失敗 {stock_id}，沿用同日快取")
+            return cached_df
+        cutoff = pd.to_datetime(start_date)
+        merged = pd.concat([
+            cached_df[cached_df["date"] < cutoff],
+            inc_df,
+        ]).drop_duplicates(subset=["date"], keep="last").sort_values("date")
+        _save_stock_price_cache(stock_id, merged, volume_scale)
+        return merged
+
+    df, volume_scale, ok = _fetch_stock_price_remote(
+        stock_id, STOCK_PRICE_START_DATE)
+    if not ok and cached_df is not None:
+        print(f"⚠️ get_stock_data 跨日重取失敗 {stock_id}，沿用前日快取")
+        return cached_df
+    _save_stock_price_cache(stock_id, df, volume_scale)
+    return df
 
 
 def get_stock_reference_price(stock_id, trade_date):

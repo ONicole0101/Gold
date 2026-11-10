@@ -1429,7 +1429,7 @@
           { key: "margin_cost_line", label: "融資成本線<br><small>T/T-1/T-2</small>", tooltip: "融資成本線（融資部位估算加權平均成本，單位：元）；股價跌破該成本線代表融資帳面轉損、壓力升高。" },
           { key: "margin_maintenance", label: "融資維持率<br><small>5MA/增減%</small>", tooltip: "融資維持率%＝股票現值 ÷ 融資金額 × 100%（FinMind 估算值；個股 TaiwanStockMarginMaintenance、大盤 TaiwanTotalExchangeMarginMaintenance）。初始約 166%（融資成數六成），低於 130% 有追繳壓力；追繳門檻 130% 後股價再跌 -10%→117%、跌 -15%→110.5%、跌 -20%→104%。增減%＝(T日維持率 ÷ 5日均維持率 − 1) × 100%；點擊此欄可依增減%排序。" },
           { key: "volume", label: "量<br><small>5MA/增減%</small>", cls: "col-volume", tooltip: "增減%＝(當日成交量 ÷ 5日均量 − 1) × 100%；正值代表成交量高於5日均量，負值代表低於5日均量。籌碼面點擊此欄可依增減%排序。" },
-          { key: "turnover_pct", label: "周轉率%<br><small>T/T-1/T-2</small>", tooltip: "周轉率%＝成交股數（張）× 1,000 ÷（已發行普通股股數 − 庫藏股股數）× 100%；已發行股數取自 FinMind TaiwanStockShareholding.NumberOfSharesIssued。" },
+          { key: "turnover_pct", label: "周轉率%<br><small>T/T-1/T-2</small>", tooltip: "周轉率%＝成交股數（張）× 1,000 ÷（已發行普通股股數 − 庫藏股股數）× 100%；已發行股數取自 FinMind TaiwanStockShareholding.NumberOfSharesIssued。數值越高代表交投越熱絡、流動性越佳，但過高可能短線過熱、籌碼鬆動；數值越低代表交投冷清、流動性較差，但籌碼相對安定。" },
           { key: "short_margin_ratio_score", label: "券資比%<br><small>T/T-1/T-2</small>", tooltip: "券資比%＝融券餘額 ÷ 融資餘額 × 100。數值越高代表放空籌碼占比越高，常見於市場偏保守或避險需求升高時；需搭配價格趨勢與主力買賣超共同判讀。" },
           { key: "chip_concentration_score", label: "籌碼集中%<br><small>20MA/增減%</small>", tooltip: "籌碼集中%＝主力買賣超張數 ÷ 成交量張數 × 100%。顯示 T 日值與近 20 日均值比較的方向及增減百分比。" },
           { key: "margin_purchase_change_score", label: "融資增減<br><small>T/T-1/T-2</small>", tooltip: "融資增減＝當日融資今日餘額 - 融資昨日餘額，正值代表融資餘額增加，負值代表減少。" },
@@ -1475,7 +1475,7 @@
           { key: "buy_gross_margin", label: "毛利率<br><small>QoQ / YoY</small>", tooltip: "顯示毛利率及其季度、年度變化。" },
           { key: "buy_vr", label: "日VR<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 VR 值及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。" },
           { key: "buy_obv", label: "日OBV<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 OBV 值及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。" },
-          { key: "buy_turnover", label: "周轉率<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日周轉率及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。" }
+          { key: "buy_turnover", label: "周轉率<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日周轉率及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。周轉率高代表交投熱絡、流動性佳，但過高可能短線過熱；周轉率低代表交投冷清，但籌碼相對安定。" }
         ]
       },
       sell: {
@@ -1490,7 +1490,7 @@
           { key: "sell_per", label: "日PER<br><small>120日區間</small>", tooltip: "顯示日 PER、TTM 與 120 日區間。" },
           { key: "sell_vr", label: "日VR<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 VR 值及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。" },
           { key: "sell_obv", label: "日OBV<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日 OBV 值及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。" },
-          { key: "sell_turnover", label: "周轉率<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日周轉率及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。" },
+          { key: "sell_turnover", label: "周轉率<br><small>T/T-1/T-2</small>", tooltip: "顯示最近三個交易日周轉率及變化；上升紅色↑、下降綠色↓，另以箭頭摘要趨勢。周轉率高代表交投熱絡、流動性佳，但過高可能短線過熱；周轉率低代表交投冷清，但籌碼相對安定。" },
           { key: "bias5", label: "日Bias5<br><small>120日LH</small>", tooltip: "日Bias5＝(收盤價 - 5日均線MA5) ÷ MA5 × 100。正值代表股價在均線之上，負值代表在均線之下。" },
           { key: "bias20", label: "日Bias20<br><small>120日LH</small>", tooltip: "日Bias20＝(收盤價 - 20日均線MA20) ÷ MA20 × 100。正值代表股價在均線之上，負值代表在均線之下。" },
           { key: "bias60", label: "日Bias60<br><small>120日LH</small>", tooltip: "日Bias60＝(收盤價 - 60日均線MA60) ÷ MA60 × 100。正值代表股價在均線之上，負值代表在均線之下。" }

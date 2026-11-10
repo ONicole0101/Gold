@@ -558,10 +558,72 @@ def _parse_maintenance_series(chip_raw: dict) -> list:
     return sorted(series.items(), reverse=True)
 
 
+def _fetch_maintenance_series(lookback_days: int = 60) -> list:
+    """單獨補抓 TaiwanTotalExchangeMarginMaintenance，確保大盤融資維持率不為空值。"""
+    token, headers = _refresh_finmind_runtime_auth()
+    start_date = (datetime.now() -
+                  timedelta(days=lookback_days)).strftime("%Y-%m-%d")
+    try:
+        _record_finmind_request(
+            "market_total_chips_maintenance_fallback", "total",
+            "TaiwanTotalExchangeMarginMaintenance")
+        params = {"dataset": "TaiwanTotalExchangeMarginMaintenance",
+                  "start_date": start_date, "token": token}
+        res = requests.get(API_URL, params=params, headers=headers, timeout=30)
+        data = _safe_response_json(res)
+        if res.status_code == 200:
+            return _parse_maintenance_series(
+                {"maintenance_rows": data.get("data") or []})
+        print(
+            f"[index chips] TaiwanTotalExchangeMarginMaintenance fallback HTTP {res.status_code}")
+    except Exception as exc:
+        print(
+            f"[index chips] TaiwanTotalExchangeMarginMaintenance fallback error: {exc}")
+    return []
+
+
 def _build_index_chip_fields(parsed: list, maintenance_series: list | None = None) -> dict:
     """Extract T / T-1 / T-2 values and trend scores from parsed chip list."""
+    # 大盤融資維持率 22:30 才更新，當日無資料時沿用最近可得日期（與個股遞延規則一致）。
+    maintenance_series = maintenance_series or []
+
+    def _maintenance_on_or_before(target_date):
+        for date_text, value in maintenance_series:
+            if target_date is None or date_text <= target_date:
+                return value
+        # 目標日早於所有可得資料時，取時間上最接近的一筆，避免空值。
+        if maintenance_series:
+            return maintenance_series[-1][1]
+        return None
+
+    def _maintenance_fields(t0_date, t1_date, t2_date):
+        m0 = _maintenance_on_or_before(t0_date)
+        ma5_values = [
+            value for date_text, value in maintenance_series
+            if t0_date is None or date_text <= t0_date
+        ][:5]
+        if not ma5_values and maintenance_series:
+            ma5_values = [value for _, value in maintenance_series[:5]]
+        return {
+            "margin_maintenance": m0,
+            "margin_maintenance_t0": m0,
+            "margin_maintenance_t1": (
+                _maintenance_on_or_before(t1_date) if t1_date else None
+            ),
+            "margin_maintenance_t2": (
+                _maintenance_on_or_before(t2_date) if t2_date else None
+            ),
+            "margin_maintenance_ma5": (
+                round(sum(ma5_values) / len(ma5_values), 2)
+                if ma5_values else None
+            ),
+        }
+
     if not parsed:
-        return {}
+        # 法人/融資融券解析不到資料時，仍提供大盤融資維持率，避免空值。
+        if not maintenance_series:
+            return {}
+        return _maintenance_fields(None, None, None)
 
     def _score(v):
         if v is None:
@@ -593,30 +655,11 @@ def _build_index_chip_fields(parsed: list, maintenance_series: list | None = Non
     fields["short_margin_ratio_pct_t2"] = t2.get("short_margin_ratio_pct")
     fields["short_margin_ratio_score"] = _score(v0)
 
-    # 大盤融資維持率 22:30 才更新，當日無資料時沿用最近可得日期（與個股遞延規則一致）。
-    maintenance_series = maintenance_series or []
-
-    def _maintenance_on_or_before(target_date):
-        for date_text, value in maintenance_series:
-            if target_date is None or date_text <= target_date:
-                return value
-        return None
-
-    m0 = _maintenance_on_or_before(t0.get("date"))
-    fields["margin_maintenance"] = m0
-    fields["margin_maintenance_t0"] = m0
-    fields["margin_maintenance_t1"] = _maintenance_on_or_before(
-        t1.get("date")) if t1 else None
-    fields["margin_maintenance_t2"] = _maintenance_on_or_before(
-        t2.get("date")) if t2 else None
-    t0_date = t0.get("date")
-    ma5_values = [
-        value for date_text, value in maintenance_series
-        if t0_date is None or date_text <= t0_date
-    ][:5]
-    fields["margin_maintenance_ma5"] = (
-        round(sum(ma5_values) / len(ma5_values), 2) if ma5_values else None
-    )
+    fields.update(_maintenance_fields(
+        t0.get("date"),
+        t1.get("date") if t1 else None,
+        t2.get("date") if t2 else None,
+    ))
 
     return fields
 
@@ -624,6 +667,8 @@ def _build_index_chip_fields(parsed: list, maintenance_series: list | None = Non
 def get_market_index_rows():
     """Return list of index row dicts for TAIEX and TPEx, with market-wide chip data."""
     chip_fields: dict = {}
+    parsed: list = []
+    maintenance_series: list = []
     try:
         print("[index] fetching market-wide chip data...")
         chip_raw = _fetch_market_total_chips()
@@ -639,6 +684,18 @@ def get_market_index_rows():
         )
     except Exception as exc:
         print(f"[index] chips error: {exc}")
+
+    if chip_fields.get("margin_maintenance") is None:
+        # 大盤融資維持率不應為空值：主流程取不到時，以較長區間單獨補抓。
+        if not maintenance_series:
+            maintenance_series = _fetch_maintenance_series()
+        if maintenance_series:
+            chip_fields.update(
+                _build_index_chip_fields(parsed, maintenance_series))
+            print(
+                f"[index] chips maintenance fallback: "
+                f"mm={chip_fields.get('margin_maintenance_t0')}"
+            )
 
     rows = []
     for cfg in INDEX_CONFIGS:
