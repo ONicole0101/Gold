@@ -1129,7 +1129,7 @@
 
 <body>
   <div class="container">
-    <p>產生時間：2026-11-11 19:20</p>
+    <p>產生時間：2026-11-11 19:42</p>
 
     <div class="tabs" id="tabs">
       <button type="button" class="tab-btn active" data-tab="overview">總覽</button>
@@ -1537,7 +1537,7 @@
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "price", label: "價格<br><small>120日LH距離</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值，高點距離為正值。" },
           { key: "margin_cost_line", label: "融資成本線<br><small>T/T-1/T-2</small>", tooltip: "融資成本線（融資部位估算加權平均成本，單位：元）；股價跌破該成本線代表融資帳面轉損、壓力升高。" },
-          { key: "margin_maintenance", label: "融資維持率<br><small>5MA/增減%</small>", tooltip: "融資維持率%＝股票現值 ÷ 融資金額 × 100%（FinMind 估算值；個股 TaiwanStockMarginMaintenance、大盤 TaiwanTotalExchangeMarginMaintenance）。初始約 166%（融資成數六成），低於 130% 有追繳壓力；追繳門檻 130% 後股價再跌 -10%→117%、跌 -15%→110.5%、跌 -20%→104%。增減%＝(T日維持率 ÷ 5日均維持率 − 1) × 100%；點擊此欄可依增減%排序。" },
+          { key: "margin_maintenance", label: "融資維持率<br><small>5MA/增減%</small>", tooltip: "融資維持率%＝股票現值 ÷ 融資金額 × 100%。初始約 166%（融資成數六成），低於 130% 有追繳壓力；追繳門檻 130% 後股價再跌 -10%→117%、跌 -15%→110.5%、跌 -20%→104%。增減%＝(T日維持率 ÷ 5日均維持率 − 1) × 100%；點擊此欄可依增減%排序。" },
           { key: "volume", label: "量<br><small>5MA/增減%</small>", cls: "col-volume", tooltip: "增減%＝(當日成交量 ÷ 5日均量 − 1) × 100%；正值代表成交量高於5日均量，負值代表低於5日均量。籌碼面點擊此欄可依增減%排序。" },
           { key: "turnover_pct", label: "周轉率%<br><small>T/T-1/T-2</small>", tooltip: "周轉率%＝成交股數（張）× 1,000 ÷（已發行普通股股數 − 庫藏股股數）× 100%；已發行股數取自 FinMind TaiwanStockShareholding.NumberOfSharesIssued。數值越高代表交投越熱絡、流動性越佳，但過高可能短線過熱、籌碼鬆動；數值越低代表交投冷清、流動性較差，但籌碼相對安定。" },
           { key: "short_margin_ratio_score", label: "券資比%<br><small>T/T-1/T-2</small>", tooltip: "券資比%＝融券餘額 ÷ 融資餘額 × 100。數值越高代表放空籌碼占比越高，常見於市場偏保守或避險需求升高時；需搭配價格趨勢與主力買賣超共同判讀。" },
