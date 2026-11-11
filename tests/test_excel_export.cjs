@@ -10,11 +10,22 @@ const exportHelpers = source => source.slice(
   source.indexOf("    function excelColumnName("),
   source.indexOf("    function crc32(")
 );
+const functionSource = name => {
+  const start = template.indexOf(`    function ${name}(`);
+  const end = template.indexOf("\n    function ", start + 1);
+  return template.slice(start, end);
+};
+const functionBlock = (source, name) => {
+  const start = source.indexOf(`    function ${name}(`);
+  const end = source.indexOf("\n    function ", start + 1);
+  return source.slice(start, end);
+};
 const context = vm.createContext({
   Node: { ELEMENT_NODE: 1, TEXT_NODE: 3 },
   getComputedStyle: element => element.style,
 });
 vm.runInContext(exportHelpers(template), context);
+vm.runInContext(functionSource("exportFilterSummary"), context);
 
 function element(tagName, children = [], options = {}) {
   const node = {
@@ -34,6 +45,10 @@ const span = (value, color) => element("SPAN", [text(value)], {
   style: color ? { color } : {},
 });
 const cellText = cell => context.excelCellRuns(cell).map(run => run.text).join("");
+const worksheetCellText = (xml, reference) => {
+  const match = xml.match(new RegExp(`<c r="${reference}"[^>]*?(?:/>|>(.*?)</c>)`));
+  return match ? (match[1] ?? "").replace(/<[^>]*>/g, "") : "";
+};
 
 test("price LH grid rows keep dates and both prices on four logical lines", () => {
   const row = children => element("DIV", children, {
@@ -115,4 +130,74 @@ test("inline text, missing values and XML escaping remain intact", () => {
 test("current report and template share the same Excel text helpers", () => {
   const report = fs.readFileSync(path.join(root, "index.html"), "utf8");
   assert.equal(exportHelpers(report), exportHelpers(template));
+  assert.equal(functionBlock(report, "exportFilterSummary"), functionBlock(template, "exportFilterSummary"));
+  assert.equal(functionBlock(report, "exportVisibleTableToExcel"), functionBlock(template, "exportVisibleTableToExcel"));
+});
+
+test("exportFilterSummary records active text, numeric, direction and comparison filters", () => {
+  const controls = {
+    stockCodeFilter: { value: "2330" },
+    comparisonValue: { value: "2" },
+    comparisonMetric: { value: "k", selectedOptions: [{ textContent: "日KD" }] },
+    comparisonBasePeriod: { value: "t1", selectedOptions: [{ textContent: "T-1" }] },
+    comparisonOperator: { value: ">", selectedOptions: [{ textContent: ">" }] },
+  };
+  const threshold = {
+    value: "100",
+    dataset: { filterKey: "volume" },
+    closest: () => ({ querySelector: () => ({ textContent: "日成交量" }) }),
+  };
+  const direction = {
+    value: "up",
+    selectedOptions: [{ textContent: "↑" }],
+    closest: () => ({ querySelector: () => ({ textContent: "日KD" }) }),
+  };
+  context.document = {
+    getElementById: id => controls[id] ?? null,
+    querySelectorAll: selector => {
+      if (selector === ".custom-category-checkbox:checked") {
+        return [{ value: "半導體" }];
+      }
+      if (selector === "[data-filter-key]") return [threshold];
+      if (selector === "[data-direction-filter]") return [direction];
+      return [];
+    },
+    querySelector: () => ({ value: ">" }),
+  };
+
+  assert.equal(
+    context.exportFilterSummary(),
+    "股票代號／名稱：2330；自選分類：半導體；日成交量 > 100；日KD：↑；T日比較：日KD 相較 T-1 > 2"
+  );
+});
+
+test("exportVisibleTableToExcel places timestamp and filters in the first row", () => {
+  const exporter = functionBlock(template, "exportVisibleTableToExcel");
+  vm.runInContext(exporter, context);
+  const header = element("TH", [text("代碼")]);
+  const data = element("TD", [text("2330")]);
+  const row = { cells: [data] };
+  const table = {
+    querySelectorAll: selector => selector === "thead th" ? [header] : [row],
+  };
+  let exported = null;
+  context.currentTab = "overview";
+  context.document = {
+    querySelector: () => table,
+    getElementById: () => null,
+    querySelectorAll: () => [],
+  };
+  context.downloadExcelFile = (name, worksheet, filename) => {
+    exported = { name, worksheet, filename };
+  };
+  context.exportVisibleTableToExcel();
+
+  assert.equal(exported.name, "總覽");
+  assert.equal(worksheetCellText(exported.worksheet, "A1"), "產出時間");
+  assert.ok(worksheetCellText(exported.worksheet, "B1"));
+  assert.equal(worksheetCellText(exported.worksheet, "C1"), "篩選條件");
+  assert.equal(worksheetCellText(exported.worksheet, "D1"), "無");
+  assert.equal(worksheetCellText(exported.worksheet, "A2"), "代碼");
+  assert.equal(worksheetCellText(exported.worksheet, "A3"), "2330");
+  assert.match(exported.filename, /^總覽_\d{4}\.xlsx$/);
 });

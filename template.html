@@ -3688,6 +3688,49 @@
       return concatBytes([...localParts, centralDirectory, endRecord]);
     }
 
+    function exportFilterSummary() {
+      const conditions = [];
+      const stockCode = String(document.getElementById("stockCodeFilter")?.value ?? "").trim();
+      if (stockCode) conditions.push(`股票代號／名稱：${stockCode}`);
+
+      const categories = Array.from(
+        document.querySelectorAll(".custom-category-checkbox:checked")
+      ).map(checkbox => String(checkbox.value ?? "").trim()).filter(Boolean);
+      if (categories.length) conditions.push(`自選分類：${categories.join("、")}`);
+
+      document.querySelectorAll("[data-filter-key]").forEach(input => {
+        const value = String(input.value ?? "").trim();
+        if (!value) return;
+        const key = input.dataset.filterKey;
+        const label = input.closest(".filter-item")?.querySelector("label")?.textContent.trim() || key;
+        const operator = document.querySelector(`[data-filter-op="${key}"]`)?.value || ">";
+        const period = key === "bias" ? document.getElementById("biasPeriodFilter")?.value : "";
+        conditions.push(`${period ? `Bias${period.slice(4)}` : label} ${operator} ${value}`);
+      });
+
+      document.querySelectorAll("[data-direction-filter]").forEach(select => {
+        if (!select.value) return;
+        const label = select.closest(".filter-item")?.querySelector("label")?.textContent.trim()
+          || select.title || "方向";
+        const direction = select.selectedOptions?.[0]?.textContent.trim() || select.value;
+        const period = label === "Bias" ? document.getElementById("biasPeriodFilter")?.value : "";
+        conditions.push(`${period ? `Bias${period.slice(4)}` : label}：${direction}`);
+      });
+
+      const comparisonValue = String(document.getElementById("comparisonValue")?.value ?? "").trim();
+      if (comparisonValue) {
+        const selectedText = id => {
+          const control = document.getElementById(id);
+          return control?.selectedOptions?.[0]?.textContent.trim() || control?.value || "";
+        };
+        conditions.push(
+          `T日比較：${selectedText("comparisonMetric")} 相較 ${selectedText("comparisonBasePeriod")} ${selectedText("comparisonOperator")} ${comparisonValue}`
+        );
+      }
+
+      return conditions.length ? conditions.join("；") : "無";
+    }
+
     function exportVisibleTableToExcel() {
       const table = document.querySelector(".table-scroll table");
       const headerCells = Array.from(table?.querySelectorAll("thead th") ?? []);
@@ -3697,7 +3740,18 @@
         return;
       }
 
+      const generatedAt = new Date();
+      const timestamp = generatedAt.toLocaleString("zh-TW", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      });
       const sheetRows = [
+        ["產出時間", timestamp, "篩選條件", exportFilterSummary()].map(text => [{ text }]),
         headerCells.map(cell => {
           const runs = excelCellRuns(cell);
           const text = runs.map(run => run.text).join("");
@@ -3729,8 +3783,7 @@
         cb: "CB",
       };
       const sheetName = tabNames[currentTab] || "資料";
-      const today = new Date();
-      const monthDay = `${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}`;
+      const monthDay = `${String(generatedAt.getMonth() + 1).padStart(2, "0")}${String(generatedAt.getDate()).padStart(2, "0")}`;
       const worksheet = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${worksheetRows}</sheetData></worksheet>`;
       downloadExcelFile(sheetName, worksheet, `${sheetName}_${monthDay}.xlsx`);
     }
@@ -3894,7 +3947,7 @@
       const colPlAmount = columnOf("損益");
       const width = Math.max(header.length, 9);
       const padRow = row => Array.from({ length: width }, (_, i) => (row ?? [])[i] ?? "");
-      const tableRows = [[...padRow(header), "KD值", "階段", "可投入資金", "", "階段說明"]];
+      const tableRows = [[...padRow(header), "KD值", "階段", "可投入資金", "階段說明"]];
       let count = 0;
       for (let i = headerIndex + 1; i < rows.length; i += 1) {
         const row = rows[i] ?? [];
@@ -3903,7 +3956,7 @@
         if (row.every(cell => String(cell ?? "").trim() === "")) continue;
         if (firstCell.includes("小計") || firstCell.includes("合計")
           || nameCell.includes("小計") || nameCell.includes("合計")) {
-          tableRows.push([...padRow(row), "", "", "", "", ""]);
+          tableRows.push([...padRow(row), "", "", "", ""]);
           continue;
         }
         const code = holdingCodeFromName(nameCell);
@@ -3922,7 +3975,7 @@
           : stage >= 1 && stage <= 3 && stage <= executed ? `${stage}（已執行）`
           : String(stage);
         const noteText = capitalStageNote(plRatio, investCost, stage, executed, alloc, limit);
-        tableRows.push([...padRow(row), kdText, stageText, alloc, "", noteText]);
+        tableRows.push([...padRow(row), kdText, stageText, alloc, noteText]);
         count += 1;
       }
       const worksheetRows = tableRows.map((row, rowIndex) => {
@@ -3944,7 +3997,9 @@
       const k = kdValue(stock, 0);
       const d = dValue(stock, 0);
       if (isNil(k) && isNil(d)) return "";
-      return [isNil(k) ? "" : `K ${fmt(k)}`, isNil(d) ? "" : `D ${fmt(d)}`].filter(Boolean).join(" / ");
+      const direction = fmtTrend(kdDayScore(stock));
+      const values = [isNil(k) ? "" : `K ${fmt(k)}`, isNil(d) ? "" : `D ${fmt(d)}`].filter(Boolean).join(" / ");
+      return `${direction} ${values}`;
     }
 
     function unzipXlsxEntries(bytes) {
