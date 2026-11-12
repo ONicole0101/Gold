@@ -1,11 +1,12 @@
-[32m2026-11-12 11:51:01.165 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-11-12 11:51:01.323 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-11-12 16:28:13.452 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-11-12 16:28:13.609 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 0/6000, remain=6000
+FinMind usage: 655/6000, remain=5345
 Incremental probe: stock_id=2330, latest_date=2026-11-12, status=ok
-Build chips: total=291, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=290, latest_date=2026-11-12
-[25/291] 1717 長興 status=ok date=2026-11-12 main=139 diff=47 state=neutral
-[75/291] 2801 彰銀 status=ok date=2026-11-12 main=1778 diff=-64 state=neutral
+Build chips: total=291, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=289, pending=1, latest_date=2026-11-12
+[291/291] 00662 富邦NASDAQ status=ok date=2026-11-10 main=-1261 diff=299 state=bearish_distributed
+2330 籌碼分頁結果 date=2026-11-12 ; main_force=-242 ; concentration=-0.78 ; broker_diff=2
+Done: rows=291, status={'ok': 291}, preserved=0, skipped=289, elapsed=25.0s, output=AllStatic_Chips.csv
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-11-12
