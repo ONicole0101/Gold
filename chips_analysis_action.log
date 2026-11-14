@@ -1,12 +1,12 @@
-[32m2026-11-13 15:48:16.808 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
-[32m2026-11-13 15:48:16.921 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-11-14 04:18:09.827 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
+[32m2026-11-14 04:18:09.959 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m89[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 676/6000, remain=5324
+FinMind usage: 529/6000, remain=5471
 Incremental probe: stock_id=2330, latest_date=2026-11-13, status=ok
 Build chips: total=291, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=289, pending=1, latest_date=2026-11-13
 [291/291] 00662 富邦NASDAQ status=ok date=2026-11-10 main=-1261 diff=299 state=bearish_distributed
 2330 籌碼分頁結果 date=2026-11-13 ; main_force=849 ; concentration=2.82 ; broker_diff=3
-Done: rows=291, status={'ok': 291}, preserved=0, skipped=289, elapsed=16.3s, output=AllStatic_Chips.csv
+Done: rows=291, status={'ok': 291}, preserved=0, skipped=289, elapsed=19.6s, output=AllStatic_Chips.csv
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-11-13
