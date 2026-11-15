@@ -66,6 +66,7 @@ CHIP_DATA_COLS = [
     "margin_maintenance_ma5",
     "margin_maintenance_120d_low",
     "margin_maintenance_120d_high",
+    "margin_maintenance_120d_status",
     "margin_cost_status",
     "margin_maintenance_status",
     "margin_purchase_change",
@@ -354,6 +355,8 @@ def should_refresh_stock(existing_row: dict | None, latest_available_date: str) 
         return True
     if not has_margin_maintenance_attempt(existing_row):
         return True
+    if is_blank_value(existing_row.get("margin_maintenance_120d_status")):
+        return True
     existing_date = row_effective_chip_date(existing_row)
     if latest_available_date and existing_date != latest_available_date:
         return True
@@ -519,6 +522,11 @@ def build_chip_row(stock: dict, trend_days: int, concentration_threshold: float,
             not is_blank_value(row.get(col))
             for col in ("margin_maintenance", "margin_maintenance_t0",
                         "margin_maintenance_t1", "margin_maintenance_t2")
+        ) else "empty"
+        row["margin_maintenance_120d_status"] = "ok" if all(
+            not is_blank_value(row.get(col))
+            for col in ("margin_maintenance_120d_low",
+                        "margin_maintenance_120d_high")
         ) else "empty"
         state = str(row.get("chip_signal_state") or "").strip().lower()
         if state and state not in {"no_data", "error"}:
