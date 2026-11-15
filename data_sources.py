@@ -919,6 +919,18 @@ def _score_by_ratio(ratio):
     return 0
 
 
+def _margin_maintenance_120d_lh(values_by_date, as_of_date):
+    values = [
+        values_by_date[date]
+        for date in sorted(values_by_date, reverse=True)
+        if (as_of_date is None or date <= as_of_date)
+    ][:120]
+    return (
+        (round(min(values), 2), round(max(values), 2))
+        if values else (None, None)
+    )
+
+
 def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, lookback_days=None, workers=None):
     """
     取得近 N 個交易日券商分點籌碼，輸出給 AllStatic/template/signals 使用。
@@ -1689,7 +1701,10 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
                 margin_cost_params = {
                     "dataset": "TaiwanStockMarginMaintenance",
                     "data_id": str(stock_id),
-                    "start_date": all_report["date"].min().strftime("%Y-%m-%d"),
+                    "start_date": min(
+                        all_report["date"].min(),
+                        all_report["date"].max() - timedelta(days=190),
+                    ).strftime("%Y-%m-%d"),
                     "end_date": all_report["date"].max().strftime("%Y-%m-%d"),
                     "token": FINMIND_token,
                 }
@@ -2020,6 +2035,11 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             sum(margin_maintenance_ma5_values) /
             len(margin_maintenance_ma5_values), 2
         ) if margin_maintenance_ma5_values else None
+        margin_maintenance_120d_low, margin_maintenance_120d_high = (
+            _margin_maintenance_120d_lh(
+                margin_maintenance_map_by_date, latest_date_key
+            )
+        )
         margin_purchase_change_t0 = _int_or_none(recent_rows[0].get(
             "margin_purchase_change") if len(recent_rows) > 0 else None)
         margin_purchase_change_t1 = _int_or_none(recent_rows[1].get(
@@ -2055,6 +2075,8 @@ def get_chip_analysis(stock_id, trend_days=None, concentration_threshold=None, l
             "margin_maintenance_t1": margin_maintenance_t1,
             "margin_maintenance_t2": margin_maintenance_t2,
             "margin_maintenance_ma5": margin_maintenance_ma5,
+            "margin_maintenance_120d_low": margin_maintenance_120d_low,
+            "margin_maintenance_120d_high": margin_maintenance_120d_high,
             "margin_purchase_change": margin_purchase_change_t0,
             "margin_purchase_change_t0": margin_purchase_change_t0,
             "margin_purchase_change_t1": margin_purchase_change_t1,

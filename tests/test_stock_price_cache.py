@@ -213,6 +213,19 @@ class ChipCacheTests(unittest.TestCase):
                 stock_id, trend_days=3, concentration_threshold=15,
                 lookback_days=10), mock_get
 
+    def test_margin_maintenance_120d_lh_uses_latest_120_values(self):
+        as_of = datetime(2026, 11, 15).date()
+        values = {
+            as_of - timedelta(days=offset): 200 - offset
+            for offset in range(125)
+        }
+        values[as_of + timedelta(days=1)] = 999
+
+        self.assertEqual(
+            data_sources._margin_maintenance_120d_lh(values, as_of),
+            (81, 200),
+        )
+
     def test_same_day_incremental_supplement(self):
         stock_id = "2330"
         today = data_sources._taiwan_today_date()

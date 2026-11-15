@@ -64,6 +64,8 @@ CHIP_DATA_COLS = [
     "margin_maintenance_t1",
     "margin_maintenance_t2",
     "margin_maintenance_ma5",
+    "margin_maintenance_120d_low",
+    "margin_maintenance_120d_high",
     "margin_cost_status",
     "margin_maintenance_status",
     "margin_purchase_change",
