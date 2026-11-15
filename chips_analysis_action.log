@@ -1,12 +1,12 @@
-[32m2026-11-15 15:14:59.560 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m97[0m - [1mLogin success[0m
-[32m2026-11-15 15:14:59.708 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m97[0m - [1mLogin success[0m
+[32m2026-11-15 15:57:25.250 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m97[0m - [1mLogin success[0m
+[32m2026-11-15 15:57:25.355 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m97[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 2768/6000, remain=3232
+FinMind usage: 2866/6000, remain=3134
 Incremental probe: stock_id=2330, latest_date=2026-11-13, status=ok
-Build chips: total=285, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=283, pending=1, latest_date=2026-11-13
-[285/285] 00662 富邦NASDAQ status=ok date=2026-11-10 main=-1261 diff=299 state=bearish_distributed
-2330 籌碼分頁結果 date=2026-11-13 ; main_force=849 ; concentration=2.82 ; broker_diff=3
-Done: rows=285, status={'ok': 285}, preserved=0, skipped=283, elapsed=22.3s, output=AllStatic_Chips.csv
+Build chips: total=285, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=284, latest_date=2026-11-13
+[32m2026-11-15 16:02:32.685 +00:00[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1861[0m - [33m[1mTaiwanStockMarginPurchaseShortSale request failed for stock_id=6691 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
+[32m2026-11-15 16:02:32.731 +00:00[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1861[0m - [33m[1mTaiwanStockMarginPurchaseShortSale request failed for stock_id=6683 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
+[32m2026-11-15 16:02:32.834 +00:00[0m | [33m[1mWARNING [0m | [36mdata_sources[0m:[36mget_chip_analysis[0m:[36m1861[0m - [33m[1mTaiwanStockMarginPurchaseShortSale request failed for stock_id=6715 status=402 body={"msg":"Requests reach the upper limit. https://finmindtrade.com/","status":402,"token_tail":"...HaNLpy2s"}[0m
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-11-13
