@@ -42,9 +42,6 @@ on:
         required: true
         default: false
         type: boolean
-  schedule:
-    # GitHub Actions cron uses UTC. 19:30 UTC = Taiwan 03:30.
-    - cron: "30 19 * * *"
 
 permissions:
   contents: read
