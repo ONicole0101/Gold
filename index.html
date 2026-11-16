@@ -1304,14 +1304,14 @@
         </div>
       </div>
       <div class="filter-row">
-        <div class="filter-item"><label>價格</label><select data-filter-op="price">
+        <div class="filter-item"><label>價格120日LH距離</label><select id="priceLhBaseFilter" title="比較120日低點或高點">
+            <option value="low">L</option>
+            <option value="high">H</option>
+          </select><select id="priceLhOperator">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
-          </select><input data-filter-key="price" type="number" step="0.01" placeholder="數值"></div>
-        <div class="filter-item"><label>漲跌%</label><select data-filter-op="chgPct">
-            <option value=">">&gt;</option>
-            <option value="<">&lt;</option>
-          </select><input data-filter-key="chgPct" type="number" step="0.01" placeholder="數值"></div>
+          </select><input id="priceLhDistanceFilter" type="number" step="0.01" placeholder="距離%">
+        </div>
         <div class="filter-item"><label>日成交量</label><select data-filter-op="volume">
             <option value=">">&gt;</option>
             <option value="<">&lt;</option>
@@ -3280,6 +3280,15 @@
       return Number.isNaN(num) ? null:num;
     }
 
+    function getPriceLhDistance(s, base) {
+      const current = Number(s?.price);
+      const rangePrice = Number(s?.[base === "high" ? "price_120d_high":"price_120d_low"]);
+      if (isNil(s?.price) || s.price === "" || current === 0 || !Number.isFinite(current)
+        || isNil(s?.[base === "high" ? "price_120d_high":"price_120d_low"])
+        || !Number.isFinite(rangePrice)) return null;
+      return ((rangePrice - current) / current) * 100;
+    }
+
     function getComparisonMetricValue(s, metric, period) {
       const suffix = period === "t2" ? "t2":"t1";
       const metricKeys = {
@@ -3505,6 +3514,17 @@
         if (operator === "<" && !(difference < target)) return false;
       }
 
+      const priceLhDistance = String(document.getElementById("priceLhDistanceFilter")?.value ?? "").trim();
+      if (priceLhDistance !== "") {
+        const target = Number(priceLhDistance);
+        const base = document.getElementById("priceLhBaseFilter")?.value ?? "low";
+        const operator = document.getElementById("priceLhOperator")?.value ?? ">";
+        const distance = getPriceLhDistance(s, base);
+        if (!Number.isFinite(target) || distance === null) return false;
+        if (operator === ">" && !(distance > target)) return false;
+        if (operator === "<" && !(distance < target)) return false;
+      }
+
       const inputs = document.querySelectorAll("[data-filter-key]");
       for (const input of inputs) {
         const raw = String(input.value ?? "").trim();
@@ -3536,6 +3556,12 @@
       if (codeInput) codeInput.value = "";
       const comparisonValue = document.getElementById("comparisonValue");
       if (comparisonValue) comparisonValue.value = "";
+      const priceLhBase = document.getElementById("priceLhBaseFilter");
+      if (priceLhBase) priceLhBase.value = "low";
+      const priceLhOperator = document.getElementById("priceLhOperator");
+      if (priceLhOperator) priceLhOperator.value = ">";
+      const priceLhDistance = document.getElementById("priceLhDistanceFilter");
+      if (priceLhDistance) priceLhDistance.value = "";
       const comparisonBasePeriod = document.getElementById("comparisonBasePeriod");
       if (comparisonBasePeriod) comparisonBasePeriod.value = "t1";
       const comparisonMetric = document.getElementById("comparisonMetric");
@@ -3577,6 +3603,12 @@
         select.addEventListener("change", applyFilters);
       });
       ["comparisonBasePeriod", "comparisonMetric", "comparisonOperator", "comparisonValue", "biasPeriodFilter"].forEach((id) => {
+        const control = document.getElementById(id);
+        if (!control) return;
+        control.addEventListener("input", applyFilters);
+        control.addEventListener("change", applyFilters);
+      });
+      ["priceLhBaseFilter", "priceLhOperator", "priceLhDistanceFilter"].forEach((id) => {
         const control = document.getElementById(id);
         if (!control) return;
         control.addEventListener("input", applyFilters);
@@ -3815,6 +3847,13 @@
         const period = key === "bias" ? document.getElementById("biasPeriodFilter")?.value : "";
         conditions.push(`${period ? `Bias${period.slice(4)}` : label} ${operator} ${value}`);
       });
+
+      const priceLhDistance = String(document.getElementById("priceLhDistanceFilter")?.value ?? "").trim();
+      if (priceLhDistance) {
+        const base = document.getElementById("priceLhBaseFilter")?.value === "high" ? "H":"L";
+        const operator = document.getElementById("priceLhOperator")?.value || ">";
+        conditions.push(`價格120日LH距離 ${base} ${operator} ${priceLhDistance}%`);
+      }
 
       document.querySelectorAll("[data-direction-filter]").forEach(select => {
         if (!select.value) return;

@@ -23,9 +23,11 @@ const functionBlock = (source, name) => {
 const context = vm.createContext({
   Node: { ELEMENT_NODE: 1, TEXT_NODE: 3 },
   getComputedStyle: element => element.style,
+  isNil: value => value == null,
 });
 vm.runInContext(exportHelpers(template), context);
 vm.runInContext(functionSource("exportFilterSummary"), context);
+vm.runInContext(functionSource("getPriceLhDistance"), context);
 
 function element(tagName, children = [], options = {}) {
   const node = {
@@ -130,8 +132,19 @@ test("inline text, missing values and XML escaping remain intact", () => {
 test("current report and template share the same Excel text helpers", () => {
   const report = fs.readFileSync(path.join(root, "index.html"), "utf8");
   assert.equal(exportHelpers(report), exportHelpers(template));
+  assert.equal(functionBlock(report, "getPriceLhDistance"), functionBlock(template, "getPriceLhDistance"));
   assert.equal(functionBlock(report, "exportFilterSummary"), functionBlock(template, "exportFilterSummary"));
   assert.equal(functionBlock(report, "exportVisibleTableToExcel"), functionBlock(template, "exportVisibleTableToExcel"));
+});
+
+test("price filter uses 120-day LH distance and no longer filters by price or change percent", () => {
+  const report = fs.readFileSync(path.join(root, "index.html"), "utf8");
+  for (const source of [template, report]) {
+    assert.match(source, /價格120日LH距離/);
+    assert.match(source, /id="priceLhBaseFilter"/);
+    assert.match(source, /id="priceLhDistanceFilter"/);
+    assert.doesNotMatch(source, /data-filter-key="(?:price|chgPct)"/);
+  }
 });
 
 test("exportFilterSummary records active text, numeric, direction and comparison filters", () => {
@@ -141,6 +154,9 @@ test("exportFilterSummary records active text, numeric, direction and comparison
     comparisonMetric: { value: "k", selectedOptions: [{ textContent: "日KD" }] },
     comparisonBasePeriod: { value: "t1", selectedOptions: [{ textContent: "T-1" }] },
     comparisonOperator: { value: ">", selectedOptions: [{ textContent: ">" }] },
+    priceLhDistanceFilter: { value: "5" },
+    priceLhBaseFilter: { value: "high" },
+    priceLhOperator: { value: "<" },
   };
   const threshold = {
     value: "100",
@@ -167,8 +183,40 @@ test("exportFilterSummary records active text, numeric, direction and comparison
 
   assert.equal(
     context.exportFilterSummary(),
-    "股票代號／名稱：2330；自選分類：半導體；日成交量 > 100；日KD：↑；T日比較：日KD 相較 T-1 > 2"
+    "股票代號／名稱：2330；自選分類：半導體；日成交量 > 100；價格120日LH距離 H < 5%；日KD：↑；T日比較：日KD 相較 T-1 > 2"
   );
+});
+
+test("price 120-day LH distance filter uses the selected low/high and signed distance", () => {
+  const controls = {
+    priceLhBaseFilter: { value: "low" },
+    priceLhOperator: { value: "<" },
+    priceLhDistanceFilter: { value: "-9" },
+  };
+  context.document = {
+    getElementById: id => controls[id] ?? null,
+    querySelectorAll: () => [],
+  };
+  context.selectedCustomCategories = () => [];
+  context.kdDirection = () => "";
+  context.bbDirection = () => "";
+  context.vrDirection = () => "";
+  context.obvDirection = () => "";
+  context.macdDirection = () => "";
+  context.biasDirection = () => "";
+  context.getNumericValue = () => null;
+  vm.runInContext(functionSource("passesFilters"), context);
+
+  const stock = { price: 100, price_120d_low: 90, price_120d_high: 110 };
+  assert.equal(context.getPriceLhDistance(stock, "low"), -10);
+  assert.equal(context.getPriceLhDistance(stock, "high"), 10);
+  assert.equal(context.passesFilters(stock), true);
+
+  controls.priceLhBaseFilter.value = "high";
+  controls.priceLhOperator.value = ">";
+  controls.priceLhDistanceFilter.value = "9";
+  assert.equal(context.passesFilters(stock), true);
+  assert.equal(context.passesFilters({ price: 100 }), false);
 });
 
 test("exportVisibleTableToExcel places timestamp and filters in the first row", () => {
