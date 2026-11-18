@@ -38,9 +38,9 @@
 | 欄 | 標題 | 內容 |
 | --- | --- | --- |
 | J | KD值 | 依代碼比對報表資料，顯示最新 `K xx / D xx`；ETF、債券或不在報表內的標的留空 |
-| K | 階段 | `0`～`4`；已執行標「（已執行）」，階段 4 標「（停止加碼）」 |
-| L | 可投入資金 | 數值；已執行或停止加碼時空白 |
-| M | （空欄） | 間隔用 |
+| K | 日PER 120日區間 | 依代碼比對報表資料，依序顯示日 PER、120 日最低 PER、120 日最高 PER；缺少資料以 `-` 表示，無任何 PER 資料則留空 |
+| L | 階段 | `0`～`4`；已執行標「（已執行）」，階段 4 標「（停止加碼）」 |
+| M | 可投入資金 | 數值；已執行或停止加碼時空白 |
 | N | 階段說明 | 該列階段滾動判斷過程的文字說明（`capitalStageNote`） |
 
 N 欄說明範例：
@@ -113,8 +113,9 @@ E = 最大的 n，使得 投資成本 ≥ 累計目標[n] × 0.9
 | `plRatioFromCell(value)` | 解析損益率（小數或 `%` 字串） |
 | `capitalStageNote(plRatio, investCost, stage, executed, alloc, limit)` | 產出 N 欄階段滾動判斷說明 |
 | `capitalAllocCellXml(value, ref)` | 產出儲存格 XML（數值用 `<v>`，科學記號正規化） |
-| `buildCapitalAllocWorksheet(rows, limit, kdLookup)` | 組出完整 worksheet XML 與持股筆數 |
+| `buildCapitalAllocWorksheet(rows, limit, kdLookup, perLookup)` | 組出完整 worksheet XML 與持股筆數 |
 | `capitalAllocKdText(code)` | 代碼 → 報表最新 `K xx / D xx` |
+| `capitalAllocPerText(code)` | 代碼 → 報表日 PER、120 日最低／最高 PER |
 | `unzipXlsxEntries` / `inflateZipEntry` / `readXlsxFirstSheetRows` | 純前端 xlsx 讀取（ZIP + deflate + XML） |
 | `excelWorkbookFiles` / `downloadExcelFile` | 與「匯出」共用的 xlsx 打包下載 |
 
@@ -125,5 +126,5 @@ node --test tests\test_capital_allocation.cjs
 ```
 
 涵蓋：階段邊界（-5%/-10%/-15%/-20%）、已執行階段推斷、補齊累計目標、
-上限天花板、跳階段補齊、代碼解析、損益率缺漏推算、J/K/L 欄輸出、
+上限天花板、跳階段補齊、代碼解析、損益率缺漏推算、J～N 欄輸出、
 科學記號數值正規化、缺標頭列的錯誤處理。

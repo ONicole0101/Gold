@@ -4072,7 +4072,7 @@
       return text ? excelCellXml([{ text }], reference) : `<c r="${reference}" s="0"/>`;
     }
 
-    function buildCapitalAllocWorksheet(rows, limit, kdLookup) {
+    function buildCapitalAllocWorksheet(rows, limit, kdLookup, perLookup) {
       const headerIndex = rows.findIndex(row => (row ?? []).some(cell => String(cell ?? "").includes("商品名稱")));
       if (headerIndex < 0) throw new Error("找不到「商品名稱」標頭列，請確認選擇的是未實現損益 Excel。");
       const header = (rows[headerIndex] ?? []).map(cell => String(cell ?? ""));
@@ -4094,7 +4094,7 @@
       const colPlAmount = columnOf("損益");
       const width = Math.max(header.length, 9);
       const padRow = row => Array.from({ length: width }, (_, i) => (row ?? [])[i] ?? "");
-      const tableRows = [[...padRow(header), "KD值", "階段", "可投入資金", "階段說明"]];
+      const tableRows = [[...padRow(header), "KD值", "日PER 120日區間", "階段", "可投入資金", "階段說明"]];
       let count = 0;
       for (let i = headerIndex + 1; i < rows.length; i += 1) {
         const row = rows[i] ?? [];
@@ -4103,7 +4103,7 @@
         if (row.every(cell => String(cell ?? "").trim() === "")) continue;
         if (firstCell.includes("小計") || firstCell.includes("合計")
           || nameCell.includes("小計") || nameCell.includes("合計")) {
-          tableRows.push([...padRow(row), "", "", "", ""]);
+          tableRows.push([...padRow(row), "", "", "", "", ""]);
           continue;
         }
         const code = holdingCodeFromName(nameCell);
@@ -4117,12 +4117,13 @@
         const pending = stage >= 1 && stage <= 3 && stage > executed;
         const alloc = pending ? allocatableAmount(investCost, stage, limit) : "";
         const kdText = typeof kdLookup === "function" ? kdLookup(code) ?? "" : "";
+        const perText = typeof perLookup === "function" ? perLookup(code) ?? "" : "";
         const stageText = stage === "" ? ""
           : note ? `${stage}（${note}）`
           : stage >= 1 && stage <= 3 && stage <= executed ? `${stage}（已執行）`
           : String(stage);
         const noteText = capitalStageNote(plRatio, investCost, stage, executed, alloc, limit);
-        tableRows.push([...padRow(row), kdText, stageText, alloc, noteText]);
+        tableRows.push([...padRow(row), kdText, perText, stageText, alloc, noteText]);
         count += 1;
       }
       const worksheetRows = tableRows.map((row, rowIndex) => {
@@ -4147,6 +4148,15 @@
       const direction = fmtTrend(kdDayScore(stock));
       const values = [isNil(k) ? "" : `K ${fmt(k)}`, isNil(d) ? "" : `D ${fmt(d)}`].filter(Boolean).join(" / ");
       return `${direction} ${values}`;
+    }
+
+    function capitalAllocPerText(code) {
+      if (!code) return "";
+      const stock = baseStocks.find(s => String(s?.code ?? s?.stock_id ?? "").trim() === code);
+      if (!stock) return "";
+      const values = [stock.per_latest, stock.per_120d_low, stock.per_120d_high];
+      if (values.every(isNil)) return "";
+      return values.map(value => isNil(value) ? "-" : fmt(value)).join(" / ");
     }
 
     function unzipXlsxEntries(bytes) {
@@ -4276,7 +4286,7 @@
         try {
           const rows = await readXlsxFirstSheetRows(file);
           const limit = Number(String(limitInput?.value ?? "").replace(/,/g, "")) || 2000000;
-          const { worksheet, count } = buildCapitalAllocWorksheet(rows, limit, capitalAllocKdText);
+          const { worksheet, count } = buildCapitalAllocWorksheet(rows, limit, capitalAllocKdText, capitalAllocPerText);
           const today = new Date();
           const monthDay = `${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}`;
           downloadExcelFile("資金配置", worksheet, `資金配置_${monthDay}.xlsx`);

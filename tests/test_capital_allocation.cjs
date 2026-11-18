@@ -26,6 +26,7 @@ for (const name of ["isNil", "fmt", "fmtTrend", "pickFirst", "kdValue", "dValue"
 }
 vm.runInContext(allocLogic(template), context);
 vm.runInContext(functionSource("capitalAllocKdText"), context);
+vm.runInContext(functionSource("capitalAllocPerText"), context);
 
 test("capitalStageForPL maps PL ratio to the deepest rolling stage", () => {
   // vm 跨 realm 物件的原型不同，轉為本 realm 物件再比較
@@ -113,39 +114,44 @@ function cellText(xml, reference) {
   return match ? (match[1] ?? "").replace(/<[^>]*>/g, "") : "";
 }
 
-test("buildCapitalAllocWorksheet appends KD值/階段/可投入資金 in J/K/L", () => {
-  context.baseStocks = [{ code: "2330", k_t0: 25.5, k_t1: 24.2, d_t0: 30.1 }];
+test("buildCapitalAllocWorksheet appends 日PER 120日區間 in K and shifts later columns", () => {
+  context.baseStocks = [{ code: "2330", k_t0: 25.5, k_t1: 24.2, d_t0: 30.1, per_latest: 18.42, per_120d_low: 15.2, per_120d_high: 23.8 }];
   const { worksheet, count } = context.buildCapitalAllocWorksheet(
-    HOLDINGS, 2000000, context.capitalAllocKdText
+    HOLDINGS, 2000000, context.capitalAllocKdText, context.capitalAllocPerText
   );
   assert.equal(count, 6);
   assert.ok(worksheet.includes("<sheetData>"));
-  // Header row J1/K1/L1
+  // Header row J1/K1/L1/M1/N1
   assert.equal(cellText(worksheet, "J1"), "KD值");
-  assert.equal(cellText(worksheet, "K1"), "階段");
-  assert.equal(cellText(worksheet, "L1"), "可投入資金");
+  assert.equal(cellText(worksheet, "K1"), "日PER 120日區間");
+  assert.equal(cellText(worksheet, "L1"), "階段");
+  assert.equal(cellText(worksheet, "M1"), "可投入資金");
+  assert.equal(cellText(worksheet, "N1"), "階段說明");
   // Row 2: PL -0.5% → 階段 0，無可投入資金
   assert.equal(cellText(worksheet, "J2"), "");
-  assert.equal(cellText(worksheet, "K2"), "0");
-  assert.equal(cellText(worksheet, "L2"), "");
+  assert.equal(cellText(worksheet, "K2"), "");
+  assert.equal(cellText(worksheet, "L2"), "0");
+  assert.equal(cellText(worksheet, "M2"), "");
   // Row 3: PL -11.8% → 階段 2，成本 838,093 已達階段 2 → 已執行，可投入空白
-  assert.equal(cellText(worksheet, "K3"), "2（已執行）");
-  assert.equal(cellText(worksheet, "L3"), "");
+  assert.equal(cellText(worksheet, "L3"), "2（已執行）");
+  assert.equal(cellText(worksheet, "M3"), "");
   // Row 4: PL -19.8% → 階段 3，成本 522,678 僅達階段 1 → 補齊至 140 萬 = 877,322
-  assert.equal(cellText(worksheet, "K4"), "3");
-  assert.ok(worksheet.includes('<c r="L4" s="0"><v>877322</v></c>'));
+  assert.equal(cellText(worksheet, "L4"), "3");
+  assert.ok(worksheet.includes('<c r="M4" s="0"><v>877322</v></c>'));
   // Row 5: PL -100% → 階段 4 停止加碼，可投入空白
-  assert.equal(cellText(worksheet, "K5"), "4（停止加碼）");
-  assert.equal(cellText(worksheet, "L5"), "");
+  assert.equal(cellText(worksheet, "L5"), "4（停止加碼）");
+  assert.equal(cellText(worksheet, "M5"), "");
   // Row 6: 2330 有 KD，PL +23.2% → 階段 0
   assert.equal(cellText(worksheet, "J6"), "↑ K 25.50 / D 30.10");
-  assert.equal(cellText(worksheet, "K6"), "0");
+  assert.equal(cellText(worksheet, "K6"), "18.42 / 15.20 / 23.80");
+  assert.equal(cellText(worksheet, "L6"), "0");
   // Row 7: 成本 1,961,324 已達階段 3 → 已執行，可投入空白
-  assert.equal(cellText(worksheet, "K7"), "3（已執行）");
-  assert.equal(cellText(worksheet, "L7"), "");
-  // 小計列保留原值，J/K/L 空白
+  assert.equal(cellText(worksheet, "L7"), "3（已執行）");
+  assert.equal(cellText(worksheet, "M7"), "");
+  // 小計列保留原值，J～M 空白
   assert.equal(cellText(worksheet, "A8"), "小計");
   assert.equal(cellText(worksheet, "K8"), "");
+  assert.equal(cellText(worksheet, "L8"), "");
 });
 
 test("buildCapitalAllocWorksheet falls back to 損益/投資成本 when 損益率 missing", () => {
@@ -155,8 +161,8 @@ test("buildCapitalAllocWorksheet falls back to 損益/投資成本 when 損益�
   ];
   const { worksheet } = context.buildCapitalAllocWorksheet(rows, 2000000, () => "");
   // 成本 1,000,000 已達階段 2 → 已執行，可投入空白
-  assert.equal(cellText(worksheet, "K2"), "2（已執行）");
-  assert.equal(cellText(worksheet, "L2"), "");
+  assert.equal(cellText(worksheet, "L2"), "2（已執行）");
+  assert.equal(cellText(worksheet, "M2"), "");
 });
 
 test("buildCapitalAllocWorksheet tops up skipped stages to the cumulative target", () => {
@@ -166,8 +172,8 @@ test("buildCapitalAllocWorksheet tops up skipped stages to the cumulative target
   ];
   const { worksheet } = context.buildCapitalAllocWorksheet(rows, 2000000, () => "");
   // 成本 20 萬僅初始，PL -12% 落階段 2 → 補齊至累計 80 萬 = 600,000
-  assert.equal(cellText(worksheet, "K2"), "2");
-  assert.ok(worksheet.includes('<c r="L2" s="0"><v>600000</v></c>'));
+  assert.equal(cellText(worksheet, "L2"), "2");
+  assert.ok(worksheet.includes('<c r="M2" s="0"><v>600000</v></c>'));
 });
 
 test("capitalAllocCellXml normalizes scientific-notation numbers", () => {
@@ -176,20 +182,19 @@ test("capitalAllocCellXml normalizes scientific-notation numbers", () => {
   assert.equal(context.capitalAllocCellXml("", "I2"), '<c r="I2" s="0"/>');
 });
 
-test("buildCapitalAllocWorksheet writes the rolling-stage explanation in column M", () => {
+test("buildCapitalAllocWorksheet writes the rolling-stage explanation in column N", () => {
   const { worksheet } = context.buildCapitalAllocWorksheet(HOLDINGS, 2000000, () => "");
-  assert.equal(cellText(worksheet, "M1"), "階段說明");
-  assert.equal(cellText(worksheet, "N1"), "");
+  assert.equal(cellText(worksheet, "N1"), "階段說明");
   // Row 2: PL -0.5% → 階段 0
-  assert.equal(cellText(worksheet, "M2"), "PL -0.5% 未達 -5%，階段 0 不加碼");
+  assert.equal(cellText(worksheet, "N2"), "PL -0.5% 未達 -5%，階段 0 不加碼");
   // Row 3: 階段 2 已執行
-  assert.equal(cellText(worksheet, "M3"), "PL -11.8% ≤ -10% → 階段 2，成本 838,093 已達累計目標 800,000（已執行）");
+  assert.equal(cellText(worksheet, "N3"), "PL -11.8% ≤ -10% → 階段 2，成本 838,093 已達累計目標 800,000（已執行）");
   // Row 4: 階段 3 未執行，補齊至 140 萬
-  assert.equal(cellText(worksheet, "M4"), "PL -19.8% ≤ -15% → 階段 3，成本 522,678 未達目標，可投入 = 累計目標 1,400,000 − 成本 = 877,322");
+  assert.equal(cellText(worksheet, "N4"), "PL -19.8% ≤ -15% → 階段 3，成本 522,678 未達目標，可投入 = 累計目標 1,400,000 − 成本 = 877,322");
   // Row 5: 停止加碼
-  assert.equal(cellText(worksheet, "M5"), "PL -100.0% ≤ -20% 最大容許虧損，停止加碼");
-  // 小計列 M 欄空白
-  assert.equal(cellText(worksheet, "M8"), "");
+  assert.equal(cellText(worksheet, "N5"), "PL -100.0% ≤ -20% 最大容許虧損，停止加碼");
+  // 小計列 N 欄空白
+  assert.equal(cellText(worksheet, "N8"), "");
 });
 
 test("capitalAllocKdText prefixes the latest K direction", () => {
@@ -202,6 +207,18 @@ test("capitalAllocKdText prefixes the latest K direction", () => {
   assert.equal(context.capitalAllocKdText("down"), "↓ K 18 / D 20");
   assert.equal(context.capitalAllocKdText("flat"), "→ K 25 / D 25");
   assert.equal(context.capitalAllocKdText("missing"), "");
+});
+
+test("capitalAllocPerText returns daily PER and the 120-day low/high", () => {
+  context.baseStocks = [
+    { code: "2330", per_latest: 18.42, per_120d_low: 15.2, per_120d_high: 23.8 },
+    { code: "missing-range", per_latest: 9.1, per_120d_low: null, per_120d_high: null },
+    { code: "empty" },
+  ];
+  assert.equal(context.capitalAllocPerText("2330"), "18.42 / 15.20 / 23.80");
+  assert.equal(context.capitalAllocPerText("missing-range"), "9.10 / - / -");
+  assert.equal(context.capitalAllocPerText("empty"), "");
+  assert.equal(context.capitalAllocPerText("unknown"), "");
 });
 
 test("capitalStageNote shows the limit as ceiling when it is below the cumulative target", () => {
