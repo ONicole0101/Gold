@@ -143,7 +143,7 @@ test("buildCapitalAllocWorksheet appends 日PER 120日區間 in K and shifts lat
   assert.equal(cellText(worksheet, "M5"), "");
   // Row 6: 2330 有 KD，PL +23.2% → 階段 0
   assert.equal(cellText(worksheet, "J6"), "↑ K 25.50 / D 30.10");
-  assert.equal(cellText(worksheet, "K6"), "18.42 / 15.20 / 23.80");
+  assert.equal(cellText(worksheet, "K6"), "18.42, 15.20/23.80");
   assert.equal(cellText(worksheet, "L6"), "0");
   // Row 7: 成本 1,961,324 已達階段 3 → 已執行，可投入空白
   assert.equal(cellText(worksheet, "L7"), "3（已執行）");
@@ -215,8 +215,8 @@ test("capitalAllocPerText returns daily PER and the 120-day low/high", () => {
     { code: "missing-range", per_latest: 9.1, per_120d_low: null, per_120d_high: null },
     { code: "empty" },
   ];
-  assert.equal(context.capitalAllocPerText("2330"), "18.42 / 15.20 / 23.80");
-  assert.equal(context.capitalAllocPerText("missing-range"), "9.10 / - / -");
+  assert.equal(context.capitalAllocPerText("2330"), "18.42, 15.20/23.80");
+  assert.equal(context.capitalAllocPerText("missing-range"), "9.10, -/-");
   assert.equal(context.capitalAllocPerText("empty"), "");
   assert.equal(context.capitalAllocPerText("unknown"), "");
 });

@@ -4156,7 +4156,8 @@
       if (!stock) return "";
       const values = [stock.per_latest, stock.per_120d_low, stock.per_120d_high];
       if (values.every(isNil)) return "";
-      return values.map(value => isNil(value) ? "-" : fmt(value)).join(" / ");
+      const format = value => isNil(value) ? "-" : fmt(value);
+      return `${format(values[0])}, ${format(values[1])}/${format(values[2])}`;
     }
 
     function unzipXlsxEntries(bytes) {
