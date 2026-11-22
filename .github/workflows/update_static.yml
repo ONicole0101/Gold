@@ -15,11 +15,19 @@ on:
         description: "Sleep seconds between stocks"
         required: false
         default: "0.2"
+      refresh_hours:
+        description: "Refresh ok/partial_ok rows older than N hours (0 = backfill incomplete rows only)"
+        required: false
+        default: "24"
   schedule:
     # GitHub Actions cron uses UTC.
-    # 22:00 UTC (previous day) = Taiwan time 06:00; 04:00 UTC = Taiwan time 12:00.
+    # Full refresh: 22:00 UTC (previous day) = Taiwan 06:00; 04:00 UTC = Taiwan 12:00.
     - cron: "0 22 * * *"
     - cron: "0 4 * * *"
+    # Backfill only (refresh-hours 0): retries incomplete/api_limited/new stocks
+    # after FinMind quota resets, without re-downloading completed rows.
+    # Taiwan 09:00 / 15:00 / 18:00 / 21:00.
+    - cron: "0 1,7,10,13 * * *"
 
 permissions:
   contents: write
@@ -34,6 +42,7 @@ env:
   STATIC_OUTPUT_FILE: ${{ github.event.inputs.output_file || vars.STATIC_OUTPUT_FILE || 'AllStatic.csv' }}
   STATIC_VALUATION_OUTPUT_FILE: ${{ vars.STATIC_VALUATION_OUTPUT_FILE || 'AllStatic_Valuation.csv' }}
   STATIC_SLEEP_SEC: ${{ github.event.inputs.sleep_sec || vars.STATIC_SLEEP_SEC || '0.2' }}
+  STATIC_REFRESH_HOURS: ${{ github.event.inputs.refresh_hours || vars.STATIC_REFRESH_HOURS || '24' }}
   FINMIND_USAGE_LOG_FILE: /tmp/finmind_token_usage_log.csv
   FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
 
@@ -52,6 +61,28 @@ jobs:
           echo "CSV_FILE=${CSV_FILE}"
           echo "STATIC_OUTPUT_FILE=${STATIC_OUTPUT_FILE}"
           echo "STATIC_SLEEP_SEC=${STATIC_SLEEP_SEC}"
+          echo "STATIC_REFRESH_HOURS=${STATIC_REFRESH_HOURS}"
+
+      - name: Resolve refresh mode
+        env:
+          SCHEDULE_CRON: ${{ github.event.schedule }}
+        run: |
+          REFRESH_HOURS="${STATIC_REFRESH_HOURS}"
+          if [ "${GITHUB_EVENT_NAME}" = "schedule" ]; then
+            case "${SCHEDULE_CRON}" in
+              "0 22 * * *"|"0 4 * * *")
+                echo "Full refresh schedule: ${SCHEDULE_CRON}"
+                ;;
+              *)
+                # Backfill-only runs never re-download completed rows; they only
+                # fill incomplete/api_limited/new-stock rows after quota resets.
+                REFRESH_HOURS="0"
+                echo "Backfill-only schedule: ${SCHEDULE_CRON}"
+                ;;
+            esac
+          fi
+          echo "Effective REFRESH_HOURS=${REFRESH_HOURS}"
+          echo "REFRESH_HOURS=${REFRESH_HOURS}" >> "${GITHUB_ENV}"
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -132,11 +163,16 @@ jobs:
           python generate_static_csv.py \
             --output "${STATIC_OUTPUT_FILE}" \
             --retry-errors \
+            --refresh-hours "${REFRESH_HOURS}" \
             --sleep-sec "${STATIC_SLEEP_SEC}"
 
       - name: Generate AllStatic_Valuation.csv
         run: |
           set -o pipefail
+          if [ "${REFRESH_HOURS}" = "0" ]; then
+            echo "Backfill-only run: skip full valuation rebuild to save FinMind quota."
+            exit 0
+          fi
           python generate_static_PER_csv.py \
             --output "${STATIC_VALUATION_OUTPUT_FILE}"
 

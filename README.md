@@ -109,6 +109,17 @@ node --test tests\test_buy_tab.cjs tests\test_excel_export.cjs
   `--refresh-hours 0` 停用週期刷新，但仍會增補不完整資料。
   `--repair-only` 僅修正狀態，不下載資料。
 
+### 新增股票的歷史資料補齊排程
+
+新增股票首次下載歷史 EPS、毛利率、三率與 ROE 最耗 FinMind 額度，遇到
+`api_limited` 時該股票會留下不完整資料。排程 `update_static.yml` 除每天
+台灣時間 06:00、12:00 的完整更新外，另於 09:00、15:00、18:00、21:00 以
+`--refresh-hours 0` 執行「純補齊」：只處理 `api_limited`／`pending`／
+`incomplete`／`error`（已啟用 `--retry-errors`）及尚無資料列的新股票，
+已完整的 `ok` 資料直接重用、不重新下載，待額度重置後自動把歷史資料補齊。
+純補齊執行也會跳過 `AllStatic_Valuation.csv` 的全量重建以節省額度；
+手動觸發時可用 `refresh_hours` 輸入（`0` 即純補齊）切換模式。
+
 可指定股票驗證更新，未指定的既有資料會保留：
 
 ```powershell
