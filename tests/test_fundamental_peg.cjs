@@ -13,7 +13,7 @@ for (const name of ["template.html", "index.html"]) {
     return source.slice(first, last);
   };
   const context = vm.createContext({ currentTab: "fundamental" });
-  for (const functionName of ["isNil", "fmt", "calculatePeg", "renderPegContent", "renderCell", "getSortValue"]) {
+  for (const functionName of ["isNil", "fmt", "calculatePeg", "pegMissingReason", "renderPegContent", "renderCell", "getSortValue"]) {
     vm.runInContext(section(`    function ${functionName}(`, "\n    function "), context);
   }
   vm.runInContext(section("    const TAB_CONFIG =", "    function isNil("), context);
@@ -50,5 +50,32 @@ for (const name of ["template.html", "index.html"]) {
     const partial = context.renderCell({ per_latest: 30, per_ttm: null, eps_5y_cagr: 20, eps_forward_growth: 10 }, "peg");
     assert.match(partial, /日 1\.50/);
     assert.match(partial, /TTM -/);
+  });
+
+  test(`${name}: unavailable PEG values explain why without changing valid values`, () => {
+    const html = context.renderCell({
+      per_latest: 20, eps_5y_cagr: null, per_ttm: 10, eps_forward_growth: -5,
+    }, "peg");
+    assert.match(html, /日 -/);
+    assert.match(html, /五年資料未取得或不足／EPS非正/);
+    assert.match(html, /TTM -/);
+    assert.match(html, /成長率非正/);
+    const missing = context.renderCell({}, "peg");
+    assert.match(missing, /PER缺資料、五年資料未取得或不足／EPS非正/);
+    assert.match(missing, /PER缺資料、八季資料未取得或不足／EPS非正/);
+    const valid = context.renderCell({
+      per_latest: 20, eps_5y_cagr: 10, per_ttm: 10, eps_forward_growth: 20,
+    }, "peg");
+    assert.match(valid, /日 2/);
+    assert.match(valid, /TTM 0\.50/);
+    assert.doesNotMatch(valid, /table-lv3/);
+  });
+
+  test(`${name}: PEG tooltip summarizes valuation ranges`, () => {
+    const column = vm.runInContext("TAB_CONFIG.fundamental.columns.find(c => c.key === 'peg')", context);
+    for (const text of ["＜1", "＜0.75", "約1", "＞1", "1.2～1.5"]) {
+      assert.ok(column.tooltip.includes(text), text);
+    }
+    assert.match(column.tooltip, /並非買賣保證/);
   });
 }

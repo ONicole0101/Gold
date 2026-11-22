@@ -613,6 +613,10 @@
       grid-template-columns: auto 58px 100px 36px 60px;
     }
 
+    .filter-item.filter-item-price-lh {
+      grid-template-columns: auto 36px 36px 60px;
+    }
+
     .filter-item.filter-item-bias {
       grid-template-columns: auto 44px 32px 56px 48px;
     }
@@ -1312,7 +1316,7 @@
         </div>
       </div>
       <div class="filter-row">
-        <div class="filter-item"><label>價格120日LH距離</label><select id="priceLhBaseFilter" title="比較120日低點或高點">
+        <div class="filter-item filter-item-price-lh"><label>價格120日LH距離</label><select id="priceLhBaseFilter" title="比較120日低點或高點">
             <option value="low">L</option>
             <option value="high">H</option>
           </select><select id="priceLhOperator">
@@ -1562,7 +1566,7 @@
           { key: "custom_categories", label: "符合自選分類<br><small>顯示清單</small>", tooltip: "顯示此股票所屬的自選分類。" },
           { key: "price", label: "價格<br><small>120日LH距離</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值，高點距離為正值。" },
           { key: "per_latest", label: "日PER<br><small>120日LH</small>" },
-          { key: "peg", label: "PEG<br><small>日 / TTM</small>", tooltip: "日PEG＝日PER ÷ 完整年度EPS五年複合年成長率；TTM PEG＝TTM PER ÷ 未來四季EPS預估成長率。預估沿用最近四季相對前四季的EPS年增率，並非分析師預測。年增率以百分比數值計算；PER或成長率不大於0、資料不足時顯示－。點擊此欄依日PEG排序。" },
+          { key: "peg", label: "PEG<br><small>日 / TTM</small>", tooltip: "日PEG＝日PER ÷ 完整年度EPS五年複合年成長率；TTM PEG＝TTM PER ÷ 未來四季EPS預估成長率。預估沿用最近四季相對前四季的EPS年增率，並非分析師預測。PEG＜1可能偏低（＜0.75更明顯）；約1為合理；＞1可能偏高（＞1.2～1.5需留意成長放緩風險）。僅供參考，並非買賣保證。年增率以百分比數值計算；PER或成長率不大於0、資料不足時顯示－。點擊此欄依日PEG排序。" },
           { key: "eps_Y", label: "EPS<small>(季數)</small><br><small>TTM</small> / 年增率" },
           { key: "roe", label: "ROE%<br><small>TTM</small>" },
           { key: "rev", label: "營收(bn)<br><small>M / Q / Y</small>" },
@@ -1753,10 +1757,25 @@
       return Number.isFinite(peg) ? peg:null;
     }
 
+    function pegMissingReason(per, growth, growthUnavailable) {
+      const reasons = [];
+      if (isNil(per) || per === "" || !Number.isFinite(Number(per))) reasons.push("PER缺資料");
+      else if (Number(per) <= 0) reasons.push("PER非正");
+      if (isNil(growth) || growth === "" || !Number.isFinite(Number(growth))) reasons.push(growthUnavailable);
+      else if (Number(growth) <= 0) reasons.push("成長率非正");
+      return reasons.join("、");
+    }
+
     function renderPegContent(s) {
+      const daily = calculatePeg(s.per_latest, s.eps_5y_cagr);
+      const ttm = calculatePeg(s.per_ttm, s.eps_forward_growth);
+      const dailyReason = pegMissingReason(s.per_latest, s.eps_5y_cagr, "五年資料未取得或不足／EPS非正");
+      const ttmReason = pegMissingReason(s.per_ttm, s.eps_forward_growth, "八季資料未取得或不足／EPS非正");
       return `<div class="stock-value">
-        <div class="table-lv1">日 ${fmt(calculatePeg(s.per_latest, s.eps_5y_cagr))}</div>
-        <div class="table-lv2">TTM ${fmt(calculatePeg(s.per_ttm, s.eps_forward_growth))}</div>
+        <div class="table-lv1">日 ${fmt(daily)}</div>
+        ${isNil(daily) ? `<div class="table-lv3">${dailyReason || "數值超出範圍"}</div>`:""}
+        <div class="table-lv2">TTM ${fmt(ttm)}</div>
+        ${isNil(ttm) ? `<div class="table-lv3">${ttmReason || "數值超出範圍"}</div>`:""}
       </div>`;
     }
 
@@ -3011,7 +3030,7 @@
       const fundamentalGrid = `
         <div class="stock-grid">
           <div class="stock-item"><div class="stock-label">日PER 120日LH</div><div class="stock-value">${renderPerRangeMetric(s.per_latest, s.per_120d_low, s.per_120d_high, s.per_ttm)}</div></div>
-          <div class="stock-item"><div class="stock-label">PEG 日 / TTM</div>${renderPegContent(s)}</div>
+          <div class="stock-item"><div class="stock-label" title="PEG＜1可能偏低（＜0.75更明顯）；約1為合理；＞1可能偏高（＞1.2～1.5需留意成長放緩風險）。僅供參考，並非買賣保證。">PEG 日 / TTM</div>${renderPegContent(s)}</div>
           <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list"><div class="category-list-text">${categories.length ? categories.map(escapeHtml).join("、"):"-"}</div></div></div>
           <div class="stock-item"><div class="stock-label">EPS<small>(季數)</small><br>TTM / 年增率</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y ?? 0)} (${Number.isInteger(Number(s.eps_Y_quarters)) ? Number(s.eps_Y_quarters):0})</div><div class="table-lv2">${fmt(s.eps_ttm)}</div><div class="table-lv2 ${trendClass(s.eps_yoy)}">${isNil(s.eps_yoy) ? "-":`Y ${fmtTrend(s.eps_yoy)} ${fmt(s.eps_yoy, "%")}`}</div></div></div>
           <div class="stock-item"><div class="stock-label">ROE% / TTM</div>${renderRoeBlock(s)}</div>
