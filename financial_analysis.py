@@ -1,4 +1,5 @@
 from datetime import datetime
+import math
 
 import pandas as pd
 
@@ -638,6 +639,31 @@ def get_eps_analysis(stock_id, current_price=None, *, raise_errors=False):
             if ttm_prev != 0:
                 eps_yoy = round((eps_ttm - ttm_prev) / abs(ttm_prev) * 100, 2)
 
+        annual_eps = {}
+        for year, group in eps_df[eps_df["year"] < current_year].groupby("year"):
+            if set(group["season"]) == {1, 2, 3, 4}:
+                annual_eps[int(year)] = float(group["value"].sum())
+        eps_5y_cagr = None
+        if annual_eps:
+            latest_year = max(annual_eps)
+            if all(year in annual_eps for year in range(latest_year - 5, latest_year + 1)):
+                previous = annual_eps[latest_year - 5]
+                current = annual_eps[latest_year]
+                if math.isfinite(previous) and math.isfinite(current) and previous > 0 and current > 0:
+                    eps_5y_cagr = ((current / previous) ** (1 / 5) - 1) * 100
+                    if not math.isfinite(eps_5y_cagr):
+                        eps_5y_cagr = None
+
+        eps_forward_growth = None
+        quarter_ids = (latest8["year"] * 4 + latest8["season"]).tolist()
+        if len(quarter_ids) == 8 and quarter_ids == list(range(quarter_ids[0], quarter_ids[0] + 8)):
+            previous = float(latest8.iloc[:4]["value"].sum())
+            current = float(latest8.iloc[4:]["value"].sum())
+            if math.isfinite(previous) and math.isfinite(current) and previous > 0 and current > 0:
+                growth = (current / previous - 1) * 100
+                if math.isfinite(growth):
+                    eps_forward_growth = growth
+
         def calc_per(price, eps):
             try:
                 price = float(price)
@@ -649,7 +675,8 @@ def get_eps_analysis(stock_id, current_price=None, *, raise_errors=False):
         per_y = calc_per(current_price, eps_year)
         per_ttm = calc_per(current_price, eps_ttm)
 
-        return eps_year, eps_ttm, per_y, per_ttm, False, eps_ttm_is_prev, eps_y_quarters, eps_yoy
+        return (eps_year, eps_ttm, per_y, per_ttm, False, eps_ttm_is_prev,
+                eps_y_quarters, eps_yoy, eps_5y_cagr, eps_forward_growth)
 
     except Exception as e:
         if raise_errors:

@@ -558,7 +558,7 @@ def process_stock(s, static_map=None, chips_map=None):
                 None, None, None, None, False, False, None, None)
             eps_res = tuple(eps_res) if isinstance(
                 eps_res, tuple) else (None,) * 8
-            eps_res = eps_res + (None,) * (8 - len(eps_res))
+            eps_res = eps_res + (None,) * (10 - len(eps_res))
             eps_year, eps_ttm, per_y, per_ttm, _, _, _, eps_yoy = eps_res[:8]
             if static_fields.get("eps_Y") is None:
                 static_fields["eps_Y"] = eps_year
@@ -566,6 +566,10 @@ def process_stock(s, static_map=None, chips_map=None):
                 static_fields["eps_ttm"] = eps_ttm
             if static_fields.get("eps_yoy") is None:
                 static_fields["eps_yoy"] = eps_yoy
+            if static_fields.get("eps_5y_cagr") is None:
+                static_fields["eps_5y_cagr"] = eps_res[8]
+            if static_fields.get("eps_forward_growth") is None:
+                static_fields["eps_forward_growth"] = eps_res[9]
             if static_fields.get("per_Y") is None and per_y is not None:
                 static_fields["per_Y"] = per_y
             if static_fields.get("per_ttm") is None and per_ttm is not None:
@@ -883,6 +887,8 @@ def _build_static_fields(static_row):
         "eps_Y_quarters": to_int_or_none(static_row.get("eps_Y_quarters")),
         "eps_ttm": to_float_or_none(static_row.get("eps_ttm")),
         "eps_yoy": to_float_or_none(static_row.get("eps_yoy")),
+        "eps_5y_cagr": to_float_or_none(static_row.get("eps_5y_cagr")),
+        "eps_forward_growth": to_float_or_none(static_row.get("eps_forward_growth")),
         "roe_last_year": to_float_or_none(static_row.get("roe_last_year")),
         "roe_ttm": to_float_or_none(static_row.get("roe_ttm")),
         "per_Y": to_float_or_none(static_row.get("per_Y")),

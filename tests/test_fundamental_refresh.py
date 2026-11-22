@@ -12,6 +12,7 @@ import requests
 import data_sources as sources
 import financial_analysis as analysis
 import generate_static_csv as static
+import stock_service
 
 
 def complete_row():
@@ -189,6 +190,49 @@ class FinancialAnalysisTests(unittest.TestCase):
         self.assertEqual(row["eps_Y_quarters"], 3)
         self.assertEqual(row["eps_ttm"], 9)
         self.assertEqual(row["eps_status"], "ok")
+
+    def test_peg_growth_uses_complete_annual_and_consecutive_quarter_eps(self):
+        current_year = datetime.now().year
+        rows = [
+            {"date": f"{year}-{month:02d}-{day:02d}", "type": "EPS", "value": index + 1}
+            for index, year in enumerate(range(current_year - 6, current_year))
+            for month, day in ((3, 31), (6, 30), (9, 30), (12, 31))
+        ]
+        with patch.object(analysis, "get_eps_raw", return_value=rows):
+            with contextlib.redirect_stdout(io.StringIO()):
+                row = static.apply_eps_fields({}, "2330")
+        self.assertAlmostEqual(row["eps_5y_cagr"], (6 ** (1 / 5) - 1) * 100)
+        self.assertAlmostEqual(row["eps_forward_growth"], 20)
+        report_fields = stock_service._build_static_fields(row)
+        self.assertAlmostEqual(report_fields["eps_5y_cagr"], row["eps_5y_cagr"])
+        self.assertAlmostEqual(report_fields["eps_forward_growth"], 20)
+        self.assertIn("eps_5y_cagr", static.normalize_static_df(pd.DataFrame([row])).columns)
+
+        with patch.object(analysis, "get_eps_raw", return_value=rows[:-2] + rows[-1:]):
+            result = analysis.get_eps_analysis("2330")
+        self.assertIsNone(result[8])
+        self.assertIsNone(result[9])
+
+    def test_peg_growth_rejects_nonpositive_base_and_missing_quarters(self):
+        current_year = datetime.now().year
+        rows = [
+            {"date": f"{year}-{month:02d}-{day:02d}", "type": "EPS", "value": 1}
+            for year in range(current_year - 6, current_year)
+            for month, day in ((3, 31), (6, 30), (9, 30), (12, 31))
+        ]
+        for index in range(4):
+            rows[index]["value"] = -1
+            rows[-8 + index]["value"] = -1
+        with patch.object(analysis, "get_eps_raw", return_value=rows):
+            result = analysis.get_eps_analysis("2330")
+        self.assertIsNone(result[8])
+        self.assertIsNone(result[9])
+
+        missing_quarter = rows[:]
+        del missing_quarter[-6]
+        with patch.object(analysis, "get_eps_raw", return_value=missing_quarter):
+            result = analysis.get_eps_analysis("2330")
+        self.assertIsNone(result[9])
 
 
 class StaticBuildErrorTests(unittest.TestCase):
@@ -547,6 +591,8 @@ class IncrementalPersistenceTests(unittest.TestCase):
 
     def test_failed_refresh_preserves_values_and_persists_failure(self):
         old = complete_row()
+        old["eps_5y_cagr"] = 12.5
+        old["eps_forward_growth"] = 23.5
         old["eps_Y_is_prev"] = "True"
         static.atomic_write_csv(pd.DataFrame([old]), self.path)
         new = complete_row()
@@ -557,6 +603,8 @@ class IncrementalPersistenceTests(unittest.TestCase):
             row = self.run_incremental(force=True)
         self.assertEqual(float(row["eps_Y"]), old["eps_Y"])
         self.assertEqual(float(row["eps_Y_quarters"]), old["eps_Y_quarters"])
+        self.assertEqual(float(row["eps_5y_cagr"]), 12.5)
+        self.assertEqual(float(row["eps_forward_growth"]), 23.5)
         self.assertEqual(row["eps_Y_is_prev"], "True")
         self.assertEqual(row["eps_status"], "error")
         self.assertEqual(row["eps_reason"], "timeout")

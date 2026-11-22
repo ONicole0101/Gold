@@ -921,6 +921,14 @@
       color: #7d9ec0;
     }
 
+    .index-row td .margin-maintenance .table-lv2.up {
+      color: #f85149;
+    }
+
+    .index-row td .margin-maintenance .table-lv2.dn {
+      color: #3fb950;
+    }
+
     .index-label {
       display: inline-block;
       margin-left: 4px;
@@ -1548,18 +1556,19 @@
         ]
       },
       fundamental: {
-        note: "基本面：EPS、ROE、營收、毛利率、營益率、淨利率、PER",
+        note: "基本面：PER、PEG、EPS、ROE、營收、毛利率、營益率、淨利率",
         columns: [
           { key: "code", label: "代碼<br><small>名稱</small>" },
           { key: "custom_categories", label: "符合自選分類<br><small>顯示清單</small>", tooltip: "顯示此股票所屬的自選分類。" },
           { key: "price", label: "價格<br><small>120日LH距離</small>", tooltip: "距離%＝(高點或低點價格 - 目前收盤價) ÷ 目前收盤價 × 100。低點距離為負值，高點距離為正值。" },
+          { key: "per_latest", label: "日PER<br><small>120日LH</small>" },
+          { key: "peg", label: "PEG<br><small>日 / TTM</small>", tooltip: "日PEG＝日PER ÷ 完整年度EPS五年複合年成長率；TTM PEG＝TTM PER ÷ 未來四季EPS預估成長率。預估沿用最近四季相對前四季的EPS年增率，並非分析師預測。年增率以百分比數值計算；PER或成長率不大於0、資料不足時顯示－。點擊此欄依日PEG排序。" },
           { key: "eps_Y", label: "EPS<small>(季數)</small><br><small>TTM</small> / 年增率" },
           { key: "roe", label: "ROE%<br><small>TTM</small>" },
           { key: "rev", label: "營收(bn)<br><small>M / Q / Y</small>" },
           { key: "gross_margin", label: "毛利率%<br><small>QoQ / YoY</small>" },
           { key: "operating_margin", label: "營益率%<br><small>QoQ / YoY</small>" },
           { key: "net_margin", label: "淨利率%<br><small>QoQ / Y</small>" },
-          { key: "per_latest", label: "日PER<br><small>120日LH</small>" },
         ]
       },
       buy: {
@@ -1735,6 +1744,22 @@
       </div>`;
     }
 
+    function calculatePeg(per, growth) {
+      if (isNil(per) || isNil(growth) || per === "" || growth === "") return null;
+      const perValue = Number(per);
+      const growthValue = Number(growth);
+      if (!Number.isFinite(perValue) || !Number.isFinite(growthValue) || perValue <= 0 || growthValue <= 0) return null;
+      const peg = perValue / growthValue;
+      return Number.isFinite(peg) ? peg:null;
+    }
+
+    function renderPegContent(s) {
+      return `<div class="stock-value">
+        <div class="table-lv1">日 ${fmt(calculatePeg(s.per_latest, s.eps_5y_cagr))}</div>
+        <div class="table-lv2">TTM ${fmt(calculatePeg(s.per_ttm, s.eps_forward_growth))}</div>
+      </div>`;
+    }
+
     function renderBBBlock(s) {
       return `
       <div class="metric metric-2line">
@@ -1849,9 +1874,10 @@
       const high = s.margin_maintenance_120d_high;
       const changePct = comparisonPct(value, average);
       const dateLabel = chipDateMMDD(s.chip_date_t0 ?? s.chip_latest_date, "T");
-      return `<div class="stock-value">
+      const valueClass = !isNil(value) && Number.isFinite(Number(value)) && Number(value) < 130 ? "dn":"";
+      return `<div class="stock-value margin-maintenance">
         <div class="table-lv2 ${trendClass(changePct)}">${isNil(changePct) ? "-":`${fmtTrend(changePct)} ${signedFmt(changePct, "%")}`}</div>
-        <div class="table-lv2">${dateLabel}：${fmt(value, "%")}</div>
+        <div class="table-lv2">${dateLabel}：<span class="${valueClass}">${fmt(value, "%")}</span></div>
         <div class="table-lv2">5MA：${fmt(average, "%")}</div>
         <div class="table-lv3">${fmt(low, "%")} / ${fmt(high, "%")}</div>
       </div>`;
@@ -2854,6 +2880,8 @@
           return `<td>${renderMetric3(s.net_margin, null, s.net_margin_qoq, s.net_margin_yoy_diff, "", { showMonth: false })}</td>`;
         case "per_latest":
           return `<td>${renderPerRangeMetric(s.per_latest, s.per_120d_low, s.per_120d_high, s.per_ttm)}</td>`;
+        case "peg":
+          return `<td>${renderPegContent(s)}</td>`;
         case "k": {
           return renderKDCell(s);
         }
@@ -2982,6 +3010,8 @@
       const categories = stockCustomCategories(s);
       const fundamentalGrid = `
         <div class="stock-grid">
+          <div class="stock-item"><div class="stock-label">日PER 120日LH</div><div class="stock-value">${renderPerRangeMetric(s.per_latest, s.per_120d_low, s.per_120d_high, s.per_ttm)}</div></div>
+          <div class="stock-item"><div class="stock-label">PEG 日 / TTM</div>${renderPegContent(s)}</div>
           <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list"><div class="category-list-text">${categories.length ? categories.map(escapeHtml).join("、"):"-"}</div></div></div>
           <div class="stock-item"><div class="stock-label">EPS<small>(季數)</small><br>TTM / 年增率</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y ?? 0)} (${Number.isInteger(Number(s.eps_Y_quarters)) ? Number(s.eps_Y_quarters):0})</div><div class="table-lv2">${fmt(s.eps_ttm)}</div><div class="table-lv2 ${trendClass(s.eps_yoy)}">${isNil(s.eps_yoy) ? "-":`Y ${fmtTrend(s.eps_yoy)} ${fmt(s.eps_yoy, "%")}`}</div></div></div>
           <div class="stock-item"><div class="stock-label">ROE% / TTM</div>${renderRoeBlock(s)}</div>
@@ -2989,7 +3019,6 @@
           <div class="stock-item"><div class="stock-label">毛利率</div><div class="stock-value">${renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff, "", { showMonth: false })}</div></div>
           <div class="stock-item"><div class="stock-label">營益率</div><div class="stock-value">${renderMetric3(s.operating_margin, null, s.operating_margin_qoq, s.operating_margin_yoy_diff, "", { showMonth: false })}</div></div>
           <div class="stock-item"><div class="stock-label">淨利率</div><div class="stock-value">${renderMetric3(s.net_margin, null, s.net_margin_qoq, s.net_margin_yoy_diff, "", { showMonth: false })}</div></div>
-          <div class="stock-item"><div class="stock-label">日PER 120日LH</div><div class="stock-value">${renderPerRangeMetric(s.per_latest, s.per_120d_low, s.per_120d_high, s.per_ttm)}</div></div>
         </div>`;
 
       const buyGrid = `
@@ -3125,6 +3154,8 @@
           return Number(s.per_latest ?? -999999);
         case "per_latest":
           return Number(s[key] ?? -999999);
+        case "peg":
+          return calculatePeg(s.per_latest, s.eps_5y_cagr) ?? -999999;
         default: {
           const value = s[key];
           if (isNil(value) || value === "") return -999999;
