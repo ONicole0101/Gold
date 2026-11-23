@@ -19,9 +19,10 @@ for (const name of ["template.html", "index.html"]) {
     const html = context.renderActiveEtfNetContent({
       chip_date_t0: "2026-11-20", chip_date_t1: "2026-11-19",
       active_etf_net_t0: 1001, active_etf_net_t1: -200, active_etf_net_t2: null,
+      active_etf_partial_t0: 1, active_etf_partial_t1: 0,
     });
-    assert.match(html, /up">1120：\+1,001股/);
-    assert.match(html, /dn">1119：-200股/);
+    assert.match(html, /up"[^>]*>1120：\+1,001股\*/);
+    assert.match(html, /dn"[^>]*>1119：-200股<\/div>/);
     assert.match(html, /T-2：-/);
     assert.match(context.renderActiveEtfNetContent({active_etf_net_t0: 0}), /T：0股/);
   });

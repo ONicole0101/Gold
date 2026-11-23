@@ -59,8 +59,10 @@ class ActiveEtfChipsTests(unittest.TestCase):
         fields = _build_chip_fields(persisted)
         self.assertEqual([fields[f"active_etf_net_t{i}"] for i in range(3)],
                          [1000, -200, -5])
+        self.assertEqual([fields[f"active_etf_partial_t{i}"] for i in range(3)],
+                         [0, 0, 0])
 
-    def test_missing_etf_day_is_unavailable_not_partial_or_zero(self):
+    def test_missing_etf_day_shows_available_total_with_warning(self):
         dates = {"2026-11-20", "2026-11-19"}
         def get(url, headers, params, timeout):
             if params["dataset"] == "TaiwanStockActiveETFInfo":
@@ -79,10 +81,25 @@ class ActiveEtfChipsTests(unittest.TestCase):
         with patch.dict("os.environ", {"FINMIND_TOKEN": "test-token"}), \
                 patch.object(chips.requests, "get", side_effect=get):
             chips.apply_active_etf_nets(rows)
-        self.assertIsNone(rows[0]["active_etf_net_t0"])
+        self.assertEqual(rows[0]["active_etf_net_t0"], 100)
+        self.assertEqual(rows[0]["active_etf_partial_t0"], 1)
         self.assertEqual(rows[0]["active_etf_net_t1"], 200)
+        self.assertEqual(rows[0]["active_etf_partial_t1"], 0)
+        self.assertEqual(rows[1]["active_etf_net_t0"], 0)
+        self.assertEqual(rows[1]["active_etf_partial_t0"], 1)
         self.assertEqual(rows[1]["active_etf_net_t1"], 0)
         self.assertIsNone(rows[0]["active_etf_net_t2"])
+
+    def test_all_etfs_without_records_leaves_day_unavailable(self):
+        row = {"stock_id": "2330", "chip_date_t0": "2026-11-20"}
+        with patch.dict("os.environ", {"FINMIND_TOKEN": "test-token"}), \
+                patch.object(chips.requests, "get", side_effect=[
+                    self.response([{"stock_id": "A"}, {"stock_id": "B"}]),
+                    self.response([]), self.response([]),
+                ]):
+            chips.apply_active_etf_nets([row])
+        self.assertIsNone(row["active_etf_net_t0"])
+        self.assertIsNone(row["active_etf_partial_t0"])
 
     def test_failure_is_logged_and_does_not_keep_stale_totals(self):
         row = {"stock_id": "2330", "chip_date_t0": "2026-11-20", "active_etf_net_t0": 123}
@@ -95,7 +112,7 @@ class ActiveEtfChipsTests(unittest.TestCase):
     def test_latest_date_is_used_for_legacy_rows(self):
         row = {"stock_id": "2330", "chip_latest_date": "2026-11-20"}
         with patch.object(chips, "fetch_active_etf_nets",
-                          return_value=({("2026-11-20", "2330"): 25}, {"2026-11-20"})) as fetch:
+                          return_value=({("2026-11-20", "2330"): 25}, {"2026-11-20"}, {"2026-11-20"})) as fetch:
             chips.apply_active_etf_nets([row])
         fetch.assert_called_once_with({"2026-11-20"})
         self.assertEqual(row["active_etf_net_t0"], 25)

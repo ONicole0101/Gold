@@ -108,6 +108,9 @@ CHIP_DATA_COLS = [
     "active_etf_net_t0",
     "active_etf_net_t1",
     "active_etf_net_t2",
+    "active_etf_partial_t0",
+    "active_etf_partial_t1",
+    "active_etf_partial_t2",
     "investment_trust_net",
     "investment_trust_net_t0",
     "investment_trust_net_t1",
@@ -387,10 +390,10 @@ def atomic_write_csv(df: pd.DataFrame, path: str) -> None:
     os.replace(tmp_path, path)
 
 
-def fetch_active_etf_nets(dates: set[str]) -> tuple[dict[tuple[str, str], int], set[str]]:
+def fetch_active_etf_nets(dates: set[str]) -> tuple[dict[tuple[str, str], int], set[str], set[str]]:
     """Fetch each active ETF once and aggregate component changes in shares."""
     if not dates:
-        return {}, set()
+        return {}, set(), set()
     headers = get_finmind_auth_headers(require_finmind_token())
 
     def fetch(params: dict) -> list:
@@ -412,6 +415,7 @@ def fetch_active_etf_nets(dates: set[str]) -> tuple[dict[tuple[str, str], int], 
     etf_ids = sorted({str(item["stock_id"]).strip() for item in info})
     totals: dict[tuple[str, str], int] = {}
     complete_dates = set(dates)
+    reported_any_dates: set[str] = set()
     for etf_id in etf_ids:
         records = fetch({
             "dataset": "TaiwanStockActiveETFHoldingChange",
@@ -438,9 +442,10 @@ def fetch_active_etf_nets(dates: set[str]) -> tuple[dict[tuple[str, str], int], 
             totals[key] = totals.get(key, 0) + buy - sell
         missing = dates - reported_dates
         if missing:
-            print(f"Active ETF {etf_id}: no holding-change records for {', '.join(sorted(missing))}; totals unavailable for these dates", flush=True)
+            print(f"Active ETF {etf_id}: no holding-change records for {', '.join(sorted(missing))}", flush=True)
+        reported_any_dates.update(reported_dates)
         complete_dates.intersection_update(reported_dates)
-    return totals, complete_dates
+    return totals, reported_any_dates, complete_dates
 
 
 def apply_active_etf_nets(rows: list[dict]) -> None:
@@ -456,16 +461,19 @@ def apply_active_etf_nets(rows: list[dict]) -> None:
         if chip_date(row, i)
     }
     try:
-        totals, complete_dates = fetch_active_etf_nets(dates)
+        totals, reported_dates, complete_dates = fetch_active_etf_nets(dates)
     except (requests.RequestException, ValueError, RuntimeError) as exc:
         print(f"Active ETF holding-change fetch failed: {exc}", flush=True)
-        totals, complete_dates = {}, set()
+        totals, reported_dates, complete_dates = {}, set(), set()
     for row in rows:
         stock_id = str(row.get("stock_id") or "").strip()
         for i in range(3):
             date = chip_date(row, i)
             row[f"active_etf_net_t{i}"] = (
-                totals.get((date, stock_id), 0) if date in complete_dates else None
+                totals.get((date, stock_id), 0) if date in reported_dates else None
+            )
+            row[f"active_etf_partial_t{i}"] = (
+                int(date not in complete_dates) if date in reported_dates else None
             )
 
 

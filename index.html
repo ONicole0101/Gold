@@ -1554,7 +1554,7 @@
           { key: "main_force_score", label: "主力買賣超<br><small>T/T-1/T-2</small>", tooltip: "依券商分點彙總後，取買超前15大分點與賣超前15大分點互抵，並以張為單位。正值偏主力買進，負值偏主力賣出。" },
           { key: "broker_diff", label: "買賣家數差<br><small>趨勢</small>", tooltip: "買賣家數差＝有買進的券商分點家數 - 有賣出的券商分點家數。正值代表參與買方家數較多，負值代表買方較集中或賣方家數較多。" },
           { key: "foreign_investor_net", label: "外資買賣超<br><small>T/T-1/T-2</small>", tooltip: "外資買賣超，顯示最近三個交易日數值與方向。" },
-          { key: "active_etf_net", label: "ETF_A買賣超 (分行)<br><small>T/T-1/T-2</small>", tooltip: "主動型 ETF 成分股持股異動合計：買進股數減賣出股數，單位為股；資料不完整時顯示 -。" },
+          { key: "active_etf_net", label: "ETF_A買賣超 (分行)<br><small>T/T-1/T-2</small>", tooltip: "主動型 ETF 成分股持股異動合計，單位為股；* 表示部分 ETF 當日無異動紀錄，可能無買賣或資料未更新。無任何 ETF 紀錄或查詢失敗時顯示 -。" },
           { key: "investment_trust_net", label: "投信買賣超<br><small>T/T-1/T-2</small>", tooltip: "投信買賣超，顯示最近三個交易日數值與方向。" },
           { key: "dealer_net", label: "自營商買賣超<br><small>T/T-1/T-2</small>", tooltip: "自營商買賣超，顯示最近三個交易日數值與方向。" },
           { key: "institutional_total_net", label: "三大法人合計<br><small>T/T-1/T-2</small>", tooltip: "三大法人合計買賣超 = 外資買賣超 + 投信買賣超 + 自營商買賣超。" }
@@ -2441,7 +2441,8 @@
       return [0, 1, 2].map(i => {
         const value = s[`active_etf_net_t${i}`];
         const label = chipDateMMDD(s[`chip_date_t${i}`] ?? (i === 0 ? s.chip_latest_date:null), i === 0 ? "T":`T-${i}`);
-        return `<div class="table-lv2 ${distClass(value)}">${label}：${signedFmt(value, "股")}</div>`;
+        const partial = s[`active_etf_partial_t${i}`] === 1 ? "*" : "";
+        return `<div class="table-lv2 ${distClass(value)}" title="${partial ? "部分 ETF 無異動紀錄，可能無買賣或資料未更新":""}">${label}：${signedFmt(value, "股")}${partial}</div>`;
       }).join("");
     }
 
