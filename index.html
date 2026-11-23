@@ -1141,7 +1141,7 @@
 
 <body>
   <div class="container">
-    <p>產生時間：2026-11-23 22:59</p>
+    <p>產生時間：2026-11-23 23:12</p>
 
     <div class="tabs" id="tabs">
       <button type="button" class="tab-btn active" data-tab="overview">總覽</button>
@@ -1760,7 +1760,7 @@
 
     function pegMissingReason(per, growth, growthUnavailable) {
       const reasons = [];
-      if (isNil(per) || per === "" || !Number.isFinite(Number(per))) reasons.push("PER缺資料");
+      if (isNil(per) || per === "" || !Number.isFinite(Number(per))) reasons.push("PER缺");
       else if (Number(per) <= 0) reasons.push("PER非正");
       if (isNil(growth) || growth === "" || !Number.isFinite(Number(growth))) reasons.push(growthUnavailable);
       else if (Number(growth) <= 0) reasons.push("成長率非正");
@@ -1770,8 +1770,8 @@
     function renderPegContent(s) {
       const daily = calculatePeg(s.per_latest, s.eps_5y_cagr);
       const ttm = calculatePeg(s.per_ttm, s.eps_forward_growth);
-      const dailyReason = pegMissingReason(s.per_latest, s.eps_5y_cagr, "五年資料未取得或不足／EPS非正");
-      const ttmReason = pegMissingReason(s.per_ttm, s.eps_forward_growth, "八季資料未取得或不足／EPS非正");
+      const dailyReason = pegMissingReason(s.per_latest, s.eps_5y_cagr, "五年資料缺／EPS非正");
+      const ttmReason = pegMissingReason(s.per_ttm, s.eps_forward_growth, "八季資料缺／EPS非正");
       return `<div class="stock-value">
         <div class="table-lv1">日 ${fmt(daily)}</div>
         ${isNil(daily) ? `<div class="table-lv3">${dailyReason || "數值超出範圍"}</div>`:""}
