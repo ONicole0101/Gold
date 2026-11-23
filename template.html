@@ -1448,11 +1448,11 @@
           { key: "short_sale_change_score", label: "融券增減<br><small>T/T-1/T-2</small>", tooltip: "融券增減＝當日融券今日餘額 - 融券昨日餘額，正值代表融券餘額增加，負值代表減少。" },
           { key: "main_force_score", label: "主力買賣超<br><small>T/T-1/T-2</small>", tooltip: "依券商分點彙總後，取買超前15大分點與賣超前15大分點互抵，並以張為單位。正值偏主力買進，負值偏主力賣出。" },
           { key: "broker_diff", label: "買賣家數差<br><small>趨勢</small>", tooltip: "買賣家數差＝有買進的券商分點家數 - 有賣出的券商分點家數。正值代表參與買方家數較多，負值代表買方較集中或賣方家數較多。" },
-          { key: "foreign_investor_net", label: "外資買賣超<br><small>T/T-1/T-2</small>", tooltip: "外資買賣超，顯示最近三個交易日數值與方向。" },
-          { key: "active_etf_net", label: "ETF_A買賣超<br><small>T/T-1/T-2</small>", tooltip: "主動型 ETF 成分股持股異動合計，單位為股；* 表示部分 ETF 當日無異動紀錄，可能無買賣或資料未更新。無任何 ETF 紀錄或查詢失敗時顯示 -。" },
-          { key: "investment_trust_net", label: "投信買賣超<br><small>T/T-1/T-2</small>", tooltip: "投信買賣超，顯示最近三個交易日數值與方向。" },
-          { key: "dealer_net", label: "自營商買賣超<br><small>T/T-1/T-2</small>", tooltip: "自營商買賣超，顯示最近三個交易日數值與方向。" },
-          { key: "institutional_total_net", label: "三大法人合計<br><small>T/T-1/T-2</small>", tooltip: "三大法人合計買賣超 = 外資買賣超 + 投信買賣超 + 自營商買賣超。" }
+          { key: "foreign_investor_net", label: "外資買賣超<br><small>T/T-1/T-2</small>", tooltip: "外資買賣超，顯示最近三個交易日數值與方向。箭頭依數值大小比較 T 對 T-1、T-1 對 T-2：兩段皆升 ↑↑、淨升 ↑、淨降 ↓、兩段皆降 ↓↓；→ 表示兩段方向互抵或持平，與買超或賣超的正負號無關，連續買超但金額忽大忽小也可能顯示 →。" },
+          { key: "active_etf_net", label: "ETF_A買賣超<br><small>T/T-1/T-2</small>", tooltip: "主動型 ETF持股異動合計；* 無異動，無買賣或未更新。- 無紀錄或查詢失敗時 。箭頭依數值大小比較 T 對 T-1、T-1 對 T-2：兩段皆升 ↑↑、淨升 ↑、淨降 ↓、兩段皆降 ↓↓；→ 表示兩段方向互抵或持平，與買超或賣超的正負號無關。" },
+          { key: "investment_trust_net", label: "投信買賣超<br><small>T/T-1/T-2</small>", tooltip: "投信買賣超，顯示最近三個交易日數值與方向。箭頭依數值大小比較 T 對 T-1、T-1 對 T-2：兩段皆升 ↑↑、淨升 ↑、淨降 ↓、兩段皆降 ↓↓；→ 表示兩段方向互抵或持平，與買超或賣超的正負號無關。" },
+          { key: "dealer_net", label: "自營商買賣超<br><small>T/T-1/T-2</small>", tooltip: "自營商買賣超，顯示最近三個交易日數值與方向。箭頭依數值大小比較 T 對 T-1、T-1 對 T-2：兩段皆升 ↑↑、淨升 ↑、淨降 ↓、兩段皆降 ↓↓；→ 表示兩段方向互抵或持平，與買超或賣超的正負號無關。" },
+          { key: "institutional_total_net", label: "三大法人合計<br><small>T/T-1/T-2</small>", tooltip: "三大法人合計買賣超 = 外資買賣超 + 投信買賣超 + 自營商買賣超。箭頭依數值大小比較 T 對 T-1、T-1 對 T-2：兩段皆升 ↑↑、淨升 ↑、淨降 ↓、兩段皆降 ↓↓；→ 表示兩段方向互抵或持平，與買超或賣超的正負號無關。" }
         ]
       },
       fundamental: {
@@ -2332,13 +2332,36 @@
       return `${num > 0 ? "+":""}${fmt(num, suffix)}`;
     }
 
+    function activeEtfTrendScore(s) {
+      const vals = [0, 1, 2].map(i => {
+        const v = Number(s[`active_etf_net_t${i}`]);
+        return isNil(s[`active_etf_net_t${i}`]) || !Number.isFinite(v) ? null:v;
+      });
+      const comparisons = [];
+      [[vals[0], vals[1]], [vals[1], vals[2]]].forEach(([cur, prev]) => {
+        if (cur === null || prev === null) return;
+        comparisons.push(cur > prev ? 1:cur < prev ? -1:0);
+      });
+      if (!comparisons.length) return null;
+      const ratio = comparisons.reduce((a, b) => a + b, 0) / comparisons.length;
+      if (ratio >= 0.999) return 1;
+      if (ratio > 0) return 0.5;
+      if (ratio <= -0.999) return -1;
+      if (ratio < 0) return -0.5;
+      return 0;
+    }
+
     function renderActiveEtfNetContent(s) {
-      return [0, 1, 2].map(i => {
-        const value = s[`active_etf_net_t${i}`];
+      const score = activeEtfTrendScore(s);
+      const lines = [0, 1, 2].map(i => {
+        const raw = s[`active_etf_net_t${i}`];
+        const num = Number(raw);
+        const lots = isNil(raw) || !Number.isFinite(num) ? null:num / 1000;
         const label = chipDateMMDD(s[`chip_date_t${i}`] ?? (i === 0 ? s.chip_latest_date:null), i === 0 ? "T":`T-${i}`);
         const partial = s[`active_etf_partial_t${i}`] === 1 ? "*" : "";
-        return `<div class="table-lv2 ${distClass(value)}" title="${partial ? "部分 ETF 無異動紀錄，可能無買賣或資料未更新":""}">${label}：${signedFmt(value, "股")}${partial}</div>`;
+        return `<div class="table-lv2 ${distClass(lots)}" title="${partial ? "部分 ETF 無異動紀錄，可能無買賣或資料未更新":""}">${label}：${signedFmt(lots, "張")}${partial}</div>`;
       }).join("");
+      return `<div class="table-lv1 ${trendClass(score)}">${isNil(score) ? "-":fmtTrend(score)}</div>${lines}`;
     }
 
     function renderMarginPurchaseChangeBlock(s) {
