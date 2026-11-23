@@ -1,7 +1,7 @@
-[32m2026-11-23 14:41:17.944 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m97[0m - [1mLogin success[0m
-[32m2026-11-23 14:41:18.084 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m97[0m - [1mLogin success[0m
+[32m2026-11-23 19:40:44.919 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m97[0m - [1mLogin success[0m
+[32m2026-11-23 19:40:45.026 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m97[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 2280/6000, remain=3720
+FinMind usage: 1148/6000, remain=4852
 Incremental probe: stock_id=2330, latest_date=2026-11-23, status=ok
 Build chips: total=285, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=284, pending=0, latest_date=2026-11-23
 Active ETF 00401A: no holding-change records for 2026-11-20
@@ -28,7 +28,7 @@ Active ETF 00983D: no holding-change records for 2026-11-19, 2026-11-23
 Active ETF 00984A: no holding-change records for 2026-11-19, 2026-11-20
 Active ETF 00984D: no holding-change records for 2026-11-23
 Active ETF 00985D: no holding-change records for 2026-11-23
-Active ETF 00986A: no holding-change records for 2026-11-19, 2026-11-20, 2026-11-23
+Active ETF 00986A: no holding-change records for 2026-11-19, 2026-11-23
 Active ETF 00986D: no holding-change records for 2026-11-23
 Active ETF 00987A: no holding-change records for 2026-11-19, 2026-11-23
 Active ETF 00987D: no holding-change records for 2026-11-23
@@ -38,12 +38,11 @@ Active ETF 00990A: no holding-change records for 2026-11-23
 Active ETF 00992A: no holding-change records for 2026-11-19
 Active ETF 00993A: no holding-change records for 2026-11-19, 2026-11-20, 2026-11-23
 Active ETF 00994A: no holding-change records for 2026-11-20
-Active ETF 00996A: no holding-change records for 2026-11-23
 Active ETF 00997A: no holding-change records for 2026-11-23
 Active ETF 00998A: no holding-change records for 2026-11-23
 Active ETF 00999A: no holding-change records for 2026-11-19, 2026-11-20, 2026-11-23
 2330 籌碼分頁結果 date=2026-11-23 ; main_force=-1158 ; concentration=-1.68 ; broker_diff=5
-Done: rows=285, status={'ok': 285}, preserved=0, skipped=284, elapsed=34.6s, output=AllStatic_Chips.csv
+Done: rows=285, status={'ok': 285}, preserved=0, skipped=284, elapsed=25.9s, output=AllStatic_Chips.csv
 stock_id=0056
 name=元大高股息
 chip_latest_date=2026-11-23
