@@ -1,6 +1,17 @@
 # StockHolding-report
 TW Stcok Holding
 
+## 主動型 ETF 買賣超
+
+籌碼面外資買賣超之後顯示「ETF_A買賣超 (分行) T/T-1/T-2」。
+以 FinMind 主動型 ETF 清單逐檔查詢 `TaiwanStockActiveETFHoldingChange`，
+將各 ETF 的成分股買進股數減賣出股數相加，單位為股，依籌碼日期對齊。
+這是持股異動推算值，不是券商分點交易資料，也可能包含其他持股變化。
+若任一 ETF 在某日無異動資料，無法確認資料是否完整，該日顯示「-」；
+資料完整但股票沒有異動則顯示 0。查詢失敗時也顯示「-」並記錄錯誤。
+資料集需要 FinMind Sponsor 權限及既有 `FINMIND_TOKEN` 環境變數。
+每次籌碼靜態檔更新都重新查詢，不使用共享快取；更新靜態檔後須重新產生報表。
+
 ## 基本面 PEG
 
 - 日 PEG＝日 PER ÷ 最近完整年度 EPS 的五年複合年成長率，需有連續六個完整年度。

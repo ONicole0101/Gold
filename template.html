@@ -1449,6 +1449,7 @@
           { key: "main_force_score", label: "主力買賣超<br><small>T/T-1/T-2</small>", tooltip: "依券商分點彙總後，取買超前15大分點與賣超前15大分點互抵，並以張為單位。正值偏主力買進，負值偏主力賣出。" },
           { key: "broker_diff", label: "買賣家數差<br><small>趨勢</small>", tooltip: "買賣家數差＝有買進的券商分點家數 - 有賣出的券商分點家數。正值代表參與買方家數較多，負值代表買方較集中或賣方家數較多。" },
           { key: "foreign_investor_net", label: "外資買賣超<br><small>T/T-1/T-2</small>", tooltip: "外資買賣超，顯示最近三個交易日數值與方向。" },
+          { key: "active_etf_net", label: "ETF_A買賣超 (分行)<br><small>T/T-1/T-2</small>", tooltip: "主動型 ETF 成分股持股異動合計：買進股數減賣出股數，單位為股；資料不完整時顯示 -。" },
           { key: "investment_trust_net", label: "投信買賣超<br><small>T/T-1/T-2</small>", tooltip: "投信買賣超，顯示最近三個交易日數值與方向。" },
           { key: "dealer_net", label: "自營商買賣超<br><small>T/T-1/T-2</small>", tooltip: "自營商買賣超，顯示最近三個交易日數值與方向。" },
           { key: "institutional_total_net", label: "三大法人合計<br><small>T/T-1/T-2</small>", tooltip: "三大法人合計買賣超 = 外資買賣超 + 投信買賣超 + 自營商買賣超。" }
@@ -2331,6 +2332,14 @@
       return `${num > 0 ? "+":""}${fmt(num, suffix)}`;
     }
 
+    function renderActiveEtfNetContent(s) {
+      return [0, 1, 2].map(i => {
+        const value = s[`active_etf_net_t${i}`];
+        const label = chipDateMMDD(s[`chip_date_t${i}`] ?? (i === 0 ? s.chip_latest_date:null), i === 0 ? "T":`T-${i}`);
+        return `<div class="table-lv2 ${distClass(value)}">${label}：${signedFmt(value, "股")}</div>`;
+      }).join("");
+    }
+
     function renderMarginPurchaseChangeBlock(s) {
       return `<div class="stock-value">
         <div class="table-lv1 ${trendClass(s.margin_purchase_change_score)}">${isNil(s.margin_purchase_change_score) ? "-":fmtTrend(s.margin_purchase_change_score)}</div>
@@ -2743,6 +2752,8 @@
           return renderBrokerDiffCell(s);
         case "foreign_investor_net":
           return renderInstitutionalCell(s, "foreign_investor_net", "foreign_investor_net_score");
+        case "active_etf_net":
+          return `<td><div class="chip-detail">${renderActiveEtfNetContent(s)}</div></td>`;
         case "investment_trust_net":
           return renderInstitutionalCell(s, "investment_trust_net", "investment_trust_net_score");
         case "dealer_net":
@@ -2916,6 +2927,7 @@
           <div class="stock-item"><div class="stock-label">主力買賣超 T/T-1/T-2</div>${renderMainForceBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">買賣家數差 趨勢</div>${renderBrokerDiffBlock(s)}</div>
           <div class="stock-item"><div class="stock-label">外資買賣超 T/T-1/T-2</div>${renderInstitutionalBlock(s, "foreign_investor_net", "foreign_investor_net_score")}</div>
+          <div class="stock-item"><div class="stock-label">ETF_A買賣超 (分行) T/T-1/T-2</div><div class="stock-value">${renderActiveEtfNetContent(s)}</div></div>
           <div class="stock-item"><div class="stock-label">投信買賣超 T/T-1/T-2</div>${renderInstitutionalBlock(s, "investment_trust_net", "investment_trust_net_score")}</div>
           <div class="stock-item"><div class="stock-label">自營商買賣超 T/T-1/T-2</div>${renderInstitutionalBlock(s, "dealer_net", "dealer_net_score")}</div>
           <div class="stock-item"><div class="stock-label">三大法人合計 T/T-1/T-2</div>${renderInstitutionalBlock(s, "institutional_total_net", "institutional_total_net_score")}</div>
@@ -3034,6 +3046,8 @@
           return Number(s.roe_ttm ?? s.roe_last_year ?? -999999);
         case "foreign_investor_net":
           return Number(s.foreign_investor_net ?? -999999);
+        case "active_etf_net":
+          return Number(s.active_etf_net_t0 ?? -999999);
         case "investment_trust_net":
           return Number(s.investment_trust_net ?? -999999);
         case "dealer_net":
