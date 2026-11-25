@@ -1,7 +1,7 @@
-[32m2026-11-25 15:13:00.881 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m97[0m - [1mLogin success[0m
-[32m2026-11-25 15:13:01.020 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m97[0m - [1mLogin success[0m
+[32m2026-11-25 18:18:22.953 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m97[0m - [1mLogin success[0m
+[32m2026-11-25 18:18:23.093 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m97[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 2199/6000, remain=3801
+FinMind usage: 0/6000, remain=6000
 Incremental probe: stock_id=2330, latest_date=2026-11-25, status=ok
 Build chips: total=285, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=284, pending=0, latest_date=2026-11-25
 Active ETF 00402A: no holding-change records for 2026-11-23, 2026-11-24, 2026-11-25
@@ -13,7 +13,7 @@ Active ETF 00411A: no holding-change records for 2026-11-25
 Active ETF 00412A: no holding-change records for 2026-11-25
 Active ETF 00413A: no holding-change records for 2026-11-24, 2026-11-25
 Active ETF 00415A: no holding-change records for 2026-11-23, 2026-11-24, 2026-11-25
-Active ETF 00416A: no holding-change records for 2026-11-23, 2026-11-24, 2026-11-25
+Active ETF 00416A: no holding-change records for 2026-11-23, 2026-11-24
 Active ETF 00419A: no holding-change records for 2026-11-23, 2026-11-24, 2026-11-25
 Active ETF 00420A: no holding-change records for 2026-11-25
 Active ETF 00980A: no holding-change records for 2026-11-23, 2026-11-24
@@ -25,21 +25,21 @@ Active ETF 00983D: no holding-change records for 2026-11-25
 Active ETF 00984D: no holding-change records for 2026-11-25
 Active ETF 00985A: no holding-change records for 2026-11-25
 Active ETF 00985D: no holding-change records for 2026-11-25
-Active ETF 00986A: no holding-change records for 2026-11-23, 2026-11-24, 2026-11-25
+Active ETF 00986A: no holding-change records for 2026-11-23, 2026-11-25
 Active ETF 00986D: no holding-change records for 2026-11-23, 2026-11-25
-Active ETF 00987A: no holding-change records for 2026-11-23, 2026-11-24, 2026-11-25
+Active ETF 00987A: no holding-change records for 2026-11-23, 2026-11-24
 Active ETF 00987D: no holding-change records for 2026-11-24, 2026-11-25
 Active ETF 00988A: no holding-change records for 2026-11-25
 Active ETF 00989A: no holding-change records for 2026-11-25
 Active ETF 00990A: no holding-change records for 2026-11-25
 Active ETF 00993A: no holding-change records for 2026-11-23, 2026-11-24
 Active ETF 00995A: no holding-change records for 2026-11-24
-Active ETF 00996A: no holding-change records for 2026-11-24, 2026-11-25
+Active ETF 00996A: no holding-change records for 2026-11-24
 Active ETF 00997A: no holding-change records for 2026-11-24, 2026-11-25
 Active ETF 00998A: no holding-change records for 2026-11-25
 Active ETF 00999A: no holding-change records for 2026-11-23, 2026-11-25
 2330 籌碼分頁結果 date=2026-11-25 ; main_force=-29 ; concentration=-0.03 ; broker_diff=4
-Done: rows=285, status={'ok': 285}, preserved=0, skipped=284, elapsed=33.4s, output=AllStatic_Chips.csv
+Done: rows=285, status={'ok': 285}, preserved=0, skipped=284, elapsed=33.7s, output=AllStatic_Chips.csv
 PER 1/285: 0056 元大高股息
 PER 2/285: 00662 富邦NASDAQ
 PER 3/285: 00878 國泰永續高股息
