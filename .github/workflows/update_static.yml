@@ -40,7 +40,6 @@ env:
   WORKFLOW_VERSION: "financial-only-20260531-002"
   CSV_FILE: ${{ github.event.inputs.csv_file || vars.CSV_FILE || 'stocks.csv' }}
   STATIC_OUTPUT_FILE: ${{ github.event.inputs.output_file || vars.STATIC_OUTPUT_FILE || 'AllStatic.csv' }}
-  STATIC_VALUATION_OUTPUT_FILE: ${{ vars.STATIC_VALUATION_OUTPUT_FILE || 'AllStatic_Valuation.csv' }}
   STATIC_SLEEP_SEC: ${{ github.event.inputs.sleep_sec || vars.STATIC_SLEEP_SEC || '0.2' }}
   STATIC_REFRESH_HOURS: ${{ github.event.inputs.refresh_hours || vars.STATIC_REFRESH_HOURS || '24' }}
   FINMIND_USAGE_LOG_FILE: /tmp/finmind_token_usage_log.csv
@@ -166,16 +165,6 @@ jobs:
             --refresh-hours "${REFRESH_HOURS}" \
             --sleep-sec "${STATIC_SLEEP_SEC}"
 
-      - name: Generate AllStatic_Valuation.csv
-        run: |
-          set -o pipefail
-          if [ "${REFRESH_HOURS}" = "0" ]; then
-            echo "Backfill-only run: skip full valuation rebuild to save FinMind quota."
-            exit 0
-          fi
-          python generate_static_PER_csv.py \
-            --output "${STATIC_VALUATION_OUTPUT_FILE}"
-
       - name: Show changed files
         run: |
           git status --short
@@ -186,7 +175,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add "${STATIC_OUTPUT_FILE}"
-          git add "${STATIC_VALUATION_OUTPUT_FILE}"
 
           if git diff --cached --quiet; then
             echo "No financial static changes to commit."

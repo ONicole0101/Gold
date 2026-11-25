@@ -111,6 +111,8 @@ node --test tests\test_buy_tab.cjs tests\test_excel_export.cjs
 
 `generate_static_csv.py` 以 `AllStatic.csv` 為基底增量更新：
 
+- 每日 PER 與 120 日區間由 `generate_static_chips_v3.py` 全量執行時更新至
+  `AllStatic_Valuation.csv`；指定單一股票的 chips 執行不會重建全體 PER。
 - `ok` / `partial_ok` 資料預設每 24 小時重新下載；成功回覆無資料的
   `no_data` 來源也會在下次週期重查，不會永久略過。
 - `eps_Y` 是當年度已公告各季 EPS 合計，`eps_Y_quarters` 是已取得季數；

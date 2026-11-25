@@ -39,6 +39,7 @@ env:
   OUTPUT_FILE: ${{ vars.OUTPUT_FILE || '持股' }}
   STATIC_OUTPUT_FILE: ${{ vars.STATIC_OUTPUT_FILE || 'AllStatic.csv' }}
   STATIC_CHIP_OUTPUT_FILE: ${{ github.event.inputs.output_file || vars.STATIC_CHIP_OUTPUT_FILE || 'AllStatic_Chips.csv' }}
+  STATIC_VALUATION_OUTPUT_FILE: ${{ vars.STATIC_VALUATION_OUTPUT_FILE || 'AllStatic_Valuation.csv' }}
   CHIP_TREND_DAYS: ${{ vars.CHIP_TREND_DAYS || '3' }}
   CHIP_CONCENTRATION_THRESHOLD: ${{ vars.CHIP_CONCENTRATION_THRESHOLD || '15' }}
   CHIP_LOOKBACK_DAYS: ${{ vars.CHIP_LOOKBACK_DAYS || '21' }}
@@ -74,6 +75,7 @@ jobs:
           for name in [
               'REPORT_TYPE','CSV_FILE','REPORT_TITLE','OUTPUT_FILE',
               'STATIC_OUTPUT_FILE','STATIC_CHIP_OUTPUT_FILE',
+              'STATIC_VALUATION_OUTPUT_FILE',
               'CHIP_STOCK_ID','CHIP_TREND_DAYS','CHIP_CONCENTRATION_THRESHOLD',
               'CHIP_LOOKBACK_DAYS','CHIP_WORKERS','CHIP_SLEEP_SEC'
           ]:
@@ -84,12 +86,14 @@ jobs:
         env:
           FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
           STATIC_CHIPS_FILE: ${{ env.STATIC_CHIP_OUTPUT_FILE }}
+          STATIC_VALUATION_OUTPUT_FILE: ${{ env.STATIC_VALUATION_OUTPUT_FILE }}
         run: |
           set -o pipefail
           python generate_static_chips_v3.py \
             --no-prompt \
             --csv-file "${CSV_FILE}" \
             --output "${STATIC_CHIP_OUTPUT_FILE}" \
+            --valuation-output "${STATIC_VALUATION_OUTPUT_FILE}" \
             --stock-id "${CHIP_STOCK_ID}" \
             --trend-days "${CHIP_TREND_DAYS}" \
             --concentration-threshold "${CHIP_CONCENTRATION_THRESHOLD}" \
@@ -145,13 +149,18 @@ jobs:
           name: chip-static
           path: |
             ${{ env.STATIC_CHIP_OUTPUT_FILE }}
+            ${{ env.STATIC_VALUATION_OUTPUT_FILE }}
             chips_analysis_action.log
+          if-no-files-found: ignore
 
       - name: Commit chip static file
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "${STATIC_CHIP_OUTPUT_FILE}" chips_analysis_action.log
+          if [ -f "${STATIC_VALUATION_OUTPUT_FILE}" ]; then
+            git add "${STATIC_VALUATION_OUTPUT_FILE}"
+          fi
           git diff --cached --quiet || git commit -m "Update ${STATIC_CHIP_OUTPUT_FILE}"
           for i in 1 2 3 4 5; do
             git pull --rebase --autostash && git push && exit 0

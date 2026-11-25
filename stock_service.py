@@ -307,6 +307,27 @@ def build_recent_technical_fields(*rows):
     return fields
 
 
+def _merge_eps_fallbacks(static_fields: dict, eps_res) -> None:
+    eps_res = tuple(eps_res) if isinstance(eps_res, tuple) else (None,) * 10
+    eps_res = eps_res + (None,) * (10 - len(eps_res))
+    eps_year, eps_ttm, per_y, per_ttm, _, _, _, eps_yoy = eps_res[:8]
+
+    if static_fields.get("eps_Y") is None:
+        static_fields["eps_Y"] = eps_year
+    if static_fields.get("eps_ttm") is None:
+        static_fields["eps_ttm"] = eps_ttm
+    if static_fields.get("eps_yoy") is None:
+        static_fields["eps_yoy"] = eps_yoy
+    if static_fields.get("eps_5y_cagr") is None:
+        static_fields["eps_5y_cagr"] = eps_res[8]
+    if static_fields.get("eps_forward_growth") is None:
+        static_fields["eps_forward_growth"] = eps_res[9]
+    if static_fields.get("per_Y") is None and per_y is not None:
+        static_fields["per_Y"] = per_y
+    if static_fields.get("per_ttm") is None and per_ttm is not None:
+        static_fields["per_ttm"] = per_ttm
+
+
 def process_stock(s, static_map=None, chips_map=None):
     stock_id = str(s["stock_id"])
     name = s["name"]
@@ -556,26 +577,7 @@ def process_stock(s, static_map=None, chips_map=None):
         if close is not None and (static_fields.get("per_latest") is None or static_fields.get("per_ttm") is None or static_fields.get("per_Y") is None):
             eps_res = get_eps_analysis(stock_id, close) or (
                 None, None, None, None, False, False, None, None)
-            eps_res = tuple(eps_res) if isinstance(
-                eps_res, tuple) else (None,) * 8
-            eps_res = eps_res + (None,) * (10 - len(eps_res))
-            eps_year, eps_ttm, per_y, per_ttm, _, _, _, eps_yoy = eps_res[:8]
-            if static_fields.get("eps_Y") is None:
-                static_fields["eps_Y"] = eps_year
-            if static_fields.get("eps_ttm") is None:
-                static_fields["eps_ttm"] = eps_ttm
-            if static_fields.get("eps_yoy") is None:
-                static_fields["eps_yoy"] = eps_yoy
-            if static_fields.get("eps_5y_cagr") is None:
-                static_fields["eps_5y_cagr"] = eps_res[8]
-            if static_fields.get("eps_forward_growth") is None:
-                static_fields["eps_forward_growth"] = eps_res[9]
-            if static_fields.get("per_Y") is None and per_y is not None:
-                static_fields["per_Y"] = per_y
-            if static_fields.get("per_ttm") is None and per_ttm is not None:
-                static_fields["per_ttm"] = per_ttm
-            if static_fields.get("per_latest") is None and per_ttm is not None:
-                static_fields["per_latest"] = per_ttm
+            _merge_eps_fallbacks(static_fields, eps_res)
             if static_fields.get("per_120d_high") is None and static_fields.get("per_latest") is not None:
                 static_fields["per_120d_high"] = static_fields["per_latest"]
             if static_fields.get("per_120d_low") is None and static_fields.get("per_latest") is not None:

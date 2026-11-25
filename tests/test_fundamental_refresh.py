@@ -91,6 +91,16 @@ class RefreshSelectionTests(unittest.TestCase):
                 static.set_group_status(row, "eps", status)
                 self.assertTrue(self.should_update(row))
 
+    def test_ttm_per_fallback_does_not_populate_daily_per(self):
+        fields = {"per_latest": None, "per_ttm": None}
+        eps_result = (4, 8, 15, 12, False, False, 4, 50, 5, 20)
+
+        stock_service._merge_eps_fallbacks(fields, eps_result)
+
+        self.assertEqual(fields["per_ttm"], 12)
+        self.assertEqual(fields["per_Y"], 15)
+        self.assertIsNone(fields["per_latest"])
+
     def test_finalize_marks_missing_quarters_incomplete(self):
         row = complete_row()
         row["eps_Y_quarters"] = None
@@ -247,7 +257,6 @@ class StaticBuildErrorTests(unittest.TestCase):
         patch.object(static, "get_profit_ratio", return_value={
             "current": {"gross": 30, "op": 20, "net": 10},
         }).start()
-        patch.object(static, "get_per_120d_stats", return_value={"per": 20}).start()
         patch.object(static, "get_disposition_securities_period", return_value={}).start()
         self.addCleanup(patch.stopall)
 

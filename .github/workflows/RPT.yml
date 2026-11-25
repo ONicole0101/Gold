@@ -15,10 +15,13 @@ on:
         description: HTML filename prefix
         required: false
         default: ""
-  schedule:
-    # GitHub Actions cron uses UTC.
-    # 07:41 UTC = Taiwan time 15:41
-    - cron: "41 7 * * 1-5"
+  workflow_run:
+    workflows:
+      - U_1655 Static_Chips CSV
+    types:
+      - completed
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -38,6 +41,7 @@ env:
 
 jobs:
   build-report:
+    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'schedule') }}
     runs-on: ubuntu-latest
 
     steps:

@@ -39,11 +39,19 @@ except Exception:
     config = None
 
 try:
-    from data_sources import get_chip_analysis, get_finmind_token_status, get_finmind_user_info
+    from data_sources import (
+        get_chip_analysis,
+        get_finmind_token_status,
+        get_finmind_user_info,
+        get_per_120d_stats,
+        log_finmind_static_event,
+    )
 except Exception as exc:  # fail late with a clear message
     get_chip_analysis = None  # type: ignore
     get_finmind_token_status = None  # type: ignore
     get_finmind_user_info = None  # type: ignore
+    get_per_120d_stats = None  # type: ignore
+    log_finmind_static_event = None  # type: ignore
     _IMPORT_ERROR = exc
 else:
     _IMPORT_ERROR = None
@@ -147,6 +155,13 @@ ORDERED_COLS = ["stock_id", "name"] + CHIP_DATA_COLS + [
     "chips_reason",
 ] + FINMIND_META_COLS
 
+VALUATION_COLS = [
+    "per_latest", "per_120d_high", "per_120d_low",
+    "per_latest_is_prev",
+    "valuation_updated_at", "valuation_status", "valuation_reason",
+] + FINMIND_META_COLS
+VALUATION_ORDERED_COLS = ["stock_id", "name"] + VALUATION_COLS
+
 NOISY_LOG_PATTERNS = (
     "chip analysis request:",
     "chip analysis response status:",
@@ -208,6 +223,15 @@ def resolve_output_file(output_file: str | None = None) -> str:
         or cfg("STATIC_CHIP_OUTPUT_FILE")
         or cfg("STATIC_CHIPS_OUTPUT_FILE")
         or DEFAULT_OUTPUT_FILE
+    )
+
+
+def resolve_valuation_output_file(output_file: str | None = None) -> str:
+    return str(
+        output_file
+        or os.getenv("STATIC_VALUATION_OUTPUT_FILE")
+        or cfg("STATIC_VALUATION_OUTPUT_FILE")
+        or "AllStatic_Valuation.csv"
     )
 
 
@@ -388,6 +412,97 @@ def atomic_write_csv(df: pd.DataFrame, path: str) -> None:
     df = normalize_chips_df(df)
     df.to_csv(tmp_path, index=False, encoding="utf-8-sig")
     os.replace(tmp_path, path)
+
+
+def normalize_valuation_df(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None or df.empty:
+        return pd.DataFrame(columns=VALUATION_ORDERED_COLS)
+    df = df.copy()
+    df.columns = df.columns.str.strip()
+    for col in VALUATION_ORDERED_COLS:
+        if col not in df.columns:
+            df[col] = None
+    df["stock_id"] = df["stock_id"].astype(str).str.strip()
+    return df[VALUATION_ORDERED_COLS]
+
+
+def atomic_write_valuation_csv(df: pd.DataFrame, path: str) -> None:
+    tmp_path = path + ".tmp"
+    normalize_valuation_df(df).to_csv(
+        tmp_path, index=False, encoding="utf-8-sig")
+    os.replace(tmp_path, path)
+
+
+def build_valuation_row(stock: dict, usage_info: dict) -> dict:
+    stock_id = str(stock.get("stock_id") or "").strip()
+    row = {col: None for col in VALUATION_ORDERED_COLS}
+    row["stock_id"] = stock_id
+    row["name"] = stock.get("name") or ""
+    row["valuation_updated_at"] = now_utc_str()
+
+    try:
+        if get_per_120d_stats is None:
+            raise RuntimeError(f"data_sources import failed: {_IMPORT_ERROR}")
+        valuation = get_per_120d_stats(stock_id) or {}
+        row["per_latest"] = valuation.get("per")
+        row["per_120d_high"] = valuation.get("per_120d_high")
+        row["per_120d_low"] = valuation.get("per_120d_low")
+        row["per_latest_is_prev"] = "True" if valuation.get(
+            "per_is_prev") else "False"
+        row["valuation_status"] = (
+            "no_data" if row["per_latest"] is None else "ok")
+        row["valuation_reason"] = (
+            "empty" if row["per_latest"] is None else "")
+    except Exception as exc:
+        row["valuation_status"] = "error"
+        row["valuation_reason"] = compact_text(str(exc))
+
+    row.update(normalize_finmind_usage_info(usage_info))
+    return row
+
+
+def build_daily_valuation(
+    stock_list: list[dict],
+    output_file: str,
+    usage_info: dict | None = None,
+) -> pd.DataFrame:
+    if usage_info is None:
+        usage_info = _LAST_FINMIND_USAGE_INFO or get_finmind_usage()
+    if log_finmind_static_event is not None:
+        log_finmind_static_event(
+            "generate_static_valuation_start",
+            source="generate_static_chips",
+            status=usage_info.get("login_status"),
+            message=f"output={output_file}, stocks={len(stock_list)}",
+        )
+
+    rows = []
+    for idx, stock in enumerate(stock_list, 1):
+        stock_id = str(stock.get("stock_id") or "").strip()
+        print(
+            f"PER {idx}/{len(stock_list)}: {stock_id} {stock.get('name') or ''}",
+            flush=True,
+        )
+        rows.append(build_valuation_row(stock, usage_info))
+
+    final_df = normalize_valuation_df(pd.DataFrame(rows))
+    atomic_write_valuation_csv(final_df, output_file)
+    status_counts = (
+        final_df["valuation_status"].astype(str).str.lower().value_counts().to_dict()
+        if not final_df.empty else {}
+    )
+    if log_finmind_static_event is not None:
+        log_finmind_static_event(
+            "generate_static_valuation_end",
+            source="generate_static_chips",
+            status="completed",
+            message=f"rows={len(final_df)}, output={output_file}",
+        )
+    print(
+        f"AllStatic valuation rebuild: {status_counts}, total={len(final_df)}",
+        flush=True,
+    )
+    return final_df
 
 
 def fetch_active_etf_nets(dates: set[str]) -> tuple[dict[tuple[str, str], int], set[str], set[str]]:
@@ -875,6 +990,8 @@ def parse_args() -> argparse.Namespace:
                         help="Stock list file. Supports Ticker/Name or stock_id/name columns.")
     parser.add_argument("--output", default=None,
                         help="Chip static output file.")
+    parser.add_argument("--valuation-output", default=None,
+                        help="Daily PER valuation output file.")
     parser.add_argument("--stock-id", default=None,
                         help="Only run chip analysis for a single stock_id, e.g. 2330.")
     parser.add_argument("--trend-days", type=int,
@@ -913,10 +1030,8 @@ def main() -> None:
         return
     selected_stock_id = str(args.stock_id or os.getenv(
         "CHIP_STOCK_ID") or "").strip()
-    stock_list = filter_stock_list(
-        load_stock_list(resolve_csv_file(args.csv_file)),
-        selected_stock_id,
-    )
+    all_stocks = load_stock_list(resolve_csv_file(args.csv_file))
+    stock_list = filter_stock_list(all_stocks, selected_stock_id)
     build_static_chips(
         stock_list=stock_list,
         output_file=resolve_output_file(args.output),
@@ -940,6 +1055,17 @@ def main() -> None:
         probe_stock_id=str(args.probe_stock_id or cfg(
             "CHIP_PROBE_STOCK_ID", DEFAULT_PROBE_STOCK_ID) or DEFAULT_PROBE_STOCK_ID).strip(),
     )
+    if selected_stock_id:
+        print(
+            "Skip full PER refresh in single-stock chip mode.",
+            flush=True,
+        )
+    else:
+        build_daily_valuation(
+            stock_list=all_stocks,
+            output_file=resolve_valuation_output_file(args.valuation_output),
+            usage_info=_LAST_FINMIND_USAGE_INFO,
+        )
 
 
 if __name__ == "__main__":

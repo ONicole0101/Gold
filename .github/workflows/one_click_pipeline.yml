@@ -85,17 +85,13 @@ jobs:
             --retry-errors \
             --sleep-sec "${STATIC_SLEEP_SEC}"
 
-      - name: Generate AllStatic_Valuation.csv
-        run: |
-          python generate_static_PER_csv.py \
-            --output "${STATIC_VALUATION_OUTPUT_FILE}"
-
       - name: Generate AllStatic_Chips.csv
         run: |
           python generate_static_chips_v3.py \
             --no-prompt \
             --csv-file "${CSV_FILE}" \
             --output "${STATIC_CHIPS_OUTPUT_FILE}" \
+            --valuation-output "${STATIC_VALUATION_OUTPUT_FILE}" \
             --trend-days "${CHIP_TREND_DAYS}" \
             --concentration-threshold "${CHIP_CONCENTRATION_THRESHOLD}" \
             --lookback-days "${CHIP_LOOKBACK_DAYS}" \

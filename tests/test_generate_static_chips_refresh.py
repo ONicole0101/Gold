@@ -1,7 +1,82 @@
+import sys
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 import generate_static_chips_v3 as static_chips
+import pandas as pd
+
+
+class DailyValuationRefreshTests(unittest.TestCase):
+    def test_full_valuation_refresh_writes_latest_per_fields(self):
+        usage = {
+            "login_status": "ok",
+            "token_present": True,
+            "token_source": "FINMIND_TOKEN",
+            "token_masked": "masked",
+            "user_count": 1,
+            "api_request_limit": 1000,
+            "remain": 999,
+        }
+        per_results = [
+            {"per": 18.5, "per_120d_high": 22, "per_120d_low": 15,
+             "per_is_prev": False},
+            {"per": None, "per_120d_high": None, "per_120d_low": None,
+             "per_is_prev": False},
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            output = str(Path(directory) / "valuation.csv")
+            with patch.object(
+                static_chips, "get_per_120d_stats", side_effect=per_results,
+            ) as get_per, patch.object(static_chips, "log_finmind_static_event"):
+                result = static_chips.build_daily_valuation(
+                    [
+                        {"stock_id": "2330", "name": "TSMC"},
+                        {"stock_id": "2317", "name": "Hon Hai"},
+                    ],
+                    output,
+                    usage_info=usage,
+                )
+
+            persisted = pd.read_csv(output, dtype=str).set_index("stock_id")
+
+        self.assertEqual(get_per.call_args_list[0].args, ("2330",))
+        self.assertEqual(get_per.call_args_list[1].args, ("2317",))
+        self.assertEqual(len(result), 2)
+        self.assertEqual(persisted.loc["2330", "per_latest"], "18.5")
+        self.assertEqual(persisted.loc["2330", "valuation_status"], "ok")
+        self.assertEqual(persisted.loc["2317", "valuation_status"], "no_data")
+
+    def test_full_chip_run_refreshes_valuation_for_complete_stock_list(self):
+        stocks = [{"stock_id": "2330"}, {"stock_id": "2317"}]
+        with patch.object(sys, "argv", ["generate_static_chips_v3.py"]), \
+                patch.object(static_chips, "load_stock_list", return_value=stocks), \
+                patch.object(static_chips, "build_static_chips"), \
+                patch.object(static_chips, "build_daily_valuation") as build_valuation:
+            static_chips.main()
+
+        build_valuation.assert_called_once()
+        self.assertIs(build_valuation.call_args.kwargs["stock_list"], stocks)
+
+    def test_single_stock_chip_run_does_not_rebuild_full_valuation(self):
+        stocks = [{"stock_id": "2330"}, {"stock_id": "2317"}]
+        with patch.object(
+            sys, "argv", ["generate_static_chips_v3.py", "--stock-id", "2330"],
+        ), patch.object(
+            static_chips, "load_stock_list", return_value=stocks,
+        ), patch.object(
+            static_chips, "build_static_chips",
+        ) as build_chips, patch.object(
+            static_chips, "build_daily_valuation",
+        ) as build_valuation:
+            static_chips.main()
+
+        self.assertEqual(
+            [row["stock_id"] for row in build_chips.call_args.kwargs["stock_list"]],
+            ["2330"],
+        )
+        build_valuation.assert_not_called()
 
 
 class MarginMaintenanceRefreshTests(unittest.TestCase):

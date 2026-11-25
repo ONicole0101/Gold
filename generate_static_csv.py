@@ -9,7 +9,6 @@ import config
 
 from data_sources import (
     get_revenue_raw,
-    get_per_120d_stats,
     get_disposition_securities_period,
     get_finmind_user_info,
     get_finmind_token_status,
@@ -31,7 +30,6 @@ DATA_COLS = [
     "operating_margin", "operating_margin_qoq", "operating_margin_yoy_diff",
     "net_margin", "net_margin_qoq", "net_margin_yoy_diff",
     "per_ttm",
-    "per_latest", "per_120d_high", "per_120d_low",
 ]
 
 DISPOSITION_COLS = [
@@ -45,13 +43,11 @@ GROUPS = {
     "roe": ["roe_last_year", "roe_ttm"],
     "revenue": ["rev", "rev_month"],
     "profit": ["gross_margin", "operating_margin", "net_margin"],
-    "valuation": ["per_latest"],
 }
 
 PREV_FLAG_COLS = [
     "eps_Y_is_prev", "eps_ttm_is_prev",
     "gross_margin_is_prev", "operating_margin_is_prev", "net_margin_is_prev",
-    "per_latest_is_prev",
 ]
 
 BASE_COLS = ["stock_id", "name"] + DATA_COLS + DISPOSITION_COLS + PREV_FLAG_COLS + [
@@ -500,28 +496,6 @@ def build_static_row(s: dict) -> dict:
             return finalize_static_status(row)
         set_group_status(row, "profit", "error", str(e))
 
-    # 120-trading-day PER.
-    try:
-        per = get_per_120d_stats(stock_id) or {}
-        row["per_latest"] = per.get("per")
-        row["per_120d_high"] = per.get("per_120d_high")
-        row["per_120d_low"] = per.get("per_120d_low")
-        row["per_latest_is_prev"] = "True" if per.get(
-            "per_is_prev") else "False"
-        if all_blank(row, GROUPS["valuation"]):
-            set_group_status(row, "valuation", "no_data",
-                             "empty")
-        elif any_blank(row, GROUPS["valuation"]):
-            set_group_status(row, "valuation", "incomplete",
-                             "partial")
-        else:
-            set_group_status(row, "valuation", "ok", "")
-    except Exception as e:
-        if is_finmind_limit_error(e):
-            set_group_status(row, "valuation", "api_limited", str(e))
-            return finalize_static_status(row)
-        set_group_status(row, "valuation", "error", str(e))
-
     # Disposition securities period. Optional: it does not affect static_status.
     # Only write period_start/period_end when today or tomorrow is inside the range.
     try:
@@ -616,9 +590,6 @@ def preserve_failed_group_values(row: dict, existing_row: dict | None) -> dict:
         "profit": [
             col for col in DATA_COLS + PREV_FLAG_COLS
             if col.startswith(("gross_margin", "operating_margin", "net_margin"))
-        ],
-        "valuation": [
-            "per_latest", "per_120d_high", "per_120d_low", "per_latest_is_prev",
         ],
     }
     for group, cols in group_fields.items():
