@@ -4,8 +4,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+import data_sources
 import generate_static_chips_v3 as static_chips
 import pandas as pd
+import stock_service
 
 
 class DailyValuationRefreshTests(unittest.TestCase):
@@ -20,7 +22,7 @@ class DailyValuationRefreshTests(unittest.TestCase):
             "remain": 999,
         }
         per_results = [
-            {"per": 18.5, "per_120d_high": 22, "per_120d_low": 15,
+            {"per": 18.5, "per_date": "2026-11-25", "per_120d_high": 22, "per_120d_low": 15,
              "per_is_prev": False},
             {"per": None, "per_120d_high": None, "per_120d_low": None,
              "per_is_prev": False},
@@ -45,6 +47,11 @@ class DailyValuationRefreshTests(unittest.TestCase):
         self.assertEqual(get_per.call_args_list[1].args, ("2317",))
         self.assertEqual(len(result), 2)
         self.assertEqual(persisted.loc["2330", "per_latest"], "18.5")
+        self.assertEqual(persisted.loc["2330", "per_latest_date"], "2026-11-25")
+        self.assertEqual(
+            stock_service._build_static_fields(persisted.loc["2330"])["per_latest_date"],
+            "2026-11-25",
+        )
         self.assertEqual(persisted.loc["2330", "valuation_status"], "ok")
         self.assertEqual(persisted.loc["2317", "valuation_status"], "no_data")
 
@@ -77,6 +84,54 @@ class DailyValuationRefreshTests(unittest.TestCase):
             ["2330"],
         )
         build_valuation.assert_not_called()
+
+
+class PerSourceDateTests(unittest.TestCase):
+    def test_latest_valid_per_retains_its_own_date(self):
+        rows = [
+            {"date": "2026-11-26", "PER": ""},
+            {"date": "2026-11-24", "PER": 19.19},
+            {"date": "2026-11-25", "PER": 17.93},
+        ]
+        with patch.object(data_sources, "_record_finmind_request"), \
+                patch.object(data_sources.requests, "get") as get:
+            get.return_value.status_code = 200
+            get.return_value.json.return_value = {"data": rows}
+            result = data_sources.get_per_120d_stats("3324")
+        self.assertEqual(result["per"], 17.93)
+        self.assertEqual(result["per_date"], "2026-11-25")
+        self.assertTrue(result["per_is_prev"])
+        self.assertEqual(result["per_120d_high"], 19.19)
+        self.assertEqual(result["per_120d_low"], 17.93)
+
+    def test_newest_per_date_and_empty_data(self):
+        with patch.object(data_sources, "_record_finmind_request"), \
+                patch.object(data_sources.requests, "get") as get:
+            get.return_value.status_code = 200
+            get.return_value.json.return_value = {"data": [
+                {"date": "2026-11-25", "PER": 17.93},
+                {"date": "2026-11-26", "PER": 19.28},
+            ]}
+            result = data_sources.get_per_120d_stats("3324")
+            self.assertEqual((result["per"], result["per_date"]), (19.28, "2026-11-26"))
+            self.assertFalse(result["per_is_prev"])
+            get.return_value.json.return_value = {"data": []}
+            self.assertIsNone(data_sources.get_per_120d_stats("3324")["per_date"])
+
+    def test_latest_value_can_predate_the_range_window(self):
+        with patch.object(data_sources, "_record_finmind_request"), \
+                patch.object(data_sources.requests, "get") as get:
+            get.return_value.status_code = 200
+            get.return_value.json.return_value = {"data": [
+                {"date": "2026-11-24", "PER": 19.19},
+                {"date": "2026-11-25", "PER": ""},
+                {"date": "2026-11-26", "PER": ""},
+            ]}
+            result = data_sources.get_per_120d_stats("3324", days=2)
+        self.assertEqual((result["per"], result["per_date"]), (19.19, "2026-11-24"))
+        self.assertTrue(result["per_is_prev"])
+        self.assertIsNone(result["per_120d_high"])
+        self.assertIsNone(result["per_120d_low"])
 
 
 class MarginMaintenanceRefreshTests(unittest.TestCase):

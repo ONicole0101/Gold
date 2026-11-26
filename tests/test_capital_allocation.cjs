@@ -21,7 +21,7 @@ const functionSource = name => {
   const end = template.indexOf("\n    function ", start + 1);
   return template.slice(start, end);
 };
-for (const name of ["isNil", "fmt", "fmtTrend", "pickFirst", "kdValue", "dValue", "kdDayScore"]) {
+for (const name of ["isNil", "fmt", "fmtTrend", "pickFirst", "kdValue", "dValue", "kdDayScore", "perDateNote"]) {
   vm.runInContext(functionSource(name), context);
 }
 vm.runInContext(allocLogic(template), context);
@@ -115,7 +115,7 @@ function cellText(xml, reference) {
 }
 
 test("buildCapitalAllocWorksheet appends 日PER 120日區間 in K and shifts later columns", () => {
-  context.baseStocks = [{ code: "2330", k_t0: 25.5, k_t1: 24.2, d_t0: 30.1, per_latest: 18.42, per_120d_low: 15.2, per_120d_high: 23.8 }];
+  context.baseStocks = [{ code: "2330", k_t0: 25.5, k_t1: 24.2, d_t0: 30.1, per_latest: 18.42, per_latest_date: "2026-11-26", price_date_t0: "2026-11-26", per_120d_low: 15.2, per_120d_high: 23.8 }];
   const { worksheet, count } = context.buildCapitalAllocWorksheet(
     HOLDINGS, 2000000, context.capitalAllocKdText, context.capitalAllocPerText
   );
@@ -211,12 +211,12 @@ test("capitalAllocKdText prefixes the latest K direction", () => {
 
 test("capitalAllocPerText returns daily PER and the 120-day low/high", () => {
   context.baseStocks = [
-    { code: "2330", per_latest: 18.42, per_120d_low: 15.2, per_120d_high: 23.8 },
+    { code: "2330", per_latest: 18.42, per_120d_low: 15.2, per_120d_high: 23.8, per_latest_date: "2026-11-25", price_date_t0: "2026-11-26" },
     { code: "missing-range", per_latest: 9.1, per_120d_low: null, per_120d_high: null },
     { code: "empty" },
   ];
-  assert.equal(context.capitalAllocPerText("2330"), "18.42, 15.20/23.80");
-  assert.equal(context.capitalAllocPerText("missing-range"), "9.10, -/-");
+  assert.equal(context.capitalAllocPerText("2330"), "18.42（2026-11-25）, 15.20/23.80");
+  assert.equal(context.capitalAllocPerText("missing-range"), "9.10（資料日期未知）, -/-");
   assert.equal(context.capitalAllocPerText("empty"), "");
   assert.equal(context.capitalAllocPerText("unknown"), "");
 });

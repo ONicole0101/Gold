@@ -156,7 +156,7 @@ ORDERED_COLS = ["stock_id", "name"] + CHIP_DATA_COLS + [
 ] + FINMIND_META_COLS
 
 VALUATION_COLS = [
-    "per_latest", "per_120d_high", "per_120d_low",
+    "per_latest", "per_latest_date", "per_120d_high", "per_120d_low",
     "per_latest_is_prev",
     "valuation_updated_at", "valuation_status", "valuation_reason",
 ] + FINMIND_META_COLS
@@ -445,6 +445,7 @@ def build_valuation_row(stock: dict, usage_info: dict) -> dict:
             raise RuntimeError(f"data_sources import failed: {_IMPORT_ERROR}")
         valuation = get_per_120d_stats(stock_id) or {}
         row["per_latest"] = valuation.get("per")
+        row["per_latest_date"] = valuation.get("per_date")
         row["per_120d_high"] = valuation.get("per_120d_high")
         row["per_120d_low"] = valuation.get("per_120d_low")
         row["per_latest_is_prev"] = "True" if valuation.get(

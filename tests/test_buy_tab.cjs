@@ -185,6 +185,7 @@ for (const { name, source } of pages) {
     const context = vm.createContext({
       fmt: value => String(value),
       pickFirst: (...values) => values.find(value => value != null),
+      perDateNote: () => "",
     });
     vm.runInContext(section(source, "    function buyValueText(", "    function renderPriceLHTrendBlock("), context);
     for (const [tab, key] of [["Buy", "buy_per"], ["Sell", "sell_per"]]) {

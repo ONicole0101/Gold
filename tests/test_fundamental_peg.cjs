@@ -16,6 +16,38 @@ for (const name of ["template.html", "index.html"]) {
   for (const functionName of ["isNil", "fmt", "calculatePeg", "pegMissingReason", "renderPegContent", "renderCell", "getSortValue"]) {
     vm.runInContext(section(`    function ${functionName}(`, "\n    function "), context);
   }
+
+  if (name === "template.html") test("template: stale daily PER dates appear in fundamental, buy and sell views", () => {
+    const source = fs.readFileSync(path.join(__dirname, "..", "template.html"), "utf8");
+    const fn = name => {
+      const start = source.indexOf(`    function ${name}(`);
+      const end = source.indexOf("\n    function ", start + 1);
+      assert.ok(start >= 0 && end > start);
+      return source.slice(start, end);
+    };
+    const context = vm.createContext({ currentTab: "fundamental" });
+    for (const name of ["isNil", "fmt", "signedFmt", "pickFirst", "perDateNote", "renderPerRangeMetric",
+      "buyValueText", "renderBuySignalCell", "renderSellSignalCell", "renderCell"]) {
+      vm.runInContext(fn(name), context);
+    }
+    const stock = {
+      per_latest: 17.93, per_latest_date: "2026-11-25",
+      price_date_t0: "2026-11-26", per_120d_low: 17.46, per_120d_high: 39.44,
+    };
+    for (const html of [
+      context.renderCell(stock, "per_latest"),
+      context.renderBuySignalCell(stock, "buy_per"),
+      context.renderSellSignalCell(stock, "sell_per"),
+      context.renderPerRangeMetric(stock.per_latest, stock.per_120d_low, stock.per_120d_high, null, context.perDateNote(stock)),
+    ]) {
+      assert.match(html, /17\.93（2026-11-25）/);
+    }
+    assert.equal(context.perDateNote({ ...stock, per_latest_date: "2026-11-26" }), "");
+    assert.equal(context.perDateNote({ ...stock, price_date_t0: "2026-11-25", per_latest_is_prev: true }), "（2026-11-25）");
+    assert.equal(context.perDateNote({ ...stock, per_latest_date: null }), "（資料日期未知）");
+    assert.equal(context.perDateNote({ ...stock, per_latest: null }), "");
+    assert.equal(context.perDateNote({ ...stock, price_date_t0: null }), "（2026-11-25）");
+  });
   vm.runInContext(section("    const TAB_CONFIG =", "    function isNil("), context);
 
   test(`${name}: fundamental PER and PEG follow price on desktop and mobile`, () => {

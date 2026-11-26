@@ -771,7 +771,7 @@ def get_per_raw(stock_id):
 
 def get_per_120d_stats(stock_id, days=120):
     """
-    Latest valid PER plus rolling 120-trading-day high/low.
+    Latest valid PER and its data date plus rolling 120-trading-day high/low.
     If the newest FinMind row has blank PER, walk backward to the newest valid value.
     """
     def safe_round(x):
@@ -783,7 +783,7 @@ def get_per_120d_stats(stock_id, days=120):
         except Exception:
             return None
 
-    empty = {"per": None, "per_120d_high": None,
+    empty = {"per": None, "per_date": None, "per_120d_high": None,
              "per_120d_low": None, "per_is_prev": False}
 
     try:
@@ -827,8 +827,8 @@ def get_per_120d_stats(stock_id, days=120):
         def latest_valid(col):
             if not col:
                 return None, None, False
-            s = pd.to_numeric(df_win[col], errors="coerce")
-            valid = df_win.loc[s.notna(), ["date", col]].copy()
+            s = pd.to_numeric(df[col], errors="coerce")
+            valid = df.loc[s.notna(), ["date", col]].copy()
             if valid.empty:
                 return None, None, False
             latest_valid_date = valid["date"].max()
@@ -839,15 +839,16 @@ def get_per_120d_stats(stock_id, days=120):
         per, per_date, per_is_prev = latest_valid(per_col)
         if per_col:
             per_s = pd.to_numeric(df_win[per_col], errors="coerce").dropna()
-            per_high = safe_round(per_s.max()) if not per_s.empty else per
-            per_low = safe_round(per_s.min()) if not per_s.empty else per
+            per_high = safe_round(per_s.max()) if not per_s.empty else None
+            per_low = safe_round(per_s.min()) if not per_s.empty else None
         else:
             per_high = per_low = None
 
         return {
             "per": per,
-            "per_120d_high": per_high if per_high is not None else per,
-            "per_120d_low": per_low if per_low is not None else per,
+            "per_date": per_date.strftime("%Y-%m-%d") if per_date is not None else None,
+            "per_120d_high": per_high,
+            "per_120d_low": per_low,
             "per_is_prev": per_is_prev,
         }
     except Exception as e:

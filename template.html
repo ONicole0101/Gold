@@ -1629,7 +1629,17 @@
       </div>`;
     }
 
-    function renderPerRangeMetric(current, low, high, ttm) {
+    function perDateNote(stock) {
+      if (isNil(stock?.per_latest)) return "";
+      const date = stock.per_latest_date;
+      if (typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return "（資料日期未知）";
+      const priceDate = stock.price_date_t0;
+      const previous = stock.per_latest_is_prev === true || stock.per_latest_is_prev === "True";
+      if (!priceDate || date < String(priceDate).slice(0, 10) || previous) return `（${date}）`;
+      return "";
+    }
+
+    function renderPerRangeMetric(current, low, high, ttm, dateNote = "") {
       const cur = Number(current);
       const lowNum = Number(low);
       const highNum = Number(high);
@@ -1641,7 +1651,7 @@
       return `
       <div class="metric metric-2line">
         <div class="table-lv2">TTM ${fmt(ttm)}</div>
-        <div class="table-lv1">${fmt(current)}</div>
+        <div class="table-lv1">${fmt(current)}${dateNote}</div>
         <div class="table-lv2">${fmt(low)}${lowDistText}</div>
         <div class="table-lv2">${fmt(high)}${highDistText}</div>
       </div>`;
@@ -2127,11 +2137,11 @@
           ${renderPriceLHLine(s, 2, 3)}
         </td>`;
     }
-    function buyValueText(label, value, suffix = "") {
+    function buyValueText(label, value, suffix = "", note = "") {
       const displayValue = typeof value === "string" && value.includes("/")
         ? escapeHtml(value)
         : fmt(value, suffix);
-      return `<div class="table-lv2">${label}：${displayValue}</div>`;
+      return `<div class="table-lv2">${label}：${displayValue}${note}</div>`;
     }
 
     function buyKDValueText(s, idx) {
@@ -2167,7 +2177,7 @@
         return `<td><div class="table-lv2">${date}：${fmt(institutional, "張")}</div></td>`;
       }
       if (key === "sell_per") {
-        return `<td>${buyValueText("TTM", s?.per_ttm)}${buyValueText("日PER", s?.per_latest)}<div class="table-lv2">${fmt(s?.per_120d_low)} / ${fmt(s?.per_120d_high)}</div></td>`;
+        return `<td>${buyValueText("TTM", s?.per_ttm)}${buyValueText("日PER", s?.per_latest, "", perDateNote(s))}<div class="table-lv2">${fmt(s?.per_120d_low)} / ${fmt(s?.per_120d_high)}</div></td>`;
       }
       if (["sell_vr", "sell_obv", "sell_turnover"].includes(key)) {
         const metricKey = key.replace("sell_", "");
@@ -2230,7 +2240,7 @@
         return `<td>${renderMetric3(s.gross_margin, null, s.gross_margin_qoq, s.gross_margin_yoy_diff)}</td>`;
       }
       if (key === "buy_per") {
-        return `<td>${buyValueText("TTM", s?.per_ttm)}${buyValueText("日PER", s?.per_latest)}<div class="table-lv2">${fmt(s?.per_120d_low)} / ${fmt(s?.per_120d_high)}</div></td>`;
+        return `<td>${buyValueText("TTM", s?.per_ttm)}${buyValueText("日PER", s?.per_latest, "", perDateNote(s))}<div class="table-lv2">${fmt(s?.per_120d_low)} / ${fmt(s?.per_120d_high)}</div></td>`;
       }
       if (["buy_vr", "buy_obv", "buy_turnover"].includes(key)) {
         const metricKey = key.replace("buy_", "");
@@ -2831,7 +2841,7 @@
         case "net_margin":
           return `<td>${renderMetric3(s.net_margin, null, s.net_margin_qoq, s.net_margin_yoy_diff, "", { showMonth: false })}</td>`;
         case "per_latest":
-          return `<td>${renderPerRangeMetric(s.per_latest, s.per_120d_low, s.per_120d_high, s.per_ttm)}</td>`;
+          return `<td>${renderPerRangeMetric(s.per_latest, s.per_120d_low, s.per_120d_high, s.per_ttm, perDateNote(s))}</td>`;
         case "peg":
           return `<td>${renderPegContent(s)}</td>`;
         case "k": {
@@ -2963,7 +2973,7 @@
       const categories = stockCustomCategories(s);
       const fundamentalGrid = `
         <div class="stock-grid">
-          <div class="stock-item"><div class="stock-label">日PER 120日LH</div><div class="stock-value">${renderPerRangeMetric(s.per_latest, s.per_120d_low, s.per_120d_high, s.per_ttm)}</div></div>
+          <div class="stock-item"><div class="stock-label">日PER 120日LH</div><div class="stock-value">${renderPerRangeMetric(s.per_latest, s.per_120d_low, s.per_120d_high, s.per_ttm, perDateNote(s))}</div></div>
           <div class="stock-item"><div class="stock-label" title="PEG＜1可能偏低（＜0.75更明顯）；約1為合理；＞1可能偏高（＞1.2～1.5需留意成長放緩風險）。僅供參考，並非買賣保證。">PEG 日 / TTM</div>${renderPegContent(s)}</div>
           <div class="stock-item"><div class="stock-label">符合自選分類</div><div class="stock-value buy-category-list"><div class="category-list-text">${categories.length ? categories.map(escapeHtml).join("、") : "-"}</div></div></div>
           <div class="stock-item"><div class="stock-label">EPS<small>(季數)</small><br>TTM / 年增率</div><div class="stock-value"><div class="table-lv1">${fmt(s.eps_Y ?? 0)} (${Number.isInteger(Number(s.eps_Y_quarters)) ? Number(s.eps_Y_quarters) : 0})</div><div class="table-lv2">${fmt(s.eps_ttm)}</div><div class="table-lv2 ${trendClass(s.eps_yoy)}">${isNil(s.eps_yoy) ? "-" : `Y ${fmtTrend(s.eps_yoy)} ${fmt(s.eps_yoy, "%")}`}</div></div></div>
@@ -4143,7 +4153,7 @@
       const values = [stock.per_latest, stock.per_120d_low, stock.per_120d_high];
       if (values.every(isNil)) return "";
       const format = value => isNil(value) ? "-" : fmt(value);
-      return `${format(values[0])}, ${format(values[1])}/${format(values[2])}`;
+      return `${format(values[0])}${perDateNote(stock)}, ${format(values[1])}/${format(values[2])}`;
     }
 
     function unzipXlsxEntries(bytes) {
