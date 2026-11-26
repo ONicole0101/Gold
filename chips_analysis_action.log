@@ -1,561 +1,248 @@
-[32m2026-11-26 09:17:43.034 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m97[0m - [1mLogin success[0m
-[32m2026-11-26 09:17:43.192 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m97[0m - [1mLogin success[0m
+[32m2026-11-26 15:47:30.919 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m97[0m - [1mLogin success[0m
+[32m2026-11-26 15:47:31.034 +00:00[0m | [1mINFO    [0m | [36mFinMind.data.finmind_api[0m:[36mlogin_by_token[0m:[36m97[0m - [1mLogin success[0m
 FinMind token: token_present=True, source=FINMIND_TOKEN, token=eyJ0...py2s, login=ok
-FinMind usage: 174/6000, remain=5826
-Incremental probe: stock_id=2330, latest_date=2026-11-25, status=ok
-Build chips: total=285, workers=1, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=284, pending=0, latest_date=2026-11-25
-Active ETF 00402A: no holding-change records for 2026-11-23, 2026-11-24
-Active ETF 00404A: no holding-change records for 2026-11-23, 2026-11-24, 2026-11-25
-Active ETF 00405A: no holding-change records for 2026-11-24
-Active ETF 00407A: no holding-change records for 2026-11-23
-Active ETF 00411A: no holding-change records for 2026-11-25
-Active ETF 00412A: no holding-change records for 2026-11-25
-Active ETF 00413A: no holding-change records for 2026-11-24, 2026-11-25
-Active ETF 00415A: no holding-change records for 2026-11-23, 2026-11-24, 2026-11-25
-Active ETF 00416A: no holding-change records for 2026-11-23, 2026-11-24
-Active ETF 00419A: no holding-change records for 2026-11-23, 2026-11-24, 2026-11-25
-Active ETF 00420A: no holding-change records for 2026-11-25
-Active ETF 00980A: no holding-change records for 2026-11-23, 2026-11-24
-Active ETF 00980D: no holding-change records for 2026-11-24, 2026-11-25
-Active ETF 00981D: no holding-change records for 2026-11-25
-Active ETF 00982D: no holding-change records for 2026-11-23, 2026-11-24
-Active ETF 00984D: no holding-change records for 2026-11-25
-Active ETF 00985A: no holding-change records for 2026-11-25
-Active ETF 00986A: no holding-change records for 2026-11-23, 2026-11-25
-Active ETF 00986D: no holding-change records for 2026-11-23
-Active ETF 00987A: no holding-change records for 2026-11-23, 2026-11-24
-Active ETF 00987D: no holding-change records for 2026-11-24
-Active ETF 00990A: no holding-change records for 2026-11-25
-Active ETF 00993A: no holding-change records for 2026-11-23, 2026-11-24
-Active ETF 00995A: no holding-change records for 2026-11-24
-Active ETF 00996A: no holding-change records for 2026-11-24
-Active ETF 00997A: no holding-change records for 2026-11-24
-Active ETF 00999A: no holding-change records for 2026-11-23, 2026-11-25
-2330 籌碼分頁結果 date=2026-11-25 ; main_force=-29 ; concentration=-0.03 ; broker_diff=4
-Done: rows=285, status={'ok': 285}, preserved=0, skipped=284, elapsed=37.8s, output=AllStatic_Chips.csv
-PER 1/285: 0056 元大高股息
-PER 2/285: 00662 富邦NASDAQ
-PER 3/285: 00878 國泰永續高股息
-PER 4/285: 00919 群益台灣精選高息
-PER 5/285: 00941 中信上游半導體
-PER 6/285: 1101 台泥
-PER 7/285: 1102 亞泥
-PER 8/285: 1216 統一
-PER 9/285: 1301 台塑
-PER 10/285: 1303 南亞
-PER 11/285: 1319 東陽
-PER 12/285: 1326 台化
-PER 13/285: 1402 遠東新
-PER 14/285: 1503 士電
-PER 15/285: 1504 東元
-PER 16/285: 1513 中興電
-PER 17/285: 1514 亞力
-PER 18/285: 1519 華城
-PER 19/285: 1532 勤美
-PER 20/285: 1560 中砂
-PER 21/285: 1590 亞德客-KY
-PER 22/285: 1605 華新
-PER 23/285: 1711 永光
-PER 24/285: 1717 長興
-PER 25/285: 1727 中華化
-PER 26/285: 1785 光洋科
-PER 27/285: 1802 台玻
-PER 28/285: 1815 富喬
-PER 29/285: 2002 中鋼
-PER 30/285: 2059 川湖
-PER 31/285: 2207 和泰車
-PER 32/285: 2233 宇隆
-PER 33/285: 2301 光寶科
-PER 34/285: 2303 聯電
-PER 35/285: 2308 台達電
-PER 36/285: 2313 華通
-PER 37/285: 2317 鴻海
-PER 38/285: 2324 仁寶
-PER 39/285: 2327 國巨*
-PER 40/285: 2330 台積電
-PER 41/285: 2337 旺宏
-PER 42/285: 2338 光罩
-PER 43/285: 2344 華邦電
-PER 44/285: 2345 智邦
-PER 45/285: 2347 聯強
-PER 46/285: 2353 宏碁
-PER 47/285: 2356 英業達
-PER 48/285: 2357 華碩
-PER 49/285: 2360 致茂
-PER 50/285: 2367 燿華
-PER 51/285: 2368 金像電
-PER 52/285: 2376 技嘉
-PER 53/285: 2377 微星
-PER 54/285: 2379 瑞昱
-PER 55/285: 2382 廣達
-PER 56/285: 2383 台光電
-PER 57/285: 2395 研華
-PER 58/285: 2404 漢唐
-PER 59/285: 2406 國碩
-PER 60/285: 2408 南亞科
-PER 61/285: 2409 友達
-PER 62/285: 2412 中華電
-PER 63/285: 2449 京元電子
-PER 64/285: 2454 聯發科
-PER 65/285: 2455 全新
-PER 66/285: 2467 志聖
-PER 67/285: 2481 強茂
-PER 68/285: 2486 一詮
-PER 69/285: 2492 華新科
-PER 70/285: 2603 長榮
-PER 71/285: 2609 陽明
-PER 72/285: 2615 萬海
-PER 73/285: 2618 長榮航
-PER 74/285: 2801 彰銀
-PER 75/285: 2834 臺企銀
-PER 76/285: 2880 華南金
-PER 77/285: 2881 富邦金
-PER 78/285: 2882 國泰金
-PER 79/285: 2883 凱基金
-PER 80/285: 2884 玉山金
-PER 81/285: 2885 元大金
-PER 82/285: 2886 兆豐金
-PER 83/285: 2887 台新新光金
-PER 84/285: 2890 永豐金
-PER 85/285: 2891 中信金
-PER 86/285: 2892 第一金
-PER 87/285: 2912 統一超
-PER 88/285: 3008 大立光
-PER 89/285: 3013 晟銘電
-PER 90/285: 3017 奇鋐
-PER 91/285: 3034 聯詠
-PER 92/285: 3035 智原
-PER 93/285: 3036 文曄
-PER 94/285: 3037 欣興
-PER 95/285: 3044 健鼎
-PER 96/285: 3045 台灣大
-PER 97/285: 3081 聯亞
-PER 98/285: 3105 穩懋
-PER 99/285: 3131 弘塑
-PER 100/285: 3138 耀登
-PER 101/285: 3149 正達
-PER 102/285: 3163 波若威
-PER 103/285: 3167 大量
-PER 104/285: 3178 公準
-PER 105/285: 3189 景碩
-PER 106/285: 3211 順達
-PER 107/285: 3227 原相
-PER 108/285: 3231 緯創
-PER 109/285: 3234 光環
-PER 110/285: 3260 威剛
-PER 111/285: 3264 欣銓
-PER 112/285: 3265 台星科
-PER 113/285: 3289 宜特
-PER 114/285: 3293 鈊象
-PER 115/285: 3324 雙鴻
-PER 116/285: 3357 臺慶科
-PER 117/285: 3362 先進光
-PER 118/285: 3363 上詮
-PER 119/285: 3374 精材
-PER 120/285: 3376 新日興
-PER 121/285: 3406 玉晶光
-PER 122/285: 3443 創意
-PER 123/285: 3450 聯鈞
-PER 124/285: 3481 群創
-PER 125/285: 3491 昇達科
-PER 126/285: 3526 凡甲
-PER 127/285: 3529 力旺
-PER 128/285: 3532 台勝科
-PER 129/285: 3533 嘉澤
-PER 130/285: 3583 辛耘
-PER 131/285: 3587 閎康
-PER 132/285: 3605 宏致
-PER 133/285: 3653 健策
-PER 134/285: 3661 世芯-KY
-PER 135/285: 3665 貿聯-KY
-PER 136/285: 3673 TPK-KY
-PER 137/285: 3680 家登
-PER 138/285: 3693 營邦
-PER 139/285: 3701 大眾控
-PER 140/285: 3702 大聯大
-PER 141/285: 3707 漢磊
-PER 142/285: 3711 日月光投控
-PER 143/285: 3715 定穎投控
-PER 144/285: 3718 中光電投控
-PER 145/285: 4105 東洋
-PER 146/285: 4114 健喬
-PER 147/285: 4123 晟德
-PER 148/285: 4147 中裕
-PER 149/285: 4506 崇友
-PER 150/285: 4728 雙美
-PER 151/285: 4743 合一
-PER 152/285: 4749 新應材
-PER 153/285: 4755 三福化
-PER 154/285: 4770 上品
-PER 155/285: 4772 台特化
-PER 156/285: 4904 遠傳
-PER 157/285: 4916 事欣科
-PER 158/285: 4938 和碩
-PER 159/285: 4958 臻鼎-KY
-PER 160/285: 4966 譜瑞-KY
-PER 161/285: 4971 IET-KY
-PER 162/285: 4977 眾達-KY
-PER 163/285: 4979 華星光
-PER 164/285: 4991 環宇-KY
-PER 165/285: 5009 榮剛
-PER 166/285: 5222 全訊
-PER 167/285: 5234 達興材料
-PER 168/285: 5269 祥碩
-PER 169/285: 5274 信驊
-PER 170/285: 5289 宜鼎
-PER 171/285: 5314 世紀*
-PER 172/285: 5340 建榮
-PER 173/285: 5347 世界
-PER 174/285: 5351 鈺創
-PER 175/285: 5425 台半
-PER 176/285: 5439 高技
-PER 177/285: 5443 均豪
-PER 178/285: 5475 德宏
-PER 179/285: 5483 中美晶
-PER 180/285: 5530 龍巖
-PER 181/285: 5536 聖暉*
-PER 182/285: 5864 致和證
-PER 183/285: 5871 中租-KY
-PER 184/285: 5876 上海商銀
-PER 185/285: 5880 合庫金
-PER 186/285: 5903 全家
-PER 187/285: 5904 寶雅*
-PER 188/285: 6005 群益證
-PER 189/285: 6016 康和證
-PER 190/285: 6021 美好證
-PER 191/285: 6023 元大期
-PER 192/285: 6121 新普
-PER 193/285: 6138 茂達
-PER 194/285: 6139 亞翔
-PER 195/285: 6146 耕興
-PER 196/285: 6147 頎邦
-PER 197/285: 6155 鈞寶
-PER 198/285: 6173 信昌電
-PER 199/285: 6182 合晶
-PER 200/285: 6187 萬潤
-PER 201/285: 6188 廣明
-PER 202/285: 6190 萬泰科
-PER 203/285: 6196 帆宣
-PER 204/285: 6207 雷科
-PER 205/285: 6213 聯茂
-PER 206/285: 6217 中探針
-PER 207/285: 6223 旺矽
-PER 208/285: 6239 力成
-PER 209/285: 6243 迅杰
-PER 210/285: 6257 矽格
-PER 211/285: 6274 台燿
-PER 212/285: 6278 台表科
-PER 213/285: 6282 康舒
-PER 214/285: 6285 啟碁
-PER 215/285: 6290 良維
-PER 216/285: 6412 群電
-PER 217/285: 6415 矽力*-KY
-PER 218/285: 6442 光聖
-PER 219/285: 6446 藥華藥
-PER 220/285: 6451 訊芯-KY
-PER 221/285: 6488 環球晶
-PER 222/285: 6505 台塑化
-PER 223/285: 6510 精測
-PER 224/285: 6515 穎崴
-PER 225/285: 6526 達發
-PER 226/285: 6531 愛普*
-PER 227/285: 6547 高端疫苗
-PER 228/285: 6548 長科*
-PER 229/285: 6561 是方
-PER 230/285: 6584 南俊國際
-PER 231/285: 6613 朋億*
-PER 232/285: 6620 漢達
-PER 233/285: 6640 均華
-PER 234/285: 6643 M31
-PER 235/285: 6664 群翊
-PER 236/285: 6669 緯穎
-PER 237/285: 6672 騰輝電子-KY
-PER 238/285: 6683 雍智科技
-PER 239/285: 6691 洋基工程
-PER 240/285: 6693 廣閎科
-PER 241/285: 6715 嘉基
-PER 242/285: 6739 竹陞科技
-PER 243/285: 6770 力積電
-PER 244/285: 6789 采鈺
-PER 245/285: 6803 崑鼎
-PER 246/285: 6805 富世達
-PER 247/285: 6903 巨漢
-PER 248/285: 6933 AMAX-KY
-PER 249/285: 7717 萊德光電-KY
-PER 250/285: 7728 光焱科技
-PER 251/285: 7734 印能科技
-PER 252/285: 7750 新代
-PER 253/285: 7751 竑騰
-PER 254/285: 7769 鴻勁
-PER 255/285: 7792 安葆
-PER 256/285: 7805 威聯通
-PER 257/285: 7828 創新服務
-PER 258/285: 7856 漢測
-PER 259/285: 8021 尖點
-PER 260/285: 8027 鈦昇
-PER 261/285: 8028 昇陽半導體
-PER 262/285: 8039 台虹
-PER 263/285: 8042 金山電
-PER 264/285: 8046 南電
-PER 265/285: 8064 東捷
-PER 266/285: 8069 元太
-PER 267/285: 8086 宏捷科
-PER 268/285: 8155 博智
-PER 269/285: 8240 華宏
-PER 270/285: 8299 群聯
-PER 271/285: 8358 金居
-PER 272/285: 8415 大國鋼
-PER 273/285: 8932 智通*
-PER 274/285: 8996 高力
-PER 275/285: 009816 凱基台灣TOP50
-PER 276/285: 009820 元大納斯達克精選
-PER 277/285: 009823 群益S&P500
-PER 278/285: 009824 群益美國科技巨頭
-PER 279/285: 00631L 元大台灣50正2
-PER 280/285: 00679B 元大美債20年
-PER 281/285: 00685L 群益臺灣加權正2
-PER 282/285: 00687B 國泰20年美債
-PER 283/285: 00937B 群益ESG投等債20+
-PER 284/285: 00953B 群益優選非投等債
-PER 285/285: 00981A 主動統一台股增長
-AllStatic valuation rebuild: {'ok': 268, 'no_data': 17}, total=285
+FinMind usage: 53/6000, remain=5947
+Incremental probe: stock_id=2330, latest_date=2026-11-26, status=ok
+Build chips: total=285, workers=6, trend_days=3, threshold=15, lookback_days=21, output=AllStatic_Chips.csv, incremental=True, skipped=0, pending=284, latest_date=2026-11-26
+[100/285] 3138 耀登 status=ok date=2026-11-26 main=59 diff=-29 state=bullish_distributed
+[150/285] 4728 雙美 status=ok date=2026-11-26 main=0 diff=1 state=neutral
 stock_id=0056
 name=元大高股息
-chip_latest_date=2026-11-25
-main_force_net=-72277
-broker_diff=47
-chip_signal_state=bearish_distributed
+chip_latest_date=2026-11-26
+main_force_net=2496
+broker_diff=10
+chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=00662
 name=富邦NASDAQ
-chip_latest_date=2026-11-25
-main_force_net=-2071
-broker_diff=261
+chip_latest_date=2026-11-26
+main_force_net=-1191
+broker_diff=198
 chip_signal_state=bearish_distributed
 chips_status=ok
 ---
 stock_id=00878
 name=國泰永續高股息
-chip_latest_date=2026-11-25
-main_force_net=-34697
-broker_diff=103
-chip_signal_state=bearish_distributed
+chip_latest_date=2026-11-26
+main_force_net=3445
+broker_diff=36
+chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=00919
 name=群益台灣精選高息
-chip_latest_date=2026-11-25
-main_force_net=-33388
-broker_diff=60
-chip_signal_state=bearish_distributed
+chip_latest_date=2026-11-26
+main_force_net=1705
+broker_diff=30
+chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=00941
 name=中信上游半導體
-chip_latest_date=2026-11-25
-main_force_net=108
-broker_diff=35
+chip_latest_date=2026-11-26
+main_force_net=73
+broker_diff=-22
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1101
 name=台泥
-chip_latest_date=2026-11-25
-main_force_net=-622
-broker_diff=146
-chip_signal_state=bearish_distributed
+chip_latest_date=2026-11-26
+main_force_net=3576
+broker_diff=-39
+chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1102
 name=亞泥
-chip_latest_date=2026-11-25
-main_force_net=-149
-broker_diff=175
+chip_latest_date=2026-11-26
+main_force_net=-554
+broker_diff=131
 chip_signal_state=bearish_distributed
 chips_status=ok
 ---
 stock_id=1216
 name=統一
-chip_latest_date=2026-11-25
-main_force_net=2536
-broker_diff=-210
+chip_latest_date=2026-11-26
+main_force_net=183
+broker_diff=-10
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1301
 name=台塑
-chip_latest_date=2026-11-25
-main_force_net=740
-broker_diff=55
+chip_latest_date=2026-11-26
+main_force_net=5010
+broker_diff=-87
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1303
 name=南亞
-chip_latest_date=2026-11-25
-main_force_net=-11062
-broker_diff=4
+chip_latest_date=2026-11-26
+main_force_net=2280
+broker_diff=-2
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1319
 name=東陽
-chip_latest_date=2026-11-25
-main_force_net=-27
-broker_diff=73
+chip_latest_date=2026-11-26
+main_force_net=135
+broker_diff=-40
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1326
 name=台化
-chip_latest_date=2026-11-25
-main_force_net=-3781
-broker_diff=109
-chip_signal_state=bearish_distributed
+chip_latest_date=2026-11-26
+main_force_net=2978
+broker_diff=-108
+chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1402
 name=遠東新
-chip_latest_date=2026-11-25
-main_force_net=-1267
-broker_diff=218
+chip_latest_date=2026-11-26
+main_force_net=350
+broker_diff=43
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1503
 name=士電
-chip_latest_date=2026-11-25
-main_force_net=-30
-broker_diff=153
+chip_latest_date=2026-11-26
+main_force_net=198
+broker_diff=-85
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1504
 name=東元
-chip_latest_date=2026-11-25
-main_force_net=-64
-broker_diff=122
+chip_latest_date=2026-11-26
+main_force_net=1391
+broker_diff=-215
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1513
 name=中興電
-chip_latest_date=2026-11-25
-main_force_net=41
-broker_diff=189
+chip_latest_date=2026-11-26
+main_force_net=118
+broker_diff=44
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1514
 name=亞力
-chip_latest_date=2026-11-25
-main_force_net=-107
-broker_diff=137
+chip_latest_date=2026-11-26
+main_force_net=91
+broker_diff=-33
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1519
 name=華城
-chip_latest_date=2026-11-25
-main_force_net=-54
-broker_diff=211
+chip_latest_date=2026-11-26
+main_force_net=295
+broker_diff=-142
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1532
 name=勤美
-chip_latest_date=2026-11-25
-main_force_net=16
-broker_diff=9
+chip_latest_date=2026-11-26
+main_force_net=18
+broker_diff=-10
 chip_signal_state=bullish_distributed
 chips_status=ok
 ---
 stock_id=1560
 name=中砂
-chip_latest_date=2026-11-25
-main_force_net=-13
-broker_diff=137
+chip_latest_date=2026-11-26
+main_force_net=161
+broker_diff=-160
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1590
 name=亞德客-KY
-chip_latest_date=2026-11-25
-main_force_net=8
-broker_diff=101
+chip_latest_date=2026-11-26
+main_force_net=-25
+broker_diff=56
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1605
 name=華新
-chip_latest_date=2026-11-25
-main_force_net=-7869
-broker_diff=196
-chip_signal_state=bearish_distributed
+chip_latest_date=2026-11-26
+main_force_net=2334
+broker_diff=-43
+chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1711
 name=永光
-chip_latest_date=2026-11-25
-main_force_net=-423
-broker_diff=124
+chip_latest_date=2026-11-26
+main_force_net=87
+broker_diff=9
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1717
 name=長興
-chip_latest_date=2026-11-25
-main_force_net=-692
-broker_diff=191
+chip_latest_date=2026-11-26
+main_force_net=453
+broker_diff=-88
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1727
 name=中華化
-chip_latest_date=2026-11-25
-main_force_net=1
-broker_diff=52
-chip_signal_state=bullish_distributed
+chip_latest_date=2026-11-26
+main_force_net=-24
+broker_diff=20
+chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1785
 name=光洋科
-chip_latest_date=2026-11-25
-main_force_net=-587
-broker_diff=99
+chip_latest_date=2026-11-26
+main_force_net=714
+broker_diff=-63
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1802
 name=台玻
-chip_latest_date=2026-11-25
-main_force_net=-6089
-broker_diff=0
+chip_latest_date=2026-11-26
+main_force_net=-72602
+broker_diff=5
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=1815
 name=富喬
-chip_latest_date=2026-11-25
-main_force_net=-7674
-broker_diff=11
+chip_latest_date=2026-11-26
+main_force_net=5018
+broker_diff=-8
 chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=2002
 name=中鋼
-chip_latest_date=2026-11-25
-main_force_net=-3015
-broker_diff=162
-chip_signal_state=bearish_distributed
+chip_latest_date=2026-11-26
+main_force_net=2720
+broker_diff=6
+chip_signal_state=neutral
 chips_status=ok
 ---
 stock_id=2059
 name=川湖
-chip_latest_date=2026-11-25
-main_force_net=-54
-broker_diff=-17
+chip_latest_date=2026-11-26
+main_force_net=38
+broker_diff=-264
 chip_signal_state=neutral
 chips_status=ok
 ---
